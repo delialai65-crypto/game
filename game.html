@@ -2,56 +2,106 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>遠征世界</title>
+    <title>遠征世界：終極進化版</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; }
-        nav { position: fixed; top:0; width:100%; background:rgba(0,0,0,0.8); color:white; padding:10px; z-index:10; font-family: sans-serif; }
-        canvas { display: block; background: #87CEEB; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+        /* 頂部極簡 UI */
+        nav { position: fixed; top: 0; width: 100%; height: 60px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; z-index: 100; box-sizing: border-box; }
+        .stats-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 100; }
+        .stat { width: 200px; height: 10px; background: #333; border: 2px solid #fff; border-radius: 5px; overflow: hidden; }
+        .stat-fill { height: 100%; transition: 0.3s; }
+        canvas { display: block; filter: contrast(1.1) brightness(1.1); }
+        #inventory { position: fixed; bottom: 40px; left: 20px; color: white; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 10px; border: 1px solid #555; }
     </style>
 </head>
 <body>
-<nav id="nav">載入中...</nav>
+
+<nav>
+    <div id="p-info" style="font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px #000;">載入冒險者...</div>
+    <div id="coord" style="font-family: monospace; color: #aaa;">X: 0, Y: 0</div>
+</nav>
+
+<div class="stats-bar">
+    <div class="stat"><div id="hp" class="stat-fill" style="background: #ff4757; width: 100%;"></div></div>
+    <div class="stat"><div id="food" class="stat-fill" style="background: #ffa502; width: 80%;"></div></div>
+</div>
+
+<div id="inventory">選中：草方塊 (左鍵挖 / 右鍵蓋)</div>
+
 <canvas id="game"></canvas>
+
 <script>
-    const user = localStorage.getItem('mc_user') || "玩家";
+    const user = localStorage.getItem('mc_user') || "神秘冒險者";
     const rank = localStorage.getItem('rank') || "學生方案";
-    document.getElementById('nav').innerText = `玩家: ${user} | 方案: ${rank}`;
+    document.getElementById('p-info').innerHTML = `🌍 <span style="color: #2ecc71;">${user}</span> 的 ${rank} 宇宙`;
 
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
     
-    // 初始化畫布大小
-    function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-    }
-    window.onresize = resize;
-    resize();
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    window.onresize = resize; resize();
 
     const blockSize = 40;
-    let world = {}, keys = {}, camera = { x: 0, y: 0 };
-    // 初始位置設定在一個安全的高度
-    let player = { x: 400, y: 0, w: 26, h: 36, vx: 0, vy: 0, g: false };
+    let world = {}, particles = [], keys = {}, camera = { x: 0, y: 0 };
+    let player = { x: 400, y: -500, w: 24, h: 34, vx: 0, vy: 0, g: false, hp: 100 };
 
+    // --- 粒子系統 (讓動作更有趣) ---
+    function spawnParticle(x, y, color) {
+        for(let i=0; i<5; i++) {
+            particles.push({
+                x, y, vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5,
+                life: 1, color, size: Math.random()*5+2
+            });
+        }
+    }
+
+    // --- 地形生成：加入豐富礦物 ---
     function generateColumn(x) {
         if (world[x]) return;
-        // 增加地形平滑度與深度
-        let groundY = (x < 2000) ? Math.floor(10 + Math.sin(x * 0.008) * 8) : 12;
+        let groundY = Math.floor(10 + Math.sin(x * 0.01) * 12 + Math.cos(x*0.005)*5);
         world[x] = [];
-        // 填滿 40 層深度，防止穿過底部
-        for(let y = groundY; y < groundY + 40; y++) {
-            world[x].push({ y: y * blockSize, type: y === groundY ? 'grass' : 'dirt' });
+        for(let y = groundY; y < groundY + 50; y++) {
+            let type = 'dirt';
+            if (y === groundY) type = 'grass';
+            else if (y > groundY + 8) {
+                type = 'stone';
+                // 隨機生成礦物
+                let r = Math.random();
+                if (r < 0.02) type = 'diamond';
+                else if (r < 0.05) type = 'gold';
+                else if (r < 0.1) type = 'coal';
+            }
+            world[x].push({ y: y * blockSize, type: type });
         }
     }
 
     window.onkeydown = e => keys[e.code] = true;
     window.onkeyup = e => keys[e.code] = false;
 
+    // --- 挖掘與建造 ---
+    canvas.onmousedown = e => {
+        const mx = e.clientX + camera.x;
+        const my = e.clientY + camera.y;
+        const gx = Math.floor(mx / blockSize) * blockSize;
+        const gy = Math.floor(my / blockSize) * blockSize;
+
+        if (e.button === 0 && world[gx]) { // 左鍵挖
+            let found = world[gx].find(b => b.y === gy);
+            if(found) {
+                spawnParticle(mx, my, "#855c33");
+                world[gx] = world[gx].filter(b => b.y !== gy);
+            }
+        } else if (e.button === 2) { // 右鍵蓋
+            if(!world[gx]) world[gx] = [];
+            world[gx].push({ y: gy, type: 'wood' });
+            spawnParticle(mx, my, "#deb887");
+        }
+    };
+    canvas.oncontextmenu = e => e.preventDefault();
+
     function checkColl(tx, ty) {
         const gx = Math.floor(tx / blockSize) * blockSize;
-        // 擴大偵測範圍至左右兩格，防止高速移動穿牆
-        const checkPoints = [gx - blockSize, gx, gx + blockSize];
-        for (let cx of checkPoints) {
+        for (let cx of [gx - blockSize, gx, gx + blockSize]) {
             if (world[cx]) {
                 for (let b of world[cx]) {
                     if (tx < cx + blockSize && tx + player.w > cx && ty < b.y + blockSize && ty + player.h > b.y) return b;
@@ -62,77 +112,77 @@
     }
 
     function loop() {
-        // 1. 物理重置：如果角色意外掉入深層虛空 (例如 y > 2500)
-        if(player.y > 2500) {
-            player.y = -500;
-            player.vy = 0;
-        }
-
-        // 2. 移動處理
-        player.vx = (keys['KeyD'] ? 5 : 0) + (keys['KeyA'] ? -5 : 0);
-        
-        // X 軸碰撞
+        // 物理與移動
+        player.vx = (keys['KeyD'] ? 6 : 0) + (keys['KeyA'] ? -6 : 0);
         player.x += player.vx;
         let hX = checkColl(player.x, player.y);
         if(hX) player.x = player.vx > 0 ? hX.x - player.w - 0.1 : hX.x + blockSize + 0.1;
 
-        // Y 軸碰撞 (重力與跳躍)
-        if(keys['Space'] && player.g) { player.vy = -12; player.g = false; }
-        player.vy += 0.6;
-        player.y += player.vy;
-        
+        if((keys['Space'] || keys['KeyW']) && player.g) { player.vy = -13; player.g = false; }
+        player.vy += 0.7; player.y += player.vy;
         let hY = checkColl(player.x, player.y);
         if(hY) {
-            if(player.vy > 0) { 
-                player.y = hY.y - player.h - 0.1; 
-                player.g = true; 
-            } else { 
-                player.y = hY.y + blockSize + 0.1; 
-            }
+            if(player.vy > 18) player.hp -= 10; // 掉落傷害
+            if(player.vy > 0) { player.y = hY.y - player.h - 0.1; player.g = true; }
+            else { player.y = hY.y + blockSize + 0.1; }
             player.vy = 0;
-        } else { 
-            player.g = false; 
-        }
+        } else { player.g = false; }
 
-        // 3. 預先生成地形 (關鍵修正：生成的寬度必須大於螢幕寬度，防止出現藍天邊框)
-        let renderDist = canvas.width + 400; 
-        let startX = Math.floor((player.x - renderDist/2) / blockSize) * blockSize;
-        let endX = Math.floor((player.x + renderDist/2) / blockSize) * blockSize;
-        for(let x = startX; x <= endX; x += blockSize) {
+        // 攝影機追隨 (超平滑)
+        camera.x += (player.x - canvas.width / 2 - camera.x) * 0.1;
+        camera.y += (player.y - canvas.height / 2 - camera.y) * 0.1;
+
+        // 更新 UI
+        document.getElementById('coord').innerText = `X: ${Math.round(player.x)}, Y: ${Math.round(-player.y)}`;
+        document.getElementById('hp').style.width = player.hp + "%";
+
+        // 地形生成
+        for(let x = Math.floor((player.x - canvas.width)/blockSize)*blockSize; x <= player.x + canvas.width; x += blockSize) {
             generateColumn(x);
         }
 
-        // 4. 攝影機隨動 (平滑追蹤)
-        let targetCamX = player.x - canvas.width / 2;
-        let targetCamY = player.y - canvas.height / 2;
-        camera.x += (targetCamX - camera.x) * 0.1;
-        camera.y += (targetCamY - camera.y) * 0.1;
-
-        // 5. 渲染
-        ctx.fillStyle = "#87CEEB"; 
+        // 渲染背景
+        ctx.fillStyle = "#1e90ff"; // 天空藍
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
+
         ctx.save();
         ctx.translate(-camera.x, -camera.y);
 
-        // 只繪製攝影機視界內的方塊 (效能優化)
+        // 繪製方塊
         for(let x in world) {
             const ix = parseInt(x);
-            if (ix > camera.x - blockSize && ix < camera.x + canvas.width + blockSize) {
+            if (ix > camera.x - 100 && ix < camera.x + canvas.width + 100) {
                 world[x].forEach(b => {
-                    ctx.fillStyle = b.type === 'grass' ? '#5da346' : '#855c33';
+                    if(b.type === 'grass') ctx.fillStyle = '#2ed573';
+                    else if(b.type === 'stone') ctx.fillStyle = '#747d8c';
+                    else if(b.type === 'coal') ctx.fillStyle = '#2f3542';
+                    else if(b.type === 'diamond') ctx.fillStyle = '#70a1ff';
+                    else if(b.type === 'gold') ctx.fillStyle = '#eccc68';
+                    else if(b.type === 'wood') ctx.fillStyle = '#ffa502';
+                    else ctx.fillStyle = '#855c33'; // dirt
+                    
                     ctx.fillRect(ix, b.y, blockSize - 1, blockSize - 1);
                 });
             }
         }
 
-        // 繪製玩家 (黃色發光)
-        ctx.fillStyle = "yellow";
-        ctx.shadowBlur = 15;
-        ctx.shadowColor = "rgba(255, 255, 0, 0.8)";
+        // 繪製玩家 (精緻外型)
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "white";
         ctx.fillRect(player.x, player.y, player.w, player.h);
         ctx.shadowBlur = 0;
-        
+
+        // 處理粒子
+        particles = particles.filter(p => p.life > 0);
+        particles.forEach(p => {
+            p.x += p.vx; p.y += p.vy; p.life -= 0.02;
+            ctx.fillStyle = p.color;
+            ctx.globalAlpha = p.life;
+            ctx.fillRect(p.x, p.y, p.size, p.size);
+            ctx.globalAlpha = 1;
+        });
+
         ctx.restore();
         requestAnimationFrame(loop);
     }
