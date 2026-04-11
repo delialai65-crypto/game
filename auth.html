@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>遠征隊系統 - 登入註冊</title>
+    <style>
+        body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #161b22; padding: 40px; border-radius: 20px; text-align: center; width: 320px; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { color: #58a6ff; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: white; box-sizing: border-box; }
+        .btn-box { display: flex; gap: 10px; margin-top: 10px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .btn-reg { background: #238636; color: white; }
+        .btn-login { background: #21262d; color: #58a6ff; border: 1px solid #30363d; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>遠征隊 ID 系統</h2>
+        <input type="text" id="pID" placeholder="請輸入玩家名稱...">
+        <div class="btn-box">
+            <button class="btn-reg" onclick="save()">註冊帳號</button>
+            <button class="btn-login" onclick="save()">登入</button>
+        </div>
+    </div>
+    <script>
+        function save() {
+            const name = document.getElementById('pID').value;
+            if(!name) return alert("請輸入名稱");
+            localStorage.setItem('mc_user', name);
+            window.location.href = 'verify.html'; // 下一步：驗證啟動碼
+        }
+    </script>
+</body>
+</html>
