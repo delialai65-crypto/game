@@ -2,47 +2,24 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>方案商店 - 遠征隊</title>
+    <title>方案商店</title>
     <style>
         body { font-family: sans-serif; background: #0d1117; color: white; text-align: center; padding: 40px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; max-width: 1000px; margin: 30px auto; }
-        .plan { background: #161b22; border: 1px solid #30363d; padding: 25px; border-radius: 15px; cursor: pointer; transition: 0.3s; }
-        .plan:hover { border-color: #2ecc71; transform: translateY(-5px); }
-        .price { font-size: 28px; color: #2ecc71; font-weight: bold; margin: 15px 0; }
-        p { color: #8b949e; font-size: 14px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 800px; margin: auto; }
+        .plan { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 15px; cursor: pointer; }
+        .price { color: #2ecc71; font-size: 24px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <h1>選擇您的遠征授權方案</h1>
+    <h1>選擇授權方案</h1>
     <div class="grid">
-        <div class="plan" onclick="goPay('學生方案', 90)">
-            <h3>學生方案</h3>
-            <div class="price">NT$ 90</div>
-            <p>一般福利</p>
-        </div>
-        <div class="plan" onclick="goPay('基礎方案', 150)">
-            <h3>基礎方案</h3>
-            <div class="price">NT$ 150</div>
-            <p>一般福利</p>
-        </div>
-        <div class="plan" onclick="goPay('家庭方案', 230)">
-            <h3>家庭方案</h3>
-            <div class="price">NT$ 230</div>
-            <p>多人遊戲 (2-10人)</p>
-        </div>
-        <div class="plan" onclick="goPay('大師方案', 400)">
-            <h3>大師方案</h3>
-            <div class="price">NT$ 400</div>
-            <p>多人遊戲 (2-15人)</p>
-        </div>
+        <div class="plan" onclick="goPay('學生方案', 90)"><h3>學生方案</h3><div class="price">NT$ 90</div></div>
+        <div class="plan" onclick="goPay('基礎方案', 150)"><h3>基礎方案</h3><div class="price">NT$ 150</div></div>
+        <div class="plan" onclick="goPay('家庭方案', 230)"><h3>家庭方案</h3><div class="price">NT$ 230</div></div>
+        <div class="plan" onclick="goPay('大師方案', 400)"><h3>大師方案</h3><div class="price">NT$ 400</div></div>
     </div>
     <script>
-        function goPay(name, price) {
-            localStorage.setItem('temp_plan', name);
-            localStorage.setItem('temp_price', price);
-            // 核心修正：跳轉到選擇支付方式頁面
-            window.location.href = 'payment-method.html'; 
-        }
+        function goPay(n, p){ localStorage.setItem('temp_item',n); localStorage.setItem('temp_price',p); window.location.href='payment-method.html'; }
     </script>
 </body>
 </html>
