@@ -2,57 +2,38 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>購買啟動碼 - 遠征方案</title>
+    <title>方案商店</title>
     <style>
         body { font-family: sans-serif; background: #0d1117; color: white; text-align: center; padding: 40px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
-        .plan { background: #161b22; border: 1px solid #30363d; padding: 25px; border-radius: 15px; cursor: pointer; transition: 0.3s; }
-        .plan:hover { border-color: #2ecc71; transform: translateY(-5px); }
-        .price { font-size: 28px; color: #2ecc71; font-weight: bold; margin: 15px 0; }
-        .pro { border-color: gold; box-shadow: 0 0 15px rgba(255, 215, 0, 0.2); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
+        .plan { background: #161b22; border: 1px solid #30363d; padding: 25px; border-radius: 15px; cursor: pointer; }
+        .price { font-size: 24px; color: #2ecc71; font-weight: bold; margin: 10px 0; }
+        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; }
+        .modal-box { background: #222; padding: 30px; border-radius: 20px; width: 350px; }
+        .opt { background: #333; margin: 10px 0; padding: 10px; border-radius: 8px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <h1>選擇您的遠征授權方案</h1>
-    <p>購買後將會發送「啟動碼」至您的信箱</p>
-    
-    <div class="grid">
-        <div class="plan" onclick="askVip('學生方案', 90)">
-            <h3>學生方案</h3>
-            <div class="price">NT$ 90</div>
-            <p>單人 3000m 大山權限</p>
-        </div>
-        <div class="plan pro" onclick="askVip('一般方案', 150)">
-            <h3>一般方案</h3>
-            <div class="price">NT$ 150</div>
-            <p>標準遠征隊完整功能</p>
-        </div>
-        <div class="plan" onclick="askVip('家庭方案', 230)">
-            <h3>家庭方案</h3>
-            <div class="price">NT$ 230</div>
-            <p>最多支援 5 個玩家 ID</p>
-        </div>
-        <div class="plan" onclick="askVip('大師方案', 400)">
-            <h3>大師方案</h3>
-            <div class="price">NT$ 400</div>
-            <p>包含所有福利與無限延伸</p>
+    <h1>選擇遠征授權方案</h1>
+    <div class="grid" id="planGrid"></div>
+    <div id="modal">
+        <div class="modal-box">
+            <h3>請選擇會員等級</h3>
+            <div onclick="finish('一般', 1.0)" class="opt">一般會員</div>
+            <div onclick="finish('Pro', 0.9)" class="opt" style="color:cyan">Pro (9折)</div>
+            <div onclick="finish('Plus', 0.85)" class="opt" style="color:lime">Plus (85折)</div>
+            <div onclick="finish('Max', 0.8)" class="opt" style="color:orange">Max (8折)</div>
+            <div onclick="finish('VIP', 0.75)" class="opt" style="color:gold">VIP (75折)</div>
         </div>
     </div>
-
     <script>
-        function askVip(planName, price) {
-            // 選完方案後的會員詢問規則
-            const wantMember = confirm(`您選擇了「${planName}」。\n\n要在購買時同時加入 VIP 會員嗎？\n(加入後可享方塊 75 折與金色特效)`);
-            
-            if(wantMember) {
-                alert("已為您標註 VIP 身分！支付完成後，您的啟動碼將具備 VIP 權限。");
-                localStorage.setItem('member_rank', 'VIP');
-                localStorage.setItem('discount', '0.75');
-            } else {
-                localStorage.setItem('member_rank', '一般');
-                localStorage.setItem('discount', '1.0');
-            }
-            alert("模擬支付成功！\n您的啟動碼是：GAME-2026-MC\n(請複製後回到驗證頁面輸入)");
+        const plans = ["學生方案(90元)", "一般方案(150元)", "家庭方案(230元)", "大師方案(400元)", "探險", "地底", "天空", "森林", "地獄", "創世"];
+        const grid = document.getElementById('planGrid');
+        plans.forEach(p => { grid.innerHTML += `<div class="plan" onclick="document.getElementById('modal').style.display='flex'"><h3>${p}</h3></div>`; });
+        function finish(r, d) {
+            localStorage.setItem('member_rank', r);
+            localStorage.setItem('discount', d);
+            alert("模擬支付成功！\n啟動碼是：GAME-2026-MC");
             window.location.href = 'verify.html';
         }
     </script>
