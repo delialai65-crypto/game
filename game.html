@@ -2,95 +2,67 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>遠征世界：多人模式進化版</title>
+    <title>遠征世界：終極穩定版</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
-        /* 介面層 */
-        nav { position: fixed; top: 0; width: 100%; height: 50px; background: rgba(0,0,0,0.6); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 10; box-sizing: border-box; }
-        
-        /* 小地圖樣式 */
-        #minimap { position: fixed; top: 60px; right: 20px; width: 150px; height: 100px; background: rgba(0,0,0,0.5); border: 2px solid #fff; border-radius: 8px; z-index: 20; }
-
-        /* ESC 暫停選單 */
-        #pause-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); flex-direction: column; justify-content: center; align-items: center; z-index: 1000; color: white; }
-        .menu-card { background: #1c2128; padding: 40px; border-radius: 20px; border: 1px solid #444; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,1); }
-        .menu-btn { width: 250px; padding: 15px; margin: 10px; background: #238636; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
-        .menu-btn.alt { background: #30363d; border: 1px solid #444; }
-        .menu-btn:hover { transform: scale(1.05); filter: brightness(1.2); }
-
-        canvas { display: block; background: #1e90ff; cursor: crosshair; }
-        .mode-badge { background: #ff9f43; color: #000; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
+        nav { position: fixed; top: 0; width: 100%; height: 50px; background: rgba(0,0,0,0.7); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; box-sizing: border-box; }
+        .stats { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; z-index: 100; }
+        .bar { width: 150px; height: 10px; background: #444; border: 2px solid #fff; border-radius: 5px; }
+        .fill { height: 100%; transition: 0.2s; }
+        canvas { display: block; background: #1e90ff; }
     </style>
 </head>
 <body>
 
 <nav>
-    <div id="p-info">🌍 載入冒險者...</div>
-    <div id="mode-status">模式：<span class="mode-badge" id="m-text">偵測中</span></div>
-    <div style="font-size: 14px; color: #ff4757;">擊殺數: <span id="kill-count">0</span></div>
+    <div id="p-info">🌍 準備冒險...</div>
+    <div id="coord" style="font-family: monospace;">X: 0, Y: 0</div>
 </nav>
-
-<canvas id="minimap"></canvas>
-
-<div id="pause-overlay">
-    <div class="menu-card">
-        <h1 id="menu-title" style="color: #58a6ff; margin-top: 0;">遊戲暫停</h1>
-        <p id="menu-stats">準備好繼續遠征了嗎？</p>
-        <button class="menu-btn" onclick="togglePause()">繼續遊戲 (ESC)</button>
-        <button class="menu-btn alt" onclick="window.location.href='buy.html'">更換方案/商店</button>
-        <button class="menu-btn alt" onclick="window.location.href='index.html'">登出</button>
-    </div>
-</div>
 
 <canvas id="game"></canvas>
 
 <script>
+    // --- 核心修正：強制初始化數值，防止 NaN ---
     const user = localStorage.getItem('mc_user') || "冒險者";
-    const rank = localStorage.getItem('rank') || "學生方案";
-    
-    // 多人模式判定：家庭或大師方案才算多人
-    const isMultiplayer = (rank === "家庭方案" || rank === "大師方案");
-    document.getElementById('p-info').innerHTML = `👤 ${user}`;
-    document.getElementById('m-text').innerText = isMultiplayer ? "多人模式 (已連線)" : "單人模式 (離線)";
-    if(isMultiplayer) document.getElementById('m-text').style.background = "#2ecc71";
+    const rank = localStorage.getItem('rank') || "基礎方案";
+    document.getElementById('p-info').innerText = `🌍 ${user} 的 ${rank} 宇宙`;
 
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
-    const mCanvas = document.getElementById('minimap');
-    const mCtx = mCanvas.getContext('2d');
-
-    let isPaused = false;
     function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
     const blockSize = 40;
-    let world = {}, enemies = [], otherPlayers = [], keys = {};
+    let world = {}, keys = {}, particles = [];
+    
+    // 攝影機與玩家位置：強制給予初始數值，防止 NaN
     let camera = { x: 0, y: 0 };
-    let player = { x: 400, y: -200, w: 26, h: 36, vx: 0, vy: 0, g: false, hp: 100, kills: 0 };
+    let player = { 
+        x: 400, 
+        y: -300, 
+        w: 24, 
+        h: 34, 
+        vx: 0, 
+        vy: 0, 
+        g: false, 
+        hp: 100 
+    };
 
-    // 多人模式模擬：生成其他玩家
-    if(isMultiplayer) {
-        for(let i=0; i<3; i++) {
-            otherPlayers.push({ x: 500 + i*300, y: -300, vx: 0, vy: 0, name: "玩家"+(i+1) });
-        }
+    function spawnParticle(x, y, color) {
+        for(let i=0; i<3; i++) particles.push({x, y, vx:(Math.random()-0.5)*4, vy:(Math.random()-0.5)*4, life:1, color});
     }
-
-    function togglePause() {
-        isPaused = !isPaused;
-        document.getElementById('pause-overlay').style.display = isPaused ? 'flex' : 'none';
-    }
-
-    window.onkeydown = e => { if (e.code === 'Escape') togglePause(); keys[e.code] = true; };
-    window.onkeyup = e => keys[e.code] = false;
 
     function generateColumn(x) {
-        if (isNaN(x) || world[x]) return;
-        let groundY = Math.floor(12 + Math.sin(x * 0.01) * 10);
+        if (isNaN(x) || world[x]) return; // 防止 NaN 導致世界崩潰
+        let groundY = Math.floor(10 + Math.sin(x * 0.01) * 10);
         world[x] = [];
-        for(let y = groundY; y < groundY + 25; y++) {
-            world[x].push({ y: y * blockSize, type: y === groundY ? 'grass' : 'dirt' });
+        for(let y = groundY; y < groundY + 30; y++) {
+            world[x].push({ y: y * blockSize, type: y===groundY?'grass':'dirt' });
         }
     }
+
+    window.onkeydown = e => keys[e.code] = true;
+    window.onkeyup = e => keys[e.code] = false;
 
     function checkColl(tx, ty) {
         const gx = Math.floor(tx / blockSize) * blockSize;
@@ -105,60 +77,74 @@
     }
 
     function loop() {
-        if (!isPaused) {
-            player.vx = (keys['KeyD'] ? 6 : 0) + (keys['KeyA'] ? -6 : 0);
-            player.x += player.vx;
-            let hX = checkColl(player.x, player.y);
-            if(hX) player.x = player.vx > 0 ? hX.x - player.w - 0.1 : hX.x + blockSize + 0.1;
-
-            if((keys['Space'] || keys['KeyW']) && player.g) { player.vy = -13; player.g = false; }
-            player.vy += 0.7; player.y += player.vy;
-            let hY = checkColl(player.x, player.y);
-            if(hY) {
-                if(player.vy > 0) { player.y = hY.y - player.h - 0.1; player.g = true; }
-                else { player.y = hY.y + blockSize + 0.1; }
-                player.vy = 0;
-            } else { player.g = false; }
-
-            // 模擬其他玩家隨機移動
-            otherPlayers.forEach(op => {
-                op.x += Math.sin(Date.now()*0.001) * 2;
-                op.y += 1; // 簡易重力
-            });
-
-            // 鏡頭隨動
-            camera.x += (player.x - canvas.width/2 - camera.x) * 0.1;
-            camera.y += (player.y - canvas.height/2 - camera.y) * 0.1;
+        // --- 核心防消失機制 ---
+        // 如果玩家坐標變成 NaN，瞬間強制歸位
+        if(isNaN(player.x) || isNaN(player.y)) {
+            player.x = 400; 
+            player.y = -300; 
+            player.vx = 0; 
+            player.vy = 0;
+            console.error("偵測到座標異常 (NaN)，已強制重置角色位置！");
         }
 
-        // 渲染世界
-        ctx.fillStyle = "#1e90ff"; ctx.fillRect(0,0,canvas.width, canvas.height);
-        ctx.save(); ctx.translate(-camera.x, -camera.y);
-        
-        for(let x = Math.floor((player.x - 1000)/blockSize)*blockSize; x <= player.x + 1000; x += blockSize) {
-            generateColumn(x);
-            if(world[x]) world[x].forEach(b => {
-                ctx.fillStyle = '#2ed573';
-                ctx.fillRect(parseInt(x), b.y, blockSize-1, blockSize-1);
-            });
+        // 移動與物理
+        player.vx = (keys['KeyD'] ? 5 : 0) + (keys['KeyA'] ? -5 : 0);
+        player.x += player.vx;
+        let hX = checkColl(player.x, player.y);
+        if(hX) player.x = player.vx > 0 ? hX.x - player.w - 0.1 : hX.x + blockSize + 0.1;
+
+        if((keys['Space'] || keys['KeyW']) && player.g) { player.vy = -12; player.g = false; }
+        player.vy += 0.6; player.y += player.vy;
+        let hY = checkColl(player.x, player.y);
+        if(hY) {
+            if(player.vy > 0) { player.y = hY.y - player.h - 0.1; player.g = true; }
+            else { player.y = hY.y + blockSize + 0.1; }
+            player.vy = 0;
+        } else { player.g = false; }
+
+        // 重生保護：掉太深會自動回到地表
+        if(player.y > 2500) { player.y = -500; player.vy = 0; }
+
+        // 攝影機隨動修正 (確保 NaN 不會傳遞)
+        let targetX = player.x - canvas.width / 2;
+        let targetY = player.y - canvas.height / 2;
+        if(!isNaN(targetX)) camera.x += (targetX - camera.x) * 0.1;
+        if(!isNaN(targetY)) camera.y += (targetY - camera.y) * 0.1;
+
+        // 更新座標顯示
+        document.getElementById('coord').innerText = `X: ${Math.round(player.x)}, Y: ${Math.round(-player.y)}`;
+
+        // 地形生成
+        let viewDist = 1000; // 視距 1000m
+        let sX = Math.floor((player.x - viewDist) / blockSize) * blockSize;
+        let eX = Math.floor((player.x + viewDist) / blockSize) * blockSize;
+        for(let x = sX; x <= eX; x += blockSize) generateColumn(x);
+
+        // 繪製
+        ctx.fillStyle = "#1e90ff"; // 天空藍
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.save();
+        ctx.translate(-camera.x, -camera.y);
+
+        // 畫地形
+        for(let x in world) {
+            const ix = parseInt(x);
+            if (ix > camera.x - 100 && ix < camera.x + canvas.width + 100) {
+                world[x].forEach(b => {
+                    ctx.fillStyle = b.type==='grass'?'#2ed573':'#855c33';
+                    ctx.fillRect(ix, b.y, blockSize - 1, blockSize - 1);
+                });
+            }
         }
 
-        // 畫其他玩家
-        otherPlayers.forEach(op => {
-            ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
-            ctx.fillRect(op.x, op.y, 24, 34);
-            ctx.fillStyle = "white"; ctx.fillText(op.name, op.x - 5, op.y - 10);
-        });
-
-        // 畫玩家
-        ctx.fillStyle = "white"; ctx.shadowBlur = 10; ctx.shadowColor = "white";
+        // 畫小人
+        ctx.fillStyle = rank === 'VIP方案' ? 'gold' : 'white';
+        if(rank === 'VIP方案') { ctx.shadowBlur = 10; ctx.shadowColor = 'gold'; }
         ctx.fillRect(player.x, player.y, player.w, player.h);
+        ctx.shadowBlur = 0;
+
         ctx.restore();
-
-        // 畫小地圖
-        mCtx.clearRect(0,0,150,100);
-        mCtx.fillStyle = "white"; mCtx.fillRect(75 + (player.x - player.x)*0.05, 50 + (player.y - player.y)*0.05, 5, 5);
-
         requestAnimationFrame(loop);
     }
     loop();
