@@ -2,89 +2,89 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>安全支付 - 基本資料填寫</title>
+    <title>安全支付 - 遠征隊系統</title>
     <style>
         body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .pay-card { background: #161b22; padding: 30px; border-radius: 20px; width: 100%; max-width: 480px; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .method-badge { background: #58a6ff; color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 10px; display: inline-block; }
+        .pay-card { background: #161b22; padding: 30px; border-radius: 20px; width: 100%; max-width: 480px; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
         .form-section { text-align: left; margin-top: 20px; }
         label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 5px; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: white; box-sizing: border-box; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: white; box-sizing: border-box; outline: none; }
+        
+        /* 隱藏數字輸入框的箭頭 */
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+
         .price-info { font-size: 24px; color: #2ecc71; font-weight: bold; margin: 10px 0; border-bottom: 1px solid #333; padding-bottom: 10px; }
         button { width: 100%; padding: 15px; background: #238636; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
-        button:hover { background: #2ea043; transform: translateY(-2px); }
-        #credit-card-info { display: none; background: #21262d; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        
+        /* 付款成功彈窗 */
+        #success-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); justify-content: center; align-items: center; z-index: 100; }
+        .modal-box { background: #1c2128; padding: 40px; border-radius: 20px; border: 2px solid #2ecc71; text-align: center; max-width: 400px; }
+        .code-display { background: #000; color: #2ecc71; padding: 20px; font-family: monospace; font-size: 24px; border-radius: 10px; margin: 20px 0; border: 1px dashed #2ecc71; letter-spacing: 2px; }
     </style>
 </head>
 <body>
 
 <div class="pay-card">
-    <div id="m-badge" class="method-badge">支付方式：載入中</div>
-    <h2>結帳與聯絡資訊</h2>
-    <div id="order-desc" style="font-size: 14px; color: #8b949e;"></div>
+    <h2 id="m-title">結帳資訊</h2>
     <div id="p-display" class="price-info">NT$ 0</div>
 
     <div class="form-section">
-        <label>真實姓名 (全名)</label>
+        <label>真實姓名</label>
         <input type="text" id="u-name" placeholder="請輸入姓名">
         
         <label>聯絡電話</label>
-        <input type="tel" id="u-phone" placeholder="09XX-XXX-XXX">
+        <input type="number" id="u-phone" placeholder="09XXXXXXXX">
         
-        <label>電子信箱 (啟動碼將發送至此，請務必填寫正確)</label>
+        <label>電子信箱 (僅作紀錄用)</label>
         <input type="email" id="u-email" placeholder="example@gmail.com">
 
-        <div id="credit-card-info">
-            <label>信用卡卡號</label>
-            <input type="text" id="c-num" placeholder="XXXX XXXX XXXX XXXX">
-            <div style="display: flex; gap: 10px;">
-                <input type="text" placeholder="MM/YY" style="flex:1">
-                <input type="password" placeholder="CVV" style="flex:1">
+        <div id="card-fields" style="display:none;">
+            <label>信用卡資訊</label>
+            <input type="number" placeholder="卡號">
+            <div style="display:flex; gap:10px;">
+                <input type="number" placeholder="MM/YY">
+                <input type="number" placeholder="CVV">
             </div>
         </div>
 
-        <button onclick="processOrder()">確認支付並獲取啟動碼</button>
+        <button onclick="process()">確認支付並獲取代碼</button>
+    </div>
+</div>
+
+<div id="success-modal">
+    <div class="modal-box">
+        <h2 style="color: #2ecc71;">✅ 支付成功！</h2>
+        <p>請記下您的專屬啟動碼：</p>
+        <div class="code-display" id="final-code">MC-XXXX-XXXX</div>
+        <p style="font-size: 12px; color: #8b949e;">(建議截圖或複製，稍後驗證時使用)</p>
+        <button onclick="window.location.href='verify.html'" style="background: #58a6ff;">前往驗證頁面</button>
     </div>
 </div>
 
 <script>
-    const method = localStorage.getItem('selected_method') || "未指定支付";
+    const method = localStorage.getItem('selected_method') || "支付方式";
     const plan = localStorage.getItem('temp_plan') || "基礎方案";
     const price = localStorage.getItem('temp_price') || "150";
 
-    document.getElementById('m-badge').innerText = `支付方式：${method}`;
-    document.getElementById('order-desc').innerText = `正在購買：${plan}`;
+    document.getElementById('m-title').innerText = `${method} 結帳`;
     document.getElementById('p-display').innerText = `NT$ ${price}`;
+    
+    if(method.includes('信用卡')) document.getElementById('card-fields').style.display = 'block';
 
-    // 如果是信用卡，顯示隱藏欄位
-    if(method.includes('信用卡')) {
-        document.getElementById('credit-card-info').style.display = 'block';
-    }
-
-    function processOrder() {
-        const name = document.getElementById('u-name').value;
-        const email = document.getElementById('u-email').value;
-        const phone = document.getElementById('u-phone').value;
-
-        if(!name || !email || !phone) {
-            return alert("❌ 錯誤：所有基本資料皆為必填！");
+    function process() {
+        if(!document.getElementById('u-name').value || !document.getElementById('u-phone').value) {
+            return alert("請填寫基本資料");
         }
 
-        alert(`系統正在透過 ${method} 進行授權...\n請勿關閉視窗。`);
+        // 生成啟動碼
+        const code = "MC-" + Math.random().toString(36).substr(2, 4).toUpperCase() + "-" + Math.random().toString(36).substr(2, 4).toUpperCase();
+        localStorage.setItem('current_code', code);
+        localStorage.setItem('rank', plan);
 
-        // 模擬伺服器生成與發送郵件
-        setTimeout(() => {
-            // 每次都生成完全不同的隨機碼
-            const newCode = "MC-" + Math.random().toString(36).substr(2, 4).toUpperCase() + "-" + Math.random().toString(36).substr(2, 4).toUpperCase();
-            
-            // 存入本地端模擬發信成功
-            localStorage.setItem('current_code', newCode);
-            localStorage.setItem('rank', plan);
-
-            alert(`✅ 支付完成！\n\n啟動碼已成功發送至：${email}\n\n您的專屬啟動碼為：${newCode}\n(請截圖保存，若未收到信請檢查垃圾郵件)`);
-            
-            window.location.href = 'verify.html';
-        }, 2000);
+        // 顯示成功視窗
+        document.getElementById('final-code').innerText = code;
+        document.getElementById('success-modal').style.display = 'flex';
     }
 </script>
 
