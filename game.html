@@ -4,36 +4,33 @@
     <meta charset="UTF-8">
     <title>遠征世界</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; color: white; }
-        nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.8); padding: 10px 20px; display: flex; justify-content: space-between; z-index: 10; box-sizing: border-box; }
+        body { margin: 0; background: #000; overflow: hidden; }
+        nav { position: fixed; top:0; width:100%; background:rgba(0,0,0,0.8); color:white; padding:10px; z-index:10; }
         canvas { display: block; background: #87CEEB; }
     </style>
 </head>
 <body>
-<nav><div id="info">載入玩家...</div><div>ESC 暫停</div></nav>
+<nav id="nav">載入中...</nav>
 <canvas id="game"></canvas>
 <script>
-    const user = localStorage.getItem('mc_user');
-    const rank = localStorage.getItem('member_rank');
-    document.getElementById('info').innerText = `玩家: ${user} [${rank}]`;
+    const user = localStorage.getItem('mc_user') || "玩家";
+    const rank = localStorage.getItem('rank') || "一般";
+    document.getElementById('nav').innerText = `玩家: ${user} | 方案: ${rank}`;
 
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
 
     const blockSize = 40;
-    let world = {}; 
+    let world = {}, keys = {}, camera = { x: 0, y: 0 };
     let player = { x: 400, y: -400, w: 28, h: 36, vx: 0, vy: 0, g: false };
-    let camera = { x: 0, y: 0 };
-    let keys = {};
 
     function generateColumn(x) {
         if (world[x]) return;
-        // 起點區域是大山，之後變平緩
-        let groundY = (x < 1500) ? Math.floor(5 + Math.sin(x * 0.01) * 12) : Math.floor(10 + Math.sin(x * 0.05) * 4);
+        let groundY = (x < 1500) ? Math.floor(5 + Math.sin(x * 0.01) * 15) : 10;
         world[x] = [];
-        for(let y = groundY; y < groundY + 25; y++) {
-            world[x].push({ y: y * blockSize, type: (y === groundY ? 'grass' : 'dirt') });
+        for(let y = groundY; y < groundY + 30; y++) {
+            world[x].push({ y: y * blockSize, type: y === groundY ? 'grass' : 'dirt' });
         }
     }
 
@@ -53,12 +50,10 @@
     }
 
     function loop() {
-        player.vx = 0;
-        if(keys['KeyA']) player.vx = -5;
-        if(keys['KeyD']) player.vx = 5;
+        player.vx = (keys['KeyD'] ? 5 : 0) + (keys['KeyA'] ? -5 : 0);
         player.x += player.vx;
         let hX = checkColl(player.x, player.y);
-        if(hX) player.x = (player.vx > 0) ? hX.x - player.w - 0.1 : hX.x + blockSize + 0.1;
+        if(hX) player.x = player.vx > 0 ? hX.x - player.w - 0.1 : hX.x + blockSize + 0.1;
 
         if(keys['Space'] && player.g) { player.vy = -12; player.g = false; }
         player.vy += 0.6; player.y += player.vy;
@@ -69,27 +64,25 @@
             player.vy = 0;
         } else { player.g = false; }
 
-        // 生成地圖
         for(let x = Math.floor((player.x-1000)/blockSize)*blockSize; x <= player.x+1000; x+=blockSize) generateColumn(x);
-        
-        // --- 鏡頭隨動核心 ---
+
+        // 鏡頭鎖定角色中心
         camera.x += (player.x - canvas.width/2 - camera.x) * 0.1;
         camera.y += (player.y - canvas.height/2 - camera.y) * 0.1;
 
         ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0,canvas.width, canvas.height);
-        ctx.save(); 
+        ctx.save();
         ctx.translate(-camera.x, -camera.y);
-        
         for(let x in world) {
-            world[x].forEach(b => {
-                ctx.fillStyle = b.type === 'grass' ? '#5da346' : '#855c33';
-                ctx.fillRect(parseInt(x), b.y, blockSize-1, blockSize-1);
-            });
+            if (x > camera.x - 100 && x < camera.x + canvas.width + 100) {
+                world[x].forEach(b => {
+                    ctx.fillStyle = b.type === 'grass' ? '#5da346' : '#855c33';
+                    ctx.fillRect(parseInt(x), b.y, blockSize-1, blockSize-1);
+                });
+            }
         }
-        ctx.fillStyle = (rank === 'VIP') ? 'gold' : 'white';
-        ctx.fillRect(player.x, player.y, player.w, player.h);
+        ctx.fillStyle = "white"; ctx.fillRect(player.x, player.y, player.w, player.h);
         ctx.restore();
-        
         requestAnimationFrame(loop);
     }
     loop();
