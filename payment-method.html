@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>選擇支付方式</title>
+    <style>
+        body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: #161b22; padding: 30px; border-radius: 20px; width: 380px; border: 1px solid #30363d; text-align: center; }
+        .method-btn { background: #21262d; border: 1px solid #30363d; padding: 18px; margin: 12px 0; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 15px; transition: 0.3s; font-size: 16px; }
+        .method-btn:hover { border-color: #58a6ff; background: #30363d; transform: scale(1.02); }
+        .icon { font-size: 24px; }
+        .price-tag { color: #2ecc71; font-weight: bold; margin-bottom: 20px; font-size: 20px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>確認支付方式</h2>
+        <div id="info" class="price-tag">載入訂單中...</div>
+        
+        <div class="method-btn" onclick="goToPay('信用卡')">
+            <span class="icon">💳</span> 信用卡 / 簽帳金融卡
+        </div>
+        <div class="method-btn" onclick="goToPay('LINE Pay')">
+            <span class="icon">📱</span> LINE Pay 快速支付
+        </div>
+        <div class="method-btn" onclick="goToPay('街口支付')">
+            <span class="icon">🧧</span> 街口支付
+        </div>
+        <div class="method-btn" onclick="goToPay('超商代碼')">
+            <span class="icon">🏪</span> 超商代碼 / 條碼繳費
+        </div>
+    </div>
+
+    <script>
+        const plan = localStorage.getItem('temp_plan');
+        const price = localStorage.getItem('temp_price');
+        document.getElementById('info').innerText = `${plan}：NT$ ${price}`;
+
+        function goToPay(method) {
+            localStorage.setItem('selected_method', method);
+            // 如果選信用卡就去填卡號頁面，其他的可以模擬跳轉
+            if(method === '信用卡') {
+                window.location.href = 'pay.html';
+            } else {
+                alert(`即將跳轉至 ${method} 外部支付頁面...`);
+                // 模擬支付成功後給碼
+                setTimeout(() => {
+                    const code = "MC-" + Math.random().toString(36).substr(2,4).toUpperCase();
+                    localStorage.setItem('current_code', code);
+                    alert(`付款成功！啟動碼為：${code}`);
+                    window.location.href = 'verify.html';
+                }, 2000);
+            }
+        }
+    </script>
+</body>
+</html>
