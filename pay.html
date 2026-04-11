@@ -1,120 +1,44 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <title>安全支付 - 信用卡查驗</title>
+    <meta charset="UTF-8"><title>支付資料查驗</title>
     <style>
-        body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .card { background: #161b22; padding: 30px; border-radius: 20px; width: 480px; border: 1px solid #333; text-align: center; }
-        .price { color: #2ecc71; font-size: 32px; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-        label { display: block; text-align: left; font-size: 13px; color: #8b949e; margin-bottom: 5px; margin-top: 10px; }
-        input, select { width: 100%; padding: 12px; margin-bottom: 5px; background: #0d1117; color: white; border: 1px solid #30363d; border-radius: 8px; box-sizing: border-box; outline: none; }
-        /* 隱藏調節按鈕 */
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
-        
-        .loading { display: none; color: #58a6ff; font-size: 14px; margin-top: 15px; font-weight: bold; }
-        button { width: 100%; padding: 18px; background: #238636; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; transition: 0.3s; margin-top: 20px; }
-        button:disabled { background: #30363d; cursor: not-allowed; opacity: 0.6; }
+        body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .card { background: #161b22; padding: 30px; border-radius: 20px; width: 450px; border: 1px solid #333; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 15px; background: #0d1117; color: white; border: 1px solid #30363d; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #238636; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-
 <div class="card">
-    <h2 id="method-name" style="margin-top:0;">信用卡一次付清</h2>
-    <div id="price-display" class="price">NT$ 400</div>
-    
-    <div style="text-align: left;">
-        <label>付款人真實姓名</label>
-        <input type="text" id="u-name" placeholder="請輸入身分證字號對應姓名">
-        
-        <label>聯絡電話 (需通過查驗)</label>
-        <input type="number" id="u-phone" placeholder="09XXXXXXXX">
-
-        <label>信用卡卡號</label>
-        <input type="number" id="u-card" placeholder="XXXX XXXX XXXX XXXX">
-        
-        <div style="display: flex; gap: 10px;">
-            <div style="flex: 2;">
-                <label>有效日期</label>
-                <input type="text" id="u-date" placeholder="MM / YY">
-            </div>
-            <div style="flex: 1;">
-                <label>安全碼 (CVV)</label>
-                <input type="number" id="u-cvv" placeholder="123">
-            </div>
-        </div>
-
-        <label>發卡銀行</label>
+    <h2 id="m-title">支付</h2>
+    <input type="text" id="u-name" placeholder="付款人真實姓名">
+    <input type="number" id="u-phone" placeholder="09XXXXXXXX">
+    <div id="card-info" style="display:none">
+        <input type="number" id="u-card" placeholder="信用卡號 (16碼)">
         <select id="u-bank">
             <option value="">請選擇銀行</option>
-            <option value="808 玉山銀行">808 玉山銀行</option>
-            <option value="822 中國信託">822 中國信託</option>
-            <option value="013 國泰世華">013 國泰世華</option>
-            <option value="812 台新銀行">812 台新銀行</option>
-            <option value="012 富邦銀行">012 富邦銀行</option>
-            <option value="999 其他銀行">其他銀行...</option>
+            <option value="013 國泰">013 國泰世華</option>
+            <option value="808 玉山">808 玉山銀行</option>
+            <option value="822 中信">822 中國信託</option>
         </select>
     </div>
-
-    <div id="status-msg" class="loading">正在聯繫發卡銀行進行身分核對...</div>
-    <button id="submit-btn" onclick="startVerification()">確認支付並領取道具</button>
+    <button onclick="check()">查驗並支付</button>
 </div>
-
 <script>
-    const method = localStorage.getItem('selected_method') || "信用卡一次付清";
-    const price = localStorage.getItem('temp_price') || "400";
-    document.getElementById('method-name').innerText = method;
-    document.getElementById('price-display').innerText = "NT$ " + price;
+    const method = localStorage.getItem('selected_method') || "全支付";
+    document.getElementById('m-title').innerText = method;
+    if(method.includes("信用卡")) document.getElementById('card-info').style.display = "block";
 
-    function startVerification() {
-        const name = document.getElementById('u-name').value.trim();
-        const phone = document.getElementById('u-phone').value.trim();
-        const card = document.getElementById('u-card').value.trim();
-        const cvv = document.getElementById('u-cvv').value.trim();
-        const bank = document.getElementById('u-bank').value;
-        
-        const status = document.getElementById('status-msg');
-        const btn = document.getElementById('submit-btn');
-
-        // --- 嚴格資料查驗邏輯 ---
-        
-        // 1. 姓名與電話查驗
-        if (name.length < 2 || name === "0") return alert("❌ 查驗失敗：付款人姓名無效。");
-        if (!phone.startsWith("09") || phone.length !== 10) return alert("❌ 查驗失敗：電話格式錯誤。");
-        
-        // 2. 信用卡號查驗 (長度必須是 16 位)
-        if (card.length !== 16 || card === "0000000000000000") return alert("❌ 查驗失敗：信用卡號碼查無此卡。");
-        
-        // 3. CVV 查驗
-        if (cvv.length !== 3) return alert("❌ 查驗失敗：安全碼 (CVV) 錯誤。");
-
-        // 4. 銀行查驗
-        if (!bank) return alert("❌ 查驗失敗：請選擇發卡銀行。");
-
-        // --- 執行查驗動畫 ---
-        btn.disabled = true;
-        status.style.display = "block";
-        
-        let step = 0;
-        const interval = setInterval(() => {
-            step++;
-            if (step === 1) status.innerText = `正在向 ${bank.split(' ')[1]} 提交授權申請...`;
-            if (step === 2) status.innerText = "正在驗證 3D 安全碼與額度...";
-            if (step === 3) {
-                clearInterval(interval);
-                status.style.display = "none";
-                btn.disabled = false;
-                
-                // 成功
-                const code = "MC-" + Math.random().toString(36).substr(2, 4).toUpperCase();
-                localStorage.setItem('current_code', code);
-                alert(`✅ 授權完成！\n銀行已核准扣款：NT$ ${price}\n啟動碼為：${code}`);
-                window.location.href = 'verify.html';
-            }
-        }, 1500);
+    function check() {
+        const name = document.getElementById('u-name').value;
+        const phone = document.getElementById('u-phone').value;
+        if(name.length < 2 || phone.length !== 10) return alert("❌ 查驗不通過：請輸入真實資料！");
+        const code = "MC-" + Math.random().toString(36).substr(2, 4).toUpperCase();
+        localStorage.setItem('current_code', code);
+        alert("✅ 查驗通過！啟動碼：" + code);
+        window.location.href = 'verify.html';
     }
 </script>
-
 </body>
 </html>
