@@ -2,64 +2,54 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>安全結帳 - 遠征隊系統</title>
+    <title>選擇支付方式</title>
     <style>
         body { font-family: sans-serif; background: #0d1117; color: white; margin: 0; padding: 20px; }
         .container { max-width: 800px; margin: 0 auto; text-align: center; }
         .order-box { background: #161b22; padding: 20px; border-radius: 15px; margin-bottom: 25px; border: 1px solid #30363d; }
-        
         .pay-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
         .pay-item { background: #21262d; border: 1px solid #30363d; padding: 15px; border-radius: 12px; cursor: pointer; transition: 0.2s; text-align: left; display: flex; align-items: center; gap: 10px; }
         .pay-item:hover { border-color: #58a6ff; background: #30363d; transform: scale(1.02); }
-        .icon { font-size: 20px; }
-        
-        .category-title { text-align: left; margin: 20px 0 10px; color: #8b949e; font-size: 14px; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 5px; }
-        .price { color: #2ecc71; font-size: 24px; font-weight: bold; }
+        .category-title { text-align: left; margin: 20px 0 10px; color: #8b949e; font-size: 14px; border-bottom: 1px solid #333; padding-bottom: 5px; }
     </style>
 </head>
 <body>
-
 <div class="container">
     <h1>安全結帳中心</h1>
     <div class="order-box">
-        <div id="p-name" style="font-size: 18px;">載入方案中...</div>
-        <div id="p-price" class="price">$0</div>
+        <div id="p-name" style="font-size: 18px;">載入中...</div>
+        <div id="p-price" style="color: #2ecc71; font-size: 24px; font-weight: bold;">$0</div>
     </div>
 
-    <div class="category-title">電子支付 / 行動支付 (Digital Wallet)</div>
+    <div class="category-title">電子支付 / 行動支付</div>
     <div class="pay-grid">
-        <div class="pay-item" onclick="selectPay('LINE Pay')"><span class="icon">🟢</span> LINE Pay</div>
-        <div class="pay-item" onclick="selectPay('街口支付')"><span class="icon">🧧</span> 街口支付</div>
-        <div class="pay-item" onclick="selectPay('Apple Pay')"><span class="icon">🍎</span> Apple Pay</div>
-        <div class="pay-item" onclick="selectPay('Google Pay')"><span class="icon">🤖</span> Google Pay</div>
-        <div class="pay-item" onclick="selectPay('Samsung Pay')"><span class="icon">📱</span> Samsung Pay</div>
+        <div class="pay-item" onclick="selectPay('LINE Pay')">🟢 LINE Pay</div>
+        <div class="pay-item" onclick="selectPay('街口支付')">🧧 街口支付</div>
+        <div class="pay-item" onclick="selectPay('Apple Pay')">🍎 Apple Pay</div>
+        <div class="pay-item" onclick="selectPay('Google Pay')">🤖 Google Pay</div>
+        <div class="pay-item" onclick="selectPay('Samsung Pay')">📱 Samsung Pay</div>
     </div>
 
-    <div class="category-title">信用卡與金融卡 (Card Payment)</div>
+    <div class="category-title">信用卡服務</div>
     <div class="pay-grid">
-        <div class="pay-item" onclick="window.location.href='pay.html'"><span class="icon">💳</span> 信用卡 (一次付清)</div>
-        <div class="pay-item" onclick="window.location.href='pay.html'"><span class="icon">🏦</span> 信用卡 (分期付款)</div>
-        <div class="pay-item" onclick="selectPay('銀聯卡')"><span class="icon">💠</span> UnionPay 銀聯</div>
+        <div class="pay-item" onclick="window.location.href='pay.html'">💳 信用卡 (一次付清)</div>
+        <div class="pay-item" onclick="window.location.href='pay.html'">🏦 信用卡 (分期付款)</div>
+        <div class="pay-item" onclick="selectPay('銀聯卡')">💠 UnionPay 銀聯</div>
     </div>
 
-    <div class="category-title">銀行轉帳與 ATM (Bank Transfer)</div>
+    <div class="category-title">其他支付方式</div>
     <div class="pay-grid">
-        <div class="pay-item" onclick="selectPay('網路銀行')"><span class="icon">💻</span> 網路銀行轉帳</div>
-        <div class="pay-item" onclick="selectPay('虛擬帳號')"><span class="icon">🔢</span> ATM 虛擬帳號</div>
-        <div class="pay-item" onclick="selectPay('電匯')"><span class="icon">🏛️</span> 銀行電匯</div>
-    </div>
-
-    <div class="category-title">超商與點數卡 (Store & Points)</div>
-    <div class="pay-grid">
-        <div class="pay-item" onclick="selectPay('超商代碼')"><span class="icon">🏪</span> 超商代碼繳費</div>
-        <div class="pay-item" onclick="selectPay('MyCard')"><span class="icon">🃏</span> MyCard 點數</div>
-        <div class="pay-item" onclick="selectPay('GASH')"><span class="icon">🎮</span> GASH 點數</div>
-        <div class="pay-item" onclick="selectPay('PayPal')"><span class="icon">🅿️</span> PayPal</div>
+        <div class="pay-item" onclick="selectPay('網路銀行')">💻 網路銀行轉帳</div>
+        <div class="pay-item" onclick="selectPay('虛擬帳號')">🔢 ATM 虛擬帳號</div>
+        <div class="pay-item" onclick="selectPay('電匯')">🏛️ 銀行電匯</div>
+        <div class="pay-item" onclick="selectPay('超商代碼')">🏪 超商代碼繳費</div>
+        <div class="pay-item" onclick="selectPay('MyCard')">🃏 MyCard 點數</div>
+        <div class="pay-item" onclick="selectPay('GASH')">🎮 GASH 點數</div>
+        <div class="pay-item" onclick="selectPay('PayPal')">🅿️ PayPal</div>
     </div>
 </div>
 
 <script>
-    // 取得資料
     const plan = localStorage.getItem('temp_plan') || "基礎方案";
     const price = localStorage.getItem('temp_price') || "150";
     document.getElementById('p-name').innerText = `購買：${plan}`;
@@ -67,15 +57,13 @@
 
     function selectPay(method) {
         alert(`已鎖定支付方式：${method}\n正在建立加密連線...`);
-        // 模擬付款後自動跳轉
         setTimeout(() => {
             const randomCode = "MC-" + Math.random().toString(36).substr(2, 4).toUpperCase();
             localStorage.setItem('current_code', randomCode);
-            alert(`✅ 付款成功！\n您的 ${method} 交易編號為：TXN${Date.now()}\n\n啟動碼為：${randomCode}`);
+            alert(`✅ 付款成功！啟動碼為：${randomCode}`);
             window.location.href = 'verify.html';
         }, 1500);
     }
 </script>
-
 </body>
 </html>
