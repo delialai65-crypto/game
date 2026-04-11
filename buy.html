@@ -40,7 +40,8 @@
         function goPay(name, price) {
             localStorage.setItem('temp_plan', name);
             localStorage.setItem('temp_price', price);
-            window.location.href = 'pay.html'; // 跳轉到付款頁面
+            // 核心修正：跳轉到選擇支付方式頁面
+            window.location.href = 'payment-method.html'; 
         }
     </script>
 </body>
