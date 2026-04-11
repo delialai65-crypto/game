@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>安全付款 - 遠征隊系統</title>
+    <style>
+        body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #161b22; padding: 40px; border-radius: 20px; text-align: center; width: 400px; border: 1px solid #30363d; }
+        .info { margin-bottom: 30px; border-bottom: 1px solid #333; padding-bottom: 20px; }
+        .method { background: #21262d; margin: 10px 0; padding: 15px; border-radius: 10px; cursor: pointer; text-align: left; display: flex; align-items: center; gap: 15px; border: 1px solid transparent; }
+        .method:hover { border-color: #58a6ff; background: #30363d; }
+        .method img { width: 30px; filter: grayscale(1); }
+        button { width: 100%; padding: 15px; background: #238636; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="info">
+            <h2 id="plan-name">方案確認</h2>
+            <h1 id="plan-price" style="color: #2ecc71;">$0</h1>
+        </div>
+        <h3>選擇付款方式</h3>
+        <div class="method" onclick="selectPay('信用卡')">💳 信用卡 / 簽帳金融卡</div>
+        <div class="method" onclick="selectPay('LINE Pay')">📱 LINE Pay / 街口支付</div>
+        <div class="method" onclick="selectPay('超商繳費')">🏪 超商代碼繳費</div>
+        
+        <button id="pay-btn" disabled onclick="processPay()">請先選擇付款方式</button>
+    </div>
+
+    <script>
+        const plan = localStorage.getItem('temp_plan');
+        const price = localStorage.getItem('temp_price');
+        document.getElementById('plan-name').innerText = plan;
+        document.getElementById('plan-price').innerText = `NT$ ${price}`;
+
+        let selected = "";
+        function selectPay(m) {
+            selected = m;
+            document.getElementById('pay-btn').disabled = false;
+            document.getElementById('pay-btn').innerText = `使用 ${m} 付款`;
+        }
+
+        function processPay() {
+            // 模擬支付過程
+            alert(`正在連接 ${selected} 安全加密通路...`);
+            
+            // 生成隨機碼
+            const randomCode = "MC-" + Math.random().toString(36).substr(2, 4).toUpperCase();
+            localStorage.setItem('current_code', randomCode);
+            localStorage.setItem('rank', plan);
+            
+            alert(`支付成功！\n\n您的遠征啟動碼為：${randomCode}\n(請妥善保管，並在驗證頁面輸入)`);
+            window.location.href = 'verify.html';
+        }
+    </script>
+</body>
+</html>
