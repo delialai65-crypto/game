@@ -4,36 +4,29 @@
     <meta charset="UTF-8">
     <title>方案商店</title>
     <style>
-        body { font-family: sans-serif; background: #0d1117; color: white; text-align: center; padding: 40px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
-        .plan { background: #161b22; border: 1px solid #30363d; padding: 25px; border-radius: 15px; cursor: pointer; }
-        .price { font-size: 24px; color: #2ecc71; font-weight: bold; margin: 10px 0; }
-        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; }
-        .modal-box { background: #222; padding: 30px; border-radius: 20px; width: 350px; }
-        .opt { background: #333; margin: 10px 0; padding: 10px; border-radius: 8px; cursor: pointer; }
+        body { font-family: sans-serif; background: #0d1117; color: white; text-align: center; padding: 20px; }
+        .grid { display: flex; flex-direction: column; gap: 15px; max-width: 500px; margin: 20px auto; }
+        .plan { background: #161b22; border: 1px solid #30363d; padding: 25px; border-radius: 12px; cursor: pointer; text-align: left; }
+        .plan:hover { border-color: #58a6ff; }
+        .plan h3 { margin: 0; color: #58a6ff; }
+        .plan p { margin: 5px 0 0; color: #8b949e; font-size: 14px; }
     </style>
 </head>
 <body>
-    <h1>選擇遠征授權方案</h1>
-    <div class="grid" id="planGrid"></div>
-    <div id="modal">
-        <div class="modal-box">
-            <h3>請選擇會員等級</h3>
-            <div onclick="finish('一般', 1.0)" class="opt">一般會員</div>
-            <div onclick="finish('Pro', 0.9)" class="opt" style="color:cyan">Pro (9折)</div>
-            <div onclick="finish('Plus', 0.85)" class="opt" style="color:lime">Plus (85折)</div>
-            <div onclick="finish('Max', 0.8)" class="opt" style="color:orange">Max (8折)</div>
-            <div onclick="finish('VIP', 0.75)" class="opt" style="color:gold">VIP (75折)</div>
-        </div>
+    <h1>選擇遠征方案</h1>
+    <div class="grid">
+        <div class="plan" onclick="buy('學生方案')"><h3>學生方案</h3><p>一般福利</p></div>
+        <div class="plan" onclick="buy('基礎方案')"><h3>基礎方案</h3><p>一般福利</p></div>
+        <div class="plan" onclick="buy('家庭方案')"><h3>家庭方案</h3><p>多人遊戲 (2-10人)</p></div>
+        <div class="plan" onclick="buy('大師方案')"><h3>大師方案</h3><p>多人遊戲 (2-15人)</p></div>
     </div>
     <script>
-        const plans = ["學生方案(90元)", "一般方案(150元)", "家庭方案(230元)", "大師方案(400元)", "探險", "地底", "天空", "森林", "地獄", "創世"];
-        const grid = document.getElementById('planGrid');
-        plans.forEach(p => { grid.innerHTML += `<div class="plan" onclick="document.getElementById('modal').style.display='flex'"><h3>${p}</h3></div>`; });
-        function finish(r, d) {
-            localStorage.setItem('member_rank', r);
-            localStorage.setItem('discount', d);
-            alert("模擬支付成功！\n啟動碼是：GAME-2026-MC");
+        function buy(name) {
+            // 生成隨機啟動碼 (格式: MC-XXXX)
+            const randomCode = "MC-" + Math.random().toString(36).substr(2, 4).toUpperCase();
+            localStorage.setItem('current_code', randomCode);
+            localStorage.setItem('rank', name);
+            alert(`購買成功！\n您的方案：${name}\n本次啟動碼為：${randomCode}`);
             window.location.href = 'verify.html';
         }
     </script>
