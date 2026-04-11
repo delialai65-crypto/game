@@ -2,102 +2,89 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>安全支付中心 - 遠征隊系統</title>
+    <title>安全支付 - 基本資料填寫</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
-        .pay-container { background: #161b22; padding: 30px; border-radius: 20px; width: 100%; max-width: 450px; border: 1px solid #30363d; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
-        .order-summary { background: #0d1117; padding: 15px; border-radius: 12px; margin-bottom: 25px; border-left: 4px solid #2ecc71; text-align: left; }
-        
-        .form-group { margin-bottom: 15px; text-align: left; }
+        body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .pay-card { background: #161b22; padding: 30px; border-radius: 20px; width: 100%; max-width: 480px; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .method-badge { background: #58a6ff; color: white; padding: 5px 12px; border-radius: 20px; font-size: 12px; margin-bottom: 10px; display: inline-block; }
+        .form-section { text-align: left; margin-top: 20px; }
         label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 5px; }
-        input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: white; box-sizing: border-box; font-size: 16px; outline: none; }
-        input:focus { border-color: #58a6ff; }
-        
-        .flex-row { display: flex; gap: 15px; }
-        .flex-row div { flex: 1; }
-
-        .btn-pay { width: 100%; padding: 15px; background: #238636; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 18px; margin-top: 20px; transition: 0.3s; }
-        .btn-pay:hover { background: #2ea043; transform: translateY(-2px); }
-        .btn-pay:disabled { background: #333; cursor: not-allowed; }
-
-        /* 載入動畫 */
-        #loading { display: none; margin-top: 20px; color: #58a6ff; font-weight: bold; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: white; box-sizing: border-box; }
+        .price-info { font-size: 24px; color: #2ecc71; font-weight: bold; margin: 10px 0; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        button { width: 100%; padding: 15px; background: #238636; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #2ea043; transform: translateY(-2px); }
+        #credit-card-info { display: none; background: #21262d; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-<div class="pay-container">
-    <div class="order-summary">
-        <div style="font-size: 12px; color: #8b949e;">訂單明細</div>
-        <div id="display-plan" style="font-size: 18px; font-weight: bold;">方案載入中...</div>
-        <div id="display-price" style="font-size: 22px; color: #2ecc71; font-weight: bold;">$0</div>
-    </div>
+<div class="pay-card">
+    <div id="m-badge" class="method-badge">支付方式：載入中</div>
+    <h2>結帳與聯絡資訊</h2>
+    <div id="order-desc" style="font-size: 14px; color: #8b949e;"></div>
+    <div id="p-display" class="price-info">NT$ 0</div>
 
-    <div class="form-group">
-        <label>持卡人姓名</label>
-        <input type="text" id="card-name" placeholder="例如：CHEN XIAO MING">
-    </div>
+    <div class="form-section">
+        <label>真實姓名 (全名)</label>
+        <input type="text" id="u-name" placeholder="請輸入姓名">
+        
+        <label>聯絡電話</label>
+        <input type="tel" id="u-phone" placeholder="09XX-XXX-XXX">
+        
+        <label>電子信箱 (啟動碼將發送至此，請務必填寫正確)</label>
+        <input type="email" id="u-email" placeholder="example@gmail.com">
 
-    <div class="form-group">
-        <label>信用卡卡號</label>
-        <input type="text" id="card-num" placeholder="XXXX XXXX XXXX XXXX" maxlength="19">
-    </div>
-
-    <div class="flex-row">
-        <div class="form-group">
-            <label>到期日 (MM/YY)</label>
-            <input type="text" id="card-exp" placeholder="MM/YY" maxlength="5">
+        <div id="credit-card-info">
+            <label>信用卡卡號</label>
+            <input type="text" id="c-num" placeholder="XXXX XXXX XXXX XXXX">
+            <div style="display: flex; gap: 10px;">
+                <input type="text" placeholder="MM/YY" style="flex:1">
+                <input type="password" placeholder="CVV" style="flex:1">
+            </div>
         </div>
-        <div class="form-group">
-            <label>安全碼 (CVV)</label>
-            <input type="password" id="card-cvv" placeholder="123" maxlength="3">
-        </div>
-    </div>
 
-    <div class="form-group">
-        <label>電子信箱 (用以接收啟動碼)</label>
-        <input type="email" id="user-email" placeholder="example@gmail.com">
+        <button onclick="processOrder()">確認支付並獲取啟動碼</button>
     </div>
-
-    <button class="btn-pay" onclick="startPay()">確認付款並取得啟動碼</button>
-    <div id="loading">🔒 安全支付授權中，請稍後...</div>
 </div>
 
 <script>
-    // 讀取上一頁傳來的方案資訊
+    const method = localStorage.getItem('selected_method') || "未指定支付";
     const plan = localStorage.getItem('temp_plan') || "基礎方案";
     const price = localStorage.getItem('temp_price') || "150";
-    document.getElementById('display-plan').innerText = plan;
-    document.getElementById('display-price').innerText = `NT$ ${price}`;
 
-    // 格式化卡號輸入
-    document.getElementById('card-num').addEventListener('input', function (e) {
-        e.target.value = e.target.value.replace(/[^\d]/g, '').replace(/(.{4})/g, '$1 ').trim();
-    });
+    document.getElementById('m-badge').innerText = `支付方式：${method}`;
+    document.getElementById('order-desc').innerText = `正在購買：${plan}`;
+    document.getElementById('p-display').innerText = `NT$ ${price}`;
 
-    function startPay() {
-        const name = document.getElementById('card-name').value;
-        const num = document.getElementById('card-num').value;
-        const email = document.getElementById('user-email').value;
+    // 如果是信用卡，顯示隱藏欄位
+    if(method.includes('信用卡')) {
+        document.getElementById('credit-card-info').style.display = 'block';
+    }
 
-        if(!name || num.length < 16 || !email) {
-            return alert("請填寫正確的付款資訊！");
+    function processOrder() {
+        const name = document.getElementById('u-name').value;
+        const email = document.getElementById('u-email').value;
+        const phone = document.getElementById('u-phone').value;
+
+        if(!name || !email || !phone) {
+            return alert("❌ 錯誤：所有基本資料皆為必填！");
         }
 
-        // 顯示載入中
-        document.querySelector('.btn-pay').disabled = true;
-        document.getElementById('loading').style.display = 'block';
+        alert(`系統正在透過 ${method} 進行授權...\n請勿關閉視窗。`);
 
-        // 模擬伺服器延遲
+        // 模擬伺服器生成與發送郵件
         setTimeout(() => {
-            // 生成隨機啟動碼
-            const randomCode = "MC-" + Math.random().toString(36).substr(2, 4).toUpperCase() + "-" + Math.random().toString(36).substr(2, 4).toUpperCase();
-            localStorage.setItem('current_code', randomCode);
-            localStorage.setItem('rank', plan);
+            // 每次都生成完全不同的隨機碼
+            const newCode = "MC-" + Math.random().toString(36).substr(2, 4).toUpperCase() + "-" + Math.random().toString(36).substr(2, 4).toUpperCase();
             
-            alert(`✅ 付款成功！\n\n系統已發送啟動碼至：${email}\n您的啟動碼為：${randomCode}`);
-            window.location.href = 'verify.html'; // 前往驗證頁
-        }, 3000);
+            // 存入本地端模擬發信成功
+            localStorage.setItem('current_code', newCode);
+            localStorage.setItem('rank', plan);
+
+            alert(`✅ 支付完成！\n\n啟動碼已成功發送至：${email}\n\n您的專屬啟動碼為：${newCode}\n(請截圖保存，若未收到信請檢查垃圾郵件)`);
+            
+            window.location.href = 'verify.html';
+        }, 2000);
     }
 </script>
 
