@@ -2,30 +2,53 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>授權驗證</title>
+    <title>授權驗證 - 遠征隊系統</title>
     <style>
-        body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: #161b22; padding: 40px; border-radius: 20px; text-align: center; width: 320px; border: 1px solid #f85149; }
-        input { width: 100%; padding: 12px; margin: 20px 0; border-radius: 8px; border: 1px solid #30363d; background: #000; color: #32CD32; text-align: center; }
-        button { width: 100%; padding: 12px; background: #f85149; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        a { color: #8b949e; text-decoration: none; display: block; margin-top: 15px; font-size: 14px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .verify-card { background: #161b22; padding: 40px; border-radius: 20px; text-align: center; width: 100%; max-width: 400px; border: 1px solid #f85149; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        h2 { color: #f85149; margin-bottom: 10px; }
+        p { color: #8b949e; font-size: 14px; margin-bottom: 25px; }
+        input { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid #30363d; background: #000; color: #32CD32; font-family: 'Courier New', monospace; font-size: 20px; text-align: center; box-sizing: border-box; letter-spacing: 2px; outline: none; margin-bottom: 20px; }
+        input:focus { border-color: #f85149; box-shadow: 0 0 10px rgba(248, 81, 73, 0.3); }
+        button { width: 100%; padding: 15px; background: #f85149; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; font-size: 18px; transition: 0.3s; }
+        button:hover { background: #ff7b72; transform: translateY(-2px); }
+        .help-link { margin-top: 20px; display: block; color: #58a6ff; text-decoration: none; font-size: 13px; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h3>輸入隨機啟動碼</h3>
-        <input type="text" id="k" placeholder="鍵入您獲得的啟動碼">
-        <button onclick="v()">驗證啟動</button>
-        <a href="buy.html">尚未取得？前往購買</a>
-    </div>
-    <script>
-        function v() {
-            const activeCode = localStorage.getItem('current_code');
-            if(document.getElementById('k').value.toUpperCase() === activeCode) {
-                localStorage.setItem('active', 'true');
-                window.location.href = 'game.html';
-            } else { alert("啟動碼無效或已過期！"); }
+
+<div class="verify-card">
+    <h2>產品授權驗證</h2>
+    <p>請輸入發送至您信箱中的 10 碼啟動碼</p>
+    
+    <input type="text" id="keyCode" placeholder="MC-XXXX-XXXX" maxlength="12">
+    
+    <button onclick="validateKey()">啟動遠征程序</button>
+    
+    <a href="buy.html" class="help-link">遺失啟動碼或尚未購買？</a>
+</div>
+
+<script>
+    function validateKey() {
+        // 從 LocalStorage 抓取付款後生成的隨機碼
+        const correctKey = localStorage.getItem('current_code');
+        const userInput = document.getElementById('keyCode').value.toUpperCase().trim();
+
+        if (!correctKey) {
+            alert("❌ 錯誤：找不到您的購買紀錄。請先前往商店購買方案。");
+            window.location.href = 'buy.html';
+            return;
         }
-    </script>
+
+        if (userInput === correctKey) {
+            alert("✅ 驗證成功！正在連接伺服器並載入 3000m 大山世界...");
+            localStorage.setItem('isActivated', 'true');
+            window.location.href = 'game.html'; // 進入遊戲
+        } else {
+            alert("❌ 啟動碼無效！\n請確認您輸入的是正確的隨機碼。");
+        }
+    }
+</script>
+
 </body>
 </html>
