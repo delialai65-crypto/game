@@ -2,102 +2,116 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>遠征世界：終極進化版</title>
+    <title>遠征世界：地圖與選單進化版</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
-        /* 頂部極簡 UI */
-        nav { position: fixed; top: 0; width: 100%; height: 60px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 30px; z-index: 100; box-sizing: border-box; }
-        .stats-bar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 20px; z-index: 100; }
-        .stat { width: 200px; height: 10px; background: #333; border: 2px solid #fff; border-radius: 5px; overflow: hidden; }
-        .stat-fill { height: 100%; transition: 0.3s; }
-        canvas { display: block; filter: contrast(1.1) brightness(1.1); }
-        #inventory { position: fixed; bottom: 40px; left: 20px; color: white; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 10px; border: 1px solid #555; }
+        /* 介面層 */
+        nav { position: fixed; top: 0; width: 100%; height: 50px; background: rgba(0,0,0,0.6); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 10; box-sizing: border-box; }
+        
+        /* 小地圖樣式 */
+        #minimap { position: fixed; top: 60px; right: 20px; width: 150px; height: 100px; background: rgba(0,0,0,0.5); border: 2px solid #fff; border-radius: 8px; z-index: 20; }
+
+        /* ESC 暫停選單 */
+        #pause-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); flex-direction: column; justify-content: center; align-items: center; z-index: 1000; color: white; }
+        .menu-card { background: #1c2128; padding: 40px; border-radius: 20px; border: 1px solid #444; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,1); }
+        .menu-btn { width: 250px; padding: 15px; margin: 10px; background: #238636; border: none; border-radius: 8px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; transition: 0.2s; }
+        .menu-btn.alt { background: #30363d; border: 1px solid #444; }
+        .menu-btn:hover { transform: scale(1.05); filter: brightness(1.2); }
+
+        canvas { display: block; background: #1e90ff; cursor: crosshair; }
     </style>
 </head>
 <body>
 
 <nav>
-    <div id="p-info" style="font-size: 18px; font-weight: bold; text-shadow: 2px 2px 4px #000;">載入冒險者...</div>
-    <div id="coord" style="font-family: monospace; color: #aaa;">X: 0, Y: 0</div>
+    <div id="p-info">🌍 載入中...</div>
+    <div style="font-size: 14px; color: #ff4757;">擊殺數: <span id="kill-count">0</span></div>
+    <div style="font-size: 12px; color: #aaa;">按 ESC 暫停/選單</div>
 </nav>
 
-<div class="stats-bar">
-    <div class="stat"><div id="hp" class="stat-fill" style="background: #ff4757; width: 100%;"></div></div>
-    <div class="stat"><div id="food" class="stat-fill" style="background: #ffa502; width: 80%;"></div></div>
-</div>
+<canvas id="minimap"></canvas>
 
-<div id="inventory">選中：草方塊 (左鍵挖 / 右鍵蓋)</div>
+<div id="pause-overlay">
+    <div class="menu-card">
+        <h1 style="color: #58a6ff; margin-top: 0;">遊戲暫停</h1>
+        <p id="menu-stats">冒險者，準備好繼續了嗎？</p>
+        <button class="menu-btn" onclick="togglePause()">繼續遠征 (Resume)</button>
+        <button class="menu-btn alt" onclick="window.location.href='buy.html'">方案商店 (Shop)</button>
+        <button class="menu-btn alt" onclick="window.location.href='index.html'">登出並回首頁 (Logout)</button>
+    </div>
+</div>
 
 <canvas id="game"></canvas>
 
 <script>
-    const user = localStorage.getItem('mc_user') || "神秘冒險者";
-    const rank = localStorage.getItem('rank') || "學生方案";
-    document.getElementById('p-info').innerHTML = `🌍 <span style="color: #2ecc71;">${user}</span> 的 ${rank} 宇宙`;
+    const user = localStorage.getItem('mc_user') || "冒險者";
+    const rank = localStorage.getItem('rank') || "基礎方案";
+    document.getElementById('p-info').innerText = `🌍 ${user} 的冒險世界`;
 
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
-    
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    const mCanvas = document.getElementById('minimap');
+    const mCtx = mCanvas.getContext('2d');
+
+    let isPaused = false;
+    function resize() { 
+        canvas.width = window.innerWidth; 
+        canvas.height = window.innerHeight; 
+    }
     window.onresize = resize; resize();
 
     const blockSize = 40;
-    let world = {}, particles = [], keys = {}, camera = { x: 0, y: 0 };
-    let player = { x: 400, y: -500, w: 24, h: 34, vx: 0, vy: 0, g: false, hp: 100 };
+    let world = {}, particles = [], enemies = [], keys = {};
+    let camera = { x: 0, y: 0 };
+    let player = { x: 400, y: -200, w: 26, h: 36, vx: 0, vy: 0, g: false, hp: 100, kills: 0 };
 
-    // --- 粒子系統 (讓動作更有趣) ---
-    function spawnParticle(x, y, color) {
-        for(let i=0; i<5; i++) {
-            particles.push({
-                x, y, vx: (Math.random()-0.5)*5, vy: (Math.random()-0.5)*5,
-                life: 1, color, size: Math.random()*5+2
-            });
+    // --- 暫停功能 ---
+    function togglePause() {
+        isPaused = !isPaused;
+        document.getElementById('pause-overlay').style.display = isPaused ? 'flex' : 'none';
+        if(isPaused) {
+            document.getElementById('menu-stats').innerText = `目前戰績：${player.kills} 擊殺`;
         }
     }
 
-    // --- 地形生成：加入豐富礦物 ---
-    function generateColumn(x) {
-        if (world[x]) return;
-        let groundY = Math.floor(10 + Math.sin(x * 0.01) * 12 + Math.cos(x*0.005)*5);
-        world[x] = [];
-        for(let y = groundY; y < groundY + 50; y++) {
-            let type = 'dirt';
-            if (y === groundY) type = 'grass';
-            else if (y > groundY + 8) {
-                type = 'stone';
-                // 隨機生成礦物
-                let r = Math.random();
-                if (r < 0.02) type = 'diamond';
-                else if (r < 0.05) type = 'gold';
-                else if (r < 0.1) type = 'coal';
-            }
-            world[x].push({ y: y * blockSize, type: type });
-        }
-    }
-
-    window.onkeydown = e => keys[e.code] = true;
+    window.onkeydown = e => {
+        if (e.code === 'Escape') togglePause();
+        keys[e.code] = true;
+    };
     window.onkeyup = e => keys[e.code] = false;
 
-    // --- 挖掘與建造 ---
+    // --- 地形生成 ---
+    function generateColumn(x) {
+        if (isNaN(x) || world[x]) return;
+        let groundY = Math.floor(12 + Math.sin(x * 0.01) * 10);
+        world[x] = [];
+        for(let y = groundY; y < groundY + 25; y++) {
+            world[x].push({ y: y * blockSize, type: (y === groundY ? 'grass' : 'dirt') });
+        }
+    }
+
+    // --- 戰鬥與挖掘 ---
     canvas.onmousedown = e => {
+        if (isPaused) return;
         const mx = e.clientX + camera.x;
         const my = e.clientY + camera.y;
-        const gx = Math.floor(mx / blockSize) * blockSize;
-        const gy = Math.floor(my / blockSize) * blockSize;
 
-        if (e.button === 0 && world[gx]) { // 左鍵挖
-            let found = world[gx].find(b => b.y === gy);
-            if(found) {
-                spawnParticle(mx, my, "#855c33");
-                world[gx] = world[gx].filter(b => b.y !== gy);
+        enemies.forEach((en, i) => {
+            if (mx > en.x && mx < en.x + en.w && my > en.y && my < en.y + en.h) {
+                en.hp -= 15;
+                en.vx = (en.x - player.x > 0 ? 8 : -8);
+                if (en.hp <= 0) {
+                    enemies.splice(i, 1);
+                    player.kills++;
+                    document.getElementById('kill-count').innerText = player.kills;
+                }
             }
-        } else if (e.button === 2) { // 右鍵蓋
-            if(!world[gx]) world[gx] = [];
-            world[gx].push({ y: gy, type: 'wood' });
-            spawnParticle(mx, my, "#deb887");
-        }
+        });
+
+        const gx = Math.floor(mx/blockSize)*blockSize;
+        const gy = Math.floor(my/blockSize)*blockSize;
+        if(e.button === 0 && world[gx]) world[gx] = world[gx].filter(b => b.y !== gy);
     };
-    canvas.oncontextmenu = e => e.preventDefault();
 
     function checkColl(tx, ty) {
         const gx = Math.floor(tx / blockSize) * blockSize;
@@ -111,81 +125,90 @@
         return null;
     }
 
+    // --- 繪製小地圖 ---
+    function drawMinimap() {
+        mCtx.clearRect(0, 0, mCanvas.width, mCanvas.height);
+        mCtx.save();
+        mCtx.scale(0.1, 0.1); // 縮放 10 倍看世界
+        mCtx.translate(-player.x + 750, -player.y + 500);
+
+        // 畫地形
+        mCtx.fillStyle = "rgba(46, 213, 115, 0.5)";
+        for(let x in world) {
+            const ix = parseInt(x);
+            if(Math.abs(ix - player.x) < 800) {
+                world[x].forEach(b => mCtx.fillRect(ix, b.y, blockSize, blockSize));
+            }
+        }
+        // 畫玩家
+        mCtx.fillStyle = "white";
+        mCtx.fillRect(player.x - 20, player.y - 20, 100, 100);
+        // 畫怪物
+        mCtx.fillStyle = "red";
+        enemies.forEach(en => mCtx.fillRect(en.x, en.y, 80, 80));
+
+        mCtx.restore();
+    }
+
     function loop() {
-        // 物理與移動
-        player.vx = (keys['KeyD'] ? 6 : 0) + (keys['KeyA'] ? -6 : 0);
-        player.x += player.vx;
-        let hX = checkColl(player.x, player.y);
-        if(hX) player.x = player.vx > 0 ? hX.x - player.w - 0.1 : hX.x + blockSize + 0.1;
+        if (!isPaused) {
+            // 物理邏輯
+            player.vx = (keys['KeyD'] ? 6 : 0) + (keys['KeyA'] ? -6 : 0);
+            player.x += player.vx;
+            let hX = checkColl(player.x, player.y);
+            if(hX) player.x = player.vx > 0 ? hX.x - player.w - 0.1 : hX.x + blockSize + 0.1;
 
-        if((keys['Space'] || keys['KeyW']) && player.g) { player.vy = -13; player.g = false; }
-        player.vy += 0.7; player.y += player.vy;
-        let hY = checkColl(player.x, player.y);
-        if(hY) {
-            if(player.vy > 18) player.hp -= 10; // 掉落傷害
-            if(player.vy > 0) { player.y = hY.y - player.h - 0.1; player.g = true; }
-            else { player.y = hY.y + blockSize + 0.1; }
-            player.vy = 0;
-        } else { player.g = false; }
+            if((keys['Space'] || keys['KeyW']) && player.g) { player.vy = -13; player.g = false; }
+            player.vy += 0.7; player.y += player.vy;
+            let hY = checkColl(player.x, player.y);
+            if(hY) {
+                if(player.vy > 0) { player.y = hY.y - player.h - 0.1; player.g = true; }
+                else { player.y = hY.y + blockSize + 0.1; }
+                player.vy = 0;
+            } else { player.g = false; }
 
-        // 攝影機追隨 (超平滑)
-        camera.x += (player.x - canvas.width / 2 - camera.x) * 0.1;
-        camera.y += (player.y - canvas.height / 2 - camera.y) * 0.1;
+            // 怪物追蹤
+            enemies.forEach(en => {
+                en.vx = player.x > en.x ? 2 : -2;
+                en.x += en.vx;
+                en.vy += 0.5; en.y += en.vy;
+                let ehY = checkColl(en.x, en.y, en.w, en.h);
+                if(ehY) { en.y = ehY.y - en.h - 0.1; en.vy = 0; }
+            });
 
-        // 更新 UI
-        document.getElementById('coord').innerText = `X: ${Math.round(player.x)}, Y: ${Math.round(-player.y)}`;
-        document.getElementById('hp').style.width = player.hp + "%";
+            // 地圖生成
+            for(let x = Math.floor((player.x - 1000)/blockSize)*blockSize; x <= player.x + 1000; x += blockSize) generateColumn(x);
 
-        // 地形生成
-        for(let x = Math.floor((player.x - canvas.width)/blockSize)*blockSize; x <= player.x + canvas.width; x += blockSize) {
-            generateColumn(x);
+            // 鏡頭
+            camera.x += (player.x - canvas.width/2 - camera.x) * 0.1;
+            camera.y += (player.y - canvas.height/2 - camera.y) * 0.1;
         }
 
-        // 渲染背景
-        ctx.fillStyle = "#1e90ff"; // 天空藍
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        ctx.save();
-        ctx.translate(-camera.x, -camera.y);
-
-        // 繪製方塊
+        // 繪圖
+        ctx.fillStyle = "#1e90ff"; ctx.fillRect(0,0,canvas.width, canvas.height);
+        ctx.save(); ctx.translate(-camera.x, -camera.y);
         for(let x in world) {
             const ix = parseInt(x);
             if (ix > camera.x - 100 && ix < camera.x + canvas.width + 100) {
                 world[x].forEach(b => {
-                    if(b.type === 'grass') ctx.fillStyle = '#2ed573';
-                    else if(b.type === 'stone') ctx.fillStyle = '#747d8c';
-                    else if(b.type === 'coal') ctx.fillStyle = '#2f3542';
-                    else if(b.type === 'diamond') ctx.fillStyle = '#70a1ff';
-                    else if(b.type === 'gold') ctx.fillStyle = '#eccc68';
-                    else if(b.type === 'wood') ctx.fillStyle = '#ffa502';
-                    else ctx.fillStyle = '#855c33'; // dirt
-                    
-                    ctx.fillRect(ix, b.y, blockSize - 1, blockSize - 1);
+                    ctx.fillStyle = '#2ed573';
+                    ctx.fillRect(ix, b.y, blockSize-1, blockSize-1);
                 });
             }
         }
-
-        // 繪製玩家 (精緻外型)
-        ctx.fillStyle = "#ffffff";
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = "white";
-        ctx.fillRect(player.x, player.y, player.w, player.h);
-        ctx.shadowBlur = 0;
-
-        // 處理粒子
-        particles = particles.filter(p => p.life > 0);
-        particles.forEach(p => {
-            p.x += p.vx; p.y += p.vy; p.life -= 0.02;
-            ctx.fillStyle = p.color;
-            ctx.globalAlpha = p.life;
-            ctx.fillRect(p.x, p.y, p.size, p.size);
-            ctx.globalAlpha = 1;
+        enemies.forEach(en => {
+            ctx.fillStyle = "#ff4757"; ctx.fillRect(en.x, en.y, 30, 30);
         });
-
+        ctx.fillStyle = "white"; ctx.fillRect(player.x, player.y, player.w, player.h);
         ctx.restore();
+
+        drawMinimap();
         requestAnimationFrame(loop);
     }
+
+    // 隨動怪物生成
+    setInterval(() => { if(!isPaused && enemies.length < 4) enemies.push({x: player.x + (Math.random()>0.5?500:-500), y: player.y-200, w:30, h:30, hp:30, vx:0, vy:0}); }, 4000);
+
     loop();
 </script>
 </body>
