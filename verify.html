@@ -2,29 +2,29 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>啟動碼驗證</title>
+    <title>授權驗證</title>
     <style>
         body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: #161b22; padding: 40px; border-radius: 20px; text-align: center; width: 350px; border: 1px solid #f85149; }
-        input { width: 100%; padding: 12px; margin: 20px 0; border-radius: 8px; border: 1px solid #30363d; background: #000; color: #32CD32; font-family: monospace; text-align: center; font-size: 18px; }
+        .card { background: #161b22; padding: 40px; border-radius: 20px; text-align: center; width: 320px; border: 1px solid #f85149; }
+        input { width: 100%; padding: 12px; margin: 20px 0; border-radius: 8px; border: 1px solid #30363d; background: #000; color: #32CD32; text-align: center; }
         button { width: 100%; padding: 12px; background: #f85149; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .buy-link { color: #8b949e; text-decoration: none; font-size: 14px; margin-top: 15px; display: block; }
+        a { color: #8b949e; text-decoration: none; display: block; margin-top: 15px; font-size: 14px; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h3>輸入產品啟動碼</h3>
-        <input type="text" id="keyCode" placeholder="XXXX-XXXX-XXXX">
-        <button onclick="checkKey()">啟動程序</button>
-        <a href="buy.html" class="buy-link">尚未取得啟動碼？前往購買</a>
+        <h3>輸入隨機啟動碼</h3>
+        <input type="text" id="k" placeholder="鍵入您獲得的啟動碼">
+        <button onclick="v()">驗證啟動</button>
+        <a href="buy.html">尚未取得？前往購買</a>
     </div>
     <script>
-        const VALID_KEY = "GAME-2026-MC"; 
-        function checkKey() {
-            if(document.getElementById('keyCode').value.toUpperCase() === VALID_KEY) {
-                localStorage.setItem('isActivated', 'true');
-                window.location.href = 'game.html'; // 注意：這裡跳轉到 game.html
-            } else { alert("無效的啟動碼！"); }
+        function v() {
+            const activeCode = localStorage.getItem('current_code');
+            if(document.getElementById('k').value.toUpperCase() === activeCode) {
+                localStorage.setItem('active', 'true');
+                window.location.href = 'game.html';
+            } else { alert("啟動碼無效或已過期！"); }
         }
     </script>
 </body>
