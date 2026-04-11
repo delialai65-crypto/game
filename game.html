@@ -5,7 +5,7 @@
     <title>遠征世界</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; }
-        nav { position: fixed; top:0; width:100%; background:rgba(0,0,0,0.8); color:white; padding:10px; z-index:10; }
+        nav { position: fixed; top:0; width:100%; background:rgba(0,0,0,0.8); color:white; padding:10px; z-index:10; font-family: sans-serif; }
         canvas { display: block; background: #87CEEB; }
     </style>
 </head>
@@ -14,22 +14,32 @@
 <canvas id="game"></canvas>
 <script>
     const user = localStorage.getItem('mc_user') || "玩家";
-    const rank = localStorage.getItem('rank') || "一般";
+    const rank = localStorage.getItem('rank') || "學生方案";
     document.getElementById('nav').innerText = `玩家: ${user} | 方案: ${rank}`;
 
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    
+    // 初始化畫布大小
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.onresize = resize;
+    resize();
 
     const blockSize = 40;
     let world = {}, keys = {}, camera = { x: 0, y: 0 };
-    let player = { x: 400, y: -400, w: 28, h: 36, vx: 0, vy: 0, g: false };
+    // 初始位置設定在一個安全的高度
+    let player = { x: 400, y: 0, w: 26, h: 36, vx: 0, vy: 0, g: false };
 
     function generateColumn(x) {
         if (world[x]) return;
-        let groundY = (x < 1500) ? Math.floor(5 + Math.sin(x * 0.01) * 15) : 10;
+        // 增加地形平滑度與深度
+        let groundY = (x < 2000) ? Math.floor(10 + Math.sin(x * 0.008) * 8) : 12;
         world[x] = [];
-        for(let y = groundY; y < groundY + 30; y++) {
+        // 填滿 40 層深度，防止穿過底部
+        for(let y = groundY; y < groundY + 40; y++) {
             world[x].push({ y: y * blockSize, type: y === groundY ? 'grass' : 'dirt' });
         }
     }
@@ -39,10 +49,12 @@
 
     function checkColl(tx, ty) {
         const gx = Math.floor(tx / blockSize) * blockSize;
-        for (let cx of [gx-blockSize, gx, gx+blockSize]) {
+        // 擴大偵測範圍至左右兩格，防止高速移動穿牆
+        const checkPoints = [gx - blockSize, gx, gx + blockSize];
+        for (let cx of checkPoints) {
             if (world[cx]) {
                 for (let b of world[cx]) {
-                    if (tx < cx+blockSize && tx+player.w > cx && ty < b.y+blockSize && ty+player.h > b.y) return b;
+                    if (tx < cx + blockSize && tx + player.w > cx && ty < b.y + blockSize && ty + player.h > b.y) return b;
                 }
             }
         }
@@ -50,38 +62,77 @@
     }
 
     function loop() {
+        // 1. 物理重置：如果角色意外掉入深層虛空 (例如 y > 2500)
+        if(player.y > 2500) {
+            player.y = -500;
+            player.vy = 0;
+        }
+
+        // 2. 移動處理
         player.vx = (keys['KeyD'] ? 5 : 0) + (keys['KeyA'] ? -5 : 0);
+        
+        // X 軸碰撞
         player.x += player.vx;
         let hX = checkColl(player.x, player.y);
         if(hX) player.x = player.vx > 0 ? hX.x - player.w - 0.1 : hX.x + blockSize + 0.1;
 
+        // Y 軸碰撞 (重力與跳躍)
         if(keys['Space'] && player.g) { player.vy = -12; player.g = false; }
-        player.vy += 0.6; player.y += player.vy;
+        player.vy += 0.6;
+        player.y += player.vy;
+        
         let hY = checkColl(player.x, player.y);
         if(hY) {
-            if(player.vy > 0) { player.y = hY.y - player.h - 0.1; player.g = true; }
-            else { player.y = hY.y + blockSize + 0.1; }
+            if(player.vy > 0) { 
+                player.y = hY.y - player.h - 0.1; 
+                player.g = true; 
+            } else { 
+                player.y = hY.y + blockSize + 0.1; 
+            }
             player.vy = 0;
-        } else { player.g = false; }
+        } else { 
+            player.g = false; 
+        }
 
-        for(let x = Math.floor((player.x-1000)/blockSize)*blockSize; x <= player.x+1000; x+=blockSize) generateColumn(x);
+        // 3. 預先生成地形 (關鍵修正：生成的寬度必須大於螢幕寬度，防止出現藍天邊框)
+        let renderDist = canvas.width + 400; 
+        let startX = Math.floor((player.x - renderDist/2) / blockSize) * blockSize;
+        let endX = Math.floor((player.x + renderDist/2) / blockSize) * blockSize;
+        for(let x = startX; x <= endX; x += blockSize) {
+            generateColumn(x);
+        }
 
-        // 鏡頭鎖定角色中心
-        camera.x += (player.x - canvas.width/2 - camera.x) * 0.1;
-        camera.y += (player.y - canvas.height/2 - camera.y) * 0.1;
+        // 4. 攝影機隨動 (平滑追蹤)
+        let targetCamX = player.x - canvas.width / 2;
+        let targetCamY = player.y - canvas.height / 2;
+        camera.x += (targetCamX - camera.x) * 0.1;
+        camera.y += (targetCamY - camera.y) * 0.1;
 
-        ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0,canvas.width, canvas.height);
+        // 5. 渲染
+        ctx.fillStyle = "#87CEEB"; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
         ctx.save();
         ctx.translate(-camera.x, -camera.y);
+
+        // 只繪製攝影機視界內的方塊 (效能優化)
         for(let x in world) {
-            if (x > camera.x - 100 && x < camera.x + canvas.width + 100) {
+            const ix = parseInt(x);
+            if (ix > camera.x - blockSize && ix < camera.x + canvas.width + blockSize) {
                 world[x].forEach(b => {
                     ctx.fillStyle = b.type === 'grass' ? '#5da346' : '#855c33';
-                    ctx.fillRect(parseInt(x), b.y, blockSize-1, blockSize-1);
+                    ctx.fillRect(ix, b.y, blockSize - 1, blockSize - 1);
                 });
             }
         }
-        ctx.fillStyle = "white"; ctx.fillRect(player.x, player.y, player.w, player.h);
+
+        // 繪製玩家 (黃色發光)
+        ctx.fillStyle = "yellow";
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = "rgba(255, 255, 0, 0.8)";
+        ctx.fillRect(player.x, player.y, player.w, player.h);
+        ctx.shadowBlur = 0;
+        
         ctx.restore();
         requestAnimationFrame(loop);
     }
