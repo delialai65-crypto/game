@@ -2,172 +2,81 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>遠征世界 - 全能選單版</title>
+    <title>遠征世界</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
-        nav { position: fixed; top: 0; width: 100%; height: 50px; background: rgba(0,0,0,0.7); color: white; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; z-index: 100; backdrop-filter: blur(5px); }
-        
-        /* ESC 選單大面板 */
-        #pause-overlay { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.7); backdrop-filter: blur(15px); 
-            z-index: 1000; grid-template-columns: 350px 1fr; padding: 50px; box-sizing: border-box; gap: 30px;
-        }
-
-        /* 左側：操作按鈕 */
-        .side-menu { display: flex; flex-direction: column; gap: 15px; }
-        .menu-btn { 
-            padding: 18px; background: #21262d; border: 1px solid #30363d; color: white; 
-            border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px; text-align: left;
-        }
-        .menu-btn:hover { background: #30363d; border-color: #58a6ff; }
-        .btn-resume { background: #238636; border: none; }
-        .btn-quit { background: #da3633; border: none; }
-
-        /* 右側：商店與地圖展示區 */
-        .display-panel { display: grid; grid-template-rows: 1fr 1fr; gap: 20px; }
-        .panel-box { background: rgba(255,255,255,0.05); border-radius: 20px; border: 1px solid #333; padding: 20px; color: white; }
-        
-        /* 商店小格 */
-        .shop-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
-        .item { background: #0d1117; padding: 10px; border-radius: 8px; text-align: center; border: 1px solid #444; cursor: pointer; }
-        .item:hover { border-color: gold; }
-
-        #map-canvas { background: #000; width: 100%; height: 150px; border-radius: 10px; border: 1px solid #444; }
-
-        canvas#game { display: block; background: #1e90ff; }
+        body { margin: 0; background: #000; overflow: hidden; }
+        nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.7); color: white; padding: 10px; display: flex; justify-content: space-between; z-index: 100; }
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
+        .menu-btn { width: 200px; padding: 15px; margin: 5px; background: #238636; border: none; color: white; cursor: pointer; }
+        .shop-grid { display: flex; gap: 10px; margin-top: 20px; }
+        .item { border: 1px solid #fff; padding: 10px; cursor: pointer; }
+        canvas { display: block; background: #1e90ff; }
     </style>
 </head>
 <body>
-
-<nav>
-    <div id="p-info">👤 載入中...</div>
-    <div id="weapon-info" style="color: gold;">⚔️ 目前裝備：新手木棍</div>
-    <div id="coord">X: 0, Y: 0</div>
-</nav>
-
-<div id="pause-overlay">
-    <div class="side-menu">
-        <h1 style="color: #58a6ff; margin: 0;">遠征系統選單</h1>
-        <button class="menu-btn btn-resume" onclick="togglePause()">▶️ 返回遠征 (Resume)</button>
-        <button class="menu-btn" onclick="alert('存檔成功！已保存至雲端。')">💾 手動儲存 (Save)</button>
-        <button class="menu-btn" onclick="window.location.href='buy.html'">💎 升級方案 (Upgrade)</button>
-        <button class="menu-btn btn-quit" onclick="saveAndQuit()">🚪 儲存並離開 (Quit)</button>
+<nav><div id="info">👤 載入中</div><div id="weapon" style="color:gold">裝備：新手木棍</div><div id="coord">X:0, Y:0</div></nav>
+<div id="overlay">
+    <h1>選單</h1>
+    <button class="menu-btn" onclick="togglePause()">返回遊戲</button>
+    <div class="shop-grid">
+        <div class="item" onclick="buy('鐵劍',100)">⚔️ 鐵劍 ($100)</div>
+        <div class="item" onclick="buy('鑽石劍',500)">💎 鑽石劍 ($500)</div>
     </div>
-
-    <div class="display-panel">
-        <div class="panel-box">
-            <h3>🛒 戰備商店 (武器與道具)</h3>
-            <div class="shop-grid">
-                <div class="item" onclick="buyWeapon('木劍', '#deb887')">🪵 木劍<br><small>$0</small></div>
-                <div class="item" onclick="buyWeapon('鐵劍', '#ced6e0')">⚔️ 鐵劍<br><small>$100</small></div>
-                <div class="item" onclick="buyWeapon('鑽石劍', '#70a1ff')">💎 鑽石劍<br><small>$500</small></div>
-            </div>
-        </div>
-        <div class="panel-box">
-            <h3>🗺️ 區域掃描儀 (Map)</h3>
-            <canvas id="map-canvas"></canvas>
-            <p style="font-size: 12px; color: #8b949e; margin-top: 5px;">📍 綠色：你 | 🔴：威脅 | 🛖：村莊</p>
-        </div>
-    </div>
+    <canvas id="map" width="300" height="150" style="background:#000; margin-top:20px; border:1px solid #fff;"></canvas>
+    <button class="menu-btn" style="background:#f85149; margin-top:20px;" onclick="window.location.href='index.html'">儲存並離開</button>
 </div>
-
 <canvas id="game"></canvas>
-
 <script>
     const user = localStorage.getItem('mc_user') || "冒險者";
-    document.getElementById('p-info').innerText = `👤 ${user}`;
-
+    document.getElementById('info').innerText = `🌍 ${user}`;
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
-    const mapCanvas = document.getElementById('map-canvas');
-    const mapCtx = mapCanvas.getContext('2d');
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
 
     let isPaused = false;
-    let currentWeapon = "新手木棍";
-    let weaponColor = "#fff";
+    let world = {}, entities = [], keys = {}, camera = { x: 0, y: 0 };
+    let player = { x: 400, y: -200, w: 24, h: 34, vx: 0, vy: 0, g: false, weaponColor: "#fff" };
 
-    function resize() { 
-        canvas.width = window.innerWidth; 
-        canvas.height = window.innerHeight;
-        mapCanvas.width = 600; mapCanvas.height = 150;
-    }
-    window.onresize = resize; resize();
+    function spawn(t, x){ entities.push({t, x, y:-200, w:24, h:34, vx:0, vy:0, dir:1, hp:50}); }
+    for(let i=0;i<3;i++) spawn('villager', 600+i*200);
+    setInterval(()=>spawn('monster', player.x+800), 5000);
 
-    const blockSize = 40;
-    let world = {}, keys = {}, camera = { x: 0, y: 0 };
-    let player = { x: 400, y: -200, w: 24, h: 34, vx: 0, vy: 0, g: false };
+    function togglePause(){ isPaused = !isPaused; document.getElementById('overlay').style.display = isPaused?'flex':'none'; }
+    window.onkeydown=e=>{ if(e.code==='Escape') togglePause(); keys[e.code]=true; };
+    window.onkeyup=e=>keys[e.code]=false;
 
-    function togglePause() {
-        isPaused = !isPaused;
-        document.getElementById('pause-overlay').style.display = isPaused ? 'grid' : 'none';
-    }
+    function buy(n, p){ if(confirm(`購買 ${n}?`)){ player.weaponColor = n==='鐵劍'?'#ced6e0':'#70a1ff'; document.getElementById('weapon').innerText=`裝備：${n}`; togglePause(); } }
 
-    function buyWeapon(name, color) {
-        currentWeapon = name;
-        weaponColor = color;
-        document.getElementById('weapon-info').innerText = `⚔️ 目前裝備：${name}`;
-        document.getElementById('weapon-info').style.color = color;
-        alert(`已裝備：${name}！`);
-    }
-
-    function saveAndQuit() {
-        alert("正在儲存世界與角色資料...");
-        window.location.href = 'index.html';
-    }
-
-    window.onkeydown = e => { if(e.code === 'Escape') togglePause(); keys[e.code] = true; };
-    window.onkeyup = e => keys[e.code] = false;
-
-    function generateColumn(x) {
-        const ix = Math.floor(x);
-        if (isNaN(ix) || world[ix]) return;
-        let groundY = Math.floor(12 + Math.sin(ix * 0.01) * 8);
-        world[ix] = [];
-        for(let y = groundY; y < groundY + 15; y++) world[ix].push({ y: y * blockSize });
-    }
-
-    function drawMap() {
-        mapCtx.fillStyle = "#000"; mapCtx.fillRect(0,0,600,150);
-        mapCtx.save();
-        mapCtx.translate(300 - player.x * 0.1, 75 - player.y * 0.1);
-        mapCtx.fillStyle = "#2ed573";
-        for(let x in world) {
-            if(Math.abs(x - player.x) < 2000) mapCtx.fillRect(x*0.1, 100*0.1, 2, 2);
-        }
-        mapCtx.fillStyle = "#fff"; mapCtx.fillRect(player.x*0.1, player.y*0.1, 5, 5); // 玩家點
-        mapCtx.restore();
-    }
-
-    function loop() {
-        if (!isPaused) {
-            player.vx = (keys['KeyD'] ? 6 : 0) + (keys['KeyA'] ? -6 : 0);
+    function loop(){
+        if(!isPaused){
+            player.vx = (keys['KeyD']?6:0)+(keys['KeyA']?-6:0);
             player.x += player.vx;
             player.vy += 0.7; player.y += player.vy;
-
-            // 簡易地表碰撞 (防止掉落)
-            let ground = Math.floor(12 + Math.sin(player.x * 0.01) * 8) * blockSize;
-            if(player.y + player.h > ground) {
-                player.y = ground - player.h;
-                player.vy = 0; player.g = true;
-            } else { player.g = false; }
-            if((keys['Space'] || keys['KeyW']) && player.g) { player.vy = -13; player.g = false; }
+            if(player.y > 500){ player.y = -200; player.vy = 0; } // 防消失
+            let ground = Math.floor(12 + Math.sin(player.x * 0.01) * 8) * 40;
+            if(player.y+player.h > ground){ player.y = ground-player.h; player.vy=0; player.g=true; }
+            if(keys['Space']&&player.g){ player.vy=-13; player.g=false; }
+            
+            entities.forEach(ent=>{
+                ent.vx = ent.t==='villager'?ent.dir*1.5:(player.x>ent.x?2.5:-2.5);
+                ent.x += ent.vx; ent.vy+=0.7; ent.y+=ent.vy;
+                let eg = Math.floor(12 + Math.sin(ent.x * 0.01) * 8) * 40;
+                if(ent.y+ent.h > eg){ ent.y = eg-ent.h; ent.vy=0; }
+            });
         }
-
         camera.x += (player.x - canvas.width/2 - camera.x) * 0.1;
         camera.y += (player.y - canvas.height/2 - camera.y) * 0.1;
 
         ctx.fillStyle = "#1e90ff"; ctx.fillRect(0,0,canvas.width, canvas.height);
         ctx.save(); ctx.translate(-camera.x, -camera.y);
-        for(let x = Math.floor((player.x - 1000)/blockSize)*blockSize; x <= player.x + 1000; x += blockSize) {
-            generateColumn(x);
-            if(world[x]) world[x].forEach(b => { ctx.fillStyle = '#2ed573'; ctx.fillRect(x, b.y, blockSize-1, blockSize-1); });
+        for(let x=Math.floor((player.x-1000)/40)*40; x<player.x+1000; x+=40){
+            let gy = Math.floor(12 + Math.sin(x * 0.01) * 8);
+            ctx.fillStyle = '#2ed573'; ctx.fillRect(x, gy*40, 39, 39);
         }
-        ctx.fillStyle = weaponColor; ctx.fillRect(player.x, player.y, player.w, player.h);
+        entities.forEach(ent=>{ ctx.fillStyle=ent.t==='villager'?'#ffa502':'#ff4757'; ctx.fillRect(ent.x, ent.y, ent.w, ent.h); });
+        ctx.fillStyle = player.weaponColor; ctx.fillRect(player.x, player.y, player.w, player.h);
         ctx.restore();
-
-        if(isPaused) drawMap();
-        document.getElementById('coord').innerText = `X: ${Math.round(player.x)}, Y: ${Math.round(-player.y)}`;
+        document.getElementById('coord').innerText = `X:${Math.round(player.x)}, Y:${Math.round(-player.y)}`;
         requestAnimationFrame(loop);
     }
     loop();
