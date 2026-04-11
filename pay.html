@@ -2,34 +2,82 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>結帳資料</title>
+    <title>安全支付 - 資料填寫</title>
     <style>
         body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: #161b22; padding: 30px; border-radius: 20px; width: 400px; border: 1px solid #333; }
-        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #0d1117; color: white; border: 1px solid #333; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #238636; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        .card { background: #161b22; padding: 30px; border-radius: 20px; width: 450px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .price { color: #2ecc71; font-size: 28px; font-weight: bold; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        label { display: block; text-align: left; font-size: 13px; color: #8b949e; margin-bottom: 5px; }
+        input, select { width: 100%; padding: 12px; margin-bottom: 15px; background: #0d1117; color: white; border: 1px solid #30363d; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; background: #238636; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background: #2ea043; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h2 id="title">結帳資料</h2>
-        <input type="text" id="name" placeholder="真實姓名">
-        <input type="tel" id="phone" placeholder="電話">
-        <div id="card-box" style="display:none">
-            <select id="bank"><option value="">選擇銀行</option><option value="玉山">玉山</option><option value="中信">中信</option><option value="國泰">國泰</option></select>
-            <input type="text" placeholder="卡號">
+        <h2 id="method-name">支付授權</h2>
+        <div id="price-display" class="price">NT$ 0</div>
+        
+        <div style="text-align: left;">
+            <label>付款人真實姓名</label>
+            <input type="text" id="u-name" placeholder="範例：賴嫦瑜">
+            
+            <label>聯絡電話</label>
+            <input type="tel" id="u-phone" placeholder="09XX-XXX-XXX">
+
+            <div id="bank-section" style="display:none;">
+                <label>選擇發卡銀行</label>
+                <select id="u-bank">
+                    <option value="">請選擇銀行</option>
+                    <option value="004-臺灣銀行">004-臺灣銀行</option>
+                    <option value="005-臺灣土地銀行">005-臺灣土地銀行</option>
+                    <option value="006-合作金庫銀行">006-合作金庫銀行</option>
+                    <option value="007-第一商業銀行">007-第一商業銀行</option>
+                    <option value="008-華南商業銀行">008-華南商業銀行</option>
+                    <option value="009-彰化商業銀行">009-彰化商業銀行</option>
+                    <option value="011-上海商業儲蓄銀行">011-上海商業儲蓄銀行</option>
+                    <option value="012-台北富邦銀行">012-台北富邦銀行</option>
+                    <option value="013-國泰世華銀行">013-國泰世華銀行</option>
+                    <option value="017-兆豐國際商業銀行">017-兆豐國際商業銀行</option>
+                    <option value="021-花旗(台灣)銀行">021-花旗(台灣)銀行</option>
+                    <option value="048-王道商業銀行">048-王道商業銀行</option>
+                    <option value="050-臺灣中小企業銀行">050-臺灣中小企業銀行</option>
+                    <option value="052-渣打國際商業銀行">052-渣打國際商業銀行</option>
+                    <option value="053-台中商業銀行">053-台中商業銀行</option>
+                    <option value="081-匯豐(台灣)銀行">081-匯豐(台灣)銀行</option>
+                    <option value="103-臺灣新光商業銀行">103-臺灣新光商業銀行</option>
+                    <option value="700-中華郵政">700-中華郵政</option>
+                    <option value="803-聯邦商業銀行">803-聯邦商業銀行</option>
+                    <option value="807-永豐商業銀行">807-永豐商業銀行</option>
+                    <option value="808-玉山商業銀行">808-玉山商業銀行</option>
+                    <option value="812-台新國際商業銀行">812-台新國際商業銀行</option>
+                    <option value="822-中國信託銀行">822-中國信託銀行</option>
+                    <option value="999-其他銀行">其他銀行</option>
+                </select>
+                <label>信用卡卡號</label>
+                <input type="text" placeholder="XXXX XXXX XXXX XXXX">
+            </div>
         </div>
-        <button onclick="done()">確認付款</button>
+        
+        <button onclick="payDone()">確認支付並領取道具</button>
     </div>
+
     <script>
-        const m = localStorage.getItem('selected_method');
-        document.getElementById('title').innerText = m;
-        if(m.includes('信用卡')) document.getElementById('card-box').style.display='block';
-        function done(){
-            const code = "MC-"+Math.random().toString(36).substr(2,4).toUpperCase();
-            localStorage.setItem('current_code',code);
-            alert("支付成功！啟動碼："+code);
-            window.location.href='verify.html';
+        const method = localStorage.getItem('selected_method') || "全支付";
+        const price = localStorage.getItem('temp_price') || "0";
+        document.getElementById('method-name').innerText = method;
+        document.getElementById('price-display').innerText = "NT$ " + price;
+
+        if(method.includes("信用卡")) {
+            document.getElementById('bank-section').style.display = "block";
+        }
+
+        function payDone() {
+            if(!document.getElementById('u-name').value) return alert("請輸入姓名！");
+            const code = "MC-" + Math.random().toString(36).substr(2, 4).toUpperCase();
+            localStorage.setItem('current_code', code);
+            alert("✅ 支付完成！\n道具已解鎖。");
+            window.location.href = 'verify.html';
         }
     </script>
 </body>
