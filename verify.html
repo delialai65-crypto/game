@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>授權驗證</title>
+    <style>
+        body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #161b22; padding: 40px; border-radius: 20px; text-align: center; width: 350px; border: 1px solid #f85149; }
+        input { width: 100%; padding: 12px; margin: 20px 0; border-radius: 8px; border: 1px solid #30363d; background: #000; color: #32CD32; font-family: monospace; text-align: center; font-size: 18px; }
+        button { width: 100%; padding: 12px; background: #f85149; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        .buy-link { color: #8b949e; text-decoration: none; font-size: 14px; }
+        .buy-link:hover { color: #58a6ff; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h3>請輸入產品啟動碼</h3>
+        <p style="font-size: 12px; color: #8b949e;">此版本需要有效授權才能啟動</p>
+        <input type="text" id="keyCode" placeholder="XXXX-XXXX-XXXX">
+        <button onclick="checkKey()">啟動遠征程序</button>
+        <br>
+        <a href="buy.html" class="buy-link">尚未取得啟動碼？點此前往商店購買</a>
+    </div>
+    <script>
+        // 這裡設定一個預設的啟動碼作為範例，你可以改成你想要的
+        const VALID_KEY = "GAME-2026-MC";
+
+        function checkKey() {
+            const inputKey = document.getElementById('keyCode').value.toUpperCase();
+            if(inputKey === VALID_KEY) {
+                alert("驗證成功！歡迎進入遠征隊。");
+                localStorage.setItem('isActivated', 'true');
+                window.location.href = 'index.html';
+            } else {
+                alert("無效的啟動碼！請重新輸入或前往購買。");
+            }
+        }
+    </script>
+</body>
+</html>
