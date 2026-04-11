@@ -1,16 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <title>遠征隊 - 帳號系統</title>
+    <meta charset="UTF-8"><title>遠征隊 - 帳號系統</title>
     <style>
         body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .card { background: #161b22; padding: 30px; border-radius: 20px; width: 350px; border: 1px solid #30363d; text-align: center; }
-        .tab-box { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #333; }
-        .tab { flex: 1; padding: 10px; cursor: pointer; color: #8b949e; }
-        .active { color: #58a6ff; border-bottom: 2px solid #58a6ff; font-weight: bold; }
         input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: white; box-sizing: border-box; outline: none; }
-        /* 隱藏數字框箭頭 */
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         button { width: 100%; padding: 12px; background: #238636; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 15px; }
@@ -18,22 +13,20 @@
 </head>
 <body>
     <div class="card">
-        <div class="tab-box"><div id="t1" class="tab active" onclick="switchTab('reg')">註冊</div><div id="t2" class="tab" onclick="switchTab('log')">登入</div></div>
-        <div id="reg-form">
-            <input type="text" id="r-name" placeholder="真實姓名">
-            <div style="display: flex; gap: 5px;"><input type="number" id="r-y" placeholder="年" style="flex:2"><input type="number" id="r-m" placeholder="月" style="flex:1"><input type="number" id="r-d" placeholder="日" style="flex:1"></div>
-            <input type="text" id="r-acc" placeholder="帳號"><input type="password" id="r-pwd" placeholder="密碼">
-            <button onclick="doReg()">完成註冊</button>
-        </div>
-        <div id="log-form" style="display:none">
-            <input type="text" id="l-acc" placeholder="帳號"><input type="password" id="l-pwd" placeholder="密碼">
-            <button onclick="doLog()">登入</button>
-        </div>
+        <h2>遠征隊啟動器</h2>
+        <input type="text" id="r-name" placeholder="真實姓名">
+        <input type="number" id="r-y" placeholder="出生年">
+        <input type="text" id="r-acc" placeholder="帳號">
+        <input type="password" id="r-pwd" placeholder="密碼">
+        <button onclick="doReg()">註冊並前往方案商店</button>
     </div>
     <script>
-        function switchTab(m){ document.getElementById('reg-form').style.display=m==='reg'?'block':'none'; document.getElementById('log-form').style.display=m==='log'?'block':'none'; document.getElementById('t1').className=m==='reg'?'tab active':'tab'; document.getElementById('t2').className=m==='log'?'tab active':'tab'; }
-        function doReg(){ const u={name:document.getElementById('r-name').value,acc:document.getElementById('r-acc').value,pwd:document.getElementById('r-pwd').value}; localStorage.setItem('user_db',JSON.stringify(u)); alert("註冊成功"); switchTab('log'); }
-        function doLog(){ const db=JSON.parse(localStorage.getItem('user_db')); if(db&&db.acc===document.getElementById('l-acc').value&&db.pwd===document.getElementById('l-pwd').value){ localStorage.setItem('mc_user',db.name); window.location.href='buy.html'; }else{alert("錯誤");}}
+        function doReg() {
+            const u = { name: document.getElementById('r-name').value, acc: document.getElementById('r-acc').value };
+            localStorage.setItem('user_db', JSON.stringify(u));
+            localStorage.setItem('mc_user', u.name);
+            window.location.href = 'buy.html';
+        }
     </script>
 </body>
 </html>
