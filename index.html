@@ -2,26 +2,61 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>遠征隊 ID 註冊</title>
+    <title>遠征隊 - 帳號系統</title>
     <style>
-        body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .card { background: #161b22; padding: 40px; border-radius: 20px; text-align: center; width: 320px; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        input { width: 100%; padding: 12px; margin: 20px 0; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: #58a6ff; box-sizing: border-box; outline: none; }
-        button { width: 100%; padding: 12px; background: #238636; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: #161b22; padding: 30px; border-radius: 20px; width: 350px; border: 1px solid #30363d; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
+        .tab-box { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #333; }
+        .tab { flex: 1; padding: 10px; cursor: pointer; color: #8b949e; }
+        .active { color: #58a6ff; border-bottom: 2px solid #58a6ff; font-weight: bold; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: white; box-sizing: border-box; outline: none; }
+        label { display: block; text-align: left; font-size: 12px; color: #8b949e; margin-top: 5px; }
+        button { width: 100%; padding: 12px; background: #238636; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 15px; }
     </style>
 </head>
 <body>
     <div class="card">
-        <h2>遠征隊 ID 系統</h2>
-        <input type="text" id="pID" placeholder="請輸入玩家暱稱...">
-        <button onclick="save()">登入 / 註冊</button>
+        <div class="tab-box">
+            <div id="t1" class="tab active" onclick="switchTab('reg')">註冊</div>
+            <div id="t2" class="tab" onclick="switchTab('log')">登入</div>
+        </div>
+        <div id="reg-form">
+            <input type="text" id="r-name" placeholder="真實姓名">
+            <label>生日 (年/月/日)</label>
+            <div style="display: flex; gap: 5px;">
+                <input type="number" id="r-y" placeholder="2016" style="flex:2">
+                <input type="number" id="r-m" placeholder="4" style="flex:1">
+                <input type="number" id="r-d" placeholder="11" style="flex:1">
+            </div>
+            <input type="text" id="r-acc" placeholder="設定帳號">
+            <input type="password" id="r-pwd" placeholder="設定密碼">
+            <button onclick="doReg()">完成註冊</button>
+        </div>
+        <div id="log-form" style="display:none">
+            <input type="text" id="l-acc" placeholder="帳號">
+            <input type="password" id="l-pwd" placeholder="密碼">
+            <button onclick="doLog()">登入</button>
+        </div>
     </div>
     <script>
-        function save() {
-            const name = document.getElementById('pID').value;
-            if(!name) return alert("請輸入名稱");
-            localStorage.setItem('mc_user', name);
-            window.location.href = 'verify.html';
+        function switchTab(mode) {
+            document.getElementById('reg-form').style.display = mode === 'reg' ? 'block' : 'none';
+            document.getElementById('log-form').style.display = mode === 'log' ? 'block' : 'none';
+            document.getElementById('t1').className = 'tab ' + (mode === 'reg' ? 'active' : '');
+            document.getElementById('t2').className = 'tab ' + (mode === 'log' ? 'active' : '');
+        }
+        function doReg() {
+            const user = { name: document.getElementById('r-name').value, acc: document.getElementById('r-acc').value, pwd: document.getElementById('r-pwd').value };
+            if(!user.acc || !user.pwd) return alert("請填寫完整");
+            localStorage.setItem('user_db', JSON.stringify(user));
+            alert("註冊成功！請登入。"); switchTab('log');
+        }
+        function doLog() {
+            const db = JSON.parse(localStorage.getItem('user_db'));
+            if(db && db.acc === document.getElementById('l-acc').value && db.pwd === document.getElementById('l-pwd').value) {
+                localStorage.setItem('mc_user', db.name);
+                window.location.href = 'verify.html';
+            } else { alert("錯誤！"); }
         }
     </script>
 </body>
