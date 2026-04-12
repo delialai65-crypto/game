@@ -1,32 +1,38 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>遠征世界 - 完整生態系</title>
+    <meta charset="UTF-8"><title>遠征世界 - 礦區與戰鬥</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
-        canvas { display: block; background: #87CEEB; }
+        canvas { display: block; background: #87CEEB; cursor: crosshair; }
         nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.6); color: white; padding: 10px 20px; display: flex; justify-content: space-between; z-index: 100; box-sizing: border-box; }
-        #chat-box { position: fixed; bottom: 80px; left: 20px; width: 300px; height: 150px; background: rgba(0,0,0,0.3); color: white; padding: 10px; overflow-y: auto; font-size: 14px; border-radius: 4px; display: none; }
-        #chat-in { position: fixed; bottom: 40px; left: 20px; width: 300px; padding: 8px; background: rgba(0,0,0,0.8); color: white; border: 1px solid #555; display: none; outline: none; }
-        #esc-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        #hotbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; background: rgba(0,0,0,0.8); padding: 5px; border: 2px solid #fff; }
+        .slot { width: 45px; height: 45px; border: 1px solid #555; display: flex; justify-content: center; align-items: center; color: white; font-size: 20px; cursor: pointer; }
+        .slot.active { border: 2px solid #ffff00; background: rgba(255,255,255,0.2); }
+        #esc-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
         .btn { width: 280px; padding: 15px; margin: 10px; background: #4e4e4e; color: white; border: 2px solid #fff; cursor: pointer; text-align: center; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <nav>
-    <div>👤 隊員: <span id="p-name">載入中</span></div>
-    <div>💎 SUPER 點數: <span id="pts">0</span></div>
-    <div id="coords" style="color:#2ecc71">X: 0, Y: 0</div>
+    <div>👤 <span id="p-name">載入中</span> | ❤️ HP: <span id="hp-val">20</span></div>
+    <div>🟡 SUPER 點數: <span id="pts-val">0</span></div>
+    <div id="coords">X: 0, Y: 0</div>
 </nav>
 
-<div id="chat-box"></div>
-<input type="text" id="chat-in" placeholder="按 T 聊天 / 按 Enter 發送">
+<div id="hotbar">
+    <div class="slot active" id="s1" onclick="sel(1)">🌱</div>
+    <div class="slot" id="s2" onclick="sel(2)">🟫</div>
+    <div class="slot" id="s3" onclick="sel(3)">🧱</div>
+    <div class="slot" id="s4" onclick="sel(4)">🪵</div>
+    <div class="slot" id="s5" onclick="sel(5)">⚔️</div>
+</div>
 
 <div id="esc-menu">
     <h1 style="color:white">遠征暫停</h1>
     <div class="btn" onclick="toggleEsc()">回到遊戲</div>
-    <div class="btn" onclick="location.href='main-menu.html'">儲存並離開</div>
+    <div class="btn" onclick="location.href='main-menu.html'">退出遊戲</div>
 </div>
 
 <canvas id="game"></canvas>
@@ -36,100 +42,101 @@
     const ctx = canvas.getContext('2d');
     const blockSize = 40;
     
-    let player = { x: 400, y: -200, w: 24, h: 36, vx: 0, vy: 0, g: false, speed: 6 };
-    let world = {}, entities = [], keys = {}, isEsc = false, isT = false;
-    let camera = { x: 0, y: 0 }, superPts = parseInt(localStorage.getItem('super_points')) || 0;
+    let player = { x: 400, y: -100, w: 24, h: 36, vx: 0, vy: 0, g: false, hp: 20 };
+    let world = {}, entities = [], keys = {}, isEsc = false, selected = 'grass';
+    let camera = { x: 0, y: 0 };
 
     const params = new URLSearchParams(window.location.search);
     const botCount = Math.min(parseInt(params.get('players')) || 2, 50);
-
     document.getElementById('p-name').innerText = localStorage.getItem('mc_user') || "冒險者";
 
-    // --- 規則：地形與村莊生成 ---
+    // --- 規則：地圖填滿與村莊 ---
     function genTerrain(gx) {
         if (world[gx]) return;
         const x = gx / blockSize;
-        let gy = Math.floor(12 + Math.sin(x * 0.1) * 6); // 丘陵波浪
+        let gy = Math.floor(12 + Math.sin(x * 0.1) * 5); 
         world[gx] = {};
-        for(let y = gy; y < gy + 15; y++) world[gx][y * blockSize] = (y === gy) ? '#2ecc71' : '#8b5a2b';
-
-        // 隨機生成村莊房屋 (木頭房子)
-        if(Math.random() < 0.05) {
-            for(let h=1; h<4; h++) world[gx][(gy-h)*blockSize] = '#6d4c41';
-            spawnEntity(gx, (gy-1)*blockSize, 'villager');
+        for(let y = gy; y < gy + 30; y++) { // 填滿 30 層地心
+            let type = (y === gy) ? 'grass' : (y < gy + 4 ? 'dirt' : 'stone');
+            world[gx][y * blockSize] = type;
         }
-        // 隨機生成怪物 (殭屍)
-        if(Math.random() < 0.02) spawnEntity(gx, (gy-1)*blockSize, 'zombie');
+        if(Math.random() < 0.05) spawnEntity(gx, (gy-1)*blockSize, 'zombie');
     }
 
     function spawnEntity(x, y, type) {
-        entities.push({ x, y, vx: 0, vy: 0, type, g: false, w: 24, h: 36, name: type==='villager'?'村民':'殭屍' });
+        entities.push({ x, y, vx: 0, vy: 0, type, g: false, w: 24, h: 36 });
     }
 
-    // 初始化隊友 (2-50人)
-    for(let i=0; i<botCount-1; i++) {
-        entities.push({ x: 400+i*30, y: -200, vx: 0, vy: 0, type: 'mate', g: false, w: 24, h: 36, name: "隊友_"+(i+1) });
-    }
+    for(let i=0; i<botCount-1; i++) spawnEntity(400+i*30, -200, 'mate');
 
-    // --- 嚴格物理規則 (禁止穿牆) ---
+    // --- 規則：挖掘、建築與攻擊 ---
+    canvas.onmousedown = e => {
+        if(isEsc) return;
+        let mx = Math.floor((e.clientX + camera.x) / blockSize) * blockSize;
+        let my = Math.floor((e.clientY + camera.y) / blockSize) * blockSize;
+        
+        if(selected === 'sword') { // 攻擊模式
+            entities = entities.filter(en => {
+                let dist = Math.hypot(en.x - (e.clientX + camera.x), en.y - (e.clientY + camera.y));
+                return dist > 50 || en.type === 'mate'; // 僅殺死怪物
+            });
+        } else if(e.button === 0) { // 挖掘
+            if(world[mx]) delete world[mx][my];
+        } else if(e.button === 2) { // 放置
+            if(!world[mx]) world[mx] = {};
+            world[mx][my] = selected;
+        }
+    };
+    canvas.oncontextmenu = e => e.preventDefault();
+
+    // --- 規則：禁止穿牆的物理引擎 ---
     function applyPhysics(obj) {
-        obj.vy += 0.8;
-        let nextY = obj.y + obj.vy;
+        obj.vy += 0.8; 
         let nextX = obj.x + obj.vx;
+        let nextY = obj.y + obj.vy;
 
-        let gx = Math.floor((nextX + 12) / blockSize) * blockSize;
-        let gy = Math.floor((nextY + 36) / blockSize) * blockSize;
-
-        // 水平碰撞
+        // 水平禁止穿牆
         let gxSide = Math.floor((obj.vx > 0 ? nextX + 24 : nextX) / blockSize) * blockSize;
         let gyMid = Math.floor((obj.y + 18) / blockSize) * blockSize;
-        if (!(world[gxSide] && world[gxSide][gyMid])) {
-            obj.x = nextX;
-        } else { obj.vx = 0; }
+        if (!(world[gxSide] && world[gxSide][gyMid])) obj.x = nextX;
 
-        // 垂直碰撞
-        if (world[gx] && world[gx][gy]) {
-            obj.y = gy - 36;
-            obj.vy = 0;
-            obj.g = true;
-        } else {
-            obj.y = nextY;
-            obj.g = false;
-        }
+        // 垂直禁止穿牆
+        let gx = Math.floor((obj.x + 12) / blockSize) * blockSize;
+        let gy = Math.floor((nextY + 36) / blockSize) * blockSize;
+        if (world[gx] && world[gx][gy]) { obj.y = gy - 36; obj.vy = 0; obj.g = true; }
+        else { obj.y = nextY; obj.g = false; }
     }
 
-    // --- 遊戲邏輯 ---
-    window.onkeydown = e => {
-        if(e.code==='Escape') toggleEsc();
-        if(e.code==='KeyT' && !isEsc && !isT) toggleChat(true);
-        if(e.code==='Enter' && isT) sendMsg();
-        keys[e.code] = true;
-    };
-    window.onkeyup = e => keys[e.code] = false;
+    function toggleEsc() { isEsc = !isEsc; document.getElementById('esc-menu').style.display = isEsc?'flex':'none'; }
+    function sel(n) {
+        document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
+        document.getElementById('s'+n).classList.add('active');
+        const types = ['grass', 'dirt', 'stone', 'wood', 'sword'];
+        selected = types[n-1];
+    }
 
-    function toggleEsc() { isEsc=!isEsc; document.getElementById('esc-menu').style.display=isEsc?'flex':'none'; }
-    function toggleChat(o) { isT=o; document.getElementById('chat-box').style.display=o?'block':'none'; document.getElementById('chat-in').style.display=o?'block':'none'; if(o)document.getElementById('chat-in').focus(); }
-    function sendMsg() { let v=document.getElementById('chat-in').value; if(v){let l=document.getElementById('chat-box'); l.innerHTML+=`<div><b>我:</b> ${v}</div>`; l.scrollTop=l.scrollHeight;} document.getElementById('chat-input').value=""; toggleChat(false); }
+    window.onkeydown = e => { if(e.code==='Escape') toggleEsc(); keys[e.code]=true; if(e.key>='1'&&e.key<='5') sel(e.key); };
+    window.onkeyup = e => keys[e.code]=false;
 
     function loop() {
-        if(!isEsc && !isT) {
+        if(!isEsc) {
             player.vx = (keys['KeyD']?6:0) + (keys['KeyA']?-6:0);
             if((keys['Space'] || keys['KeyW']) && player.g) player.vy = -14;
             applyPhysics(player);
-
-            if(Date.now()%1000 < 20) { superPts++; localStorage.setItem('super_points', superPts); document.getElementById('pts').innerText=superPts; }
+            
+            // 怪物 AI 與戰鬥傷害
+            entities.forEach(en => {
+                if(en.type === 'zombie') {
+                    en.vx = player.x > en.x ? 2 : -2;
+                    if(Math.hypot(en.x - player.x, en.y - player.y) < 30) {
+                        player.hp -= 0.05; // 觸碰扣血
+                        document.getElementById('hp-val').innerText = Math.ceil(player.hp);
+                    }
+                }
+                applyPhysics(en);
+            });
 
             for(let i=player.x-1000; i<player.x+1000; i+=blockSize) genTerrain(Math.floor(i/blockSize)*blockSize);
-
-            entities.forEach(e => {
-                // 簡單 AI
-                if(e.type === 'zombie') e.vx = (player.x > e.x ? 2 : -2); // 殭屍追玩家
-                else if(e.type === 'villager') { if(Math.random()<0.01) e.vx = (Math.random()-0.5)*4; } // 村民亂走
-                else { if(Math.random()<0.02) e.vx = (Math.random()-0.5)*6; } // 隊友亂走
-                
-                if(Math.random()<0.01 && e.g) e.vy = -12; // 隨機跳躍避障
-                applyPhysics(e);
-            });
         }
 
         camera.x += (player.x - canvas.width/2 - camera.x) * 0.1;
@@ -140,24 +147,20 @@
 
         for(let x in world) {
             for(let y in world[x]) {
-                ctx.fillStyle = world[x][y];
+                let t = world[x][y];
+                ctx.fillStyle = t==='grass'?'#2ecc71':(t==='dirt'?'#8b5a2b':'#7f8c8d');
                 ctx.fillRect(x, parseInt(y), blockSize-1, blockSize-1);
             }
         }
-
         entities.forEach(e => {
-            ctx.fillStyle = e.type==='zombie'?'#2ecc71':(e.type==='villager'?'#f1c40f':'#d35400');
+            ctx.fillStyle = e.type==='zombie'?'#2ecc71':'#d35400';
             ctx.fillRect(e.x, e.y, e.w, e.h);
-            ctx.fillStyle="white"; ctx.textAlign="center"; ctx.fillText(e.name, e.x+12, e.y-5);
         });
-
         ctx.fillStyle = "white"; ctx.fillRect(player.x, player.y, player.w, player.h);
         ctx.restore();
-
-        document.getElementById('coords').innerText = `X: ${Math.round(player.x)}, Y: ${Math.round(-player.y)}`;
+        
         requestAnimationFrame(loop);
     }
-
     window.onload = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; loop(); };
 </script>
 </body>
