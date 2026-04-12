@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8"><title>Minecraft 社群中心</title>
+    <style>
+        body { margin: 0; background: #0d1117; color: white; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; }
+        .nav { background: #1a1a1a; padding: 15px 40px; display: flex; align-items: center; border-bottom: 2px solid #333; }
+        .chat-container { flex: 1; display: flex; flex-direction: column; max-width: 1000px; margin: 20px auto; width: 90%; background: #161b22; border-radius: 10px; border: 1px solid #30363d; overflow: hidden; }
+        #chat-log { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+        .msg { padding: 10px 15px; border-radius: 15px; max-width: 70%; line-height: 1.4; }
+        .msg.other { background: #21262d; align-self: flex-start; }
+        .msg.me { background: #238636; align-self: flex-end; }
+        .input-area { padding: 20px; background: #0d1117; border-top: 1px solid #30363d; display: flex; gap: 10px; }
+        input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: white; outline: none; }
+        button { padding: 0 25px; background: #2ecc71; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="nav">
+        <span style="color:#58a6ff; cursor:pointer;" onclick="location.href='product-selection.html'">返回首頁</span>
+        <h2 style="margin: 0 auto;">Minecraft 遠征隊官方社群</h2>
+    </div>
+    <div class="chat-container">
+        <div id="chat-log">
+            <div class="msg other"><b>系統管理員:</b> 歡迎來到遠征隊社群！在這裡你可以找到隊友一起冒險。</div>
+            <div class="msg other"><b>玩家_小明:</b> 有人要一起去 3000m 大山挖鑽石嗎？</div>
+        </div>
+        <div class="input-area">
+            <input type="text" id="m-input" placeholder="在這裡輸入訊息...">
+            <button onclick="sendMsg()">發送</button>
+        </div>
+    </div>
+    <script>
+        const user = localStorage.getItem('mc_user') || "冒險者";
+        function sendMsg() {
+            const input = document.getElementById('m-input');
+            if(!input.value) return;
+            const log = document.getElementById('chat-log');
+            log.innerHTML += `<div class="msg me"><b>${user}:</b> ${input.value}</div>`;
+            input.value = "";
+            log.scrollTop = log.scrollHeight;
+        }
+    </script>
+</body>
+</html>
