@@ -1,39 +1,39 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>遠征世界 - 幽靈模式</title>
+    <meta charset="UTF-8"><title>遠征世界 - 終極核心</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
         canvas { display: block; background: #87CEEB; }
         
-        /* 聊天室樣式 */
-        #chat-log { 
-            position: fixed; bottom: 80px; left: 20px; width: 350px; height: 180px; 
-            background: rgba(0, 0, 0, 0.4); color: white; padding: 12px; 
-            overflow-y: auto; border-radius: 4px; font-size: 14px; text-shadow: 1px 1px 1px #000;
-            display: none; pointer-events: none;
-        }
-        #chat-input {
-            position: fixed; bottom: 40px; left: 20px; width: 350px;
-            background: rgba(0,0,0,0.8); color: white; border: 1px solid #555;
-            padding: 8px; border-radius: 4px; display: none; outline: none;
-        }
-
-        /* 狀態 HUD */
+        /* 頂部資訊欄 */
         nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.6); color: white; padding: 10px 20px; display: flex; justify-content: space-between; z-index: 100; box-sizing: border-box; }
-        #mode-tag { color: #ffca28; font-weight: bold; }
+        
+        /* 聊天室 */
+        #chat-box { position: fixed; bottom: 80px; left: 20px; width: 300px; height: 150px; background: rgba(0,0,0,0.3); color: white; padding: 10px; overflow-y: auto; font-size: 14px; border-radius: 4px; display: none; }
+        #chat-in { position: fixed; bottom: 40px; left: 20px; width: 300px; padding: 8px; background: rgba(0,0,0,0.8); color: white; border: 1px solid #555; display: none; outline: none; }
+
+        /* ESC 選單 */
+        #esc-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .btn { width: 280px; padding: 15px; margin: 10px; background: #4e4e4e; color: white; border: 2px solid #fff; cursor: pointer; text-align: center; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <nav>
-    <div id="p-name">👤 隊員: 載入中...</div>
-    <div id="mode-tag">👻 穿牆模式已開啟 (T 鍵聊天)</div>
-    <div>X: <span id="cx">0</span>, Y: <span id="cy">0</span></div>
+    <div>👤 隊員: <span id="p-name">載入中</span></div>
+    <div>💎 SUPER 點數: <span id="pts">0</span></div>
+    <div id="coords" style="color:#2ecc71">X: 0, Y: 0</div>
 </nav>
 
-<div id="chat-log"></div>
-<input type="text" id="chat-input" placeholder="輸入訊息後按 Enter...">
+<div id="chat-box"></div>
+<input type="text" id="chat-in" placeholder="按 Enter 發送訊息...">
+
+<div id="esc-menu">
+    <h1 style="color:white">遠征暫停</h1>
+    <div class="btn" onclick="toggleEsc()">回到遊戲</div>
+    <div class="btn" onclick="location.href='main-menu.html'">退出遠征</div>
+</div>
 
 <canvas id="game"></canvas>
 
@@ -42,109 +42,108 @@
     const ctx = canvas.getContext('2d');
     const blockSize = 40;
     
-    let player = { x: 400, y: 100, w: 24, h: 36 };
-    let world = {}, keys = {}, isChatting = false;
+    // 初始化設定
+    let player = { x: 400, y: 100, w: 24, h: 36, speed: 8 };
+    let world = {}, bots = [], keys = {}, isEsc = false, isT = false;
     let camera = { x: 0, y: 0 };
 
-    document.getElementById('p-name').innerText = "👤 隊員: " + (localStorage.getItem('mc_user') || "冒險者");
+    const params = new URLSearchParams(window.location.search);
+    const botCount = parseInt(params.get('players')) || 2;
 
-    // --- 核心：無限地形生成 ---
+    document.getElementById('p-name').innerText = localStorage.getItem('mc_user') || "冒險者";
+    let superPts = parseInt(localStorage.getItem('super_points')) || 0;
+
+    // --- 規則：無限地形生成 (確保不飄空) ---
     function genTerrain(gx) {
         if (world[gx]) return;
         const x = gx / blockSize;
-        let h = Math.floor(10 + Math.sin(x * 0.1) * 5);
+        // 地形起伏算法
+        let groundY = Math.floor(12 + Math.sin(x * 0.1) * 5);
         world[gx] = {};
-        for(let y = h; y < h + 10; y++) {
-            world[gx][y * blockSize] = (y === h) ? 'grass' : 'dirt';
+        for(let y = groundY; y < groundY + 10; y++) {
+            world[gx][y * blockSize] = (y === groundY) ? '#2ecc71' : '#8b5a2b';
         }
     }
 
-    // --- 鍵盤監聽 ---
-    window.onkeydown = (e) => {
-        if (e.code === 'KeyT' && !isChatting) {
-            e.preventDefault();
-            openChat();
-        } else if (e.code === 'Enter' && isChatting) {
-            sendChat();
-        } else if (!isChatting) {
-            keys[e.code] = true;
-        }
+    // --- 規則：多人生成 ---
+    for(let i=0; i < botCount - 1; i++) {
+        bots.push({ x: 400 + Math.random()*200, y: 100, name: "玩家_"+(i+1) });
+    }
+
+    // --- 操控監聽 ---
+    window.onkeydown = e => {
+        if(e.code === 'Escape') toggleEsc();
+        if(e.code === 'KeyT' && !isEsc && !isT) toggleChat(true);
+        if(e.code === 'Enter' && isT) sendMsg();
+        keys[e.code] = true;
     };
-    window.onkeyup = (e) => keys[e.code] = false;
+    window.onkeyup = e => keys[e.code] = false;
 
-    // --- 聊天室邏輯 ---
-    function openChat() {
-        isChatting = true;
-        keys = {}; // 清空移動按鍵，防止打字時亂跑
-        const log = document.getElementById('chat-log');
-        const input = document.getElementById('chat-input');
-        log.style.display = 'block';
-        input.style.display = 'block';
-        input.focus();
-    }
-
-    function sendChat() {
-        const input = document.getElementById('chat-input');
-        const log = document.getElementById('chat-log');
-        if (input.value) {
-            log.innerHTML += `<div><span style="color:#2ecc71">${localStorage.getItem('mc_user') || '我'}:</span> ${input.value}</div>`;
+    function toggleEsc() { isEsc = !isEsc; document.getElementById('esc-menu').style.display = isEsc?'flex':'none'; }
+    function toggleChat(o) { isT = o; document.getElementById('chat-box').style.display = o?'block':'none'; document.getElementById('chat-in').style.display = o?'block':'none'; if(o)document.getElementById('chat-in').focus(); }
+    
+    function sendMsg() {
+        let val = document.getElementById('chat-in').value;
+        if(val) {
+            let log = document.getElementById('chat-box');
+            log.innerHTML += `<div><span style="color:#2ecc71">我:</span> ${val}</div>`;
             log.scrollTop = log.scrollHeight;
         }
-        input.value = "";
-        input.style.display = 'none';
-        isChatting = false;
+        document.getElementById('chat-in').value = "";
+        toggleChat(false);
     }
 
     function loop() {
-        if (!isChatting) {
-            // --- 核心：無限穿牆飛行移動 ---
-            const speed = 7;
-            if (keys['KeyD']) player.x += speed;
-            if (keys['KeyA']) player.x -= speed;
-            if (keys['KeyW'] || keys['Space']) player.y -= speed; // 向上穿牆
-            if (keys['KeyS']) player.y += speed; // 向下穿牆
+        if(!isEsc && !isT) {
+            // --- 規則：穿牆飛行與移動 ---
+            if(keys['KeyD']) player.x += player.speed;
+            if(keys['KeyA']) player.x -= player.speed;
+            if(keys['KeyW'] || keys['Space']) player.y -= player.speed; // 向上飛
+            if(keys['KeyS']) player.y += player.speed; // 向下鑽
 
-            // 地形預加載
-            for(let i = player.x - 800; i < player.x + 800; i += blockSize) {
-                genTerrain(Math.floor(i / blockSize) * blockSize);
+            // 每秒加點數
+            if(Date.now() % 1000 < 20) { superPts++; localStorage.setItem('super_points', superPts); }
+
+            // 地型區域加載 (核心修復：確保玩家周圍永遠有地)
+            for(let i = player.x - 1200; i < player.x + 1200; i += blockSize) {
+                genTerrain(Math.floor(i/blockSize) * blockSize);
             }
         }
 
-        // 攝影機跟隨
-        camera.x += (player.x - canvas.width / 2 - camera.x) * 0.1;
-        camera.y += (player.y - canvas.height / 2 - camera.y) * 0.1;
+        camera.x += (player.x - canvas.width/2 - camera.x) * 0.1;
+        camera.y += (player.y - canvas.height/2 - camera.y) * 0.1;
 
-        // 繪圖
-        ctx.fillStyle = "#87CEEB"; 
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        ctx.save();
-        ctx.translate(-camera.x, -camera.y);
+        // 渲染
+        ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0,canvas.width, canvas.height);
+        ctx.save(); ctx.translate(-camera.x, -camera.y);
 
-        // 畫地形
-        for (let x in world) {
-            for (let y in world[x]) {
-                ctx.fillStyle = world[x][y] === 'grass' ? '#2ecc71' : '#8b5a2b';
-                ctx.fillRect(x, parseInt(y), blockSize - 1, blockSize - 1);
+        // 畫地型
+        for(let x in world) {
+            for(let y in world[x]) {
+                ctx.fillStyle = world[x][y];
+                ctx.fillRect(x, parseInt(y), blockSize-1, blockSize-1);
             }
         }
 
-        // 畫玩家
-        ctx.fillStyle = "white";
-        ctx.fillRect(player.x, player.y, player.w, player.h);
+        // 畫隊友
+        ctx.fillStyle = "#d35400";
+        bots.forEach(b => {
+            ctx.fillRect(b.x, b.y, 24, 36);
+            ctx.fillStyle = "white"; ctx.fillText(b.name, b.x, b.y - 5);
+        });
+
+        // 畫玩家本人
+        ctx.fillStyle = "white"; ctx.fillRect(player.x, player.y, player.w, player.h);
         ctx.restore();
 
-        document.getElementById('cx').innerText = Math.round(player.x);
-        document.getElementById('cy').innerText = Math.round(-player.y);
-
+        // 更新 UI
+        document.getElementById('pts').innerText = superPts;
+        document.getElementById('coords').innerText = `X: ${Math.round(player.x)}, Y: ${Math.round(-player.y)}`;
+        
         requestAnimationFrame(loop);
     }
 
-    window.onload = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        loop();
-    };
+    window.onload = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; loop(); };
 </script>
 </body>
 </html>
