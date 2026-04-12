@@ -1,38 +1,28 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>遠征隊 - 帳號系統</title>
+    <meta charset="UTF-8"><title>遠征隊 - 帳戶系統</title>
     <style>
-        body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: #161b22; padding: 30px; border-radius: 20px; width: 350px; border: 1px solid #30363d; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: white; box-sizing: border-box; outline: none; }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
-        button { width: 100%; padding: 12px; background: #238636; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 15px; }
+        body { background: #0d1117; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .auth-card { background: #161b22; padding: 40px; border-radius: 12px; border: 1px solid #333; width: 350px; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: #0d1117; border: 1px solid #333; color: white; border-radius: 6px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #238636; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>遠征隊啟動器</h2>
-        <input type="text" id="r-name" placeholder="真實姓名">
-        <input type="text" id="r-acc" placeholder="帳號">
-        <input type="password" id="r-pwd" placeholder="密碼">
-        <button onclick="doReg()">註冊並進入選單</button>
+    <div class="auth-card">
+        <h2>登入 / 註冊</h2>
+        <input type="text" id="uname" placeholder="使用者姓名">
+        <input type="password" placeholder="密碼">
+        <button onclick="login()">進入系統</button>
     </div>
     <script>
-        function doReg() {
-            const name = document.getElementById('r-name').value;
+        function login() {
+            const name = document.getElementById('uname').value;
             if(!name) return alert("請輸入姓名");
             localStorage.setItem('mc_user', name);
-            window.location.href = 'product-selection.html';
+            window.location.href = 'verify.html'; // 進入啟動碼頁面
         }
     </script>
 </body>
 </html>
-<body>
-    <div class="nav"> ... </div>
-    <style> .nav { ... } </style>
-    <script> let currentPoints = ... </script>
-
-    <div class="sidebar"> ... </div>
-</body>
