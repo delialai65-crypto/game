@@ -1,46 +1,31 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>產品驗證</title>
+    <meta charset="UTF-8"><title>啟動您的產品</title>
     <style>
-        body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: #161b22; padding: 40px; border-radius: 20px; text-align: center; border: 1px solid #f85149; }
-        input { width: 100%; padding: 15px; background: #000; color: #2ecc71; border: 1px solid #333; font-size: 24px; text-align: center; margin-bottom: 20px; }
-        button { width: 100%; padding: 15px; background: #f85149; color: white; border: none; cursor: pointer; font-weight: bold; }
-        .link { display: block; margin-top: 20px; color: #58a6ff; text-decoration: none; font-size: 14px; }
+        body { background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .verify-box { background: #1a1a1a; padding: 40px; border-radius: 8px; border: 1px solid #333; text-align: center; width: 400px; }
+        input { width: 100%; padding: 15px; font-size: 18px; text-align: center; letter-spacing: 5px; background: #000; color: #2ecc71; border: 2px solid #333; margin: 20px 0; }
+        .buy-link { color: #58a6ff; cursor: pointer; text-decoration: underline; font-size: 14px; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h2>請輸入啟動碼</h2>
-        <p style="color: #8b949e;">若您已擁有啟動碼，請直接輸入驗證</p>
-        <input type="text" id="code-input" placeholder="MC-XXXX-XXXX">
-        <button onclick="check()">驗證並進入主選單</button>
-        <a href="buy.html" class="link">我沒有啟動碼，前往商店購買</a>
+    <div class="verify-box">
+        <h2>啟動 Minecraft 遠征授權</h2>
+        <p style="color: #8b949e;">請輸入 6 位啟動碼</p>
+        <input type="text" id="code" placeholder="XXXXXX" maxlength="6">
+        <button onclick="checkCode()" style="width:100%; padding:15px; background:#2ecc71; border:none; cursor:pointer; font-weight:bold;">啟動遊戲</button>
+        <p style="margin-top:20px;">不知道啟動碼？ <span class="buy-link" onclick="location.href='buy.html'">前往購買各種方案</span></p>
     </div>
     <script>
-        function check() {
-            const input = document.getElementById('code-input').value.toUpperCase().trim();
-            const lastCode = localStorage.getItem('current_code'); // 剛付完款產生的
-            
-            // 設定一個「萬用啟動碼」，知道的人可以直接進
-            const masterCode = "MC-2026-YUN"; 
-
-            if (input === masterCode || (lastCode && input === lastCode)) {
-                alert("✅ 驗證成功！歡迎回來，遠征隊員。");
+        function checkCode() {
+            const code = document.getElementById('code').value.toUpperCase();
+            if(code === "SUPER") { // 假設正確代碼是 SUPER
                 localStorage.setItem('game_active', 'true');
+                alert("✅ 啟動成功！");
                 window.location.href = 'main-menu.html';
-            } else {
-                alert("❌ 啟動碼無效！請重新輸入或前往商店購買。");
-            }
+            } else { alert("❌ 無效的啟動碼，請重新輸入或購買方案。"); }
         }
     </script>
 </body>
 </html>
-<body>
-    <div class="nav"> ... </div>
-    <style> .nav { ... } </style>
-    <script> let currentPoints = ... </script>
-
-    <div class="sidebar"> ... </div>
-</body>
