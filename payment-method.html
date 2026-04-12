@@ -1,32 +1,44 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>Minecraft 遠征隊 - 主選單</title>
+    <meta charset="UTF-8"><title>支付中心 - Minecraft 遠征隊</title>
     <style>
-        body { margin: 0; background: url('https://files.catbox.moe/k3h57k.jpg') center; background-size: cover; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; }
-        .btn { width: 400px; padding: 15px; margin: 5px; background: #4e4e4e; border: 2px solid #000; color: white; cursor: pointer; text-align: center; font-weight: bold; text-shadow: 2px 2px #000; }
-        .btn:hover { border-color: #fff; background: #6e6e6e; }
-        #multi-panel { display: none; position: fixed; background: rgba(0,0,0,0.9); padding: 30px; border: 2px solid #2ecc71; border-radius: 10px; color: white; text-align: center; }
+        body { margin: 0; background: #0d1117; color: white; font-family: sans-serif; }
+        .nav { background: #1a1a1a; padding: 15px 40px; border-bottom: 2px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .super-pts { color: #ffca28; font-weight: bold; border: 1px solid #ffca28; padding: 5px 15px; border-radius: 20px; }
+        .container { max-width: 800px; margin: 40px auto; padding: 20px; }
+        .pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .pay-item { background: #161b22; border: 1px solid #333; padding: 20px; border-radius: 8px; cursor: pointer; text-align: center; }
+        .pay-item:hover { border-color: #58a6ff; }
+        .points-btn { background: linear-gradient(45deg, #ffca28, #f39c12); color: #000; font-weight: bold; border: none; grid-column: span 2; }
     </style>
 </head>
 <body>
-    <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" width="500">
-    <div style="margin-top:20px">
-        <div class="btn" onclick="location.href='game.html?mode=single'">單人遊戲</div>
-        <div class="btn" onclick="document.getElementById('multi-panel').style.display='block'">多人遊戲 (2-50人)</div>
+    <div class="nav">
+        <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" height="25">
+        <div class="super-pts">🟡 SUPER 點數: <span id="pts-display">0</span></div>
     </div>
-
-    <div id="multi-panel">
-        <h3>設定多人遠征人數</h3>
-        <p><span id="p-count" style="font-size:30px; color:#2ecc71;">25</span> 人</p>
-        <input type="range" min="2" max="50" value="25" style="width:100%" oninput="document.getElementById('p-count').innerText=this.value">
-        <button class="btn" style="width:100%" onclick="startMulti()">開始連線</button>
+    <div class="container">
+        <h2>選擇支付方式 (啟動碼方案)</h2>
+        <div class="pay-grid">
+            <button class="pay-item points-btn" onclick="payWithPoints()">✨ 使用 10,000 SUPER 點數免費兌換</button>
+            <div class="pay-item" onclick="alert('導向全支付...')">全支付</div>
+            <div class="pay-item" onclick="alert('導向LINE Pay...')">LINE Pay</div>
+            <div class="pay-item" onclick="alert('導向街口...')">街口支付</div>
+            <div class="pay-item" onclick="alert('導向悠遊付...')">悠遊付</div>
+            <div class="pay-item" onclick="alert('導向 Pi 拍錢包...')">Pi 拍錢包</div>
+            <div class="pay-item" onclick="alert('導向 VISA...')">VISA / MasterCard</div>
+            <div class="pay-item" onclick="alert('導向 JCB...')">JCB</div>
+            <div class="pay-item" onclick="alert('導向銀聯...')">銀聯卡</div>
+            <div class="pay-item" onclick="alert('導向轉帳...')">銀行轉帳</div>
+        </div>
     </div>
-
     <script>
-        function startMulti() {
-            const count = document.querySelector('input[type=range]').value;
-            window.location.href = `game.html?mode=multi&players=${count}`;
+        let pts = parseInt(localStorage.getItem('super_points')) || 0;
+        setInterval(() => { pts++; localStorage.setItem('super_points', pts); document.getElementById('pts-display').innerText = pts; }, 1000);
+        function payWithPoints() {
+            if(pts >= 10000) { alert("兌換成功！啟動碼為 RYAN0111407"); window.location.href='verify.html'; }
+            else { alert("點數不足！還差 " + (10000-pts) + " 點"); }
         }
     </script>
 </body>
