@@ -1,147 +1,110 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>遠征世界：無限延伸地圖</title>
+    <meta charset="UTF-8"><title>遠征世界</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
-        canvas { display: block; background: #87CEEB; }
-        nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.6); color: white; padding: 10px; display: flex; justify-content: space-between; z-index: 100; box-sizing: border-box; }
-        #coord { font-family: monospace; color: #2ecc71; }
+        canvas { display: block; background: #1e90ff; }
+        
+        /* 聊天室：左下角 */
+        #chat-box { position: fixed; bottom: 80px; left: 20px; width: 350px; height: 150px; background: rgba(0,0,0,0.4); color: white; padding: 10px; overflow-y: auto; display: none; font-size: 14px; text-shadow: 1px 1px #000; }
+        #chat-input { position: fixed; bottom: 45px; left: 20px; width: 350px; padding: 8px; background: rgba(0,0,0,0.8); color: white; border: 1px solid #555; display: none; outline: none; }
+        
+        /* ESC 選單：畫面中央 */
+        #esc-menu { position: fixed; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .esc-btn { width: 300px; padding: 15px; margin: 10px; background: #4e4e4e; color: white; border: 2px solid #fff; cursor: pointer; font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
 
-<nav>
-    <div>👤 遠征隊員: <span id="user-nm"></span></div>
-    <div id="coord">X: 0, Y: 0 (區域載入中...)</div>
-</nav>
+<div id="chat-box"></div>
+<input type="text" id="chat-input" placeholder="按 Enter 發送訊息...">
+
+<div id="esc-menu">
+    <h1 style="color:white">遊戲暫停</h1>
+    <div class="esc-btn" onclick="toggleESC()">回到遊戲</div>
+    <div class="esc-btn" onclick="location.href='main-menu.html'">儲存並離開</div>
+</div>
 
 <canvas id="game"></canvas>
 
 <script>
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
-    const blockSize = 40;
-    
-    // 玩家與世界設定
-    let player = { x: 400, y: -200, w: 24, h: 36, vx: 0, vy: 0, g: false };
-    let world = {}; // 用來存放所有生成的方塊數據
-    let camera = { x: 0, y: 0 };
-    let keys = {};
+    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
 
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-    window.onresize = resize; resize();
-    document.getElementById('user-nm').innerText = localStorage.getItem('mc_user') || "冒險者";
+    let player = { x: 400, y: 300, w: 24, h: 36, vx: 0, vy: 0 };
+    let keys = {}, isESC = false, isT = false;
+    let bots = [];
 
-    // --- 核心技術：隨機噪聲地形生成 ---
-    // 這讓地形看起來像真的山脈，而不是亂跳的方塊
-    function generateTerrainAt(gx) {
-        if (world[gx]) return; // 如果已經生成過，就跳過
+    // 取得人數設定
+    const params = new URLSearchParams(window.location.search);
+    const playerCount = parseInt(params.get('players')) || 1;
 
-        // 使用多重 Sine 波組合，模擬 Minecraft 的隨機地形 (Noise)
-        const x = gx / blockSize;
-        let height = 12; // 基礎地平線高度
-        height += Math.sin(x * 0.1) * 5;  // 大山脈起伏
-        height += Math.sin(x * 0.5) * 2;  // 小丘陵起伏
-        height += Math.cos(x * 0.02) * 8; // 長距離生物群系變化
-        
-        let groundY = Math.floor(height);
-        
-        world[gx] = {};
-        // 生成地表與地底
-        for(let y = groundY; y < groundY + 15; y++) {
-            let ty = y * blockSize;
-            if (y === groundY) world[gx][ty] = 'grass';
-            else if (y < groundY + 4) world[gx][ty] = 'dirt';
-            else world[gx][ty] = 'stone';
-        }
-
-        // 隨機生成樹木 (Minecraft 規則)
-        if (Math.random() < 0.05 && !world[gx][(groundY-1)*blockSize]) {
-            createTree(gx, groundY);
-        }
+    // 初始化多人 (生成隊友)
+    for(let i=0; i<playerCount-1; i++) {
+        bots.push({ x: Math.random()*canvas.width, y: 300, name: "玩家_"+(i+1) });
     }
 
-    function createTree(gx, gy) {
-        for(let i=1; i<=3; i++) world[gx][(gy-i)*blockSize] = 'log'; // 樹幹
-        world[gx][(gy-4)*blockSize] = 'leaves'; // 樹葉
-    }
-
-    // --- 物理與移動 ---
-    window.onkeydown = e => keys[e.code] = true;
+    // 鍵盤監聽
+    window.onkeydown = e => {
+        if(e.code === 'Escape') toggleESC();
+        if(e.code === 'KeyT' && !isESC && !isT) toggleChat(true);
+        if(e.code === 'Enter' && isT) sendMsg();
+        keys[e.code] = true;
+    };
     window.onkeyup = e => keys[e.code] = false;
 
-    function update() {
-        player.vx = (keys['KeyD'] ? 6 : 0) + (keys['KeyA'] ? -6 : 0);
-        player.x += player.vx;
-        player.vy += 0.8;
-        player.y += player.vy;
-
-        // 碰撞偵測
-        let gx = Math.floor(player.x / blockSize) * blockSize;
-        let gy = Math.floor((player.y + player.h) / blockSize) * blockSize;
-
-        if (world[gx] && world[gx][gy]) {
-            player.y = gy - player.h;
-            player.vy = 0;
-            player.g = true;
-        } else {
-            player.g = false;
-        }
-
-        if (keys['Space'] && player.g) {
-            player.vy = -13;
-            player.g = false;
-        }
-
-        // 攝影機鎖定玩家
-        camera.x = player.x - canvas.width / 2;
-        camera.y = player.y - canvas.height / 2;
-
-        // --- 核心技術：動態區域加載 (Chunk Loading) ---
-        // 只生成玩家畫面附近 2000 像素內的方塊，確保永遠有路，且不佔記憶體
-        for(let x = player.x - 1200; x < player.x + 1200; x += blockSize) {
-            generateTerrainAt(Math.floor(x / blockSize) * blockSize);
-        }
+    function toggleESC() {
+        isESC = !isESC;
+        document.getElementById('esc-menu').style.display = isESC ? 'flex' : 'none';
     }
 
-    function draw() {
-        ctx.fillStyle = "#87CEEB";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    function toggleChat(open) {
+        isT = open;
+        document.getElementById('chat-box').style.display = open ? 'block' : 'none';
+        document.getElementById('chat-input').style.display = open ? 'block' : 'none';
+        if(open) document.getElementById('chat-input').focus();
+    }
 
-        ctx.save();
-        ctx.translate(-camera.x, -camera.y);
-
-        // 只繪製畫面看得見的方塊 (優化效能)
-        let viewLeft = Math.floor(camera.x / blockSize) * blockSize;
-        let viewRight = viewLeft + canvas.width + blockSize;
-
-        for (let x = viewLeft; x <= viewRight; x += blockSize) {
-            if (world[x]) {
-                for (let y in world[x]) {
-                    let type = world[x][y];
-                    if (type === 'grass') ctx.fillStyle = '#2ecc71';
-                    else if (type === 'dirt') ctx.fillStyle = '#8b5a2b';
-                    else if (type === 'stone') ctx.fillStyle = '#7f8c8d';
-                    else if (type === 'log') ctx.fillStyle = '#6d4c41';
-                    else if (type === 'leaves') ctx.fillStyle = '#27ae60';
-                    
-                    ctx.fillRect(x, parseInt(y), blockSize - 1, blockSize - 1);
-                }
-            }
+    function sendMsg() {
+        let val = document.getElementById('chat-input').value;
+        if(val) {
+            let log = document.getElementById('chat-box');
+            log.innerHTML += `<div><span style="color:#2ecc71">我:</span> ${val}</div>`;
+            log.scrollTop = log.scrollHeight;
         }
-
-        // 畫玩家
-        ctx.fillStyle = "#fff";
-        ctx.fillRect(player.x, player.y, player.w, player.h);
-        ctx.restore();
-
-        document.getElementById('coord').innerText = `X: ${Math.round(player.x)}, Y: ${Math.round(-player.y)}`;
+        document.getElementById('chat-input').value = "";
+        toggleChat(false);
     }
 
     function loop() {
-        update();
-        draw();
+        if(!isESC && !isT) {
+            // --- 核心規則：穿牆與移動 ---
+            if(keys['KeyD']) player.x += 6;
+            if(keys['KeyA']) player.x -= 6;
+            if(keys['KeyW'] || keys['Space']) player.y -= 6; // 向上飛 (穿牆)
+            if(keys['KeyS']) player.y += 6; // 向下鑽 (穿牆)
+        }
+
+        // 繪圖
+        ctx.fillStyle = "#1e90ff"; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // 畫地平線 (參考用)
+        ctx.fillStyle = "rgba(46, 213, 115, 0.5)";
+        ctx.fillRect(0, 400, canvas.width, 100);
+
+        // 畫多人隊友
+        ctx.fillStyle = "#d35400";
+        bots.forEach(b => {
+            ctx.fillRect(b.x, b.y, 24, 36);
+            ctx.fillStyle = "white"; ctx.fillText(b.name, b.x, b.y-5);
+        });
+
+        // 畫玩家本人
+        ctx.fillStyle = "white";
+        ctx.fillRect(player.x, player.y, player.w, player.h);
+
         requestAnimationFrame(loop);
     }
     loop();
