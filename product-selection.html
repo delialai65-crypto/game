@@ -1,49 +1,54 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>選擇你的遊戲 - Minecraft</title>
+    <meta charset="UTF-8"><title>選擇遊戲 - Minecraft 遠征隊</title>
     <style>
-        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; text-align: center; }
-        .nav { background: #1a1a1a; padding: 10px 40px; display: flex; justify-content: space-between; align-items: center; position: sticky; top:0; z-index:100; }
-        .nav-links { display: flex; gap: 30px; font-weight: bold; }
-        .nav-links span { cursor: pointer; color: #ccc; font-size: 14px; }
-        .nav-links span:hover { color: #fff; text-decoration: underline; }
-        .game-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1200px; margin: 40px auto; padding: 20px; }
-        .card { background: #1a1a1a; border: 2px solid transparent; border-radius: 8px; overflow: hidden; cursor: pointer; text-align: left; }
-        .card:hover { border-color: #58a6ff; }
+        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; }
+        .nav { background: #1a1a1a; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 2px solid #333; position: sticky; top: 0; z-index: 9999; }
+        .logo { height: 25px; cursor: pointer; }
+        .nav-links { display: flex; gap: 30px; }
+        .nav-item { color: #ccc; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .nav-item:hover { color: #fff; text-decoration: underline; }
+        .nav-right { display: flex; align-items: center; gap: 30px; }
+        .super-points { font-size: 14px; background: rgba(255, 202, 40, 0.1); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(255, 202, 40, 0.3); }
+        
+        .game-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; max-width: 1200px; margin: 60px auto; padding: 0 20px; }
+        .card { background: #1a1a1a; border: 2px solid transparent; border-radius: 8px; overflow: hidden; cursor: pointer; text-align: left; transition: 0.2s; }
+        .card:hover { border-color: #58a6ff; transform: translateY(-5px); }
         .card img { width: 100%; }
         .card-info { padding: 15px; }
     </style>
 </head>
 <body>
+
 <div class="nav">
-    <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" height="20" onclick="location.href='product-selection.html'">
+    <div class="nav-left"><img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" class="logo" onclick="location.href='product-selection.html'"></div>
     <div class="nav-links">
-        <span onclick="checkAccess()">遊戲</span>
-        <span onclick="location.href='community.html'">社群</span>
-        <span onclick="location.href='learning.html'">學習</span>
-        <span>支援</span>
+        <div class="nav-item" onclick="checkAccess()">遊戲</div>
+        <div class="nav-item" onclick="location.href='community.html'">社群</div>
+        <div class="nav-item" onclick="location.href='learning.html'">學習</div>
+        <div class="nav-item">支援</div>
     </div>
-    <div>👤 <span id="user-display">帳戶</span></div>
+    <div class="nav-right">
+        <div class="super-points">🟡 SUPER 點數: <span id="point-counter">0</span></div>
+        <div style="cursor:pointer" onclick="location.href='index.html'">👤 <span id="user-display">帳戶</span></div>
+    </div>
 </div>
-<h1>選擇你的遊戲</h1>
+
+<h1 style="text-align:center; margin-top:40px;">選擇你的遊戲</h1>
 <div class="game-grid">
     <div class="card" onclick="location.href='buy.html'"><img src="https://files.catbox.moe/k3h57k.jpg"><div class="card-info"><b>Minecraft</b><br><small>沙盒生存</small></div></div>
-    <div class="card" style="opacity:0.5"><img src="https://files.catbox.moe/kbe37y.jpg"><div class="card-info"><b>Dungeons</b><br><small>未開放</small></div></div>
+    <div class="card" style="opacity:0.4; cursor:not-allowed;"><img src="https://files.catbox.moe/kbe37y.jpg"><div class="card-info"><b>Dungeons</b><br><small>尚未開放</small></div></div>
 </div>
+
 <script>
+    let pts = parseInt(localStorage.getItem('super_points')) || 0;
+    setInterval(() => { pts++; document.getElementById('point-counter').innerText = pts; localStorage.setItem('super_points', pts); }, 1000);
     document.getElementById('user-display').innerText = localStorage.getItem('mc_user') || "帳戶";
     function checkAccess() {
         if(localStorage.getItem('game_active') === 'true') location.href = 'main-menu.html';
-        else { alert("⚠️ 尚未偵測到授權，請先購買遊戲。"); location.href = 'buy.html'; }
+        else { alert("⚠️ 未查詢到購買紀錄，請先完成購買。"); location.href = 'buy.html'; }
     }
 </script>
 </body>
 </html>
-<body>
-    <div class="nav"> ... </div>
-    <style> .nav { ... } </style>
-    <script> let currentPoints = ... </script>
-
-    <div class="sidebar"> ... </div>
-</body>
