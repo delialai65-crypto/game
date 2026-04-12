@@ -1,27 +1,99 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>遠征隊 - 帳戶系統</title>
+    <meta charset="UTF-8">
+    <title>遠征隊 - 帳號入口</title>
     <style>
-        body { background: #0d1117; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .auth-card { background: #161b22; padding: 40px; border-radius: 12px; border: 1px solid #333; width: 350px; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 10px 0; background: #0d1117; border: 1px solid #333; color: white; border-radius: 6px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #238636; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
+        body { 
+            background: #0d1117; color: white; font-family: 'Segoe UI', sans-serif; 
+            display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; 
+        }
+        .auth-card { 
+            background: #161b22; padding: 40px; border-radius: 12px; border: 1px solid #333; 
+            width: 380px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .tab-group { display: flex; margin-bottom: 25px; border-bottom: 1px solid #333; }
+        .tab { 
+            flex: 1; padding: 10px; cursor: pointer; color: #8b949e; transition: 0.3s;
+            border-bottom: 2px solid transparent;
+        }
+        .tab.active { color: #2ecc71; border-bottom: 2px solid #2ecc71; font-weight: bold; }
+
+        input { 
+            width: 100%; padding: 12px; margin: 10px 0; background: #0d1117; 
+            border: 1px solid #30363d; color: white; border-radius: 6px; box-sizing: border-box; 
+            outline: none; transition: 0.2s;
+        }
+        input:focus { border-color: #58a6ff; }
+        
+        .submit-btn { 
+            width: 100%; padding: 14px; background: #238636; color: white; 
+            border: none; border-radius: 6px; cursor: pointer; font-weight: bold; 
+            font-size: 16px; margin-top: 15px; 
+        }
+        .submit-btn:hover { background: #2ea043; }
+        
+        #register-form { display: none; }
     </style>
 </head>
 <body>
+
     <div class="auth-card">
-        <h2>登入 / 註冊</h2>
-        <input type="text" id="uname" placeholder="使用者姓名">
-        <input type="password" placeholder="密碼">
-        <button onclick="login()">進入系統</button>
+        <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" height="25" style="margin-bottom: 20px;">
+        
+        <div class="tab-group">
+            <div id="tab-login" class="tab active" onclick="switchTab('login')">登入帳號</div>
+            <div id="tab-reg" class="tab" onclick="switchTab('reg')">新註冊</div>
+        </div>
+
+        <div id="login-form">
+            <input type="text" id="l-acc" placeholder="帳號 / 電子郵件">
+            <input type="password" id="l-pwd" placeholder="密碼">
+            <button class="submit-btn" onclick="handleAuth('login')">進入遠征</button>
+        </div>
+
+        <div id="register-form">
+            <input type="text" id="r-name" placeholder="您的真實姓名 (顯示於遊戲中)">
+            <input type="text" id="r-acc" placeholder="設定帳號">
+            <input type="password" id="r-pwd" placeholder="設定密碼">
+            <button class="submit-btn" style="background: #2ea043;" onclick="handleAuth('reg')">建立並自動登入</button>
+        </div>
     </div>
+
     <script>
-        function login() {
-            const name = document.getElementById('uname').value;
-            if(!name) return alert("請輸入姓名");
-            localStorage.setItem('mc_user', name);
-            window.location.href = 'verify.html'; // 進入啟動碼頁面
+        function switchTab(type) {
+            const lTab = document.getElementById('tab-login');
+            const rTab = document.getElementById('tab-reg');
+            const lForm = document.getElementById('login-form');
+            const rForm = document.getElementById('register-form');
+
+            if (type === 'login') {
+                lTab.classList.add('active'); rTab.classList.remove('active');
+                lForm.style.display = 'block'; rForm.style.display = 'none';
+            } else {
+                rTab.classList.add('active'); lTab.classList.remove('active');
+                rForm.style.display = 'block'; lForm.style.display = 'none';
+            }
+        }
+
+        function handleAuth(mode) {
+            if (mode === 'reg') {
+                const name = document.getElementById('r-name').value;
+                const acc = document.getElementById('r-acc').value;
+                if (!name || !acc) return alert("請填寫完整註冊資料！");
+                
+                // 儲存玩家姓名到系統
+                localStorage.setItem('mc_user', name);
+                alert("🎉 註冊成功！歡迎加入遠征隊，" + name);
+            } else {
+                const acc = document.getElementById('l-acc').value;
+                if (!acc) return alert("請輸入帳號！");
+                // 模擬登入，如果沒名字就給個預設值
+                if (!localStorage.getItem('mc_user')) localStorage.setItem('mc_user', acc);
+            }
+
+            // 成功後跳轉到你要求的「啟動碼框框頁面」
+            window.location.href = 'verify.html';
         }
     </script>
 </body>
