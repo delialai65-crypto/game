@@ -1,31 +1,75 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>啟動您的產品</title>
+    <meta charset="UTF-8"><title>產品啟動 - Minecraft 遠征隊</title>
     <style>
-        body { background: #000; color: #fff; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .verify-box { background: #1a1a1a; padding: 40px; border-radius: 8px; border: 1px solid #333; text-align: center; width: 400px; }
-        input { width: 100%; padding: 15px; font-size: 18px; text-align: center; letter-spacing: 5px; background: #000; color: #2ecc71; border: 2px solid #333; margin: 20px 0; }
-        .buy-link { color: #58a6ff; cursor: pointer; text-decoration: underline; font-size: 14px; }
+        body { margin: 0; background: #000; color: #fff; font-family: sans-serif; }
+        /* 導覽列與點數樣式 */
+        .nav { background: #1a1a1a; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 2px solid #333; position: sticky; top: 0; }
+        .super-points { background: rgba(255, 202, 40, 0.1); padding: 8px 15px; border-radius: 20px; border: 1px solid #ffca28; color: #ffca28; font-weight: bold; font-size: 14px; }
+        
+        /* 驗證框樣式 */
+        .container { display: flex; justify-content: center; align-items: center; height: calc(100vh - 60px); }
+        .verify-box { background: #161b22; padding: 50px; border-radius: 15px; border: 1px solid #333; text-align: center; width: 450px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); }
+        h2 { margin-top: 0; color: #fff; }
+        input { 
+            width: 100%; padding: 15px; font-size: 22px; text-align: center; 
+            background: #0d1117; color: #2ecc71; border: 2px solid #333; 
+            margin: 25px 0; border-radius: 8px; outline: none; font-family: monospace;
+        }
+        input:focus { border-color: #2ecc71; }
+        .btn-verify { width: 100%; padding: 16px; background: #2ecc71; color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 18px; cursor: pointer; }
+        .btn-verify:hover { background: #34e881; }
+        .buy-hint { margin-top: 25px; font-size: 14px; color: #8b949e; }
+        .buy-link { color: #58a6ff; cursor: pointer; text-decoration: underline; }
     </style>
 </head>
 <body>
+
+<div class="nav">
+    <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" height="25" onclick="location.href='product-selection.html'" style="cursor:pointer">
+    <div class="super-points">🟡 SUPER 點數: <span id="pts-val">0</span></div>
+</div>
+
+<div class="container">
     <div class="verify-box">
-        <h2>啟動 Minecraft 遠征授權</h2>
-        <p style="color: #8b949e;">請輸入 6 位啟動碼</p>
-        <input type="text" id="code" placeholder="XXXXXX" maxlength="6">
-        <button onclick="checkCode()" style="width:100%; padding:15px; background:#2ecc71; border:none; cursor:pointer; font-weight:bold;">啟動遊戲</button>
-        <p style="margin-top:20px;">不知道啟動碼？ <span class="buy-link" onclick="location.href='buy.html'">前往購買各種方案</span></p>
+        <h2>啟動您的遠征授權</h2>
+        <p style="color: #8b949e;">請輸入 11 位產品啟動碼</p>
+        <input type="text" id="auth-code" placeholder="RYANXXXXXXX" maxlength="11">
+        <button class="btn-verify" onclick="doVerify()">立即啟動遊戲</button>
+        
+        <div class="buy-hint">
+            不知道啟動碼？ <span class="buy-link" onclick="location.href='buy.html'">前往商店購買方案</span>
+        </div>
     </div>
-    <script>
-        function checkCode() {
-            const code = document.getElementById('code').value.toUpperCase();
-            if(code === "SUPER") { // 假設正確代碼是 SUPER
-                localStorage.setItem('game_active', 'true');
-                alert("✅ 啟動成功！");
-                window.location.href = 'main-menu.html';
-            } else { alert("❌ 無效的啟動碼，請重新輸入或購買方案。"); }
+</div>
+
+<script>
+    // 1. SUPER 點數同步邏輯
+    let pts = parseInt(localStorage.getItem('super_points')) || 0;
+    setInterval(() => {
+        pts++;
+        document.getElementById('pts-val').innerText = pts;
+        localStorage.setItem('super_points', pts);
+    }, 1000);
+
+    // 2. 驗證邏輯
+    function doVerify() {
+        const input = document.getElementById('auth-code').value.trim();
+        const correctCode = "RYAN0111407";
+
+        if (input === correctCode) {
+            // 授權成功：紀錄狀態並進入主選單
+            localStorage.setItem('game_active', 'true');
+            alert("🎉 啟動成功！授權代碼 RYAN0111407 已生效。\n歡迎來到 Minecraft 遠征隊世界！");
+            window.location.href = 'main-menu.html';
+        } else {
+            // 授權失敗：引導去購買
+            alert("❌ 啟動失敗：無效的代碼。\n請確認輸入是否正確，或前往商店購買正確的方案。");
+            document.getElementById('auth-code').value = "";
         }
-    </script>
+    }
+</script>
+
 </body>
 </html>
