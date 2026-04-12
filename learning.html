@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8"><title>遠征隊學習中心 - Minecraft 教育指南</title>
+    <style>
+        body { 
+            margin: 0; background: #000; color: #fff; font-family: 'Segoe UI', sans-serif; 
+            display: flex; height: 100vh; overflow: hidden; 
+        }
+        
+        /* 背景櫻花飄落 (模擬遊戲氛圍) */
+        .bg-container {
+            position: fixed; width: 100%; height: 100%;
+            background: url('https://files.catbox.moe/k3h57k.jpg') no-repeat center center;
+            background-size: cover; filter: brightness(0.6); z-index: -1;
+        }
+
+        /* 左側固定導覽列 - 還原草圖佈局 */
+        .sidebar {
+            width: 280px; background: rgba(22, 27, 34, 0.7); 
+            backdrop-filter: blur(15px); border-right: 1px solid #333;
+            padding: 40px 20px; display: flex; flex-direction: column; gap: 10px;
+        }
+        .sidebar h2 { color: #58a6ff; font-size: 20px; margin-bottom: 30px; }
+        
+        .nav-item {
+            padding: 12px 20px; color: #ccc; cursor: pointer; border-radius: 8px; transition: 0.2s;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .nav-item.active { background: #238636; color: #fff; font-weight: bold; }
+
+        /* 右側主內容區 - 還原草圖佈局 */
+        .main-content {
+            flex: 1; padding: 60px; overflow-y: auto; scroll-behavior: smooth;
+        }
+        .header { margin-bottom: 50px; }
+        .header h1 { font-size: 36px; margin: 0; color: #fff; }
+        
+        /* 教學卡片 */
+        .content-card {
+            background: rgba(22, 27, 34, 0.5); border: 1px solid #333; 
+            border-radius: 16px; padding: 30px; margin-bottom: 30px;
+        }
+        .content-card h3 { color: #2ecc71; font-size: 22px; margin-top: 0; }
+        
+        .image-placeholder {
+            width: 100%; height: 250px; background: #000; border: 1px solid #444; 
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            margin: 20px 0; color: #8b949e;
+        }
+        
+        .control-key {
+            display: inline-block; padding: 4px 10px; background: #333; 
+            border-radius: 4px; border: 1px solid #555; font-family: monospace;
+        }
+    }
+    </style>
+</head>
+<body>
+
+<div class="bg-container"></div>
+
+<div class="sidebar">
+    <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" height="20" style="margin-bottom: 20px;">
+    <h2>學習中心</h2>
+    <div class="nav-item active" onclick="show('basics')">🌱 生存基礎</div>
+    <div class="nav-item" onclick="show('crafting')">⚒️ 物品製作</div>
+    <div class="nav-item" onclick="show('redstone')">🔴 紅石科技</div>
+    <div class="nav-item" onclick="show('combat')">⚔️ 戰鬥技巧</div>
+    
+    <div style="flex:1"></div>
+    <div class="nav-item" onclick="location.href='index.html'" style="color: #e74c3c;">🚪 登出系統</div>
+</div>
+
+<div class="main-content">
+    <div class="header">
+        <h1>新手生存手冊</h1>
+        <p style="color: #8b949e;">在這裡學習 Minecraft 的核心規則與技巧，從零開始建造你的遠征隊基地。</p>
+    </div>
+
+    <div id="basics" class="content-card">
+        <h3>基本操控</h3>
+        <p>你需要熟練地控制你的角色，才能在方塊世界中活下去。</p>
+        <div class="image-placeholder">💻 這裡放基礎操控圖片 (例如 W A S D)</div>
+        <p>• <span class="control-key">W</span> / <span class="control-key">A</span> / <span class="control-key">S</span> / <span class="control-key">D</span>：移動</p>
+        <p>• <span class="control-key">空白鍵</span>：跳躍</p>
+        <p>• <span class="control-key">長按滑鼠左鍵</span>：挖掘方塊</p>
+        <p>• <span class="control-key">滑鼠右鍵</span>：放置方塊 / 與物品互動</p>
+    </div>
+
+    <div class="content-card">
+        <h3>採集木頭</h3>
+        <p>這是你生存的第一步。對著樹木長按<span class="control-key">滑鼠左鍵</span>。</p>
+        <div class="image-placeholder">🌳 這裡放挖掘木頭圖片 (粒子噴濺效果圖)</div>
+        <p>獲得木頭後，按 <span class="control-key">E</span> 開啟物品欄，將木頭製作成木板。</p>
+    </div>
+
+</div>
+
+<script>
+    function show(sectionId) {
+        // 更新左側導覽選取狀態
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+        event.currentTarget.classList.add('active');
+        
+        // 滾動到對應內容 (這裡簡化，實際應用需補滿內容)
+        alert("準備跳轉到 " + sectionId + " 的教學內容！\n(實際專案中請補滿對應 HTML 錨點)");
+    }
+</script>
+
+</body>
+</html>
