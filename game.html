@@ -1,80 +1,113 @@
-<style>
-    /* 聊天顯示區：加上磨砂感與淡出動畫 */
-    #chat-log { 
-        width: 380px; height: 160px; 
-        background: rgba(0, 0, 0, 0.4); 
-        color: white; padding: 12px; 
-        overflow-y: auto; border-radius: 4px; 
-        font-family: 'Segoe UI', sans-serif;
-        font-size: 15px; text-shadow: 1px 1px 2px #000;
-        display: none; /* 平時隱藏，有訊息或按 T 才顯示 */
-    }
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>遠征世界 - 核心修復版</title>
+    <style>
+        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
+        /* 確保畫布撐滿全螢幕 */
+        canvas { display: block; background: #1e90ff; width: 100vw; height: 100vh; }
+        /* 頂部 HUD */
+        nav { 
+            position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.7); 
+            color: white; padding: 10px 20px; display: flex; justify-content: space-between; 
+            z-index: 100; box-sizing: border-box; 
+        }
+        /* 錯誤顯示器 (偵錯用) */
+        #debug-log { position: fixed; top: 50px; left: 20px; color: red; background: rgba(0,0,0,0.8); font-size: 12px; z-index: 1000; }
+    </style>
+</head>
+<body>
 
-    /* 輸入框：完美還原黑框樣式 */
-    #chat-input { 
-        width: 380px; padding: 10px; 
-        background: rgba(0, 0, 0, 0.85); 
-        color: #fff; border: 2px solid #555; 
-        outline: none; border-radius: 2px;
-        display: none; margin-top: 5px;
-    }
-</style>
+<nav>
+    <div id="p-info">🌍 載入中...</div>
+    <div style="color: gold;">控制：A, D 移動 / Space 跳躍 / T 聊天</div>
+</nav>
+
+<div id="debug-log"></div>
+<canvas id="game"></canvas>
 
 <script>
-    function addChat(who, txt, color = "#fff") {
-        const log = document.getElementById('chat-log');
-        log.style.display = "block"; // 顯示對話框
-        
-        // 建立訊息行
-        const line = document.createElement('div');
-        line.style.marginBottom = "4px";
-        line.innerHTML = `<span style="color:${color}; font-weight:bold;">&lt;${who}&gt;</span> ${txt}`;
-        
-        log.appendChild(line);
-        log.scrollTop = log.scrollHeight;
+    // 錯誤攔截器：如果程式碼有錯，直接顯示在畫面上
+    window.onerror = function(msg) {
+        document.getElementById('debug-log').innerText = "系統錯誤: " + msg;
+    };
 
-        // 如果不是在打字狀態，5秒後自動隱藏對話框保持畫面乾淨
-        if (!isChatting) {
-            setTimeout(() => {
-                if (!isChatting) log.style.opacity = "0.7";
-            }, 5000);
+    const canvas = document.getElementById('game');
+    const ctx = canvas.getContext('2d');
+    
+    // 確保視窗大小正確
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    // 取得玩家資訊
+    const user = localStorage.getItem('mc_user') || "冒險者";
+    document.getElementById('p-info').innerText = "👤 遠征隊員: " + user;
+
+    // 遊戲物件
+    let player = {
+        x: 100,
+        y: 100,
+        w: 30,
+        h: 45,
+        vy: 0,
+        speed: 5,
+        jump: -12
+    };
+
+    let keys = {};
+    window.onkeydown = e => keys[e.code] = true;
+    window.onkeyup = e => keys[e.code] = false;
+
+    // 核心循環
+    function update() {
+        // 1. 物理計算
+        if (keys['KeyD']) player.x += player.speed;
+        if (keys['KeyA']) player.x -= player.speed;
+
+        player.vy += 0.8; // 重力
+        player.y += player.vy;
+
+        // 2. 簡易地板 (絕對不會掉下去)
+        let groundY = canvas.height - 100;
+        if (player.y + player.h > groundY) {
+            player.y = groundY - player.h;
+            player.vy = 0;
+            if (keys['Space']) player.vy = player.jump;
         }
+
+        // 3. 渲染畫面
+        draw();
+        requestAnimationFrame(update);
     }
 
-    window.onkeydown = e => {
-        // 按下 T 鍵
-        if (e.key.toLowerCase() === 't' && !isChatting) {
-            e.preventDefault();
-            isChatting = true;
-            document.getElementById('chat-log').style.display = "block";
-            document.getElementById('chat-log').style.opacity = "1";
-            document.getElementById('chat-input').style.display = "block";
-            document.getElementById('chat-input').focus();
-        } 
-        // 按下 Enter 發送
-        else if (e.key === 'Enter' && isChatting) {
-            const msg = document.getElementById('chat-input').value.trim();
-            if (msg) {
-                addChat(user, msg); // 顯示你的名字，例如 <賴嫦瑜> 你好
-                
-                // 多人模式：電腦隨機回話
-                if (mode === "multi") {
-                    setTimeout(() => {
-                        const reactions = ["大家快看，有人說話了！", "你好啊冒險者", "要一起去挖礦嗎？", "這地圖真大"];
-                        addChat("電腦隊友", reactions[Math.floor(Math.random()*reactions.length)], "#58a6ff");
-                    }, 1000);
-                }
-            }
-            document.getElementById('chat-input').value = "";
-            isChatting = false;
-            document.getElementById('chat-input').style.display = "none";
-        }
-    };
-</script>
-<body>
-    <div class="nav"> ... </div>
-    <style> .nav { ... } </style>
-    <script> let currentPoints = ... </script>
+    function draw() {
+        // 清除畫面
+        ctx.fillStyle = "#1e90ff"; // 天藍色
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    <div class="sidebar"> ... </div>
+        // 畫地板
+        ctx.fillStyle = "#2ecc71"; // 草地綠
+        ctx.fillRect(0, canvas.height - 100, canvas.width, 100);
+
+        // 畫玩家
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(player.x, player.y, player.w, player.h);
+        
+        // 畫玩家名字
+        ctx.fillStyle = "white";
+        ctx.textAlign = "center";
+        ctx.fillText(user, player.x + player.w/2, player.y - 10);
+    }
+
+    // 啟動遊戲
+    console.log("遊戲啟動中...");
+    update();
+
+</script>
 </body>
+</html>
