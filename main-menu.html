@@ -1,134 +1,19 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <title>Minecraft Java Edition - 遠征隊</title>
+    <meta charset="UTF-8"><title>Minecraft 主選單</title>
     <style>
-        body { 
-            margin: 0; padding: 0; overflow: hidden; 
-            font-family: 'Minecraft', sans-serif; /* 建議引入 Minecraft 字體 */
-            background: #000; 
-        }
-
-        /* 模擬截圖中的櫻花背景滾動 */
-        .bg-container {
-            position: fixed; width: 100%; height: 100%;
-            background: url('https://files.catbox.moe/k3h57k.jpg') no-repeat center center; /* 這裡可換成你的櫻花背景圖 */
-            background-size: cover;
-            filter: brightness(0.8);
-            z-index: -1;
-            animation: bgScroll 60s linear infinite;
-        }
-
-        @keyframes bgScroll {
-            from { transform: scale(1.1) rotate(0deg); }
-            to { transform: scale(1.1) rotate(2deg); }
-        }
-
-        .overlay {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100vh; background: rgba(0,0,0,0.2);
-        }
-
-        /* 標題 Logo */
-        .logo {
-            width: 600px; margin-bottom: 40px; position: relative;
-        }
-        .splash-text {
-            position: absolute; right: -20px; bottom: 0;
-            color: #ffff00; font-size: 24px; font-weight: bold;
-            transform: rotate(-20px); animation: splashAnim 0.5s ease-in-out infinite alternate;
-            text-shadow: 2px 2px #3f3f00; pointer-events: none;
-        }
-
-        @keyframes splashAnim {
-            from { transform: rotate(-20deg) scale(1); }
-            to { transform: rotate(-20deg) scale(1.1); }
-        }
-
-        /* 按鈕樣式 (完美還原灰階方塊感) */
-        .btn-group { display: flex; flex-direction: column; gap: 8px; width: 400px; }
-        .row { display: flex; gap: 8px; width: 100%; }
-        
-        .mc-btn {
-            flex: 1; padding: 12px;
-            background: #4e4e4e; border: 2px solid #000;
-            border-top-color: #8b8b8b; border-left-color: #8b8b8b;
-            color: #e0e0e0; font-size: 18px; text-align: center;
-            cursor: pointer; text-shadow: 2px 2px #000;
-            user-select: none; transition: 0.1s;
-        }
-        .mc-btn:hover {
-            background: #6e6e6e; border-color: #fff; color: #ffffa0;
-        }
-        .mc-btn:active {
-            border: 2px solid #fff; border-top-color: #000; border-left-color: #000;
-        }
-        .disabled {
-            filter: grayscale(1); opacity: 0.6; cursor: not-allowed;
-        }
-
-        .version-info {
-            position: fixed; bottom: 10px; left: 10px; color: white; font-size: 14px; text-shadow: 1px 1px #000;
-        }
-        .copyright {
-            position: fixed; bottom: 10px; right: 10px; color: white; font-size: 14px; text-shadow: 1px 1px #000;
-        }
+        body { margin: 0; background: url('https://files.catbox.moe/k3h57k.jpg') center; background-size: cover; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        .btn { width: 400px; padding: 15px; margin: 5px; background: #4e4e4e; border: 2px solid #000; color: white; cursor: pointer; text-align: center; text-shadow: 2px 2px #000; }
+        .btn:hover { border-color: #fff; background: #6e6e6e; }
     </style>
 </head>
 <body>
-
-<div class="bg-container"></div>
-
-<div class="overlay">
-    <div class="logo">
-        <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" style="width:100%; filter: drop-shadow(4px 4px 0px #000);">
-        <div class="splash-text" id="splash">你好中國!</div>
+    <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" width="500">
+    <div style="margin-top:20px">
+        <div class="btn" onclick="location.href='game.html?m=single'">單人遊戲</div>
+        <div class="btn" onclick="location.href='game.html?m=multi'">多人遊戲</div>
+        <div class="btn" onclick="location.href='index.html'">退出遊戲</div>
     </div>
-
-    <div class="btn-group">
-        <div class="mc-btn" onclick="start('single')">單人遊戲</div>
-        <div class="mc-btn" id="multi-btn" onclick="start('multi')">多人遊戲</div>
-        <div class="mc-btn disabled">Minecraft Realms</div>
-        
-        <div class="row" style="margin-top: 15px;">
-            <div class="mc-btn" onclick="window.location.href='buy.html'">選項...</div>
-            <div class="mc-btn" onclick="window.location.href='index.html'">退出遊戲</div>
-        </div>
-    </div>
-</div>
-
-<div class="version-info">Minecraft 26.1</div>
-<div class="copyright">© Mojang AB 🤩 遠征隊授權版本</div>
-
-<script>
-    const rank = localStorage.getItem('rank') || "學生方案";
-    const isMulti = (rank.includes("家庭") || rank.includes("大師"));
-
-    // 如果不是多人方案，將多人按鈕變灰
-    if (!isMulti) {
-        const mBtn = document.getElementById('multi-btn');
-        mBtn.className = "mc-btn disabled";
-        mBtn.onclick = () => alert("❌ 多人遊戲僅限【家庭方案】或【大師方案】解鎖！");
-    }
-
-    function start(mode) {
-        if (mode === 'single') {
-            localStorage.setItem('game_mode', 'single');
-            window.location.href = 'game.html';
-        } else if (mode === 'multi' && isMulti) {
-            localStorage.setItem('game_mode', 'multi');
-            window.location.href = 'game.html';
-        }
-    }
-
-    // 隨機變換黃色小字 (Minecraft 特色)
-    const splashQuotes = ["你好中國!", "遠征隊萬歲!", "查驗成功!", "不要亂填資料!", "鑽石劍超強!"];
-    setInterval(() => {
-        const rand = splashQuotes[Math.floor(Math.random() * splashQuotes.length)];
-        document.getElementById('splash').innerText = rand;
-    }, 3000);
-</script>
-
 </body>
 </html>
