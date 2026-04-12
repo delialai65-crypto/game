@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>選擇你的遊戲 - Minecraft 遠征隊</title>
+    <style>
+        body { margin: 0; background: #000; color: #fff; font-family: "Segoe UI", sans-serif; text-align: center; }
+        
+        /* 導覽列 */
+        .nav { background: #1a1a1a; padding: 10px 40px; display: flex; justify-content: space-between; align-items: center; }
+        .nav img { height: 20px; }
+
+        .header { margin: 60px 0 40px; }
+        .header h1 { font-size: 36px; margin: 0; }
+        .header p { color: #8b949e; font-size: 14px; margin-top: 10px; }
+
+        /* 遊戲卡片容器 */
+        .game-grid { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 20px; 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 0 20px;
+        }
+
+        .card { 
+            background: #1a1a1a; 
+            border-radius: 8px; 
+            overflow: hidden; 
+            border: 2px solid transparent; 
+            transition: 0.2s; 
+            cursor: pointer;
+            text-align: left;
+        }
+        .card:hover { border-color: #58a6ff; transform: translateY(-5px); }
+        .card.active { border-color: #58a6ff; box-shadow: 0 0 15px rgba(88, 166, 255, 0.3); }
+
+        .card img { width: 100%; display: block; }
+        .card-info { padding: 20px; min-height: 100px; }
+        .card-title { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+        .card-desc { font-size: 12px; color: #8b949e; line-height: 1.4; }
+        .platform-icons { margin-top: 15px; font-size: 12px; color: #555; }
+
+        /* 特殊的多重組合包卡片佈局 */
+        .triple-pack { display: grid; grid-template-rows: repeat(3, 1fr); gap: 2px; }
+        .triple-pack img { height: 100%; object-fit: cover; }
+    </style>
+</head>
+<body>
+
+<div class="nav">
+    <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg">
+    <div style="font-size: 13px;">🔍 &nbsp;&nbsp; 👤 帳戶</div>
+</div>
+
+<div class="header">
+    <h1>選擇你的遊戲</h1>
+    <p>探索不同版本，深入體驗最適合您玩風格的世界吧！</p>
+</div>
+
+<div class="game-grid">
+    <div class="card active" onclick="goBuy('Minecraft')">
+        <img src="https://files.catbox.moe/k3h57k.jpg">
+        <div class="card-info">
+            <div class="card-title">Minecraft</div>
+            <div class="card-desc">沙盒生存 • 冒險<br>單人遊戲 + 多人遊戲</div>
+            <div class="platform-icons">🪟 🍎 🐧 🎮 📱</div>
+        </div>
+    </div>
+
+    <div class="card" onclick="alert('此遊戲尚未在您的地區開放購買')">
+        <img src="https://files.catbox.moe/kbe37y.jpg" style="filter: grayscale(0.5);">
+        <div class="card-info">
+            <div class="card-title">Minecraft Dungeons</div>
+            <div class="card-desc">地下城探索遊戲 • 動作 RPG<br>單人遊戲 + 多人遊戲</div>
+            <div class="platform-icons">🪟 🎮 🕹️</div>
+        </div>
+    </div>
+
+    <div class="card" onclick="alert('此遊戲尚未在您的地區開放購買')">
+        <img src="https://files.catbox.moe/u8u95v.jpg" style="filter: grayscale(0.5);">
+        <div class="card-info">
+            <div class="card-title">Minecraft Legends</div>
+            <div class="card-desc">動作策略 • 策略<br>單人遊戲 + 多人遊戲</div>
+            <div class="platform-icons">🪟 🎮 🕹️</div>
+        </div>
+    </div>
+
+    <div class="card" onclick="goBuy('Minecraft 三重組合包')">
+        <div class="triple-pack" style="height: 250px;">
+            <img src="https://files.catbox.moe/k3h57k.jpg">
+            <img src="https://files.catbox.moe/kbe37y.jpg">
+            <img src="https://files.catbox.moe/u8u95v.jpg">
+        </div>
+        <div class="card-info">
+            <div class="card-title">Minecraft 三重組合包</div>
+            <div class="card-desc">沙盒生存、地下城探索、動作策略<br>單人遊戲 + 多人遊戲</div>
+            <div class="platform-icons">🪟 🎮</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function goBuy(gameName) {
+        localStorage.setItem('selected_product', gameName);
+        // 跳轉到你之前設定的 Minecraft 官網風格購買頁
+        window.location.href = 'buy.html';
+    }
+</script>
+
+</body>
+</html>
