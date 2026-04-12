@@ -1,174 +1,50 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>遠征世界：Minecraft 規則版</title>
+    <meta charset="UTF-8"><title>遠征世界</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
-        canvas { display: block; background: #87CEEB; } /* 天藍色背景 */
-        
-        /* HUD 介面 */
-        nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.5); color: white; padding: 10px 20px; display: flex; justify-content: space-between; z-index: 100; box-sizing: border-box; }
-        .hud { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 5px; }
-        .slot { width: 40px; height: 40px; border: 2px solid #555; background: #8b8b8b; display: flex; justify-content: center; align-items: center; font-size: 20px; }
-        .slot.active { border-color: #fff; box-shadow: 0 0 10px #fff; }
-
-        /* ESC 全能選單 */
-        #esc-menu { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); z-index: 1000;
-            grid-template-columns: 1fr 2fr; padding: 50px; box-sizing: border-box; gap: 40px;
-        }
-        .btn-side { display: flex; flex-direction: column; gap: 15px; }
-        .m-btn { padding: 20px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; background: #4a4a4a; }
-        .m-btn:hover { background: #6e6e6e; }
-        .panel-side { background: #1c1c1c; border: 2px solid #333; border-radius: 20px; padding: 25px; color: white; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
+        canvas { display: block; background: #1e90ff; }
+        #chat { position: fixed; bottom: 80px; left: 20px; width: 300px; height: 120px; background: rgba(0,0,0,0.4); color: white; padding: 10px; display: none; overflow-y: auto; }
+        #ci { position: fixed; bottom: 50px; left: 20px; width: 300px; padding: 8px; background: #000; color: #fff; border: 1px solid #555; display: none; }
+        #esc-menu { position: fixed; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 1000; }
     </style>
 </head>
 <body>
-
-<nav>
-    <div id="p-name">👤 冒險者</div>
-    <div style="color: #ff4757;">❤️ HP: <span id="hp">20</span> | 🍗 Hunger: <span id="hg">20</span></div>
-    <div id="coord">X: 0, Y: 0</div>
-</nav>
-
-<div class="hud" id="hotbar">
-    <div class="slot active" data-type="grass">🌱</div>
-    <div class="slot" data-type="dirt">🟫</div>
-    <div class="slot" data-type="stone">🧱</div>
-    <div class="slot" data-type="wood">🪵</div>
-    <div class="slot" data-type="sword">⚔️</div>
-</div>
-
+<div id="chat"></div><input type="text" id="ci">
 <div id="esc-menu">
-    <div class="btn-side">
-        <h1 style="color: #fff;">遊戲選單</h1>
-        <button class="m-btn" style="background:#2ecc71" onclick="toggleMenu()">返回遊戲</button>
-        <button class="m-btn" onclick="save()">儲存世界</button>
-        <button class="m-btn" style="background:#e74c3c" onclick="location.href='index.html'">儲存並離開</button>
-    </div>
-    <div class="panel-side">
-        <h3>🛠️ 物品欄與規則</h3>
-        <p>左鍵：挖掘 | 右鍵：放置 | T：聊天 | 1-5：快速鍵</p>
-        <div style="background: #000; height: 150px; border-radius: 10px; margin-top: 10px;" id="map-preview">
-            </div>
-    </div>
+    <h1>選單</h1>
+    <button onclick="toggleEsc()" style="padding:15px 40px">返回遊戲</button>
+    <div style="margin-top:20px">🛒 商店：<button onclick="alert('鑽石劍已裝備')">💎 鑽石劍 ($500)</button></div>
 </div>
-
 <canvas id="game"></canvas>
-
 <script>
-    const canvas = document.getElementById('game');
-    const ctx = canvas.getContext('2d');
+    const canvas = document.getElementById('game'); const ctx = canvas.getContext('2d');
     canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+    let isT = false, isE = false;
+    let p = { x: 400, y: 300, w: 24, h: 34, vy: 0 };
+    const aiResp = ["你好啊！", "這山好高", "小心殭屍", "有鑽石嗎？"];
 
-    const blockSize = 40;
-    let world = {}, entities = [], keys = {}, isPaused = false;
-    let selectedType = 'grass';
-    
-    // 玩家狀態
-    let player = { 
-        x: 400, y: -200, w: 24, h: 36, 
-        vx: 0, vy: 0, g: false,
-        hp: 20, hunger: 20 
-    };
-
-    // --- 核心規則：方塊生成 ---
-    function getGroundY(x) { return Math.floor(10 + Math.sin(x * 0.05) * 5); }
-
-    function initChunk(startX) {
-        for(let x = startX; x < startX + 1000; x += blockSize) {
-            let gx = Math.floor(x / blockSize) * blockSize;
-            if(!world[gx]) {
-                let gy = getGroundY(gx / blockSize);
-                world[gx] = {};
-                for(let y = gy; y < gy + 10; y++) {
-                    world[gx][y * blockSize] = (y === gy) ? 'grass' : 'dirt';
-                }
+    window.onkeydown = e => {
+        if(e.key.toLowerCase()==='t' && !isT) { isT=true; document.getElementById('chat').style.display='block'; document.getElementById('ci').style.display='block'; document.getElementById('ci').focus(); }
+        if(e.key==='Enter' && isT) {
+            let m = document.getElementById('ci').value;
+            if(m) { 
+                addC("你", m);
+                setTimeout(()=>addC("電腦", aiResp[Math.floor(Math.random()*4)], "#58a6ff"), 800);
             }
+            document.getElementById('ci').value=""; isT=false; document.getElementById('ci').style.display='none';
         }
-    }
-
-    // --- 核心規則：滑鼠互動 (挖方塊/放方塊) ---
-    canvas.onmousedown = (e) => {
-        if(isPaused) return;
-        let mx = Math.floor((e.clientX + camera.x) / blockSize) * blockSize;
-        let my = Math.floor((e.clientY + camera.y) / blockSize) * blockSize;
-
-        if(e.button === 0) { // 左鍵：挖掘
-            if(world[mx] && world[mx][my]) delete world[mx][my];
-        } else if(e.button === 2) { // 右鍵：放置
-            if(!world[mx]) world[mx] = {};
-            world[mx][my] = selectedType;
-        }
+        if(e.key==='Escape') toggleEsc();
     };
-    canvas.oncontextmenu = (e) => e.preventDefault();
 
-    // --- 核心規則：熱鍵 1-5 ---
-    window.onkeydown = (e) => {
-        if(e.code === 'Escape') toggleMenu();
-        if(e.key >= '1' && e.key <= '5') {
-            const slots = document.querySelectorAll('.slot');
-            slots.forEach(s => s.classList.remove('active'));
-            slots[parseInt(e.key)-1].classList.add('active');
-            selectedType = slots[parseInt(e.key)-1].dataset.type;
-        }
-        keys[e.code] = true;
-    };
-    window.onkeyup = (e) => keys[e.code] = false;
+    function toggleEsc(){ isE=!isE; document.getElementById('esc-menu').style.display=isE?'flex':'none'; }
+    function addC(w,t,c="#fff"){ const l=document.getElementById('chat'); l.innerHTML+=`<div><span style="color:${c}">${w}:</span> ${t}</div>`; l.scrollTop=l.scrollHeight; }
 
-    function toggleMenu() {
-        isPaused = !isPaused;
-        document.getElementById('esc-menu').style.display = isPaused ? 'grid' : 'none';
-    }
-
-    let camera = { x: 0, y: 0 };
-
-    function loop() {
-        if(!isPaused) {
-            // 移動與重力
-            player.vx = (keys['KeyD'] ? 5 : 0) + (keys['KeyA'] ? -5 : 0);
-            player.x += player.vx;
-            player.vy += 0.6; player.y += player.vy;
-
-            // 碰撞檢測規則
-            let gx = Math.floor(player.x / blockSize) * blockSize;
-            let gy = Math.floor((player.y + player.h) / blockSize) * blockSize;
-            
-            if(world[gx] && world[gx][gy]) {
-                player.y = gy - player.h;
-                // 掉落傷害規則
-                if(player.vy > 15) player.hp -= Math.floor(player.vy - 10);
-                player.vy = 0; player.g = true;
-            } else { player.g = false; }
-
-            if((keys['Space'] || keys['KeyW']) && player.g) { player.vy = -12; player.g = false; }
-
-            // 更新 HUD
-            document.getElementById('hp').innerText = Math.max(0, player.hp);
-            document.getElementById('coord').innerText = `X: ${Math.round(player.x)}, Y: ${Math.round(-player.y)}`;
-        }
-
-        camera.x += (player.x - canvas.width/2 - camera.x) * 0.1;
-        camera.y += (player.y - canvas.height/2 - camera.y) * 0.1;
-
-        // 繪圖
-        ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0,canvas.width, canvas.height);
-        ctx.save(); ctx.translate(-camera.x, -camera.y);
-
-        initChunk(player.x - 800);
-        for(let x in world) {
-            for(let y in world[x]) {
-                let type = world[x][y];
-                ctx.fillStyle = type==='grass'?'#2ecc71':(type==='dirt'?'#8b5a2b':(type==='stone'?'#7f8c8d':'#d35400'));
-                ctx.fillRect(x, y, blockSize-1, blockSize-1);
-            }
-        }
-
-        // 畫玩家
-        ctx.fillStyle = "#fff"; ctx.fillRect(player.x, player.y, player.w, player.h);
-        ctx.restore();
-
+    function loop(){
+        ctx.fillStyle = "#1e90ff"; ctx.fillRect(0,0,canvas.width, canvas.height);
+        ctx.fillStyle = "#2ed573"; ctx.fillRect(0, 500, canvas.width, 100);
+        ctx.fillStyle = "white"; ctx.fillRect(p.x, p.y, p.w, p.h);
         requestAnimationFrame(loop);
     }
     loop();
