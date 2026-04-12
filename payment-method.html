@@ -1,96 +1,61 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <title>選擇支付方式 - Minecraft 遠征隊</title>
+    <meta charset="UTF-8"><title>選擇支付方式</title>
     <style>
-        body { margin: 0; background: #0d1117; color: white; font-family: sans-serif; }
+        body { margin: 0; background: #0d1117; color: #fff; font-family: sans-serif; }
+        .nav { background: #1a1a1a; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 2px solid #333; position: sticky; top: 0; }
+        .super-points { background: rgba(255, 202, 40, 0.1); padding: 8px 15px; border-radius: 20px; border: 1px solid #ffca28; color: #ffca28; font-weight: bold; }
         
-        /* 導航列樣式 */
-        .nav { 
-            background: #1a1a1a; height: 60px; display: flex; align-items: center; 
-            justify-content: space-between; padding: 0 40px; border-bottom: 2px solid #333; 
-            position: sticky; top: 0; z-index: 9999;
-        }
-        .logo { height: 25px; cursor: pointer; }
-        .nav-links { display: flex; gap: 30px; }
-        .nav-item { color: #ccc; font-size: 14px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .nav-item:hover { color: #fff; text-decoration: underline; }
-        .nav-right { display: flex; align-items: center; gap: 30px; }
-        .super-points { font-size: 14px; background: rgba(255, 202, 40, 0.1); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(255, 202, 40, 0.3); }
-
-        /* 支付頁面內容樣式 */
-        .container { max-width: 1000px; margin: 60px auto; padding: 0 20px; text-align: center; }
-        h1 { font-size: 32px; margin-bottom: 40px; }
-        .category { text-align: left; color: #58a6ff; margin: 30px 0 15px; border-bottom: 1px solid #333; padding-bottom: 5px; font-size: 14px; }
-        .pay-grid { display: flex; flex-wrap: wrap; gap: 15px; justify-content: flex-start; }
-        .pay-item { 
-            background: #161b22; border: 1px solid #30363d; padding: 20px 40px; border-radius: 12px; 
-            cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 10px; min-width: 180px;
-        }
-        .pay-item:hover { border-color: #58a6ff; background: #1c2128; transform: translateY(-3px); }
+        .container { max-width: 900px; margin: 50px auto; padding: 0 20px; }
+        .pay-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
+        .pay-item { background: #161b22; border: 1px solid #333; padding: 20px; border-radius: 8px; cursor: pointer; text-align: center; transition: 0.2s; }
+        .pay-item:hover { border-color: #58a6ff; background: #1c2128; }
+        .cat-title { color: #58a6ff; border-bottom: 1px solid #333; padding-bottom: 5px; margin-top: 30px; }
     </style>
 </head>
 <body>
 
 <div class="nav">
-    <div class="nav-left"><img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" class="logo" onclick="location.href='product-selection.html'"></div>
-    <div class="nav-links">
-        <div class="nav-item" onclick="checkAccess()">遊戲</div>
-        <div class="nav-item" onclick="location.href='community.html'">社群</div>
-        <div class="nav-item" onclick="location.href='learning.html'">學習</div>
-        <div class="nav-item">支援</div>
-    </div>
-    <div class="nav-right">
-        <div class="super-points">🟡 SUPER 點數: <span id="point-counter">0</span></div>
-        <div style="cursor:pointer" onclick="location.href='index.html'">👤 <span id="user-display">帳戶</span></div>
-    </div>
+    <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" height="25">
+    <div class="super-points">🟡 SUPER 點數: <span id="pts">0</span></div>
 </div>
 
 <div class="container">
     <h1>選擇支付方式</h1>
-
-    <div class="category">電子支付</div>
-    <div class="pay-grid">
-        <div class="pay-item" onclick="sel('全支付')">🧧 全支付</div>
-        <div class="pay-item" onclick="sel('LINE Pay')">🟢 LINE Pay</div>
-        <div class="pay-item" onclick="sel('街口支付')">🧧 街口支付</div>
-    </div>
-
-    <div class="category">信用卡</div>
-    <div class="pay-grid">
-        <div class="pay-item" onclick="sel('信用卡一次付清')">💳 信用卡一次付清</div>
-    </div>
     
-    <div style="margin-top: 50px; color: #8b949e; font-size: 14px;">...</div>
+    <div class="cat-title">電子支付 (5種)</div>
+    <div class="pay-grid">
+        <div class="pay-item" onclick="pay('全支付')">全支付</div>
+        <div class="pay-item" onclick="pay('LINE Pay')">LINE Pay</div>
+        <div class="pay-item" onclick="pay('街口支付')">街口支付</div>
+        <div class="pay-item" onclick="pay('悠遊付')">悠遊付</div>
+        <div class="pay-item" onclick="pay('橘子支付')">橘子支付</div>
+    </div>
+
+    <div class="cat-title">信用卡與其他 (5種)</div>
+    <div class="pay-grid">
+        <div class="pay-item" onclick="pay('VISA一次付清')">VISA 一次付清</div>
+        <div class="pay-item" onclick="pay('MasterCard')">MasterCard</div>
+        <div class="pay-item" onclick="pay('JCB')">JCB</div>
+        <div class="pay-item" onclick="pay('銀聯卡')">銀聯卡</div>
+        <div class="pay-item" onclick="pay('銀行轉帳')">銀行轉帳</div>
+    </div>
 </div>
 
 <script>
-    // --- SUPER 點數邏輯 ---
-    let pts = parseInt(localStorage.getItem('super_points')) || 0;
-    const ptDisplay = document.getElementById('point-counter');
-    
-    // 每秒加一點並儲存
+    // SUPER 點數每秒增加
+    let p = parseInt(localStorage.getItem('super_points')) || 0;
     setInterval(() => {
-        pts++;
-        ptDisplay.innerText = pts;
-        localStorage.setItem('super_points', pts);
+        p++;
+        document.getElementById('pts').innerText = p;
+        localStorage.setItem('super_points', p);
     }, 1000);
 
-    // 顯示帳戶名稱
-    document.getElementById('user-display').innerText = localStorage.getItem('mc_user') || "帳戶";
-
-    // --- 支付選擇邏輯 ---
-    function sel(method) {
-        localStorage.setItem('selected_method', method);
-        window.location.href = 'pay.html';
-    }
-
-    function checkAccess() {
-        if(localStorage.getItem('game_active') === 'true') location.href = 'main-menu.html';
-        else alert("⚠️ 請先完成購買程序以啟動遊戲。");
+    function pay(m) {
+        localStorage.setItem('selected_method', m);
+        window.location.href = 'pay.html'; // 進入填寫真實資料的查驗頁
     }
 </script>
-
 </body>
 </html>
