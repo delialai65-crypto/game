@@ -1,43 +1,37 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>支付資料查驗</title>
+    <meta charset="UTF-8"><title>安全結帳</title>
     <style>
-        body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        body { background: #0d1117; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         .card { background: #161b22; padding: 30px; border-radius: 20px; width: 450px; border: 1px solid #333; }
-        input, select { width: 100%; padding: 12px; margin-bottom: 15px; background: #0d1117; color: white; border: 1px solid #30363d; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 15px; background: #238636; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #0d1117; color: white; border: 1px solid #333; border-radius: 8px; }
+        button { width: 100%; padding: 15px; background: #238636; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 <div class="card">
     <h2 id="m-title">支付</h2>
-    <input type="text" id="u-name" placeholder="付款人真實姓名">
-    <input type="number" id="u-phone" placeholder="09XXXXXXXX">
-    <div id="card-info" style="display:none">
-        <input type="number" id="u-card" placeholder="信用卡號 (16碼)">
-        <select id="u-bank">
-            <option value="">請選擇銀行</option>
-            <option value="013 國泰">013 國泰世華</option>
-            <option value="808 玉山">808 玉山銀行</option>
-            <option value="822 中信">822 中國信託</option>
-        </select>
+    <input type="text" id="name" placeholder="真實姓名">
+    <input type="number" id="phone" placeholder="09XXXXXXXX">
+    <div id="cc-info" style="display:none">
+        <input type="number" id="card" placeholder="信用卡號 (16碼)">
+        <select id="bank"><option value="">選擇發卡銀行</option><option value="808">808 玉山</option><option value="822">822 中信</option></select>
     </div>
-    <button onclick="check()">查驗並支付</button>
+    <button onclick="check()">確認支付</button>
 </div>
 <script>
-    const method = localStorage.getItem('selected_method') || "全支付";
-    document.getElementById('m-title').innerText = method;
-    if(method.includes("信用卡")) document.getElementById('card-info').style.display = "block";
-
-    function check() {
-        const name = document.getElementById('u-name').value;
-        const phone = document.getElementById('u-phone').value;
-        if(name.length < 2 || phone.length !== 10) return alert("❌ 查驗不通過：請輸入真實資料！");
-        const code = "MC-" + Math.random().toString(36).substr(2, 4).toUpperCase();
+    const m = localStorage.getItem('selected_method');
+    document.getElementById('m-title').innerText = m;
+    if(m.includes('信用卡')) document.getElementById('cc-info').style.display='block';
+    function check(){
+        const n = document.getElementById('name').value;
+        const ph = document.getElementById('phone').value;
+        if(n.length<2 || ph.length!==10) return alert("❌ 查驗失敗：請輸入真實資料！");
+        const code = "MC-"+Math.random().toString(36).substr(2,4).toUpperCase();
         localStorage.setItem('current_code', code);
-        alert("✅ 查驗通過！啟動碼：" + code);
-        window.location.href = 'verify.html';
+        alert("✅ 支付完成！啟動碼："+code);
+        window.location.href='verify.html';
     }
 </script>
 </body>
