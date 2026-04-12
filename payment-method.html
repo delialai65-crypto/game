@@ -1,102 +1,33 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>選擇支付方式 - Minecraft 遠征隊</title>
+    <meta charset="UTF-8"><title>Minecraft 遠征隊 - 主選單</title>
     <style>
-        body { margin: 0; background: #0d1117; color: white; font-family: sans-serif; }
-        .nav { background: #1a1a1a; height: 60px; display: flex; align-items: center; justify-content: space-between; padding: 0 40px; border-bottom: 2px solid #333; position: sticky; top: 0; }
-        .super-points { background: rgba(255, 202, 40, 0.1); padding: 8px 15px; border-radius: 20px; border: 1px solid #ffca28; color: #ffca28; font-weight: bold; }
-        
-        .container { max-width: 900px; margin: 40px auto; padding: 0 20px; }
-        .order-summary { background: #161b22; padding: 20px; border-radius: 8px; border: 1px solid #30363d; margin-bottom: 30px; }
-        
-        .pay-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-        .pay-item { background: #161b22; border: 1px solid #30363d; padding: 20px; border-radius: 8px; cursor: pointer; transition: 0.2s; position: relative; }
-        .pay-item:hover { border-color: #58a6ff; background: #1c2128; }
-        
-        .cat-title { color: #58a6ff; border-bottom: 1px solid #333; padding-bottom: 5px; margin-top: 30px; font-size: 14px; text-transform: uppercase; }
-        .special-btn { background: linear-gradient(45deg, #ffca28, #f39c12); color: #000; font-weight: bold; border: none; }
-        .price-tag { float: right; color: #8b949e; }
+        body { margin: 0; background: url('https://files.catbox.moe/k3h57k.jpg') center; background-size: cover; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; }
+        .btn { width: 400px; padding: 15px; margin: 5px; background: #4e4e4e; border: 2px solid #000; color: white; cursor: pointer; text-align: center; font-weight: bold; text-shadow: 2px 2px #000; }
+        .btn:hover { border-color: #fff; background: #6e6e6e; }
+        #multi-panel { display: none; position: fixed; background: rgba(0,0,0,0.9); padding: 30px; border: 2px solid #2ecc71; border-radius: 10px; color: white; text-align: center; }
     </style>
 </head>
 <body>
-
-<div class="nav">
-    <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" height="25" onclick="location.href='product-selection.html'" style="cursor:pointer">
-    <div class="super-points">🟡 我的 SUPER 點數: <span id="pts-display">0</span></div>
-</div>
-
-<div class="container">
-    <div class="order-summary">
-        <h2 style="margin:0">訂單確認</h2>
-        <p>購買項目：<span id="target-item" style="color:#2ecc71">載入中...</span></p>
-        <p>應付金額：<span style="color:#f39c12; font-size:20px;">NT$ <span id="target-price">0</span></span></p>
+    <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" width="500">
+    <div style="margin-top:20px">
+        <div class="btn" onclick="location.href='game.html?mode=single'">單人遊戲</div>
+        <div class="btn" onclick="document.getElementById('multi-panel').style.display='block'">多人遊戲 (2-50人)</div>
     </div>
 
-    <h1>選擇支付方式</h1>
-
-    <div class="cat-title">專屬點數兌換</div>
-    <div class="pay-item special-btn" onclick="payWithPoints()">
-        ✨ 使用 SUPER 點數全額兌換 
-        <span class="price-tag" id="points-needed">需 0 點</span>
+    <div id="multi-panel">
+        <h3>設定多人遠征人數</h3>
+        <p><span id="p-count" style="font-size:30px; color:#2ecc71;">25</span> 人</p>
+        <input type="range" min="2" max="50" value="25" style="width:100%" oninput="document.getElementById('p-count').innerText=this.value">
+        <button class="btn" style="width:100%" onclick="startMulti()">開始連線</button>
     </div>
 
-    <div class="cat-title">電子支付</div>
-    <div class="pay-grid">
-        <div class="pay-item" onclick="pay('全支付')">🧧 全支付</div>
-        <div class="pay-item" onclick="pay('LINE Pay')">🟢 LINE Pay</div>
-        <div class="pay-item" onclick="pay('街口支付')">🔴 街口支付</div>
-        <div class="pay-item" onclick="pay('悠遊付')">🔵 悠遊付</div>
-        <div class="pay-item" onclick="pay('Pi 拍錢包')">🟣 Pi 拍錢包</div>
-    </div>
-
-    <div class="cat-title">信用卡與傳統支付</div>
-    <div class="pay-grid">
-        <div class="pay-item" onclick="pay('信用卡一次付清')">💳 信用卡一次付清</div>
-        <div class="pay-item" onclick="pay('銀聯卡支付')">💳 銀聯卡 (UnionPay)</div>
-        <div class="pay-item" onclick="pay('超商代碼繳費')">🏪 超商代碼 / 條碼</div>
-        <div class="pay-item" onclick="pay('銀行轉帳')">🏦 網路銀行轉帳</div>
-    </div>
-</div>
-
-<script>
-    // 1. 初始化點數與訂單資訊
-    let myPoints = parseInt(localStorage.getItem('super_points')) || 0;
-    const itemName = localStorage.getItem('temp_item') || "未選擇方案";
-    const itemPrice = parseInt(localStorage.getItem('temp_price')) || 0;
-
-    // 2. 決定點數兌換門檻 (公式：價格 x 10)
-    const neededPoints = itemPrice * 10; 
-
-    document.getElementById('target-item').innerText = itemName;
-    document.getElementById('target-price').innerText = itemPrice;
-    document.getElementById('points-needed').innerText = `需 ${neededPoints} 點`;
-
-    // 3. 點數每秒跳動邏輯
-    setInterval(() => {
-        myPoints++;
-        document.getElementById('pts-display').innerText = myPoints;
-        localStorage.setItem('super_points', myPoints);
-    }, 1000);
-
-    // 4. 點數支付邏輯
-    function payWithPoints() {
-        if (myPoints >= neededPoints) {
-            myPoints -= neededPoints;
-            localStorage.setItem('super_points', myPoints);
-            localStorage.setItem('game_active', 'true');
-            alert(`🎉 兌換成功！已扣除 ${neededPoints} 點 SUPER 點數。祝你在遠征世界玩得開心！`);
-            window.location.href = 'main-menu.html';
-        } else {
-            alert(`❌ 點數不足！\n你目前有 ${myPoints} 點，還差 ${neededPoints - myPoints} 點。\n請繼續留在網頁中進行「遠征」以累積點數。`);
+    <script>
+        function startMulti() {
+            const count = document.querySelector('input[type=range]').value;
+            window.location.href = `game.html?mode=multi&players=${count}`;
         }
-    }
-
-    // 5. 一般支付邏輯
-    function pay(method) {
-        localStorage.setItem('selected_method', method);
-        window.location.href = 'pay.html';
-    }
-</script>
+    </script>
 </body>
 </html>
