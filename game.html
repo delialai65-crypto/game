@@ -1,42 +1,15 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>遠征世界 - 終極核心</title>
+    <meta charset="UTF-8"><title>遠征世界 - 50人全員落地</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
         canvas { display: block; background: #87CEEB; }
-        
-        /* 頂部資訊列 */
-        nav { 
-            position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.6); 
-            color: white; padding: 10px 20px; display: flex; 
-            justify-content: space-between; z-index: 100; box-sizing: border-box; 
-        }
-        
-        /* 聊天室樣式 */
-        #chat-box { 
-            position: fixed; bottom: 80px; left: 20px; width: 300px; height: 150px; 
-            background: rgba(0,0,0,0.3); color: white; padding: 10px; 
-            overflow-y: auto; font-size: 14px; border-radius: 4px; display: none; 
-        }
-        #chat-in { 
-            position: fixed; bottom: 40px; left: 20px; width: 300px; 
-            padding: 8px; background: rgba(0,0,0,0.8); color: white; 
-            border: 1px solid #555; display: none; outline: none; 
-        }
-
-        /* ESC 暫停選單 */
-        #esc-menu { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); 
-            display: none; flex-direction: column; align-items: center; 
-            justify-content: center; z-index: 1000; 
-        }
-        .btn { 
-            width: 280px; padding: 15px; margin: 10px; background: #4e4e4e; 
-            color: white; border: 2px solid #fff; cursor: pointer; 
-            text-align: center; font-weight: bold; 
-        }
+        nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.6); color: white; padding: 10px 20px; display: flex; justify-content: space-between; z-index: 100; box-sizing: border-box; }
+        #chat-box { position: fixed; bottom: 80px; left: 20px; width: 300px; height: 150px; background: rgba(0,0,0,0.3); color: white; padding: 10px; overflow-y: auto; font-size: 14px; border-radius: 4px; display: none; }
+        #chat-in { position: fixed; bottom: 40px; left: 20px; width: 300px; padding: 8px; background: rgba(0,0,0,0.8); color: white; border: 1px solid #555; display: none; outline: none; }
+        #esc-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .btn { width: 280px; padding: 15px; margin: 10px; background: #4e4e4e; color: white; border: 2px solid #fff; cursor: pointer; text-align: center; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -63,35 +36,45 @@
     const ctx = canvas.getContext('2d');
     const blockSize = 40;
     
-    // 初始化設定：將玩家 Y 軸設在 100，確保在地面附近
     let player = { x: 400, y: 100, w: 24, h: 36, speed: 8 };
     let world = {}, bots = [], keys = {}, isEsc = false, isT = false;
     let camera = { x: 0, y: 0 };
 
     const params = new URLSearchParams(window.location.search);
-    const botCount = parseInt(params.get('players')) || 2;
+    const botCount = Math.min(parseInt(params.get('players')) || 2, 50);
 
     document.getElementById('p-name').innerText = localStorage.getItem('mc_user') || "冒險者";
     let superPts = parseInt(localStorage.getItem('super_points')) || 0;
 
-    // --- 規則：無限地形生成 (確保不飄空) ---
+    // --- 地形生成函數 ---
+    function getGroundY(gx) {
+        const x = gx / blockSize;
+        return Math.floor(12 + Math.sin(x * 0.1) * 5); // 回傳該 X 軸的草地高度索引
+    }
+
     function genTerrain(gx) {
         if (world[gx]) return;
-        const x = gx / blockSize;
-        // 地形起伏算法：確保在 Y=12 附近有地面
-        let groundY = Math.floor(12 + Math.sin(x * 0.1) * 5);
+        let gy = getGroundY(gx);
         world[gx] = {};
-        for(let y = groundY; y < groundY + 10; y++) {
-            world[gx][y * blockSize] = (y === groundY) ? '#2ecc71' : '#8b5a2b';
+        for(let y = gy; y < gy + 10; y++) {
+            world[gx][y * blockSize] = (y === gy) ? '#2ecc71' : '#8b5a2b';
         }
     }
 
-    // --- 規則：多人生成 (2-50人) ---
+    // --- 50人全員生成邏輯 (確保在地上) ---
     for(let i=0; i < botCount - 1; i++) {
-        bots.push({ x: 400 + Math.random()*200, y: 300, name: "玩家_"+(i+1) });
+        let bx = 400 + (Math.random() - 0.5) * 800; // 隨機散佈在玩家附近
+        let by = (getGroundY(Math.floor(bx/blockSize)*blockSize) - 1) * blockSize; // 直接算出地面高度
+        bots.push({ 
+            x: bx, 
+            y: by, 
+            vx: 0, 
+            vy: 0, 
+            name: "玩家_" + (i + 1),
+            moveTimer: 0 
+        });
     }
 
-    // --- 操控監聽 ---
     window.onkeydown = e => {
         if(e.code === 'Escape') toggleEsc();
         if(e.code === 'KeyT' && !isEsc && !isT) toggleChat(true);
@@ -114,36 +97,57 @@
         toggleChat(false);
     }
 
+    // 實體碰撞與物理
+    function applyPhysics(obj) {
+        obj.vy += 0.8; // 重力
+        obj.y += obj.vy;
+
+        let gx = Math.floor(obj.x / blockSize) * blockSize;
+        let gy = Math.floor((obj.y + 36) / blockSize) * blockSize;
+
+        if (world[gx] && world[gx][gy]) {
+            obj.y = gy - 36;
+            obj.vy = 0;
+            // 隨機跳躍 AI
+            if(obj !== player && Math.random() < 0.01) obj.vy = -12;
+        }
+    }
+
     function loop() {
         if(!isEsc && !isT) {
-            // --- 規則：穿牆飛行與移動 ---
+            // 穿牆移動
             if(keys['KeyD']) player.x += player.speed;
             if(keys['KeyA']) player.x -= player.speed;
-            if(keys['KeyW'] || keys['Space']) player.y -= player.speed; // 向上飛
-            if(keys['KeyS']) player.y += player.speed; // 向下鑽
+            if(keys['KeyW'] || keys['Space']) player.y -= player.speed;
+            if(keys['KeyS']) player.y += player.speed;
 
-            // 每秒加點數
+            // 點數累積
             if(Date.now() % 1000 < 20) { 
                 superPts++; 
                 localStorage.setItem('super_points', superPts); 
                 document.getElementById('pts').innerText = superPts;
             }
 
-            // 地形區域加載：確保玩家四周永遠有地磚
+            // 載入周邊地形
             for(let i = player.x - 1200; i < player.x + 1200; i += blockSize) {
                 genTerrain(Math.floor(i/blockSize) * blockSize);
             }
+
+            // 更新隊友物理 (讓他們待在地上)
+            bots.forEach(b => {
+                applyPhysics(b);
+                // 簡易遊蕩 AI
+                if(Math.random() < 0.02) b.vx = (Math.random() - 0.5) * 4;
+                b.x += b.vx;
+            });
         }
 
-        // 攝影機平滑跟隨
         camera.x += (player.x - canvas.width/2 - camera.x) * 0.1;
         camera.y += (player.y - canvas.height/2 - camera.y) * 0.1;
 
-        // 渲染背景
         ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0,canvas.width, canvas.height);
         ctx.save(); ctx.translate(-camera.x, -camera.y);
 
-        // 畫地型
         for(let x in world) {
             for(let y in world[x]) {
                 ctx.fillStyle = world[x][y];
@@ -160,13 +164,10 @@
             ctx.fillText(b.name, b.x + 12, b.y - 5);
         });
 
-        // 畫玩家本人
         ctx.fillStyle = "white"; ctx.fillRect(player.x, player.y, player.w, player.h);
         ctx.restore();
 
-        // 更新 UI 坐標
         document.getElementById('coords').innerText = `X: ${Math.round(player.x)}, Y: ${Math.round(-player.y)}`;
-        
         requestAnimationFrame(loop);
     }
 
