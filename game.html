@@ -1,53 +1,73 @@
-<!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8"><title>遠征世界</title>
-    <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
-        canvas { display: block; background: #1e90ff; }
-        #chat { position: fixed; bottom: 80px; left: 20px; width: 300px; height: 120px; background: rgba(0,0,0,0.4); color: white; padding: 10px; display: none; overflow-y: auto; }
-        #ci { position: fixed; bottom: 50px; left: 20px; width: 300px; padding: 8px; background: #000; color: #fff; border: 1px solid #555; display: none; }
-        #esc-menu { position: fixed; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 1000; }
-    </style>
-</head>
-<body>
-<div id="chat"></div><input type="text" id="ci">
-<div id="esc-menu">
-    <h1>選單</h1>
-    <button onclick="toggleEsc()" style="padding:15px 40px">返回遊戲</button>
-    <div style="margin-top:20px">🛒 商店：<button onclick="alert('鑽石劍已裝備')">💎 鑽石劍 ($500)</button></div>
-</div>
-<canvas id="game"></canvas>
+<style>
+    /* 聊天顯示區：加上磨砂感與淡出動畫 */
+    #chat-log { 
+        width: 380px; height: 160px; 
+        background: rgba(0, 0, 0, 0.4); 
+        color: white; padding: 12px; 
+        overflow-y: auto; border-radius: 4px; 
+        font-family: 'Segoe UI', sans-serif;
+        font-size: 15px; text-shadow: 1px 1px 2px #000;
+        display: none; /* 平時隱藏，有訊息或按 T 才顯示 */
+    }
+
+    /* 輸入框：完美還原黑框樣式 */
+    #chat-input { 
+        width: 380px; padding: 10px; 
+        background: rgba(0, 0, 0, 0.85); 
+        color: #fff; border: 2px solid #555; 
+        outline: none; border-radius: 2px;
+        display: none; margin-top: 5px;
+    }
+</style>
+
 <script>
-    const canvas = document.getElementById('game'); const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    let isT = false, isE = false;
-    let p = { x: 400, y: 300, w: 24, h: 34, vy: 0 };
-    const aiResp = ["你好啊！", "這山好高", "小心殭屍", "有鑽石嗎？"];
+    function addChat(who, txt, color = "#fff") {
+        const log = document.getElementById('chat-log');
+        log.style.display = "block"; // 顯示對話框
+        
+        // 建立訊息行
+        const line = document.createElement('div');
+        line.style.marginBottom = "4px";
+        line.innerHTML = `<span style="color:${color}; font-weight:bold;">&lt;${who}&gt;</span> ${txt}`;
+        
+        log.appendChild(line);
+        log.scrollTop = log.scrollHeight;
+
+        // 如果不是在打字狀態，5秒後自動隱藏對話框保持畫面乾淨
+        if (!isChatting) {
+            setTimeout(() => {
+                if (!isChatting) log.style.opacity = "0.7";
+            }, 5000);
+        }
+    }
 
     window.onkeydown = e => {
-        if(e.key.toLowerCase()==='t' && !isT) { isT=true; document.getElementById('chat').style.display='block'; document.getElementById('ci').style.display='block'; document.getElementById('ci').focus(); }
-        if(e.key==='Enter' && isT) {
-            let m = document.getElementById('ci').value;
-            if(m) { 
-                addC("你", m);
-                setTimeout(()=>addC("電腦", aiResp[Math.floor(Math.random()*4)], "#58a6ff"), 800);
+        // 按下 T 鍵
+        if (e.key.toLowerCase() === 't' && !isChatting) {
+            e.preventDefault();
+            isChatting = true;
+            document.getElementById('chat-log').style.display = "block";
+            document.getElementById('chat-log').style.opacity = "1";
+            document.getElementById('chat-input').style.display = "block";
+            document.getElementById('chat-input').focus();
+        } 
+        // 按下 Enter 發送
+        else if (e.key === 'Enter' && isChatting) {
+            const msg = document.getElementById('chat-input').value.trim();
+            if (msg) {
+                addChat(user, msg); // 顯示你的名字，例如 <賴嫦瑜> 你好
+                
+                // 多人模式：電腦隨機回話
+                if (mode === "multi") {
+                    setTimeout(() => {
+                        const reactions = ["大家快看，有人說話了！", "你好啊冒險者", "要一起去挖礦嗎？", "這地圖真大"];
+                        addChat("電腦隊友", reactions[Math.floor(Math.random()*reactions.length)], "#58a6ff");
+                    }, 1000);
+                }
             }
-            document.getElementById('ci').value=""; isT=false; document.getElementById('ci').style.display='none';
+            document.getElementById('chat-input').value = "";
+            isChatting = false;
+            document.getElementById('chat-input').style.display = "none";
         }
-        if(e.key==='Escape') toggleEsc();
     };
-
-    function toggleEsc(){ isE=!isE; document.getElementById('esc-menu').style.display=isE?'flex':'none'; }
-    function addC(w,t,c="#fff"){ const l=document.getElementById('chat'); l.innerHTML+=`<div><span style="color:${c}">${w}:</span> ${t}</div>`; l.scrollTop=l.scrollHeight; }
-
-    function loop(){
-        ctx.fillStyle = "#1e90ff"; ctx.fillRect(0,0,canvas.width, canvas.height);
-        ctx.fillStyle = "#2ed573"; ctx.fillRect(0, 500, canvas.width, 100);
-        ctx.fillStyle = "white"; ctx.fillRect(p.x, p.y, p.w, p.h);
-        requestAnimationFrame(loop);
-    }
-    loop();
 </script>
-</body>
-</html>
