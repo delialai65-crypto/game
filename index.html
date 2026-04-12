@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>遠征隊啟動器</title>
+    <meta charset="UTF-8"><title>遠征隊 - 帳號系統</title>
     <style>
         body { font-family: sans-serif; background: #0d1117; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .card { background: #161b22; padding: 30px; border-radius: 20px; width: 350px; border: 1px solid #30363d; text-align: center; }
         input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #30363d; background: #0d1117; color: white; box-sizing: border-box; outline: none; }
-        /* 隱藏上下箭頭 */
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         button { width: 100%; padding: 12px; background: #238636; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 15px; }
@@ -14,19 +13,17 @@
 </head>
 <body>
     <div class="card">
-        <h2>遠征隊入口</h2>
+        <h2>遠征隊啟動器</h2>
         <input type="text" id="r-name" placeholder="真實姓名">
-        <input type="number" id="r-y" placeholder="出生年">
         <input type="text" id="r-acc" placeholder="帳號">
         <input type="password" id="r-pwd" placeholder="密碼">
-        <button onclick="doStart()">進入系統</button>
+        <button onclick="doReg()">註冊並進入選單</button>
     </div>
     <script>
-        function doStart() {
+        function doReg() {
             const name = document.getElementById('r-name').value;
             if(!name) return alert("請輸入姓名");
             localStorage.setItem('mc_user', name);
-            // 註冊完直接去驗證頁，如果知道啟動碼就不用去 buy.html
             window.location.href = 'product-selection.html';
         }
     </script>
