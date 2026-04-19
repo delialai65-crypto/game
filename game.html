@@ -1,39 +1,51 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>遠征世界 - 伺服器運行中</title>
+    <meta charset="UTF-8"><title>遠征世界 - 終極好玩版</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; user-select: none; }
         canvas { display: block; background: #87CEEB; cursor: crosshair; }
-        nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; display: flex; justify-content: space-between; z-index: 100; box-sizing: border-box; border-bottom: 1px solid #444; }
-        #hotbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; background: rgba(0,0,0,0.9); padding: 8px; border: 2px solid #fff; border-radius: 4px; }
-        .slot { width: 45px; height: 45px; border: 1px solid #777; display: flex; justify-content: center; align-items: center; font-size: 20px; cursor: pointer; }
-        .slot.active { border: 2px solid #ffff00; background: rgba(255,255,255,0.1); }
-        #death-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(139,0,0,0.95); display: none; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 2000; }
-        .btn { padding: 15px 40px; background: #4e4e4e; color: white; border: 2px solid #fff; cursor: pointer; font-weight: bold; margin-top: 20px; }
+        
+        /* HUD 樣式 */
+        nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; display: flex; justify-content: space-between; z-index: 100; box-sizing: border-box; border-bottom: 2px solid #444; }
+        .stats { display: flex; gap: 20px; font-weight: bold; }
+        
+        /* 快捷列與 TNT 提示 */
+        #hotbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; background: rgba(0,0,0,0.9); padding: 10px; border: 2px solid #fff; border-radius: 8px; }
+        .slot { width: 50px; height: 50px; border: 1px solid #777; display: flex; flex-direction: column; justify-content: center; align-items: center; font-size: 20px; color: white; cursor: pointer; }
+        .slot.active { border: 3px solid #ffff00; background: rgba(255,255,255,0.2); }
+        .key-hint { font-size: 10px; color: #aaa; margin-top: 2px; }
+
+        /* 死亡畫面 */
+        #death-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(139,0,0,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; color: white; z-index: 2000; }
+        .btn { padding: 15px 40px; background: #4e4e4e; color: white; border: 2px solid #fff; cursor: pointer; font-weight: bold; margin-top: 20px; transition: 0.2s; }
+        .btn:hover { background: #fff; color: #000; }
     </style>
 </head>
 <body>
 
 <nav>
-    <div>🌐 伺服器: <span id="srv-name">載入中</span> | ❤️ HP: <span id="hp-val">20</span></div>
-    <div>🟡 SUPER 點數: <span id="pts-val">0</span> | <span id="time-tag">☀️ 白天</span></div>
-    <div id="coords">X:0, Y:0</div>
+    <div class="stats">
+        <span>👤 <span id="p-name">載入中</span></span>
+        <span style="color:#ff4d4d">❤️ HP: <span id="hp-val">20</span></span>
+        <span style="color:#ffca28">🟡 SUPER: <span id="pts-val">0</span></span>
+    </div>
+    <div><span id="time-tag">☀️ 白天</span> | <span id="coords">X:0, Y:0</span></div>
 </nav>
 
 <div id="hotbar">
-    <div class="slot active" id="s1" onclick="sel(1)">🌱</div>
-    <div class="slot" id="s2" onclick="sel(2)">🟫</div>
-    <div class="slot" id="s3" onclick="sel(3)">🧱</div>
-    <div class="slot" id="s4" onclick="sel(4)">🪵</div>
-    <div class="slot" id="s5">⚔️(K)</div>
+    <div class="slot active" id="s1" onclick="sel(1)">🌱<div class="key-hint">1</div></div>
+    <div class="slot" id="s2" onclick="sel(2)">🧱<div class="key-hint">2</div></div>
+    <div class="slot" id="s3" onclick="sel(3)">🪵<div class="key-hint">3</div></div>
+    <div class="slot" id="s4" onclick="sel(4)">🧨<div class="key-hint">B炸藥</div></div>
+    <div class="slot" id="s5">⚔️<div class="key-hint">K攻擊</div></div>
 </div>
 
 <div id="death-screen">
-    <h1 style="font-size:60px;">伺服器連結中斷 (你死了)</h1>
-    <p>本次遠征獲得：<span id="final-pts">0</span> 點數</p>
-    <button class="btn" onclick="location.reload()">重新連線 (重生)</button>
-    <button class="btn" onclick="location.href='main-menu.html'">關閉伺服器</button>
+    <h1 style="font-size:60px; text-shadow: 4px 4px #000;">遠征中斷</h1>
+    <p style="font-size:20px;">點數結算：<span id="final-pts">0</span></p>
+    <button class="btn" onclick="location.reload()">重新連線</button>
+    <button class="btn" onclick="location.href='main-menu.html'">回大廳</button>
 </div>
 
 <canvas id="game"></canvas>
@@ -43,85 +55,94 @@
     const ctx = canvas.getContext('2d');
     const blockSize = 40;
     
-    const params = new URLSearchParams(window.location.search);
-    const botCount = Math.min(parseInt(params.get('players')) || 2, 50);
-    const gameMode = params.get('mode') || 'survival';
-    
+    // --- 初始化變數 ---
     let player = { x: 400, y: -200, w: 24, h: 36, vx: 0, vy: 0, g: false, hp: 20, dead: false };
-    let world = {}, entities = [], keys = {}, selected = 'grass', gameTime = 0;
+    let world = {}, entities = [], explosions = [], keys = {}, selected = 'grass', gameTime = 0;
     let camera = { x: 0, y: 0 }, superPts = parseInt(localStorage.getItem('super_points')) || 0;
 
-    document.getElementById('srv-name').innerText = localStorage.getItem('current_server_name') || "遠征伺服器";
+    const params = new URLSearchParams(window.location.search);
+    const botCount = Math.min(parseInt(params.get('players')) || 2, 50);
+    document.getElementById('p-name').innerText = localStorage.getItem('mc_user') || "冒險者";
 
-    // --- 規則：地層填滿 (30層) ---
+    // --- 地圖生成：深層地殼 + 岩漿 ---
     function genTerrain(gx) {
         if (world[gx]) return;
         const x = gx / blockSize;
         let gy = Math.floor(12 + Math.sin(x * 0.1) * 5); 
         world[gx] = {};
-        for(let y = gy; y < gy + 30; y++) {
-            world[gx][y * blockSize] = (y === gy) ? 'grass' : (y < gy + 4 ? 'dirt' : 'stone');
+        for(let y = gy; y < gy + 35; y++) {
+            let type = (y === gy) ? 'grass' : (y < gy + 5 ? 'dirt' : 'stone');
+            // 地底深處隨機生成岩漿
+            if (y > gy + 20 && Math.random() < 0.08) type = 'lava';
+            world[gx][y * blockSize] = type;
         }
     }
 
-    // 初始化 50 人隊友
-    for(let i=0; i<botCount-1; i++) entities.push({ x:400+i*35, y:-200, vx:0, vy:0, type:'mate', w:24, h:36, name: `隊友_${i+1}` });
+    for(let i=0; i<botCount-1; i++) entities.push({ x:400+i*35, y:-200, vx:0, vy:0, type:'mate', w:24, h:36, name:`隊友${i+1}` });
 
-    // --- 規則：左鍵挖掘、右鍵建築 ---
+    // --- 互動邏輯：挖掘、建築、爆炸 ---
     canvas.onmousedown = e => {
         if(player.dead) return;
         let mx = Math.floor((e.clientX + camera.x) / blockSize) * blockSize;
         let my = Math.floor((e.clientY + camera.y) / blockSize) * blockSize;
-        
-        if(e.button === 0) { // 左鍵挖掘
-            if(world[mx]) delete world[mx][my];
-        } else if(e.button === 2) { // 右鍵建築
-            if(!world[mx]) world[mx] = {};
-            world[mx][my] = selected;
-        }
+        if(e.button === 0) { if(world[mx]) delete world[mx][my]; }
+        else if(e.button === 2) { if(!world[mx]) world[mx]={}; world[mx][my]=selected; }
     };
     canvas.oncontextmenu = e => e.preventDefault();
 
-    // --- 規則：嚴格物理 (禁止穿牆) ---
+    function placeTNT() {
+        let tx = Math.floor((player.x + 12) / blockSize) * blockSize;
+        let ty = Math.floor((player.y + 18) / blockSize) * blockSize;
+        if(!world[tx]) world[tx] = {};
+        world[tx][ty] = 'tnt';
+        setTimeout(() => { if(world[tx] && world[tx][ty] === 'tnt') explode(tx, ty); }, 2000);
+    }
+
+    function explode(ex, ey) {
+        delete world[ex][ey];
+        explosions.push({ x: ex + 20, y: ey + 20, r: 0, maxR: 120 });
+        for(let x = ex-80; x <= ex+80; x+=blockSize) {
+            for(let y = ey-80; y <= ey+80; y+=blockSize) {
+                let tx = Math.floor(x/blockSize)*blockSize;
+                let ty = Math.floor(y/blockSize)*blockSize;
+                if(world[tx]) delete world[tx][ty];
+            }
+        }
+        if(Math.hypot(player.x - ex, player.y - ey) < 100) player.hp -= 8;
+    }
+
+    // --- 物理與超能力 (Shift 加速) ---
     function applyPhysics(obj) {
-        obj.vy += 0.8; 
-        let nextX = obj.x + (obj.vx || 0);
+        if(obj.dead) return;
+        obj.vy += 0.8;
+        let speedMult = (obj === player && keys['ShiftLeft'] && superPts > 500) ? 2.2 : 1;
+        let nextX = obj.x + (obj.vx * speedMult);
         let nextY = obj.y + obj.vy;
 
-        // 水平碰撞偵測
-        let gxSide = Math.floor((obj.vx > 0 ? nextX + 24 : nextX) / blockSize) * blockSize;
-        let gyMid = Math.floor((obj.y + 18) / blockSize) * blockSize;
-        if (!(world[gxSide] && world[gxSide][gyMid])) {
-            obj.x = nextX;
-        }
+        let gxS = Math.floor((obj.vx > 0 ? nextX + 24 : nextX) / blockSize) * blockSize;
+        let gyM = Math.floor((obj.y + 18) / blockSize) * blockSize;
+        if (!(world[gxS] && world[gxS][gyM])) obj.x = nextX;
 
-        // 垂直碰撞偵測
         let gx = Math.floor((obj.x + 12) / blockSize) * blockSize;
         let gy = Math.floor((nextY + 36) / blockSize) * blockSize;
         if (world[gx] && world[gx][gy]) {
-            obj.y = gy - 36;
-            obj.vy = 0;
-            obj.g = true;
-        } else {
-            obj.y = nextY;
-            obj.g = false;
-        }
+            if(world[gx][gy] === 'lava' && obj === player) player.hp -= 0.2; // 踩岩漿扣血
+            obj.y = gy - 36; obj.vy = 0; obj.g = true;
+        } else { obj.y = nextY; obj.g = false; }
     }
 
-    // --- 規則：K 鍵攻擊 ---
-    window.onkeydown = e => { 
-        keys[e.code] = true; 
-        if(e.key >= '1' && e.key <= '4') sel(e.key);
-        if(e.code === 'KeyK') {
-            entities = entities.filter(en => en.type !== 'zombie' || Math.hypot(en.x - player.x, en.y - player.y) > 80);
-        }
+    window.onkeydown = e => {
+        keys[e.code] = true;
+        if(e.code === 'KeyB') placeTNT();
+        if(e.code === 'KeyK') entities = entities.filter(en => en.type !== 'zombie' || Math.hypot(en.x - player.x, en.y - player.y) > 80);
+        if(e.key >= '1' && e.key <= '4') sel(parseInt(e.key));
     };
     window.onkeyup = e => keys[e.code] = false;
 
     function sel(n) {
         document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
         document.getElementById('s'+n).classList.add('active');
-        selected = ['grass', 'dirt', 'stone', 'wood'][n-1];
+        selected = ['grass', 'stone', 'wood', 'tnt'][n-1];
     }
 
     function loop() {
@@ -130,10 +151,8 @@
             let isNight = (gameTime % 2400) > 1200;
             document.getElementById('time-tag').innerText = isNight ? "🌙 夜晚" : "☀️ 白天";
 
-            // --- 規則：怪物夜晚出現 ---
-            if (isNight && gameMode === 'survival' && Math.random() < 0.03) {
-                let spawnX = player.x + (Math.random() > 0.5 ? 500 : -500);
-                entities.push({ x: spawnX, y: -100, vx: 0, vy: 0, type: 'zombie', w: 24, h: 36 });
+            if (isNight && Math.random() < 0.03) {
+                entities.push({ x: player.x + (Math.random() > 0.5 ? 400 : -400), y: -100, vx: 0, vy: 0, type: 'zombie', w: 24, h: 36 });
             }
             if (!isNight) entities = entities.filter(en => en.type !== 'zombie');
 
@@ -149,17 +168,16 @@
                 applyPhysics(en);
             });
 
-            // 死亡判定
-            if(player.hp <= 0 && gameMode === 'survival') {
+            if(player.hp <= 0) {
                 player.dead = true;
-                document.getElementById('death-screen').style.display = 'flex';
+                document.getElementById('death-screen').style.display='flex';
                 document.getElementById('final-pts').innerText = superPts;
             }
 
-            superPts++; 
+            superPts++;
             document.getElementById('pts-val').innerText = superPts;
             document.getElementById('hp-val').innerText = Math.ceil(player.hp);
-            document.getElementById('coords').innerText = `X: ${Math.round(player.x)}, Y: ${Math.round(-player.y)}`;
+            document.getElementById('coords').innerText = `X:${Math.round(player.x)} Y:${Math.round(-player.y)}`;
             for(let i=player.x-800; i<player.x+800; i+=blockSize) genTerrain(Math.floor(i/blockSize)*blockSize);
         }
 
@@ -172,14 +190,22 @@
         ctx.save(); ctx.translate(-camera.x, -camera.y);
         for(let x in world) for(let y in world[x]) {
             let t = world[x][y];
-            ctx.fillStyle = t==='grass'?'#2ecc71':(t==='dirt'?'#8b5a2b':'#7f8c8d');
+            if(t==='tnt') ctx.fillStyle = (Math.floor(Date.now()/200)%2) ? "#f00" : "#fff";
+            else if(t==='lava') ctx.fillStyle = "#ff4500";
+            else ctx.fillStyle = t==='grass'?'#2ecc71':(t==='dirt'?'#8b5a2b':'#7f8c8d');
             ctx.fillRect(x, parseInt(y), blockSize-1, blockSize-1);
         }
+        explosions.forEach((ex, i) => {
+            ctx.fillStyle = `rgba(255, 165, 0, ${1 - ex.r/ex.maxR})`;
+            ctx.beginPath(); ctx.arc(ex.x, ex.y, ex.r, 0, Math.PI*2); ctx.fill();
+            ex.r += 10; if(ex.r > ex.maxR) explosions.splice(i, 1);
+        });
         entities.forEach(e => {
             ctx.fillStyle = e.type === 'zombie' ? '#27ae60' : '#d35400';
             ctx.fillRect(e.x, e.y, e.w, e.h);
         });
-        ctx.fillStyle = "white"; ctx.fillRect(player.x, player.y, player.w, player.h);
+        ctx.fillStyle = (keys['ShiftLeft'] && superPts > 500) ? "#ffea00" : "white";
+        ctx.fillRect(player.x, player.y, player.w, player.h);
         ctx.restore();
         requestAnimationFrame(loop);
     }
