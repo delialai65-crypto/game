@@ -2,122 +2,113 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>遠征世界 - 伺服器建立大廳</title>
+    <title>遠征世界 - 伺服器中心</title>
     <style>
         :root { --primary: #238636; --bg: #0d1117; --card: #161b22; --accent: #ffca28; }
-        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; }
+        body { margin: 0; background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
         
-        .container { background: var(--card); padding: 40px; border-radius: 16px; border: 1px solid #30363d; width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
-        
-        h1 { margin: 0 0 10px 0; font-size: 28px; letter-spacing: 1px; color: var(--accent); }
-        .status-tag { font-size: 12px; background: rgba(35, 134, 54, 0.2); color: #4ade80; padding: 4px 12px; border-radius: 20px; border: 1px solid #238636; margin-bottom: 25px; display: inline-block; }
+        /* 主卡片 */
+        .container { background: var(--card); padding: 40px; border-radius: 16px; border: 1px solid #30363d; width: 420px; text-align: center; position: relative; }
+        h1 { color: var(--accent); margin-bottom: 25px; }
         
         .form-group { text-align: left; margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; font-size: 14px; color: #8b949e; }
-        
-        input, select { 
-            width: 100%; padding: 12px; background: #000; border: 1px solid #30363d; 
-            color: white; border-radius: 6px; box-sizing: border-box; font-size: 16px;
-            transition: border-color 0.3s;
+        input, select { width: 100%; padding: 12px; background: #000; border: 1px solid #30363d; color: white; border-radius: 6px; box-sizing: border-box; }
+
+        .btn-start { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 18px; cursor: pointer; margin-top: 10px; }
+        .btn-change { background: none; border: none; color: #58a6ff; cursor: pointer; margin-top: 15px; text-decoration: underline; font-size: 14px; }
+
+        /* --- 方案選擇彈窗 (取代 shop.html) --- */
+        #shop-modal { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; 
         }
-        input:focus, select:focus { border-color: var(--primary); outline: none; }
-
-        .btn-start { 
-            width: 100%; padding: 16px; background: var(--primary); color: white; border: none; 
-            border-radius: 6px; font-weight: bold; font-size: 18px; cursor: pointer; 
-            margin-top: 10px; transition: 0.2s;
-        }
-        .btn-start:hover { background: #2ea043; transform: translateY(-2px); }
-        .btn-start:active { transform: translateY(0); }
-
-        .footer-links { margin-top: 25px; font-size: 13px; }
-        .footer-links a { color: #58a6ff; text-decoration: none; margin: 0 10px; }
-        .footer-links a:hover { text-decoration: underline; }
-
-        .plan-info { font-size: 12px; color: #8b949e; margin-top: 8px; }
+        .shop-content { background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--accent); width: 80%; max-width: 800px; text-align: center; }
+        .plan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 30px 0; }
+        .plan-card { background: #000; border: 1px solid #333; padding: 20px; border-radius: 12px; cursor: pointer; transition: 0.3s; }
+        .plan-card:hover { border-color: var(--accent); transform: scale(1.05); }
+        .price { color: var(--accent); font-size: 24px; margin: 10px 0; }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" width="200" style="margin-bottom: 20px;">
-        <h1>建立遠征伺服器</h1>
-        <div id="active-tag" class="status-tag">驗證狀態：啟動碼 RYAN0111407 已生效</div>
-
+        <h1>遠征伺服器</h1>
         <div class="form-group">
             <label>伺服器名稱</label>
-            <input type="text" id="srv-name" placeholder="例如：嫦瑜的終極遠征">
+            <input type="text" id="srv-name" placeholder="嫦瑜的秘密基地">
         </div>
 
         <div class="form-group">
-            <label>連線人數方案</label>
+            <label>最大人數 (當前方案限制: <span id="current-limit">2</span> 人)</label>
             <select id="max-players">
-                <option value="2">2 人 (基礎好友)</option>
-                <option value="10">10 人 (小隊遠征)</option>
-                <option value="25">25 人 (大型團隊)</option>
-                <option value="50">50 人 (至尊房主旗艦版)</option>
-            </select>
-            <div id="plan-warn" class="plan-info">您的方案支援最高：<span id="allowed-count">--</span> 人</div>
-        </div>
-
-        <div class="form-group">
-            <label>遊戲模式設定</label>
-            <select id="game-mode">
-                <option value="survival">生存模式 (夜間有怪物、會扣血)</option>
-                <option value="creative">創造模式 (無敵、快速挖掘)</option>
+                <option value="2">2 人</option>
+                <option value="10">10 人</option>
+                <option value="25">25 人</option>
+                <option value="50">50 人</option>
             </select>
         </div>
 
-        <button class="btn-start" onclick="launchServer()">啟動虛擬伺服器</button>
+        <button class="btn-start" onclick="launch()">啟動遠征伺服器</button>
+        <br>
+        <button class="btn-change" onclick="openShop()">✨ 變更人數方案</button>
+    </div>
 
-        <div class="footer-links">
-            <a href="shop.html">變更方案</a> | 
-            <a href="verify.html">啟動碼驗證</a>
+    <div id="shop-modal">
+        <div class="shop-content">
+            <h2 style="color:var(--accent)">升級遠征方案</h2>
+            <div class="plan-grid">
+                <div class="plan-card" onclick="updatePlan(10, 150)">
+                    <h3>🌱 入門</h3>
+                    <div class="price">NT$ 150</div>
+                    <p>10 人上限</p>
+                </div>
+                <div class="plan-card" onclick="updatePlan(25, 450)" style="border-color:var(--primary)">
+                    <h3>🛠️ 高級</h3>
+                    <div class="price">NT$ 450</div>
+                    <p>25 人上限</p>
+                </div>
+                <div class="plan-card" onclick="updatePlan(50, 990)">
+                    <h3>👑 至尊</h3>
+                    <div class="price">NT$ 990</div>
+                    <p>50 人上限</p>
+                </div>
+            </div>
+            <button class="btn-change" style="color:white" onclick="closeShop()">取消並返回</button>
         </div>
     </div>
 
     <script>
-        // 初始載入：檢查玩家方案權限
-        window.onload = function() {
-            // 檢查是否已啟動過
-            if (localStorage.getItem('game_active') !== 'true') {
-                alert("尚未啟動遊戲！將導向驗證頁面。");
-                location.href = 'verify.html';
-                return;
-            }
-
-            const maxAllowed = parseInt(localStorage.getItem('max_allowed_players')) || 2;
-            document.getElementById('allowed-count').innerText = maxAllowed;
+        // 初始檢查方案
+        function refreshLimit() {
+            const limit = localStorage.getItem('max_allowed_players') || 2;
+            document.getElementById('current-limit').innerText = limit;
             
             const select = document.getElementById('max-players');
-            for (let i = 0; i < select.options.length; i++) {
-                const val = parseInt(select.options[i].value);
-                if (val > maxAllowed) {
-                    select.options[i].disabled = true;
-                    select.options[i].innerText += " (需升級方案)";
-                }
+            for(let i=0; i<select.options.length; i++) {
+                select.options[i].disabled = (parseInt(select.options[i].value) > limit);
             }
-        };
-
-        function launchServer() {
-            const name = document.getElementById('srv-name').value || "遠征隊伺服器";
-            const players = document.getElementById('max-players').value;
-            const mode = document.getElementById('game-mode').value;
-
-            // 存入 LocalStorage 供遊戲讀取
-            localStorage.setItem('current_server_name', name);
-            
-            // 視覺特效：模擬伺服器啟動
-            const btn = document.querySelector('.btn-start');
-            btn.innerText = "正在分配伺服器資源...";
-            btn.disabled = true;
-
-            setTimeout(() => {
-                // 導向遊戲主體並傳遞參數
-                window.location.href = `game.html?players=${players}&mode=${mode}`;
-            }, 1200);
         }
+
+        function openShop() { document.getElementById('shop-modal').style.display = 'flex'; }
+        function closeShop() { document.getElementById('shop-modal').style.display = 'none'; }
+
+        function updatePlan(num, price) {
+            if(confirm(`確認要購買 ${num} 人方案嗎？`)) {
+                localStorage.setItem('max_allowed_players', num);
+                alert("方案更新成功！請重新選擇人數。");
+                refreshLimit();
+                closeShop();
+            }
+        }
+
+        function launch() {
+            const name = document.getElementById('srv-name').value || "未命名伺服器";
+            const p = document.getElementById('max-players').value;
+            window.location.href = `game.html?players=${p}&mode=survival`;
+        }
+
+        window.onload = refreshLimit;
     </script>
 </body>
 </html>
-<a href="shop.html">變更方案</a>
