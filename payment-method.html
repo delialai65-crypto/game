@@ -1,44 +1,65 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>支付中心 - Minecraft 遠征隊</title>
+    <meta charset="UTF-8"><title>方案選擇 - Minecraft 遠征隊</title>
     <style>
         body { margin: 0; background: #0d1117; color: white; font-family: sans-serif; }
-        .nav { background: #1a1a1a; padding: 15px 40px; border-bottom: 2px solid #333; display: flex; justify-content: space-between; align-items: center; }
-        .super-pts { color: #ffca28; font-weight: bold; border: 1px solid #ffca28; padding: 5px 15px; border-radius: 20px; }
-        .container { max-width: 800px; margin: 40px auto; padding: 20px; }
-        .pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .pay-item { background: #161b22; border: 1px solid #333; padding: 20px; border-radius: 8px; cursor: pointer; text-align: center; }
-        .pay-item:hover { border-color: #58a6ff; }
-        .points-btn { background: linear-gradient(45deg, #ffca28, #f39c12); color: #000; font-weight: bold; border: none; grid-column: span 2; }
+        .container { max-width: 1000px; margin: 40px auto; padding: 20px; text-align: center; }
+        .plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 30px; }
+        .plan-card { background: #161b22; border: 2px solid #333; padding: 25px; border-radius: 12px; transition: 0.3s; cursor: pointer; }
+        .plan-card:hover { border-color: #58a6ff; transform: translateY(-5px); }
+        .plan-card.selected { border-color: #2ecc71; background: #1c2128; }
+        .price { font-size: 28px; color: #ffca28; margin: 15px 0; }
+        .pay-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 30px; }
+        .pay-btn { background: #30363d; border: 1px solid #444; color: white; padding: 10px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+        .btn-main { background: #238636; color: white; padding: 15px 60px; border: none; border-radius: 6px; font-weight: bold; font-size: 18px; margin-top: 30px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="nav">
-        <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" height="25">
-        <div class="super-pts">🟡 SUPER 點數: <span id="pts-display">0</span></div>
-    </div>
     <div class="container">
-        <h2>選擇支付方式 (啟動碼方案)</h2>
-        <div class="pay-grid">
-            <button class="pay-item points-btn" onclick="payWithPoints()">✨ 使用 10,000 SUPER 點數免費兌換</button>
-            <div class="pay-item" onclick="alert('導向全支付...')">全支付</div>
-            <div class="pay-item" onclick="alert('導向LINE Pay...')">LINE Pay</div>
-            <div class="pay-item" onclick="alert('導向街口...')">街口支付</div>
-            <div class="pay-item" onclick="alert('導向悠遊付...')">悠遊付</div>
-            <div class="pay-item" onclick="alert('導向 Pi 拍錢包...')">Pi 拍錢包</div>
-            <div class="pay-item" onclick="alert('導向 VISA...')">VISA / MasterCard</div>
-            <div class="pay-item" onclick="alert('導向 JCB...')">JCB</div>
-            <div class="pay-item" onclick="alert('導向銀聯...')">銀聯卡</div>
-            <div class="pay-item" onclick="alert('導向轉帳...')">銀行轉帳</div>
+        <h1>選擇您的遠征方案</h1>
+        <div class="plans">
+            <div class="plan-card" onclick="selectPlan('入門', 150, 10)">
+                <h3>🌱 入門遠征員</h3>
+                <div class="price">NT$ 150</div>
+                <p>10 人伺服器上限<br>基礎生存模式<br>無挖掘限制</p>
+            </div>
+            <div class="plan-card" onclick="selectPlan('資深', 450, 25)">
+                <h3>🛠️ 資深隊長</h3>
+                <div class="price">NT$ 450</div>
+                <p>25 人伺服器上限<br>開啟創造模式選項<br>雙倍 SUPER 點數</p>
+            </div>
+            <div class="plan-card selected" onclick="selectPlan('至尊', 990, 50)">
+                <h3>👑 至尊房主</h3>
+                <div class="price">NT$ 990</div>
+                <p><b>50 人最高上限</b><br>全地圖填滿權限<br>專屬 RYAN 啟動碼</p>
+            </div>
         </div>
+
+        <h3 style="margin-top:40px;">選擇支付方式</h3>
+        <div class="pay-grid">
+            <button class="pay-btn">全支付</button><button class="pay-btn">LINE Pay</button>
+            <button class="pay-btn">街口支付</button><button class="pay-btn">悠遊付</button>
+            <button class="pay-btn">Pi 拍錢包</button><button class="pay-btn">VISA/Master</button>
+            <button class="pay-btn">JCB</button><button class="pay-btn">銀聯卡</button>
+            <button class="pay-btn">銀行轉帳</button><button class="pay-btn">超商代碼</button>
+        </div>
+
+        <button class="btn-main" onclick="confirmPurchase()">立即購買並取得啟動碼</button>
+        <p style="color:#888; margin-top:15px;">可用 10,000 SUPER 點數全額折抵</p>
     </div>
+
     <script>
-        let pts = parseInt(localStorage.getItem('super_points')) || 0;
-        setInterval(() => { pts++; localStorage.setItem('super_points', pts); document.getElementById('pts-display').innerText = pts; }, 1000);
-        function payWithPoints() {
-            if(pts >= 10000) { alert("兌換成功！啟動碼為 RYAN0111407"); window.location.href='verify.html'; }
-            else { alert("點數不足！還差 " + (10000-pts) + " 點"); }
+        let currentPlan = { name: '至尊', max: 50 };
+        function selectPlan(name, price, max) {
+            currentPlan = { name, max };
+            document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+            event.currentTarget.classList.add('selected');
+        }
+        function confirmPurchase() {
+            alert(`購買成功！\n方案：${currentPlan.name}\n您的啟動碼為：RYAN0111407`);
+            localStorage.setItem('max_allowed_players', currentPlan.max);
+            window.location.href = 'verify.html';
         }
     </script>
 </body>
