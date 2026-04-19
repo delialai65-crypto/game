@@ -1,34 +1,35 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>遠征世界 - 物理修正版</title>
+    <meta charset="UTF-8"><title>遠征世界 - 終極版</title>
     <style>
         body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
         canvas { display: block; background: #87CEEB; }
-        nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; display: flex; justify-content: space-between; z-index: 100; box-sizing: border-box; }
-        #esc-menu { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000; }
-        .shop { background: #1a1a1a; padding: 25px; border-radius: 15px; border: 2px solid #ffca28; width: 400px; text-align: center; }
-        .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 20px 0; }
-        .item { padding: 10px; background: #333; color: #fff; border: 1px solid #555; cursor: pointer; border-radius: 5px; }
+        nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; display: flex; justify-content: space-between; z-index: 100; box-sizing: border-box; }
+        
+        /* 聊天室樣式 */
+        #chat-box { position: fixed; bottom: 80px; left: 20px; width: 300px; height: 150px; background: rgba(0,0,0,0.5); color: white; padding: 10px; overflow-y: auto; font-size: 14px; display: none; border-radius: 5px; }
+        #chat-input { position: fixed; bottom: 40px; left: 20px; width: 300px; padding: 8px; background: rgba(0,0,0,0.8); color: white; border: 1px solid #555; display: none; outline: none; }
+        
+        #hotbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; background: rgba(0,0,0,0.9); padding: 5px; border: 1px solid #fff; }
+        .slot { width: 40px; height: 40px; border: 1px solid #555; display: flex; justify-content: center; align-items: center; color: white; cursor: pointer; }
+        .slot.active { border: 2px solid #ffca28; }
     </style>
 </head>
 <body>
 
 <nav>
     <div>❤️ HP: <span id="hp">20</span> | 🟡 SUPER: <span id="pts">0</span></div>
-    <div>按 <b>B</b> 炸彈 | 按 <b>ESC</b> 商店</div>
+    <div>按 <b>Enter</b> 聊天 | <b>左鍵</b> 挖 | <b>右鍵</b> 放 | <b>K</b> 攻擊</div>
 </nav>
 
-<div id="esc-menu">
-    <div class="shop">
-        <h2 style="color:#ffca28">軍事商店</h2>
-        <div class="btn-grid">
-            <div class="item" onclick="buy('導彈', 500)">🚀 導彈</div>
-            <div class="item" onclick="buy('戰車', 2000)">🚜 戰車</div>
-            <div class="item" onclick="buy('核彈', 50000)">☢️ 核彈</div>
-        </div>
-        <button onclick="toggleEsc()" style="padding:10px 20px; cursor:pointer;">返回</button>
-    </div>
+<div id="chat-box"></div>
+<input type="text" id="chat-input" placeholder="按 Enter 發送訊息...">
+
+<div id="hotbar">
+    <div class="slot active" id="s1" onclick="sel(1)">🌱</div>
+    <div class="slot" id="s2" onclick="sel(2)">🧱</div>
+    <div class="slot" id="s3" onclick="sel(3)">🪵</div>
 </div>
 
 <canvas id="game"></canvas>
@@ -37,98 +38,95 @@
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
     const blockSize = 40;
-    
-    let player = { x: 400, y: 100, w: 24, h: 36, vx: 0, vy: 0, ground: false, hp: 20 };
-    let world = {}, bombs = [], explosions = [], keys = {}, isEsc = false, superPts = 0;
+    const params = new URLSearchParams(window.location.search);
+    const botCount = parseInt(params.get('players')) || 1;
 
-    // 生成填滿地圖
+    let player = { x: 400, y: 100, w: 24, h: 36, vx: 0, vy: 0, ground: false, hp: 20 };
+    let world = {}, entities = [], keys = {}, selected = '#2ecc71', isChatting = false;
+    let superPts = 0, camera = { x: 400, y: 100 };
+
+    // --- 模式初始化：多人模式下生成隊友 ---
+    if(botCount > 1) {
+        for(let i=0; i<botCount-1; i++) entities.push({ x: 400+i*30, y: 100, vx: 0, vy: 0, type: 'mate' });
+    }
+
+    // --- 地形生成 ---
     function gen(gx) {
         if (world[gx]) return;
         world[gx] = {};
-        for(let y = 10; y < 25; y++) world[gx][y * blockSize] = '#2ecc71';
+        for(let y = 10; y < 25; y++) world[gx][y * blockSize] = (y === 10) ? '#2ecc71' : '#8b5a2b';
     }
 
-    function toggleEsc() { isEsc = !isEsc; document.getElementById('esc-menu').style.display = isEsc?'flex':'none'; }
-    function buy(n, p) { alert(superPts >= p ? `已購買 ${n}` : "點數不足"); }
+    // --- 方塊互動：左鍵挖、右鍵放 ---
+    canvas.onmousedown = e => {
+        if(isChatting) return;
+        let mx = Math.floor((e.clientX + camera.x - canvas.width/2) / blockSize) * blockSize;
+        let my = Math.floor((e.clientY + camera.y - canvas.height/2) / blockSize) * blockSize;
+        if(e.button === 0) { if(world[mx]) delete world[mx][my]; }
+        else if(e.button === 2) { if(!world[mx]) world[mx] = {}; world[mx][my] = selected; }
+    };
+    canvas.oncontextmenu = e => e.preventDefault();
 
-    // --- 關鍵修正：防穿牆物理引擎 ---
-    function checkCollision(x, y) {
-        let gx = Math.floor(x / blockSize) * blockSize;
-        let gy = Math.floor(y / blockSize) * blockSize;
-        return (world[gx] && world[gx][gy]);
+    // --- 聊天室邏輯 ---
+    function addChat(msg, name="[系統]") {
+        const box = document.getElementById('chat-box');
+        box.innerHTML += `<div><b>${name}:</b> ${msg}</div>`;
+        box.scrollTop = box.scrollHeight;
     }
 
-    function applyPhysics() {
-        player.vy += 0.8; // 重力
-        
-        // 預測 X 軸移動
-        let nextX = player.x + player.vx;
-        if (!checkCollision(nextX, player.y) && !checkCollision(nextX + player.w, player.y) &&
-            !checkCollision(nextX, player.y + player.h) && !checkCollision(nextX + player.w, player.y + player.h)) {
-            player.x = nextX;
-        }
-
-        // 預測 Y 軸移動
-        let nextY = player.y + player.vy;
-        if (checkCollision(player.x, nextY + player.h) || checkCollision(player.x + player.w, nextY + player.h)) {
-            player.y = Math.floor((nextY + player.h) / blockSize) * blockSize - player.h;
-            player.vy = 0;
-            player.ground = true;
-        } else if (checkCollision(player.x, nextY) || checkCollision(player.x + player.w, nextY)) {
-            player.vy = 0; // 撞到天花板
-        } else {
-            player.y = nextY;
-            player.ground = false;
-        }
+    // --- 物理與防穿牆 ---
+    function check(x, y) { return world[Math.floor(x/40)*40] && world[Math.floor(x/40)*40][Math.floor(y/40)*40]; }
+    function applyPhysics(obj) {
+        obj.vy += 0.8;
+        let nextY = obj.y + obj.vy;
+        if (check(obj.x, nextY+36) || check(obj.x+24, nextY+36)) { obj.y = Math.floor((nextY+36)/40)*40-36; obj.vy = 0; obj.ground = true; }
+        else { obj.y = nextY; obj.ground = false; }
+        obj.x += obj.vx;
     }
 
-    // B 鍵炸彈 3 秒邏輯
-    function placeBomb() {
-        let b = { x: Math.floor(player.x/40)*40, y: Math.floor(player.y/40)*40 };
-        bombs.push(b);
-        setTimeout(() => {
-            bombs.shift();
-            explosions.push({ x: b.x+20, y: b.y+20, r: 0 });
-            // 炸毀周圍
-            for(let i=-1; i<=1; i++) for(let j=-1; j<=1; j++) {
-                let tx = b.x + i*40, ty = b.y + j*40;
-                if(world[tx]) delete world[tx][ty];
-            }
-        }, 3000);
-    }
-
+    // --- 鍵盤監聽 ---
     window.onkeydown = e => {
-        if(e.code === 'Escape') toggleEsc();
-        if(e.code === 'KeyB' && !isEsc) placeBomb();
-        keys[e.code] = true;
+        if(e.code === 'Enter') {
+            isChatting = !isChatting;
+            const input = document.getElementById('chat-input');
+            const box = document.getElementById('chat-box');
+            if(isChatting) { input.style.display = box.style.display = 'block'; input.focus(); }
+            else { if(input.value) addChat(input.value, "我"); input.value = ''; input.style.display = 'none'; }
+        }
+        if(!isChatting) {
+            keys[e.code] = true;
+            if(e.code === 'KeyK') addChat("發動攻擊！", "戰鬥");
+        }
     };
     window.onkeyup = e => keys[e.code] = false;
 
+    function sel(n) {
+        document.querySelectorAll('.slot').forEach(s => s.classList.remove('active'));
+        document.getElementById('s'+n).classList.add('active');
+        selected = ['#2ecc71', '#7f8c8d', '#8b5a2b'][n-1];
+    }
+
     function loop() {
-        if(!isEsc) {
+        if(!isChatting) {
             player.vx = (keys['KeyD']?5:0) + (keys['KeyA']?-5:0);
             if((keys['Space'] || keys['KeyW']) && player.ground) player.vy = -12;
-            applyPhysics();
+            applyPhysics(player);
+            entities.forEach(en => applyPhysics(en));
             for(let i=player.x-600; i<player.x+600; i+=blockSize) gen(Math.floor(i/blockSize)*blockSize);
             superPts++;
         }
 
+        camera.x = player.x; camera.y = player.y;
         ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0,canvas.width, canvas.height);
-        ctx.save(); ctx.translate(-(player.x - canvas.width/2), -(player.y - canvas.height/2));
+        ctx.save(); ctx.translate(-(camera.x - canvas.width/2), -(camera.y - canvas.height/2));
         
         for(let x in world) for(let y in world[x]) {
-            ctx.fillStyle = world[x][y];
-            ctx.fillRect(x, parseInt(y), blockSize-1, blockSize-1);
+            ctx.fillStyle = world[x][y]; ctx.fillRect(x, parseInt(y), 39, 39);
         }
-        
-        bombs.forEach(b => { ctx.fillStyle="red"; ctx.fillRect(b.x+10, b.y+10, 20, 20); });
-        explosions.forEach((ex, i) => {
-            ctx.fillStyle="orange"; ctx.beginPath(); ctx.arc(ex.x, ex.y, ex.r, 0, Math.PI*2); ctx.fill();
-            ex.r += 4; if(ex.r > 80) explosions.splice(i, 1);
-        });
-
-        ctx.fillStyle = "white"; ctx.fillRect(player.x, player.y, player.w, player.h);
+        entities.forEach(en => { ctx.fillStyle="#e67e22"; ctx.fillRect(en.x, en.y, 24, 36); });
+        ctx.fillStyle = "white"; ctx.fillRect(player.x, player.y, 24, 36);
         ctx.restore();
+
         document.getElementById('pts').innerText = superPts;
         requestAnimationFrame(loop);
     }
