@@ -1,51 +1,51 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>Minecraft - 遠征隊啟動器</title>
+    <meta charset="UTF-8"><title>遠征世界 - 伺服器大廳</title>
     <style>
-        body { margin: 0; background: url('https://files.catbox.moe/k3h57k.jpg') center; background-size: cover; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: sans-serif; }
-        .btn { width: 400px; padding: 15px; margin: 5px; background: #4e4e4e; border: 2px solid #000; color: white; cursor: pointer; text-align: center; text-shadow: 2px 2px #000; }
-        .btn:hover { border-color: #fff; background: #6e6e6e; }
-        /* 鎖定樣式 */
-        .locked { filter: grayscale(1); opacity: 0.6; }
+        body { margin: 0; background: #0d1117; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; }
+        .server-box { background: #161b22; padding: 30px; border-radius: 12px; border: 1px solid #333; width: 400px; text-align: center; }
+        input, select { width: 100%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: #fff; border-radius: 4px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; background: #238636; border: none; color: white; cursor: pointer; border-radius: 4px; font-weight: bold; font-size: 16px; }
+        .btn:hover { background: #2ea043; }
+        .tag { color: #ffca28; font-size: 12px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
+    <div class="server-box">
+        <h1>建立遠征伺服器</h1>
+        <p class="tag">只有持有啟動碼 RYAN0111407 的玩家可擔任房主</p>
+        
+        <input type="text" id="server-name" placeholder="輸入伺服器名稱 (例如: 嫦瑜的冒險)">
+        
+        <label>最大連線人數</label>
+        <select id="max-players">
+            <option value="2">2 人</option>
+            <option value="10">10 人</option>
+            <option value="50">50 人 (最高規格)</option>
+        </select>
 
-    <img src="https://upload.wikimedia.org/wikipedia/en/5/51/Minecraft_logo.svg" width="500">
+        <label>遊戲模式</label>
+        <select id="game-mode">
+            <option value="survival">生存模式 (晚上有怪物)</option>
+            <option value="creative">創造模式 (無敵、無限方塊)</option>
+        </select>
 
-    <div style="margin-top:20px">
-        <div class="btn" onclick="checkPurchase('single')">單人遊戲</div>
-        <div class="btn" onclick="checkPurchase('multi')">多人遊戲</div>
-        <div class="btn" onclick="location.href='index.html'">退出遊戲</div>
+        <button class="btn" onclick="startServer()">啟動伺服器並進入</button>
     </div>
 
-<script>
-    function checkPurchase(mode) {
-        // 從 LocalStorage 檢查是否有啟動紀錄 (game_active)
-        const isBought = localStorage.getItem('game_active');
-
-        if (isBought === 'true') {
-            // 已購買：根據模式進入遊戲
-            alert("✅ 驗證成功，正在載入世界...");
-            window.location.href = `game.html?mode=${mode}`;
-        } else {
-            // 未購買：顯示「未查詢到購買紀錄」並引導至商店
-            const name = localStorage.getItem('mc_user') || "冒險者";
-            alert(`⚠️ 抱歉，${name}。\n系統未查詢到您的購買紀錄或啟動序號。\n請先前往產品網頁購買遊戲。`);
+    <script>
+        function startServer() {
+            const name = document.getElementById('server-name').value || "未命名伺服器";
+            const players = document.getElementById('max-players').value;
+            const mode = document.getElementById('game-mode').value;
             
-            // 自動跳轉到產品選擇大廳
-            window.location.href = 'product-selection.html';
+            // 儲存伺服器設定
+            localStorage.setItem('current_server_name', name);
+            
+            // 帶參數進入遊戲畫面
+            window.location.href = `game.html?players=${players}&mode=${mode}`;
         }
-    }
-</script>
-
+    </script>
 </body>
 </html>
-<body>
-    <div class="nav"> ... </div>
-    <style> .nav { ... } </style>
-    <script> let currentPoints = ... </script>
-
-    <div class="sidebar"> ... </div>
-</body>
