@@ -1,30 +1,30 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>遠征世界 - 終極版</title>
+    <meta charset="UTF-8"><title>遠征世界 - 山脈荒野</title>
     <style>
-        body { margin: 0; background: #000; overflow: hidden; font-family: sans-serif; }
+        body { margin: 0; background: #000; overflow: hidden; font-family: 'Segoe UI', sans-serif; }
         canvas { display: block; background: #87CEEB; }
-        nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.8); color: white; padding: 10px 20px; display: flex; justify-content: space-between; z-index: 100; box-sizing: border-box; }
+        nav { position: fixed; top: 0; width: 100%; background: rgba(0,0,0,0.8); color: white; padding: 12px 20px; display: flex; justify-content: space-between; z-index: 100; box-sizing: border-box; border-bottom: 2px solid #555; }
         
-        /* 聊天室樣式 */
-        #chat-box { position: fixed; bottom: 80px; left: 20px; width: 300px; height: 150px; background: rgba(0,0,0,0.5); color: white; padding: 10px; overflow-y: auto; font-size: 14px; display: none; border-radius: 5px; }
-        #chat-input { position: fixed; bottom: 40px; left: 20px; width: 300px; padding: 8px; background: rgba(0,0,0,0.8); color: white; border: 1px solid #555; display: none; outline: none; }
+        /* 聊天室 */
+        #chat-box { position: fixed; bottom: 100px; left: 20px; width: 300px; height: 120px; background: rgba(0,0,0,0.4); color: white; padding: 10px; overflow-y: auto; font-size: 13px; display: none; border-radius: 4px; pointer-events: none; }
+        #chat-input { position: fixed; bottom: 60px; left: 20px; width: 300px; padding: 8px; background: rgba(0,0,0,0.9); color: white; border: 1px solid #ffca28; display: none; outline: none; }
         
-        #hotbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 5px; background: rgba(0,0,0,0.9); padding: 5px; border: 1px solid #fff; }
-        .slot { width: 40px; height: 40px; border: 1px solid #555; display: flex; justify-content: center; align-items: center; color: white; cursor: pointer; }
-        .slot.active { border: 2px solid #ffca28; }
+        #hotbar { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; background: rgba(0,0,0,0.8); padding: 8px; border: 1px solid #fff; border-radius: 8px; }
+        .slot { width: 45px; height: 45px; border: 1px solid #444; display: flex; justify-content: center; align-items: center; color: white; font-size: 20px; cursor: pointer; }
+        .slot.active { border: 2px solid #ffca28; background: rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
 
 <nav>
-    <div>❤️ HP: <span id="hp">20</span> | 🟡 SUPER: <span id="pts">0</span></div>
-    <div>按 <b>Enter</b> 聊天 | <b>左鍵</b> 挖 | <b>右鍵</b> 放 | <b>K</b> 攻擊</div>
+    <div>👤 <span id="p-name">載入中</span> | ❤️ HP: <span id="hp">20</span> | 🟡 SUPER: <span id="pts">0</span></div>
+    <div style="font-size: 12px; color: #aaa;">滑鼠左鍵:挖掘 | 右鍵:放置 | K:攻擊 | Enter:聊天</div>
 </nav>
 
 <div id="chat-box"></div>
-<input type="text" id="chat-input" placeholder="按 Enter 發送訊息...">
+<input type="text" id="chat-input" placeholder="輸入訊息後按 Enter...">
 
 <div id="hotbar">
     <div class="slot active" id="s1" onclick="sel(1)">🌱</div>
@@ -41,23 +41,38 @@
     const params = new URLSearchParams(window.location.search);
     const botCount = parseInt(params.get('players')) || 1;
 
-    let player = { x: 400, y: 100, w: 24, h: 36, vx: 0, vy: 0, ground: false, hp: 20 };
+    let player = { x: 400, y: -200, w: 24, h: 36, vx: 0, vy: 0, ground: false, hp: 20 };
     let world = {}, entities = [], keys = {}, selected = '#2ecc71', isChatting = false;
-    let superPts = 0, camera = { x: 400, y: 100 };
+    let superPts = 0, camera = { x: 400, y: 0 };
 
-    // --- 模式初始化：多人模式下生成隊友 ---
+    document.getElementById('p-name').innerText = localStorage.getItem('mc_user') || "冒險者";
+
     if(botCount > 1) {
-        for(let i=0; i<botCount-1; i++) entities.push({ x: 400+i*30, y: 100, vx: 0, vy: 0, type: 'mate' });
+        for(let i=0; i<botCount-1; i++) entities.push({ x: 420+i*20, y: -200, vx: 0, vy: 0, type: 'mate' });
     }
 
-    // --- 地形生成 ---
+    // --- 核心更新：山脈生成算法 ---
     function gen(gx) {
         if (world[gx]) return;
+        const x = gx / blockSize;
+        
+        // 使用正弦波疊加模擬山脈起伏
+        // 大波浪 (山脈) + 小波浪 (平原起伏)
+        let mountainHeight = Math.sin(x * 0.05) * 8; 
+        let detailHeight = Math.sin(x * 0.2) * 2;
+        let groundY = Math.floor(15 + mountainHeight + detailHeight); 
+
         world[gx] = {};
-        for(let y = 10; y < 25; y++) world[gx][y * blockSize] = (y === 10) ? '#2ecc71' : '#8b5a2b';
+        for(let y = groundY; y < groundY + 40; y++) { // 填滿 40 層地層
+            let type = '#7f8c8d'; // 石頭
+            if (y === groundY) type = '#2ecc71'; // 草地
+            else if (y < groundY + 4) type = '#8b5a2b'; // 泥土
+            
+            world[gx][y * blockSize] = type;
+        }
     }
 
-    // --- 方塊互動：左鍵挖、右鍵放 ---
+    // --- 滑鼠互動 ---
     canvas.onmousedown = e => {
         if(isChatting) return;
         let mx = Math.floor((e.clientX + camera.x - canvas.width/2) / blockSize) * blockSize;
@@ -67,24 +82,41 @@
     };
     canvas.oncontextmenu = e => e.preventDefault();
 
-    // --- 聊天室邏輯 ---
     function addChat(msg, name="[系統]") {
         const box = document.getElementById('chat-box');
         box.innerHTML += `<div><b>${name}:</b> ${msg}</div>`;
         box.scrollTop = box.scrollHeight;
     }
 
-    // --- 物理與防穿牆 ---
-    function check(x, y) { return world[Math.floor(x/40)*40] && world[Math.floor(x/40)*40][Math.floor(y/40)*40]; }
+    // --- 嚴格物理與防穿牆 ---
+    function check(x, y) {
+        let gx = Math.floor(x/40)*40;
+        let gy = Math.floor(y/40)*40;
+        return world[gx] && world[gx][gy];
+    }
+
     function applyPhysics(obj) {
         obj.vy += 0.8;
         let nextY = obj.y + obj.vy;
-        if (check(obj.x, nextY+36) || check(obj.x+24, nextY+36)) { obj.y = Math.floor((nextY+36)/40)*40-36; obj.vy = 0; obj.ground = true; }
-        else { obj.y = nextY; obj.ground = false; }
-        obj.x += obj.vx;
+        
+        // 腳下偵測
+        if (check(obj.x, nextY+36) || check(obj.x+24, nextY+36)) {
+            obj.y = Math.floor((nextY+36)/40)*40-36;
+            obj.vy = 0;
+            obj.ground = true;
+        } else {
+            obj.y = nextY;
+            obj.ground = false;
+        }
+
+        // 水平防穿牆
+        let nextX = obj.x + (obj.vx || 0);
+        if (!check(nextX, obj.y+5) && !check(nextX+24, obj.y+5) && 
+            !check(nextX, obj.y+30) && !check(nextX+24, obj.y+30)) {
+            obj.x = nextX;
+        }
     }
 
-    // --- 鍵盤監聽 ---
     window.onkeydown = e => {
         if(e.code === 'Enter') {
             isChatting = !isChatting;
@@ -95,7 +127,7 @@
         }
         if(!isChatting) {
             keys[e.code] = true;
-            if(e.code === 'KeyK') addChat("發動攻擊！", "戰鬥");
+            if(e.code === 'KeyK') addChat("發動揮劍攻擊！", "戰鬥");
         }
     };
     window.onkeyup = e => keys[e.code] = false;
@@ -108,20 +140,28 @@
 
     function loop() {
         if(!isChatting) {
-            player.vx = (keys['KeyD']?5:0) + (keys['KeyA']?-5:0);
-            if((keys['Space'] || keys['KeyW']) && player.ground) player.vy = -12;
+            player.vx = (keys['KeyD']?6:0) + (keys['KeyA']?-6:0);
+            if((keys['Space'] || keys['KeyW']) && player.ground) player.vy = -14;
             applyPhysics(player);
-            entities.forEach(en => applyPhysics(en));
-            for(let i=player.x-600; i<player.x+600; i+=blockSize) gen(Math.floor(i/blockSize)*blockSize);
+            entities.forEach(en => {
+                en.vx = (player.x - en.x) * 0.05; // 隊友跟隨效果
+                applyPhysics(en);
+            });
+            for(let i=player.x-1000; i<player.x+1000; i+=blockSize) gen(Math.floor(i/blockSize)*blockSize);
             superPts++;
         }
 
-        camera.x = player.x; camera.y = player.y;
+        camera.x += (player.x - camera.x) * 0.1;
+        camera.y += (player.y - camera.y) * 0.1;
+
         ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0,canvas.width, canvas.height);
         ctx.save(); ctx.translate(-(camera.x - canvas.width/2), -(camera.y - canvas.height/2));
         
-        for(let x in world) for(let y in world[x]) {
-            ctx.fillStyle = world[x][y]; ctx.fillRect(x, parseInt(y), 39, 39);
+        for(let x in world) {
+            for(let y in world[x]) {
+                ctx.fillStyle = world[x][y];
+                ctx.fillRect(x, parseInt(y), 39, 39);
+            }
         }
         entities.forEach(en => { ctx.fillStyle="#e67e22"; ctx.fillRect(en.x, en.y, 24, 36); });
         ctx.fillStyle = "white"; ctx.fillRect(player.x, player.y, 24, 36);
