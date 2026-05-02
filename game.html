@@ -1,182 +1,258 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>遠征世界 3D：F-35 戰略打擊</title>
+    <meta charset="UTF-8"><title>Delta Cube: 多地形無限戰場</title>
     <style>
-        body { margin: 0; overflow: hidden; background: #87CEEB; font-family: 'Courier New', monospace; }
-        #ui { position: fixed; top: 0; width: 100%; height: 100%; pointer-events: none; z-index: 100; }
-        nav { padding: 20px; display: flex; justify-content: space-between; background: rgba(0,0,0,0.8); color: #0f0; border-bottom: 2px solid #0f0; }
-        #crosshair { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; border: 1px solid #0f0; transform: translate(-50%, -50%); border-radius: 50%; }
-        
-        /* B 鍵戰略商城選單 */
-        #shop-menu { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.9); display: none; flex-direction: column; 
-            align-items: center; justify-content: center; z-index: 2000; color: #fff; pointer-events: all; 
-        }
-        .shop-container { border: 2px solid #0f0; padding: 40px; background: #050505; text-align: center; border-radius: 15px; }
-        .item-grid { display: flex; gap: 30px; margin-top: 30px; }
-        .item { 
-            width: 180px; padding: 20px; border: 1px solid #444; cursor: pointer; transition: 0.3s; 
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .item:hover { border-color: #0f0; background: #002200; transform: translateY(-5px); }
-        .item img { width: 80px; height: 80px; margin-bottom: 15px; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Courier New', monospace; }
+        #lobby { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 3000; color: #0f0; }
+        #game-ui { position: fixed; top: 0; width: 100%; height: 100%; pointer-events: none; display: none; z-index: 100; }
+        #result-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 4000; background: rgba(0,0,0,0.9); }
+        .win { color: #ffca28; font-size: 80px; text-shadow: 0 0 20px #ffca28; }
+        .lose { color: #f00; font-size: 80px; text-shadow: 0 0 20px #f00; }
+        #weapon-hud { position: fixed; bottom: 30px; right: 30px; text-align: right; color: #0f0; background: rgba(0,0,0,0.6); padding: 15px; border-right: 5px solid #0f0; }
+        nav { padding: 15px; display: flex; justify-content: space-between; color: #0f0; background: rgba(0,0,0,0.8); border-bottom: 1px solid #0f0; }
+        .btn { padding: 12px 40px; cursor: pointer; border: 2px solid #0f0; background: #000; color: #0f0; font-weight: bold; margin: 10px; }
     </style>
 </head>
 <body>
 
-<div id="ui">
-    <nav>
-        <div>[ 戰術終端 ] 座標: <span id="coords">0,0</span></div>
-        <div>💰 財富淨值: $<span id="balance">0</span> | ❤️ HP: 100</div>
-    </nav>
-    <div id="crosshair"></div>
+<div id="lobby">
+    <h1 style="letter-spacing:5px;">DELTA CUBE: TERRAIN</h1>
+    <p>多樣化地形系統 | 20V20 決戰 | 無限延伸</p>
+    <button class="btn" onclick="startGame()">部署到戰區</button>
 </div>
 
-<div id="shop-menu">
-    <div class="shop-container">
-        <h2 style="color:#0f0">🌐 全球軍事商城 (Global Military Shop)</h2>
-        <div class="item-grid">
-            <div class="item" onclick="purchase('F35', 50000)">
-                <span style="font-size: 50px;">✈️</span>
-                <h4>F-35 戰鬥機</h4>
-                <p>極速飛行/空中打擊<br>$50,000</p>
-            </div>
-            <div class="item" onclick="purchase('NUKE', 100000)">
-                <img src="image_8cf2ef.jpg" alt="放射性標誌">
-                <h4>戰略核彈</h4>
-                <p>全地圖敵軍抹除<br>$100,000</p>
-            </div>
-        </div>
-        <button onclick="toggleMenu(false)" style="margin-top:30px; color:#0f0; background:none; border:1px solid #0f0; padding:10px 40px; cursor:pointer;">返回戰場</button>
+<div id="game-ui">
+    <nav>
+        <div>👥 友軍: <span id="f-count">20</span> | 💀 敵軍: <span id="e-count">20</span></div>
+        <div>❤️ HP: <span id="hp">100</span> | 💰 財產: $<span id="cash">0</span></div>
+    </nav>
+    <div id="weapon-hud">
+        <div style="font-size:20px;margin-bottom:5px;">▄︻┻┳═一</div>
+        <div>方塊突擊槍-XM</div>
+        <div style="font-size: 32px;"><span id="ammo">30</span> / ∞</div>
     </div>
+    <div style="position:absolute; top:50%; left:50%; width:20px; height:20px; border:1px solid #f00; transform:translate(-50%,-50%); border-radius:50%;"></div>
+</div>
+
+<div id="result-screen">
+    <h1 id="result-text"></h1>
+    <button class="btn" onclick="location.reload()">返回大廳</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <script>
-    let scene, camera, renderer, clock;
-    let keys = {}, player = { cash: 1000, mode: 'foot', velocity: new THREE.Vector3() };
-    let isMenu = false, yaw = 0, pitch = 0;
-    let chunks = new Map(), enemies = [];
+    let scene, camera, renderer, clock, gameActive = false;
+    let keys = {}, player = { hp: 100, ammo: 30, cash: 0, isDead: false };
+    let entities = [], bullets = [], chunks = new Map();
+    let yaw = 0, pitch = 0;
 
-    init();
-    animate();
+    // 地形材質定義
+    const MATS = {
+        grass: new THREE.MeshPhongMaterial({ color: 0x98b839 }), // 平原
+        snow: new THREE.MeshPhongMaterial({ color: 0xffffff }),  // 高山
+        dirt: new THREE.MeshPhongMaterial({ color: 0x765432 }),  // 低地
+        building: new THREE.MeshPhongMaterial({ color: 0x011355 }) // 建築
+    };
+
+    function startGame() {
+        document.getElementById('lobby').style.display = 'none';
+        document.getElementById('game-ui').style.display = 'block';
+        gameActive = true;
+        init();
+        animate();
+    }
+
+    // 計算地形高度的演算法 (Perlin-like Noise)
+    function getTerrainHeight(x, z) {
+        let h = Math.sin(x * 0.1) * 3 + Math.cos(z * 0.1) * 3; // 基礎起伏
+        h += Math.sin(x * 0.05) * 5; // 大範圍丘陵
+        return h + 10;
+    }
 
     function init() {
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87CEEB); // 確保始終是白天
-        scene.fog = new THREE.Fog(0x87CEEB, 1, 150);
+        scene.background = new THREE.Color(0x87CEEB);
+        scene.fog = new THREE.Fog(0x87CEEB, 30, 200);
 
-        camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 2000);
-        camera.position.set(0, 15, 0);
+        camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1500);
+        camera.position.set(0, 30, 0);
 
-        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer = new THREE.WebGLRenderer({ antialias: false });
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
         clock = new THREE.Clock();
 
-        // 強光照系統：解決漆黑
-        scene.add(new THREE.AmbientLight(0xffffff, 1.5));
+        scene.add(new THREE.AmbientLight(0xffffff, 1.4));
         const sun = new THREE.DirectionalLight(0xffffff, 1.0);
-        sun.position.set(50, 100, 50);
+        sun.position.set(100, 200, 100);
         scene.add(sun);
 
-        document.addEventListener('click', () => { if(!isMenu) renderer.domElement.requestPointerLock(); });
+        // 生成 20V20
+        for(let i=0; i<19; i++) spawnEntity(true);
+        for(let i=0; i<20; i++) spawnEntity(false);
+
+        document.addEventListener('mousedown', e => { 
+            if(!player.isDead && document.pointerLockElement && e.button===0) shoot(player, camera); 
+        });
         document.addEventListener('mousemove', e => {
-            if (document.pointerLockElement === renderer.domElement && !isMenu) {
+            if(document.pointerLockElement && !player.isDead) {
                 yaw -= e.movementX * 0.002;
                 pitch -= e.movementY * 0.002;
                 pitch = Math.max(-1.5, Math.min(1.5, pitch));
                 camera.quaternion.setFromEuler(new THREE.Euler(pitch, yaw, 0, 'YXZ'));
             }
         });
-
-        window.addEventListener('keydown', e => {
-            if(e.code === 'KeyB') toggleMenu(!isMenu);
-            keys[e.code] = true;
-        });
-        window.addEventListener('keyup', e => keys[e.code] = false);
+        document.addEventListener('click', () => { if(gameActive && !player.isDead) renderer.domElement.requestPointerLock(); });
+        window.addEventListener('keydown', e => keys[e.code]=true);
+        window.addEventListener('keyup', e => keys[e.code]=false);
     }
 
-    function toggleMenu(show) {
-        isMenu = show;
-        document.getElementById('shop-menu').style.display = show ? 'flex' : 'none';
-        if(show) document.exitPointerLock(); else renderer.domElement.requestPointerLock();
-    }
-
-    function purchase(type, price) {
-        if(player.cash >= price) {
-            player.cash -= price;
-            if(type === 'F35') {
-                player.mode = 'plane';
-                camera.position.y = 100; // 升空
-                alert("🛩️ F-35 閃電II 已就緒！移動速度大幅提升。");
-            } else if(type === 'NUKE') {
-                scene.background = new THREE.Color(0xffffff); // 核爆閃白
-                setTimeout(() => scene.background = new THREE.Color(0x87CEEB), 300);
-                enemies.forEach(e => scene.remove(e));
-                enemies = [];
-                alert("☢️ 戰略核打擊成功！所有敵軍已抹除。");
-            }
-        } else {
-            alert("資金不足！請繼續在廢墟中探索賺錢。");
-        }
-        toggleMenu(false);
-    }
-
-    function generateChunk(cx, cz) {
-        const key = `${cx},${cz}`;
-        if (chunks.has(key)) return;
+    function spawnEntity(isFriend) {
         const group = new THREE.Group();
-        const box = new THREE.BoxGeometry(1, 1, 1);
-        const mats = { g: new THREE.MeshPhongMaterial({ color: 0x4d5d30 }), s: new THREE.MeshPhongMaterial({ color: 0x444 }) };
-        for (let x = 0; x < 16; x++) {
-            for (let z = 0; z < 16; z++) {
-                const wx = cx*16+x, wz = cz*16+z;
-                let h = Math.floor(Math.sin(wx*0.1)*3 + Math.cos(wz*0.1)*3 + 8);
-                const b = new THREE.Mesh(box, mats.g);
-                b.position.set(wx, h, wz);
-                group.add(b);
+        const color = isFriend ? 0x33ff33 : 0xff3333;
+        const body = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshPhongMaterial({color: color}));
+        const eye = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.2, 0.1), new THREE.MeshBasicMaterial({color:0x000}));
+        const eL = eye.clone(); eL.position.set(-0.2, 0.5, 0.51);
+        const eR = eye.clone(); eR.position.set(0.2, 0.5, 0.51);
+        const gun = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 1), new THREE.MeshPhongMaterial({color:0x222}));
+        gun.position.set(0.4, -0.2, 0.6);
+        group.add(body, eL, eR, gun);
+        
+        group.position.set(Math.random()*200-100, 20, Math.random()*200-100);
+        const data = { mesh: group, isFriend: isFriend, hp: 100, lastShot: Date.now(), speed: 5 + Math.random()*5 };
+        scene.add(group);
+        entities.push(data);
+    }
+
+    function shoot(who, from) {
+        if(who === player) { if(player.ammo <= 0) return; player.ammo--; document.getElementById('ammo').innerText = player.ammo; }
+        const b = new THREE.Mesh(new THREE.SphereGeometry(0.15, 4, 4), new THREE.MeshBasicMaterial({color:0xffff00}));
+        b.position.copy(from.position);
+        const dir = new THREE.Vector3(0,0,-1).applyQuaternion(from.quaternion);
+        b.velocity = dir.multiplyScalar(90);
+        b.owner = who;
+        b.spawnTime = Date.now();
+        scene.add(b);
+        bullets.push(b);
+    }
+
+    // 地圖生成：不同地形與高度
+    function updateChunks() {
+        const px = Math.floor(camera.position.x / 16);
+        const pz = Math.floor(camera.position.z / 16);
+        for(let x = px - 3; x <= px + 3; x++) {
+            for(let z = pz - 3; z <= pz + 3; z++) {
+                const key = `${x},${z}`;
+                if(!chunks.has(key)) {
+                    const g = new THREE.Group();
+                    for(let bx=0; bx<16; bx+=2) {
+                        for(let bz=0; bz<16; bz+=2) {
+                            let wx = x*16+bx, wz = z*16+bz;
+                            let h = Math.floor(getTerrainHeight(wx, wz));
+                            
+                            // 根據高度決定地形材質
+                            let mat = MATS.grass;
+                            if (h > 15) mat = MATS.snow; // 高山
+                            if (h < 9) mat = MATS.dirt;  // 低窪
+                            
+                            const b = new THREE.Mesh(new THREE.BoxGeometry(2, 1, 2), mat);
+                            b.position.set(wx, h, wz);
+                            g.add(b);
+
+                            // 隨機生成建築物 (深藍色方塊塔)
+                            if (Math.random() < 0.01) {
+                                const tower = new THREE.Mesh(new THREE.BoxGeometry(2, 10, 2), MATS.building);
+                                tower.position.set(wx, h + 5, wz);
+                                g.add(tower);
+                            }
+                        }
+                    }
+                    scene.add(g); chunks.set(key, g);
+                }
             }
         }
-        scene.add(group);
-        chunks.set(key, group);
     }
 
     function animate() {
+        if(!gameActive) return;
         requestAnimationFrame(animate);
-        let delta = clock.getDelta();
-        
-        if(!isMenu && document.pointerLockElement === renderer.domElement) {
-            let speed = (player.mode === 'plane') ? 80 : 15; // F-35 極速模式
-            let dir = new THREE.Vector3();
-            let front = new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion);
-            if(player.mode === 'foot') front.y = 0;
-            let right = new THREE.Vector3().crossVectors(front, new THREE.Vector3(0,1,0)).normalize();
-            
-            if(keys['KeyW']) dir.add(front);
-            if(keys['KeyS']) dir.add(front.negate());
-            if(keys['KeyA']) dir.add(right.negate());
-            if(keys['KeyD']) dir.add(right);
-            
-            camera.position.add(dir.normalize().multiplyScalar(speed * delta));
-            
-            // 物理門檻：防止穿牆陷地
-            if(player.mode === 'foot' && camera.position.y < 12.5) camera.position.y = 12.5;
-            if(player.mode === 'plane' && camera.position.y < 25) camera.position.y = 25;
+        let dt = clock.getDelta();
 
-            // 大富翁機制：探索獎勵
-            if(dir.length() > 0) player.cash += 5; 
+        let fLive = 0, eLive = 0;
+        if(!player.isDead) {
+            fLive++;
+            let speed = keys['ShiftLeft'] ? 28 : 15;
+            let dir = new THREE.Vector3();
+            let f = new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion); f.y = 0;
+            let r = new THREE.Vector3().crossVectors(f, new THREE.Vector3(0,1,0)).normalize();
+            if(keys['KeyW']) dir.add(f); if(keys['KeyS']) dir.add(f.negate());
+            if(keys['KeyA']) dir.add(r.negate()); if(keys['KeyD']) dir.add(r);
+            camera.position.add(dir.normalize().multiplyScalar(speed * dt));
+            camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2.5;
+            player.cash += dir.length();
         }
 
-        const cx = Math.floor(camera.position.x/16), cz = Math.floor(camera.position.z/16);
-        for(let x=-2; x<=2; x++) for(let z=-2; z<=2; z++) generateChunk(cx+x, cz+z);
+        updateChunks();
 
-        document.getElementById('balance').innerText = Math.floor(player.cash);
-        document.getElementById('coords').innerText = `${Math.floor(camera.position.x)}, ${Math.floor(camera.position.z)}`;
+        entities.forEach((en) => {
+            if(en.isFriend) fLive++; else eLive++;
+            
+            // AI 移動與高度自適應
+            en.mesh.position.y = getTerrainHeight(en.mesh.position.x, en.mesh.position.z) + 1;
+            
+            // AI 攻擊目標尋找
+            let target = null;
+            if(!en.isFriend && !player.isDead) target = camera.position;
+            entities.forEach(other => { if(other.isFriend !== en.isFriend && en.mesh.position.distanceTo(other.mesh.position) < 50) target = other.mesh.position; });
+
+            if(target) {
+                en.mesh.lookAt(target.x, en.mesh.position.y, target.z);
+                let moveDir = new THREE.Vector3().subVectors(target, en.mesh.position).normalize();
+                if(en.mesh.position.distanceTo(target) > 15) en.mesh.position.add(moveDir.multiplyScalar(en.speed * dt));
+                if(Date.now() - en.lastShot > 2500) { shoot(en, en.mesh); en.lastShot = Date.now(); }
+            }
+        });
+
+        document.getElementById('f-count').innerText = fLive;
+        document.getElementById('e-count').innerText = eLive;
+        document.getElementById('cash').innerText = Math.floor(player.cash);
+
+        if(eLive <= 0) endGame("任務完成：勝利", "win");
+        if(fLive <= 0) endGame("任務失敗：陣亡", "lose");
+
+        bullets.forEach((b, i) => {
+            b.position.add(b.velocity.clone().multiplyScalar(dt));
+            if(Date.now() - b.spawnTime > 1800) { scene.remove(b); bullets.splice(i,1); return; }
+            entities.forEach((en, ei) => {
+                if(b.owner !== en && b.position.distanceTo(en.mesh.position) < 1.8) {
+                    scene.remove(en.mesh); entities.splice(ei, 1);
+                    scene.remove(b); bullets.splice(i,1);
+                }
+            });
+            if(!player.isDead && b.owner !== player && b.position.distanceTo(camera.position) < 1.6) {
+                player.hp -= 20; if(player.hp <= 0) { player.isDead = true; document.exitPointerLock(); document.getElementById('death-screen').style.display='flex'; }
+                scene.remove(b); bullets.splice(i,1);
+            }
+        });
+
+        document.getElementById('hp').innerText = Math.max(0, player.hp);
         renderer.render(scene, camera);
+    }
+
+    function endGame(text, style) {
+        gameActive = false; document.exitPointerLock();
+        document.getElementById('result-screen').style.display='flex';
+        const t = document.getElementById('result-text');
+        t.innerText = text; t.className = style;
+    }
+
+    function respawnPlayer() {
+        player.hp = 100; player.isDead = false; player.ammo = 30;
+        camera.position.set(0, 30, 0);
+        document.getElementById('death-screen').style.display = 'none';
+        renderer.domElement.requestPointerLock();
     }
 </script>
 </body>
