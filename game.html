@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>Delta Cube: Battlezone 終極整合版</title>
+    <meta charset="UTF-8"><title>Delta Cube: Battlezone Terrain Evolution</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; color: #fff; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 5000; background: linear-gradient(135deg, #0f2027, #203a43); }
         .auth-box { background: rgba(0,0,0,0.9); padding: 30px; border-radius: 15px; border: 1px solid #4facfe; width: 400px; text-align: center; box-shadow: 0 0 30px rgba(79,172,254,0.3); }
         
-        /* UI 元件 */
+        /* UI 介面 */
         .auth-tab-bar { display: flex; margin-bottom: 20px; border-bottom: 1px solid #333; }
         .auth-tab { flex: 1; padding: 10px; cursor: pointer; color: #777; transition: 0.3s; }
         .auth-tab.active { color: #4facfe; border-bottom: 2px solid #4facfe; font-weight: bold; }
@@ -16,29 +16,26 @@
         .btn-primary { background: #4facfe; color: #fff; }
         .btn-gold { background: #ffca28; color: #000; }
         
-        /* 支付與方案佈局 */
-        .pricing-grid { display: flex; gap: 10px; margin-top: 15px; }
-        .card { background: #1a1a1a; padding: 10px; border: 1px solid #333; border-radius: 8px; flex: 1; font-size: 12px; }
-        .card.master { border-color: #ffca28; }
+        /* 支付管道 */
         .pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
         .pay-item { background: #222; padding: 10px; border-radius: 5px; cursor: pointer; border: 1px solid #444; font-size: 11px; }
         .pay-item:hover { background: #4facfe; border-color: #fff; }
 
         /* 遊戲 HUD */
         #game-ui { position: fixed; top: 0; width: 100%; height: 100%; pointer-events: none; display: none; z-index: 100; }
-        nav { background: rgba(0,0,0,0.6); padding: 15px; display: flex; justify-content: space-between; border-bottom: 2px solid #4facfe; }
+        nav { background: rgba(0,0,0,0.6); padding: 15px; display: flex; justify-content: space-between; border-bottom: 2px solid #4facfe; backdrop-filter: blur(5px); }
         #weapon-hud { position: fixed; bottom: 30px; right: 30px; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 10px; border-left: 5px solid #ffca28; }
     </style>
 </head>
 <body>
 
-<!-- 1. 登入與註冊介面 -->
+<!-- 1. 登入與註冊 -->
 <div id="page-auth" class="overlay">
     <div class="auth-box">
         <h1 style="color:#4facfe; margin:0 0 10px 0; letter-spacing:3px;">DELTA CUBE</h1>
         <div class="auth-tab-bar">
-            <div id="tab-login" class="auth-tab active" onclick="switchAuth('login')">登入</div>
-            <div id="tab-register" class="auth-tab" onclick="switchAuth('register')">註冊</div>
+            <div id="tab-login" class="auth-tab active" onclick="switchAuth('login')">登入帳號</div>
+            <div id="tab-register" class="auth-tab" onclick="switchAuth('register')">快速註冊</div>
         </div>
         <input type="text" id="user" placeholder="帳號名稱">
         <input type="password" id="pass" placeholder="密碼">
@@ -51,33 +48,32 @@
 <div id="page-activation" class="overlay" style="display:none">
     <div class="auth-box">
         <h3>授權驗證</h3>
-        <p style="font-size:12px; color:#aaa;">請輸入您的啟動碼以解鎖戰區</p>
-        <input type="text" id="activation-key" placeholder="例如: MST-999">
-        <button class="btn btn-primary" onclick="verifyKey()">啟動</button>
-        <button class="btn btn-gold" onclick="showPricing()">購買方案 (我不知道啟動碼)</button>
+        <input type="text" id="activation-key" placeholder="輸入啟動碼 (STD-123 或 MST-999)">
+        <button class="btn btn-primary" onclick="verifyKey()">確認啟動</button>
+        <button class="btn btn-gold" onclick="showPricing()">我不知道啟動碼 (前往購買)</button>
     </div>
 </div>
 
 <!-- 3. 方案選擇 -->
 <div id="page-pricing" class="overlay" style="display:none">
     <div class="auth-box" style="width:450px;">
-        <h3>選擇服務方案</h3>
-        <div class="pricing-grid">
-            <div class="card">
-                <h4 style="color:#4facfe">一般方案</h4>
-                <p>$199 / 月</p>
-                <button class="btn btn-primary" onclick="showPayment('STD')">購買</button>
+        <h3>選擇訂閱方案</h3>
+        <div style="display:flex; gap:10px;">
+            <div style="flex:1; background:#1a1a1a; padding:15px; border-radius:10px; border:1px solid #4facfe;">
+                <h4>一般方案</h4>
+                <p style="font-size:20px;">$199</p>
+                <button class="btn btn-primary" onclick="showPayment('STD')">選擇</button>
             </div>
-            <div class="card master">
+            <div style="flex:1; background:#1a1a1a; padding:15px; border-radius:10px; border:1px solid #ffca28;">
                 <h4 style="color:#ffca28">大師方案</h4>
-                <p>$499 / 月</p>
-                <button class="btn btn-gold" onclick="showPayment('MST')">購買</button>
+                <p style="font-size:20px;">$499</p>
+                <button class="btn btn-gold" onclick="showPayment('MST')">選擇</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- 4. 付款管道 (10種) -->
+<!-- 4. 10 種支付管道 -->
 <div id="page-payment" class="overlay" style="display:none">
     <div class="auth-box">
         <h3>選擇支付管道</h3>
@@ -91,97 +87,83 @@
             <div class="pay-item" onclick="openGate('AliPay')">🔵 支付寶</div>
             <div class="pay-item" onclick="openGate('WeChat')">🟢 微信支付</div>
             <div class="pay-item" onclick="openGate('Bank')">🏦 銀行轉帳</div>
-            <div class="pay-item" onclick="openGate('Steam')">🎮 Steam錢包</div>
+            <div class="pay-item" onclick="openGate('Steam')">🎮 Steam</div>
         </div>
     </div>
 </div>
 
-<!-- 5. 支付授權 (需填帳密) -->
+<!-- 5. 支付授權 -->
 <div id="page-gate" class="overlay" style="display:none">
     <div class="auth-box">
         <h2 id="gate-name">授權中</h2>
-        <input type="text" id="p-user" placeholder="支付帳號/Email">
+        <input type="text" id="p-user" placeholder="支付帳號">
         <input type="password" id="p-pass" placeholder="支付密碼">
-        <button class="btn btn-gold" onclick="finalizePayment()">確認付款授權</button>
+        <button class="btn btn-gold" onclick="finalizePayment()">確認付款</button>
     </div>
 </div>
 
-<!-- 6. 遊戲 UI -->
+<!-- 6. 遊戲 HUD -->
 <div id="game-ui">
     <nav>
+        <div>GPS: ACTIVE | 高度: <span id="alt">0</span>m</div>
         <div>PLAN: <span id="ui-plan" style="color:#ffca28">None</span></div>
-        <div>👥 友軍: <span id="f-count">20</span> | 💀 敵軍: <span id="e-count">20</span></div>
     </nav>
     <div id="weapon-hud">
         <div id="gun-name" style="font-size:14px; color:#aaa;">STANDARD XM-8</div>
         <div style="font-size:32px; font-weight:bold;">AMMO: <span id="ammo">30</span></div>
     </div>
-    <div style="position:absolute; top:50%; left:50%; width:15px; height:15px; border:2px solid red; transform:translate(-50%,-50%); border-radius:50%;"></div>
+    <div style="position:absolute; top:50%; left:50%; width:20px; height:20px; border:2px solid red; transform:translate(-50%,-50%); border-radius:50%; opacity:0.6;"></div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
     let scene, camera, renderer, clock, gameActive = false;
-    let player = { plan: 'none', ammo: 30, isDead: false };
-    let entities = [], bullets = [], chunks = new Map(), keys = {};
-    let selectedPlan = "", currentAuthMode = 'login';
+    let player = { plan: 'none', ammo: 30 };
+    let entities = [], chunks = new Map(), keys = {};
+    let selectedPlan = "";
 
-    // UI 切換與流程邏輯
+    // UI 邏輯
     function switchAuth(mode) {
-        currentAuthMode = mode;
         document.getElementById('tab-login').classList.toggle('active', mode === 'login');
         document.getElementById('tab-register').classList.toggle('active', mode === 'register');
         document.getElementById('pass-confirm').style.display = mode === 'register' ? 'block' : 'none';
-        document.getElementById('auth-btn').innerText = mode === 'login' ? '立即登入' : '完成註冊';
     }
-
-    function handleAuth() {
-        const u = document.getElementById('user').value;
-        const p = document.getElementById('pass').value;
-        if(u && p) {
-            hideAll();
-            document.getElementById('page-activation').style.display = 'flex';
-        } else alert("請填寫帳號密碼");
-    }
-
+    function handleAuth() { hideAll(); document.getElementById('page-activation').style.display = 'flex'; }
     function showPricing() { hideAll(); document.getElementById('page-pricing').style.display = 'flex'; }
-    function showPayment(plan) { selectedPlan = plan; hideAll(); document.getElementById('page-payment').style.display = 'flex'; }
-    function openGate(name) { hideAll(); document.getElementById('page-gate').style.display = 'flex'; document.getElementById('gate-name').innerText = name + " 支付授權"; }
-    function hideAll() { document.querySelectorAll('.overlay').forEach(el => el.style.display = 'none'); }
-
+    function showPayment(p) { selectedPlan = p; hideAll(); document.getElementById('page-payment').style.display = 'flex'; }
+    function openGate(n) { hideAll(); document.getElementById('page-gate').style.display = 'flex'; document.getElementById('gate-name').innerText = n + " 授權"; }
     function finalizePayment() {
-        const pu = document.getElementById('p-user').value;
-        const pp = document.getElementById('p-pass').value;
-        if(pu && pp) {
-            let key = (selectedPlan === 'MST') ? "MST-999" : "STD-123";
-            alert("付款成功！授權已核准。\n您的啟動碼為: " + key);
-            hideAll();
-            document.getElementById('page-activation').style.display = 'flex';
-        } else alert("請輸入支付帳號密碼進行授權");
+        if(!document.getElementById('p-user').value || !document.getElementById('p-pass').value) return alert("請填寫支付帳密");
+        let k = selectedPlan === 'MST' ? "MST-999" : "STD-123";
+        alert("付款成功！啟動碼: " + k);
+        hideAll(); document.getElementById('page-activation').style.display = 'flex';
     }
-
     function verifyKey() {
         const k = document.getElementById('activation-key').value;
         if(k === "STD-123" || k === "MST-999") {
-            player.plan = (k === "MST-999") ? "大師" : "一般";
+            player.plan = k === "MST-999" ? "大師" : "一般";
             startEngine();
-        } else alert("無效碼，請先購買方案。");
+        } else alert("啟動失敗");
+    }
+    function hideAll() { document.querySelectorAll('.overlay').forEach(e => e.style.display = 'none'); }
+
+    // 遊戲引擎
+    function startEngine() {
+        hideAll(); document.getElementById('game-ui').style.display = 'block';
+        document.getElementById('ui-plan').innerText = player.plan;
+        init3D(); animate();
     }
 
-    // 啟動 3D 引擎
-    function startEngine() {
-        hideAll();
-        document.getElementById('game-ui').style.display = 'block';
-        document.getElementById('ui-plan').innerText = player.plan;
-        if(player.plan === '大師') document.getElementById('gun-name').innerText = "GOLDEN XM-8 (MASTER)";
-        init3D();
-        animate();
+    function getTerrainH(x, z) {
+        // 大師方案才有起伏地形
+        if(player.plan !== '大師') return 10;
+        return (Math.sin(x*0.1) * 3 + Math.cos(z*0.1) * 2) + 10;
     }
 
     function init3D() {
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0xddeeff);
-        scene.fog = new THREE.Fog(0xddeeff, 50, 250);
+        scene.fog = new THREE.Fog(0xddeeff, 50, 300);
         camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -191,9 +173,8 @@
         const sun = new THREE.DirectionalLight(0xffffff, 1.2);
         sun.position.set(50, 100, 50);
         scene.add(sun);
-        scene.add(new THREE.AmbientLight(0xffffff, 0.5));
+        scene.add(new THREE.AmbientLight(0xffffff, 0.6));
 
-        // 鎖定滑鼠控制
         renderer.domElement.onclick = () => renderer.domElement.requestPointerLock();
         document.addEventListener('mousemove', e => {
             if(document.pointerLockElement) {
@@ -207,46 +188,32 @@
         gameActive = true;
     }
 
-    function getH(x, z) { 
-        // 大師方案才有起伏地形感應
-        return player.plan === '大師' ? (Math.sin(x*0.1) * 3 + Math.cos(z*0.1) * 2 + 10) : 10; 
-    }
-
     function animate() {
         if(!gameActive) return;
         requestAnimationFrame(animate);
         let dt = clock.getDelta();
 
-        // 玩家控制
         let moveDir = new THREE.Vector3(0,0,0);
-        if(keys['KeyW']) moveDir.z -= 1;
-        if(keys['KeyS']) moveDir.z += 1;
-        if(keys['KeyA']) moveDir.x -= 1;
-        if(keys['KeyD']) moveDir.x += 1;
-        
+        if(keys['KeyW']) moveDir.z -= 1; if(keys['KeyS']) moveDir.z += 1;
+        if(keys['KeyA']) moveDir.x -= 1; if(keys['KeyD']) moveDir.x += 1;
         camera.translateOnAxis(moveDir.normalize(), 15 * dt);
-        // 高度感應
-        camera.position.y = getH(camera.position.x, camera.position.z) + 2.5;
+        
+        let ground = getTerrainH(camera.position.x, camera.position.z);
+        camera.position.y = ground + 2.5;
+        document.getElementById('alt').innerText = Math.floor(ground);
 
-        // 無限地圖渲染邏輯
+        // 無限地圖與建築生成
         const cx = Math.floor(camera.position.x / 20), cz = Math.floor(camera.position.z / 20);
         for(let x=cx-2; x<=cx+2; x++) {
             for(let z=cz-2; z<=cz+2; z++) {
-                const key = `${x},${z}`;
-                if(!chunks.has(key)) {
-                    let h = getH(x*20, z*20);
-                    const b = new THREE.Mesh(
-                        new THREE.BoxGeometry(20, 1, 20), 
-                        new THREE.MeshStandardMaterial({color: player.plan === '大師' ? 0xffca28 : 0x95a5a6})
-                    );
+                if(!chunks.has(`${x},${z}`)) {
+                    let h = getTerrainH(x*20, z*20);
+                    const b = new THREE.Mesh(new THREE.BoxGeometry(20, 1, 20), new THREE.MeshStandardMaterial({color: player.plan === '大師' ? 0xffca28 : 0x95a5a6}));
                     b.position.set(x*20, h, z*20);
-                    scene.add(b); chunks.set(key, b);
-                    
-                    // 大師方案：額外生成都市建築
-                    if(player.plan === '大師' && Math.random() < 0.15) {
-                        const bH = 10 + Math.random()*25;
-                        const tower = new THREE.Mesh(new THREE.BoxGeometry(6, bH, 6), new THREE.MeshStandardMaterial({color: 0x444444}));
-                        tower.position.set(x*20, h + bH/2, z*20);
+                    scene.add(b); chunks.set(`${x},${z}`, b);
+                    if(player.plan === '大師' && Math.random() < 0.1) {
+                        const tower = new THREE.Mesh(new THREE.BoxGeometry(5, 15, 5), new THREE.MeshStandardMaterial({color: 0x555}));
+                        tower.position.set(x*20, h+7.5, z*20);
                         scene.add(tower);
                     }
                 }
