@@ -42,7 +42,7 @@
         </div>
         <input type="text" id="user" placeholder="帳號名稱">
         <input type="password" id="pass" placeholder="密碼">
-        <input type="password" id="pass-confirm" placeholder="確認密碼彈出" style="display:none">
+        <input type="password" id="pass-confirm" placeholder="確認密碼" style="display:none">
         <button id="auth-btn" class="btn btn-primary" onclick="handleAuth()">進入系統</button>
     </div>
 </div>
@@ -54,7 +54,7 @@
         <p style="font-size:12px; color:#aaa;">請輸入您的啟動碼以解鎖戰區</p>
         <input type="text" id="activation-key" placeholder="例如: MST-999">
         <button class="btn btn-primary" onclick="verifyKey()">啟動</button>
-        <button class="btn btn-gold" onclick="showPricing()">查看訂閱方案</button>
+        <button class="btn btn-gold" onclick="showPricing()">購買方案 (我不知道啟動碼)</button>
     </div>
 </div>
 
@@ -102,7 +102,7 @@
         <h2 id="gate-name">授權中</h2>
         <input type="text" id="p-user" placeholder="支付帳號/Email">
         <input type="password" id="p-pass" placeholder="支付密碼">
-        <button class="btn btn-gold" onclick="finalizePayment()">確認付款</button>
+        <button class="btn btn-gold" onclick="finalizePayment()">確認付款授權</button>
     </div>
 </div>
 
@@ -126,7 +126,7 @@
     let entities = [], bullets = [], chunks = new Map(), keys = {};
     let selectedPlan = "", currentAuthMode = 'login';
 
-    // UI 切換邏輯
+    // UI 切換與流程邏輯
     function switchAuth(mode) {
         currentAuthMode = mode;
         document.getElementById('tab-login').classList.toggle('active', mode === 'login');
@@ -136,22 +136,28 @@
     }
 
     function handleAuth() {
-        if(document.getElementById('user').value && document.getElementById('pass').value) {
-            hideAll(); document.getElementById('page-activation').style.display = 'flex';
-        } else alert("請填寫資訊");
+        const u = document.getElementById('user').value;
+        const p = document.getElementById('pass').value;
+        if(u && p) {
+            hideAll();
+            document.getElementById('page-activation').style.display = 'flex';
+        } else alert("請填寫帳號密碼");
     }
 
     function showPricing() { hideAll(); document.getElementById('page-pricing').style.display = 'flex'; }
     function showPayment(plan) { selectedPlan = plan; hideAll(); document.getElementById('page-payment').style.display = 'flex'; }
-    function openGate(name) { hideAll(); document.getElementById('page-gate').style.display = 'flex'; document.getElementById('gate-name').innerText = name + " 授權"; }
+    function openGate(name) { hideAll(); document.getElementById('page-gate').style.display = 'flex'; document.getElementById('gate-name').innerText = name + " 支付授權"; }
     function hideAll() { document.querySelectorAll('.overlay').forEach(el => el.style.display = 'none'); }
 
     function finalizePayment() {
-        if(document.getElementById('p-user').value && document.getElementById('p-pass').value) {
+        const pu = document.getElementById('p-user').value;
+        const pp = document.getElementById('p-pass').value;
+        if(pu && pp) {
             let key = (selectedPlan === 'MST') ? "MST-999" : "STD-123";
-            alert("支付成功！啟動碼為: " + key);
-            hideAll(); document.getElementById('page-activation').style.display = 'flex';
-        } else alert("請填寫支付授權資訊");
+            alert("付款成功！授權已核准。\n您的啟動碼為: " + key);
+            hideAll();
+            document.getElementById('page-activation').style.display = 'flex';
+        } else alert("請輸入支付帳號密碼進行授權");
     }
 
     function verifyKey() {
@@ -159,14 +165,17 @@
         if(k === "STD-123" || k === "MST-999") {
             player.plan = (k === "MST-999") ? "大師" : "一般";
             startEngine();
-        } else alert("無效碼");
+        } else alert("無效碼，請先購買方案。");
     }
 
-    // 遊戲引擎啟動
+    // 啟動 3D 引擎
     function startEngine() {
-        hideAll(); document.getElementById('game-ui').style.display = 'block';
+        hideAll();
+        document.getElementById('game-ui').style.display = 'block';
         document.getElementById('ui-plan').innerText = player.plan;
-        init3D(); animate();
+        if(player.plan === '大師') document.getElementById('gun-name').innerText = "GOLDEN XM-8 (MASTER)";
+        init3D();
+        animate();
     }
 
     function init3D() {
@@ -184,12 +193,13 @@
         scene.add(sun);
         scene.add(new THREE.AmbientLight(0xffffff, 0.5));
 
-        // 鎖定滑鼠
+        // 鎖定滑鼠控制
         renderer.domElement.onclick = () => renderer.domElement.requestPointerLock();
         document.addEventListener('mousemove', e => {
             if(document.pointerLockElement) {
                 camera.rotation.y -= e.movementX * 0.002;
                 camera.rotation.x -= e.movementY * 0.002;
+                camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
             }
         });
         window.addEventListener('keydown', e => keys[e.code]=true);
@@ -197,33 +207,46 @@
         gameActive = true;
     }
 
-    function getH(x, z) { return player.plan === '大師' ? (Math.sin(x*0.1) * 3 + 10) : 10; }
+    function getH(x, z) { 
+        // 大師方案才有起伏地形感應
+        return player.plan === '大師' ? (Math.sin(x*0.1) * 3 + Math.cos(z*0.1) * 2 + 10) : 10; 
+    }
 
     function animate() {
         if(!gameActive) return;
         requestAnimationFrame(animate);
         let dt = clock.getDelta();
 
-        // 玩家移動
-        let dir = new THREE.Vector3(0,0,0);
-        if(keys['KeyW']) dir.z -= 1; if(keys['KeyS']) dir.z += 1;
-        if(keys['KeyA']) dir.x -= 1; if(keys['KeyD']) dir.x += 1;
-        camera.translateOnAxis(dir.normalize(), 15 * dt);
+        // 玩家控制
+        let moveDir = new THREE.Vector3(0,0,0);
+        if(keys['KeyW']) moveDir.z -= 1;
+        if(keys['KeyS']) moveDir.z += 1;
+        if(keys['KeyA']) moveDir.x -= 1;
+        if(keys['KeyD']) moveDir.x += 1;
+        
+        camera.translateOnAxis(moveDir.normalize(), 15 * dt);
+        // 高度感應
         camera.position.y = getH(camera.position.x, camera.position.z) + 2.5;
 
-        // 無限地圖生成
+        // 無限地圖渲染邏輯
         const cx = Math.floor(camera.position.x / 20), cz = Math.floor(camera.position.z / 20);
         for(let x=cx-2; x<=cx+2; x++) {
             for(let z=cz-2; z<=cz+2; z++) {
-                if(!chunks.has(`${x},${z}`)) {
+                const key = `${x},${z}`;
+                if(!chunks.has(key)) {
                     let h = getH(x*20, z*20);
-                    const b = new THREE.Mesh(new THREE.BoxGeometry(20, 1, 20), new THREE.MeshStandardMaterial({color: player.plan === '大師' ? 0xffca28 : 0x95a5a6}));
+                    const b = new THREE.Mesh(
+                        new THREE.BoxGeometry(20, 1, 20), 
+                        new THREE.MeshStandardMaterial({color: player.plan === '大師' ? 0xffca28 : 0x95a5a6})
+                    );
                     b.position.set(x*20, h, z*20);
-                    scene.add(b); chunks.set(`${x},${z}`, b);
-                    // 大師級建築物
-                    if(player.plan === '大師' && Math.random() < 0.1) {
-                        const tower = new THREE.Mesh(new THREE.BoxGeometry(5, 20, 5), new THREE.MeshStandardMaterial({color: 0x555}));
-                        tower.position.set(x*20, h+10, z*20);
+                    scene.add(b); chunks.set(key, b);
+                    
+                    // 大師方案：額外生成都市建築
+                    if(player.plan === '大師' && Math.random() < 0.15) {
+                        const bH = 10 + Math.random()*25;
+                        const tower = new THREE.Mesh(new THREE.BoxGeometry(6, bH, 6), new THREE.MeshStandardMaterial({color: 0x444444}));
+                        tower.position.set(x*20, h + bH/2, z*20);
                         scene.add(tower);
                     }
                 }
