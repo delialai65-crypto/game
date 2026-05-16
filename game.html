@@ -1,51 +1,78 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>Delta Cube: Battlezone 5-Plan Premium</title>
+    <meta charset="UTF-8"><title>Delta Cube: Battlezone Command Center</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #050b14; font-family: 'Segoe UI', sans-serif; color: #fff; }
         
-        /* 全螢幕覆蓋遮罩 */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5000; background: linear-gradient(135deg, #0f172a, #020617); overflow-y: auto; padding: 40px 10px; box-sizing: border-box; }
-        .auth-box { background: rgba(15, 23, 42, 0.85); padding: 30px; border-radius: 16px; border: 1px solid #00f2ff; width: 380px; text-align: center; box-shadow: 0 0 30px rgba(0,242,255,0.25); backdrop-filter: blur(10px); }
+        /* 全螢幕覆蓋遮罩與彈窗 */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; z-index: 5000; background: linear-gradient(135deg, #111726, #090d16); overflow-y: auto; padding: 40px 10px; box-sizing: border-box; }
+        .auth-box { background: rgba(15, 23, 42, 0.85); padding: 30px; border-radius: 16px; border: 1px solid #00f2ff; width: 380px; text-align: center; box-shadow: 0 0 30px rgba(0,242,255,0.25); backdrop-filter: blur(10px); margin: 20px auto; }
         
-        /* 5種方案卡片滾動排版 */
-        .pricing-section { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 1000px; }
+        /* 5種方案頁面排版 */
+        .pricing-section { display: none; flex-direction: column; align-items: center; width: 100%; max-width: 1100px; margin: 0 auto; }
         .plan-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; width: 100%; margin: 20px 0; }
+        @media (max-width: 950px) { .plan-grid { grid-template-columns: repeat(2, 1fr); } }
         
-        @media (max-width: 900px) {
-            .plan-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        
-        .plan-card { background: rgba(15, 23, 42, 0.8); border: 1px solid #38bdf8; padding: 20px 15px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
-        .plan-card:hover { transform: translateY(-5px); background: rgba(56, 189, 248, 0.1); box-shadow: 0 5px 15px rgba(56, 189, 248, 0.2); }
-        
-        /* 高級方案特殊邊框 */
+        /* 頂部：遊戲好玩特色 */
+        .game-marketing { text-align: center; margin-bottom: 25px; width: 100%; }
+        .game-marketing h2 { color: #00f2ff; font-size: 32px; text-shadow: 0 0 15px rgba(0, 242, 255, 0.6); margin: 0 0 10px 0; letter-spacing: 2px; }
+        .fun-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; margin-bottom: 15px; }
+        .fun-card { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(0, 242, 255, 0.15); padding: 20px; border-radius: 12px; text-align: left; }
+        .fun-card h4 { color: #00f2ff; font-size: 16px; margin: 5px 0 10px 0; }
+        .fun-card p { color: #cbd5e1; font-size: 12px; line-height: 1.6; margin: 0; }
+
+        /* 方案卡片 */
+        .plan-card { background: rgba(15, 23, 42, 0.8); border: 1px solid #38bdf8; padding: 25px 15px; border-radius: 12px; text-align: center; cursor: pointer; transition: 0.3s; position: relative; display: flex; flex-direction: column; justify-content: space-between; }
         .plan-card.gold-border { border-color: #eab308; }
-        .plan-card.gold-border:hover { background: rgba(234, 179, 8, 0.1); box-shadow: 0 5px 15px rgba(234, 179, 8, 0.2); }
         .tag { position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: #eab308; color: #000; font-size: 10px; font-weight: bold; padding: 2px 8px; border-radius: 4px; white-space: nowrap; }
+        .price { font-size: 26px; font-weight: bold; margin: 12px 0; color: #fff; }
+        .features { font-size: 12px; color: #94a3b8; text-align: left; padding: 0; list-style: none; margin: 15px 0; line-height: 1.8; }
 
-        .price { font-size: 24px; font-weight: bold; margin: 10px 0; }
-        .features { font-size: 11px; color: #94a3b8; text-align: left; padding: 0; list-style: none; margin: 15px 0; line-height: 1.6; }
-
-        /* 付款彈出視窗 */
+        /* 👑 升級版：付款模擬視窗 (雙欄排版) */
         #payment-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 6, 23, 0.9); z-index: 6000; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .payment-box { background: #1e293b; padding: 30px; border-radius: 12px; border: 1px solid #38bdf8; width: 320px; text-align: center; }
+        .payment-box { background: #1e293b; padding: 30px; border-radius: 16px; border: 1px solid #38bdf8; width: 750px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.6); max-height: 90vh; overflow-y: auto; }
+        .pay-flex-layout { display: flex; gap: 25px; text-align: left; margin-top: 15px; }
+        .pay-left-panel { flex: 1; background: rgba(0,0,0,0.25); padding: 15px; border-radius: 10px; border: 1px solid #334155; }
+        .pay-right-panel { flex: 1.2; background: rgba(0,0,0,0.25); padding: 15px; border-radius: 10px; border: 1px solid #334155; display: flex; flex-direction: column; }
+        
+        .pay-methods-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px; }
+        .method-btn { background: #0f172a; border: 1px solid #334155; color: #cbd5e1; padding: 10px; border-radius: 6px; cursor: pointer; font-size: 12px; text-align: left; transition: 0.2s; }
+        .method-btn:hover { border-color: #38bdf8; background: rgba(56, 189, 248, 0.08); }
+        .method-btn.selected { border-color: #10b981; background: rgba(16, 185, 129, 0.15); color: #10b981; font-weight: bold; }
+        
+        .field-title { font-size: 12px; color: #94a3b8; font-weight: bold; margin: 8px 0 3px 0; }
+        .qr-placeholder { background: white; width: 140px; height: 140px; margin: 10px auto; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #000; font-size: 11px; font-weight: bold; border: 4px solid #10b981; }
 
-        input { width: 100%; padding: 12px; margin: 8px 0; background: #0f172a; color: #fff; border: 1px solid #334155; border-radius: 6px; box-sizing: border-box; }
+        /* 作戰大廳 (Lobby) */
+        .lobby-container { display: none; flex-direction: column; align-items: center; background: rgba(15, 23, 42, 0.9); border: 1px solid #00f2ff; padding: 30px; border-radius: 16px; width: 90%; max-width: 800px; box-shadow: 0 0 40px rgba(0,242,255,0.15); margin: auto; }
+        .roster-section { display: flex; gap: 30px; width: 100%; margin-top: 20px; }
+        .roster-column { flex: 1; background: rgba(0,0,0,0.4); border-radius: 10px; padding: 15px; border: 1px solid #334155; height: 260px; overflow-y: auto; }
+        .roster-column.ally-col { border-color: #2ecc71; }
+        .roster-column.enemy-col { border-color: #ff4757; }
+        .roster-title { font-size: 16px; font-weight: bold; margin-bottom: 12px; padding-bottom: 5px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; }
+        .member-item { display: flex; justify-content: space-between; font-size: 13px; padding: 6px 8px; margin: 4px 0; background: rgba(255,255,255,0.02); border-radius: 4px; }
+        
+        .guide-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; width: 100%; padding: 15px; margin: 20px 0; box-sizing: border-box; }
+        .guide-title { color: #00f2ff; font-weight: bold; font-size: 14px; margin-bottom: 8px; text-align: left; }
+        .guide-text { font-size: 12px; color: #cbd5e1; text-align: left; line-height: 1.6; margin: 0; }
+
+        /* 鎖定滑鼠引導層 */
+        #click-to-lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 4000; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
+
+        input, select { width: 100%; padding: 10px; margin: 4px 0 10px 0; background: #0f172a; color: #fff; border: 1px solid #334155; border-radius: 6px; box-sizing: border-box; font-size: 13px; }
         .btn { width: 100%; padding: 12px; cursor: pointer; border: none; font-weight: bold; margin-top: 8px; border-radius: 6px; text-transform: uppercase; transition: 0.2s; }
         .btn-primary { background: #38bdf8; color: #fff; }
-        .btn-primary:hover { background: #0ea5e9; box-shadow: 0 0 15px rgba(56,189,248,0.4); }
+        .btn-gold { background: #eab308; color: #000; }
         .btn-success { background: #10b981; color: #fff; }
-        .btn-success:hover { background: #059669; box-shadow: 0 0 15px rgba(16,185,129,0.4); }
 
-        /* HUD */
+        /* 戰場 HUD */
         #game-ui { position: fixed; top: 0; width: 100%; height: 100%; pointer-events: none; display: none; z-index: 100; }
         nav { padding: 15px 20px; display: flex; justify-content: space-between; background: rgba(15,23,42,0.6); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold; font-size: 14px; }
         #weapon-hud { position: fixed; bottom: 30px; left: 30px; background: rgba(15,23,42,0.85); padding: 15px 25px; border-radius: 12px; border-left: 5px solid #38bdf8; backdrop-filter: blur(5px); }
         #weapon-hud.gold-style { border-left-color: #eab308; color: #eab308; }
 
-        /* 圓形小地圖 */
+        /* 雷達小地圖 */
         #minimap-container { position: fixed; bottom: 30px; right: 30px; width: 170px; height: 170px; border-radius: 50%; border: 3px solid #00f2ff; background: rgba(2, 6, 23, 0.9); box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); overflow: hidden; }
         #minimap-radar { width: 100%; height: 100%; position: relative; }
         .radar-dot { position: absolute; width: 6px; height: 6px; border-radius: 50%; transform: translate(-50%, -50%); }
@@ -53,93 +80,57 @@
         .dot-friend { background: #2ecc71; }
         .dot-enemy { background: #e74c3c; box-shadow: 0 0 6px #e74c3c; }
 
-        #result-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; background: rgba(2,6,23,0.95); }
+        #result-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; background: rgba(2,6,23,0.95); backdrop-filter: blur(8px); }
+        .result-title-win { font-size: 64px; font-weight: bold; color: #ffca28; }
+        .result-title-lose { font-size: 64px; font-weight: bold; color: #ff3333; }
     </style>
 </head>
 <body>
 
-<script>window.addEventListener('contextmenu', e => e.preventDefault()); // 禁用右鍵選單以利換彈</script>
+<script>window.addEventListener('contextmenu', e => e.preventDefault()); // 禁用右鍵以利換彈</script>
 
 <div id="activation-gate" class="overlay">
-    <div class="auth-box">
+    <div class="auth-box" style="margin-top: 15vh;">
         <h2 style="color:#00f2ff; margin-top:0; letter-spacing: 2px;">DELTA CUBE</h2>
-        <p style="font-size:13px; color:#94a3b8;">本網域受軍事授權保護，請輸入您的激活啟動碼：</p>
         <input type="text" id="activation-key" placeholder="輸入金鑰解鎖戰區">
-        <button class="btn btn-primary" onclick="processVerifyKey()">驗證金鑰並進入遊戲</button>
-        
+        <button class="btn btn-primary" onclick="processVerifyKey()">驗證金鑰並進入大廳</button>
         <hr style="border:0; border-top:1px solid #334155; margin:20px 0;">
-        <p style="font-size:12px; color:#64748b;">如果您沒有或不知道啟動碼，請獲取方案：</p>
         <button class="btn" style="background:#1e293b; color:#38bdf8; border:1px solid #38bdf8;" onclick="showPricingPage()">購買產品方案</button>
     </div>
 </div>
 
 <div id="pricing-page" class="overlay" style="display:none;">
     <div class="pricing-section" style="display:flex;">
-        <h2 style="color:#00f2ff; text-shadow: 0 0 10px rgba(0,242,255,0.5); margin-bottom: 5px;">選擇您的作戰訂閱方案</h2>
-        <p style="color:#64748b; font-size:13px; margin-bottom:20px;">選擇方案並完成付款後，系統將自動核發對應密鑰</p>
-        
+        <div class="game-marketing">
+            <h2>🔥 究極方塊戰區：震撼感官！</h2>
+            <div class="fun-grid">
+                <div class="fun-card"><h4>🌍 無限生成的新竹東區</h4><p>地圖無邊界！採用增厚大網格防穿模技術，移動更安全順暢。</p></div>
+                <div class="fun-card"><h4>📡 實時戰術圓形雷達 HUD</h4><p>右下角配備發光科技雷達，即時鎖定綠點盟友與紅點敵軍。</p></div>
+                <div class="fun-card"><h4>🤖 永不休戰的智慧 AI</h4><p>高達 40 名智慧電腦人自動尋找大樓掩體駁火，頭頂動態血條！</p></div>
+            </div>
+        </div>
         <div class="plan-grid">
             <div class="plan-card" onclick="openPayment('EXP', '體驗方案', '$99')">
-                <div>
-                    <h3 style="color:#a7f3d0; margin:0;">體驗方案</h3>
-                    <div class="price">$99<span style="font-size:12px;color:#64748b;">/月</span></div>
-                    <ul class="features">
-                        <li>• 平坦都市地貌</li>
-                        <li>• 10V10 基礎對抗</li>
-                        <li>• 配備標準款 XM-8</li>
-                    </ul>
-                </div>
-                <button class="btn btn-primary" style="font-size:11px; padding:8px;">選擇體驗</button>
+                <div><h3>體驗方案</h3><div class="price">$99</div><ul class="features"><li>• 平坦都市地貌</li><li>• 10V10 對抗</li></ul></div>
+                <button class="btn btn-primary">選擇體驗</button>
             </div>
             <div class="plan-card" onclick="openPayment('STD', '一般方案', '$199')">
-                <div>
-                    <h3 style="color:#38bdf8; margin:0;">一般方案</h3>
-                    <div class="price">$199<span style="font-size:12px;color:#64748b;">/月</span></div>
-                    <ul class="features">
-                        <li>• 無限延伸都市地圖</li>
-                        <li>• 20V20 標準對抗</li>
-                        <li>• 配備標準款 XM-8</li>
-                    </ul>
-                </div>
-                <button class="btn btn-primary" style="font-size:11px; padding:8px;">選擇一般</button>
+                <div><h3>一般方案</h3><div class="price">$199</div><ul class="features"><li>• 無限延伸都市地圖</li><li>• 20V20 對抗</li></ul></div>
+                <button class="btn btn-primary">選擇一般</button>
             </div>
             <div class="plan-card" onclick="openPayment('ADV', '進階方案', '$299')">
-                <div>
-                    <h3 style="color:#60a5fa; margin:0;">進階方案</h3>
-                    <div class="price">$299<span style="font-size:12px;color:#64748b;">/月</span></div>
-                    <ul class="features">
-                        <li>• 無限延伸都市地圖</li>
-                        <li>• 20V20 精英混戰模式</li>
-                        <li>• 解鎖【XM-8 精英版】槍枝</li>
-                    </ul>
-                </div>
-                <button class="btn btn-primary" style="font-size:11px; padding:8px;">選擇進階</button>
+                <div><h3>進階方案</h3><div class="price">$299</div><ul class="features"><li>• 精英突擊模式</li><li>• 戰術精英版槍枝</li></ul></div>
+                <button class="btn btn-primary">選擇進階</button>
             </div>
             <div class="plan-card gold-border" onclick="openPayment('MST', '大師方案', '$499')">
-                <div class="tag">🏆 熱門推介</div>
-                <div>
-                    <h3 style="color:#eab308; margin:0;">大師方案</h3>
-                    <div class="price" style="color:#eab308;">$499<span style="font-size:12px;color:#64748b;">/月</span></div>
-                    <ul class="features" style="color:#fde047;">
-                        <li>• 解鎖立體山丘起伏地形</li>
-                        <li>• 隨機摩天高樓群動態生成</li>
-                        <li>• 獲得【XM-8 黃金典藏版】</li>
-                    </ul>
-                </div>
-                <button class="btn btn-gold" style="font-size:11px; padding:8px;">選擇大師</button>
+                <div class="tag">🏆 熱門首選</div>
+                <div><h3 style="color:#eab308;">大師方案</h3><div class="price" style="color:#eab308;">$499</div><ul class="features"><li>• 山丘起伏地形</li><li>• 黃金典藏版槍枝</li></ul></div>
+                <button class="btn btn-gold">選擇大師</button>
             </div>
             <div class="plan-card gold-border" onclick="openPayment('LEG', '傳奇方案', '$799')">
-                <div class="tag">👑 至尊極致</div>
-                <div>
-                    <h3 style="color:#f43f5e; margin:0;">傳奇方案</h3>
-                    <div class="price" style="color:#f43f5e;">$799<span style="font-size:12px;color:#64748b;">/月</span></div>
-                    <ul class="features" style="color:#fda4af;">
-                        <li>• 解鎖全部立體地形與高樓</li>
-                        <li>• 獲得【黃金槍】+ 特殊子彈軌跡</li>
-                        <li>• AI人數難度完全自定義權限</li>
-                    </ul>
-                </div>
-                <button class="btn btn-gold" style="font-size:11px; padding:8px; background:#f43f5e; color:#fff;">選擇傳奇</button>
+                <div class="tag">👑 至尊傳奇</div>
+                <div><h3 style="color:#f43f5e;">傳奇方案</h3><div class="price" style="color:#f43f5e;">$799</div><ul class="features"><li>• 全立體地貌解鎖</li><li>• 傳奇弒神黃金槍</li></ul></div>
+                <button class="btn btn-gold" style="background:#f43f5e; color:#fff;">選擇傳奇</button>
             </div>
         </div>
         <button class="btn" style="width:120px; background:transparent; color:#64748b;" onclick="backToActivationGate()">返回輸入金鑰</button>
@@ -148,245 +139,349 @@
 
 <div id="payment-modal">
     <div class="payment-box">
-        <h3 id="pay-title" style="margin-top:0;">💳 安全加密電子交易</h3>
-        <p style="font-size:13px; color:#cbd5e1;">您選擇的項目：<br><span id="pay-plan-name" style="font-weight:bold; color:#00f2ff;"></span></p>
-        <input type="text" placeholder="請輸入信用卡號：•••• •••• •••• ••••">
-        <div style="display:flex; gap:10px;">
-            <input type="text" placeholder="MM/YY" style="flex:1;">
-            <input type="text" placeholder="CVC" style="flex:1;">
+        <h3 style="margin: 0; color: #38bdf8;">💳 國防級安全加密交易中心</h3>
+        <p style="font-size:12px; margin:5px 0; color:#aaa;">項目：<span id="pay-plan-name" style="color:#eab308; font-weight:bold;"></span></p>
+        
+        <div class="pay-flex-layout">
+            <div class="pay-left-panel">
+                <h4 style="margin:0 0 10px 0; color:#38bdf8; font-size:14px; border-bottom:1px solid #334155; padding-bottom:5px;">📋 訂購人基本資料</h4>
+                
+                <div class="field-title">真實姓名 *</div>
+                <input type="text" id="bill-name" placeholder="請輸入姓名" value="賴嫦瑜">
+                
+                <div class="field-title">聯絡電話 *</div>
+                <input type="text" id="bill-phone" placeholder="例如：0912345678">
+                
+                <div class="field-title">電子信箱 (用以接收收據與許可證) *</div>
+                <input type="email" id="bill-email" placeholder="username@gmail.com">
+                
+                <div class="field-title">發票形式 / 統一編號</div>
+                <select id="bill-invoice">
+                    <option value="2">個人電子發票 (二聯式)</option>
+                    <option value="3">公司法人發票 (三聯式 - 需統編)</option>
+                </select>
+                <input type="text" id="bill-taxid" placeholder="請輸入公司 8 位數統一編號 (選填)" style="margin-top:-5px;">
+            </div>
+
+            <div class="pay-right-panel">
+                <h4 style="margin:0 0 10px 0; color:#38bdf8; font-size:14px; border-bottom:1px solid #334155; padding-bottom:5px;">💰 選擇支付工具</h4>
+                
+                <div class="pay-methods-grid">
+                    <button class="method-btn selected" onclick="selectDynamicMethod(this, 'credit')">💳 信用卡 / 簽帳卡</button>
+                    <button class="method-btn" onclick="selectDynamicMethod(this, 'qr', 'LINE Pay')">💬 LINE Pay</button>
+                    <button class="method-btn" onclick="selectDynamicMethod(this, 'qr', '街口支付')">街口支付 (JKOPAY)</button>
+                    <button class="method-btn" onclick="selectDynamicMethod(this, 'qr', 'Apple Pay')">🍏 Apple Pay</button>
+                    <button class="method-btn" onclick="selectPayMethod('Google Pay')">🤖 Google Pay</button>
+                    <button class="method-btn" onclick="selectDynamicMethod(this, 'barcode')">🏪 超商條碼 / 代碼</button>
+                    <button class="method-btn" onclick="selectDynamicMethod(this, 'atm')">🏦 WebATM 網路轉帳</button>
+                    <button class="method-btn" onclick="selectPayMethod('PayPal')">💵 PayPal 全球支付</button>
+                    <button class="method-btn" onclick="selectDynamicMethod(this, 'crypto', 'BTC')">🪙 比特幣 (Bitcoin)</button>
+                    <button class="method-btn" onclick="selectDynamicMethod(this, 'crypto', 'ETH')">🔷 以太幣 (Ethereum)</button>
+                </div>
+
+                <div id="input-grp-credit">
+                    <div class="field-title">信用卡卡號 *</div>
+                    <input type="text" placeholder="XXXX - XXXX - XXXX - XXXX">
+                    <div style="display:flex; gap:10px;">
+                        <div style="flex:1;"><div class="field-title">有效日期 *</div><input type="text" placeholder="MM/YY"></div>
+                        <div style="flex:1;"><div class="field-title">背面安全碼 (CVC) *</div><input type="text" placeholder="3 位數"></div>
+                    </div>
+                </div>
+
+                <div id="input-grp-qr" style="display:none; text-align: center;">
+                    <div class="field-title" style="text-align:center;">請使用手機打開App掃描下方條碼完成付款：</div>
+                    <div class="qr-placeholder">
+                        <div style="font-size:24px; margin-bottom:5px;">🔲</div>
+                        <span id="qr-tech-name">LINE Pay</span>專用條碼
+                    </div>
+                    <span style="font-size:11px; color:#10b981; animation: blink 1s infinite;">⏳ 等待行動裝置授權扣款中...</span>
+                </div>
+
+                <div id="input-grp-barcode" style="display:none; text-align: center;">
+                    <div class="field-title">電子超商代碼繳費單已核發：</div>
+                    <div style="background:#fff; color:#000; padding:10px; font-family:'Courier New',monospace; font-weight:bold; letter-spacing:2px; margin:10px 0; border-radius:6px;">
+                        ||||| | |||| || ||||| ||||<br>
+                        CVS-TX-9483029104
+                    </div>
+                    <p style="font-size:11px; color:#94a3b8; margin:0;">請至四大超商多媒體機（Ibon/FamiPort）輸入代碼列印繳費單。</p>
+                </div>
+
+                <div id="input-grp-atm" style="display:none;">
+                    <div class="field-title">請選擇轉出虛擬帳戶銀行 *</div>
+                    <select>
+                        <option>004 臺灣銀行</option>
+                        <option>007 第一銀行</option>
+                        <option>822 中國信託銀行</option>
+                        <option>013 國泰世華銀行</option>
+                        <option>700 中華郵政</option>
+                    </select>
+                    <div class="field-title">轉入虛擬帳號</div>
+                    <input type="text" value="9548 - 2026 - 3840 - 1104" readonly style="color:#38bdf8; font-weight:bold; background:#0b0f19;">
+                </div>
+
+                <div id="input-grp-crypto" style="display:none;">
+                    <div class="field-title"><span id="crypto-token">BTC</span> 專屬無感錢包轉帳接收地址 *</div>
+                    <input type="text" id="crypto-addr" value="0x71C7656EC7ab88b098defB751B7401B5f6d8976F" readonly style="font-size:11px; color:#eab308;">
+                    <button class="btn" style="background:#334155; margin-top:-5px; padding:6px; font-size:11px;" onclick="alert('地址已複製到剪貼簿！')">📋 複製轉帳金鑰地址</button>
+                </div>
+            </div>
         </div>
-        <button class="btn btn-success" onclick="confirmPaymentAndGenerateKey()">確認付款並取得授權金鑰</button>
+
+        <button class="btn btn-success" style="margin-top:20px; font-size:14px; padding:14px;" onclick="validateAndPay()">🚀 安全送出審查，確認付款</button>
         <button class="btn" style="background:#475569;" onclick="closePaymentModal()">取消付款</button>
     </div>
 </div>
 
+<div id="lobby-page" class="overlay">
+    <div class="lobby-container" style="display:flex; margin-top: 5vh;">
+        <h2 style="color:#00f2ff; text-shadow:0 0 10px #00f2ff; margin:0;">BATTLEZONE COMMAND CENTER</h2>
+        <div class="roster-section">
+            <div class="roster-column ally-col"><div class="roster-title" style="color:#2ecc71;">👥 我方突擊隊</div><div id="ally-list"></div></div>
+            <div class="roster-column enemy-col"><div class="roster-title" style="color:#ff4757;">💀 紅區敵對者</div><div id="enemy-list"></div></div>
+        </div>
+        <div class="guide-box">
+            <div class="guide-title">⚙️ 戰區作戰說明與情報 (已增強基本資料安全認證)</div>
+            <p class="guide-text">💡 <b>請將輸入法切換為英文半形！</b> W/A/S/D 控制移動，滑鼠移動旋轉視角。左鍵射擊，右鍵裝彈。</p>
+        </div>
+        <button class="btn btn-gold" style="font-size:16px; padding:15px; width:60%;" onclick="requestPointerLockGate()">⚡ 開始部署，突入戰區 ⚡</button>
+    </div>
+</div>
+
+<div id="click-to-lock-screen" onclick="lockPlayerPointer()">
+    <h2 style="color:#00f2ff; text-shadow: 0 0 10px #00f2ff;">[ 系統連線完畢 ]</h2>
+    <p style="color:#aaa;">請點擊「螢幕任意地方」鎖定滑鼠視角並啟動鍵盤控制</p>
+</div>
+
 <div id="game-ui">
     <nav>
-        <div>East District, Hsinchu City | 方案權限: <span id="display-plan">None</span></div>
+        <div>Hsinchu East District | 授權級別: <span id="display-plan">None</span></div>
         <div>👥 我方生存: <span id="f-count">0</span> | 💀 敵方生存: <span id="e-count">0</span></div>
     </nav>
     <div id="weapon-hud">
         <div id="gun-name" style="font-size: 16px; font-weight: bold;">XM-8 ADVANCED</div>
         <div style="font-size: 32px; font-weight: bold; margin-top:5px;">AMMO: <span id="ammo">30</span></div>
-        <div id="reload-prompt" style="font-size: 12px; color:#ff4757; font-weight:bold; visibility:hidden;">彈匣已空！點擊滑鼠右鍵裝彈</div>
-        <div style="font-size: 11px; color:#aaa; margin-top:8px;">操作: W/A/S/D 移動 | ←/→ 旋轉視角 | 左鍵: 開火 | 右鍵: 裝彈</div>
+        <div id="reload-prompt" style="font-size: 12px; color:#ff4757; font-weight:bold; visibility:hidden;">彈匣已空！請點擊滑鼠右鍵裝彈</div>
     </div>
     <div id="minimap-container"><div id="minimap-radar"><div class="radar-dot dot-player" style="top:50%; left:50%;"></div></div></div>
     <div style="position:absolute; top:50%; left:50%; width:20px; height:20px; border:2px solid #ff4757; transform:translate(-50%,-50%); border-radius:50%; opacity:0.7;"></div>
 </div>
 
 <div id="result-screen">
-    <h1 id="result-text" style="font-size:60px; margin-bottom:20px;"></h1>
-    <button class="btn btn-primary" style="width:220px;" onclick="location.reload()">返回主畫面</button>
+    <div id="result-title-text"></div>
+    <p id="result-detail-text" style="color: #94a3b8; font-size: 16px;"></p>
+    <button class="btn btn-primary" style="width:240px; padding: 14px;" onclick="location.reload()">返回指揮中心</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <script>
-    let scene, camera, renderer, clock, gameActive = false;
-    let keys = {}, player = { ammo: 30, maxAmmo: 30, plan: 'none', angle: 0, isReloading: false };
+    let scene, camera, renderer, clock, gameActive = false, coreLoopActive = false;
+    let keys = {}, player = { hp: 100, ammo: 30, maxAmmo: 30, plan: 'none', isDead: false };
     let entities = [], bullets = [], chunks = new Map();
     let currentSelectedCodeType = '';
     let configAI = { friendCount: 20, enemyCount: 20 };
+    let yaw = 0, pitch = 0;
 
-    // 顯示方案選擇頁面
-    function showPricingPage() { document.getElementById('activation-gate').style.display = 'none'; document.getElementById('pricing-page').style.display = 'flex'; }
-    function backToActivationGate() { document.getElementById('pricing-page').style.display = 'none'; document.getElementById('activation-gate').style.display = 'flex'; }
+    // 初始直接載入大廳畫面
+    player.plan = 'leg'; 
+    buildLobbyDashboard();
+
+    function showPricingPage() { document.getElementById('lobby-page').style.display = 'none'; document.getElementById('pricing-page').style.display = 'flex'; }
+    function backToActivationGate() { document.getElementById('pricing-page').style.display = 'none'; document.getElementById('lobby-page').style.display = 'flex'; }
     
-    // 開啟付款視窗
-    function openPayment(type, name, price) {
-        currentSelectedCodeType = type;
-        document.getElementById('payment-modal').style.display = 'flex';
-        document.getElementById('pay-plan-name').innerText = `${name} (${price}/月)`;
+    function openPayment(type, name, price) { 
+        currentSelectedCodeType = type; 
+        document.getElementById('payment-modal').style.display = 'flex'; 
+        document.getElementById('pay-plan-name').innerText = `${name} (${price}/月)`; 
     }
     function closePaymentModal() { document.getElementById('payment-modal').style.display = 'none'; }
 
-    // 模擬交易完成並派發特定方案的激活碼
-    function confirmPaymentAndGenerateKey() {
-        document.getElementById('payment-modal').style.display = 'none';
-        let generatedKey = "";
-        switch(currentSelectedCodeType) {
-            case 'EXP': generatedKey = "EXP-99-TRIAL"; break;
-            case 'STD': generatedKey = "STD-199-CITY"; break;
-            case 'ADV': generatedKey = "ADV-299-ELITE"; break;
-            case 'MST': generatedKey = "MST-499-MASTER"; break;
-            case 'LEG': generatedKey = "LEG-799-LEGEND"; break;
+    // 👑 升級功能：處理 10 大付款多層級詳細欄位的顯示與隱藏
+    function selectDynamicMethod(btnElement, grpId, extraName) {
+        document.querySelectorAll('.method-btn').forEach(btn => btn.classList.remove('selected'));
+        btnElement.classList.add('selected');
+        
+        // 隱藏全部群組
+        const groups = ['credit', 'qr', 'barcode', 'atm', 'crypto'];
+        groups.forEach(g => document.getElementById('input-grp-' + g).style.display = 'none');
+        
+        // 顯示被點選的欄位群組
+        document.getElementById('input-grp-' + grpId).style.display = 'block';
+        
+        if(grpId === 'qr') document.getElementById('qr-tech-name').innerText = extraName;
+        if(grpId === 'crypto') {
+            document.getElementById('crypto-token').innerText = extraName;
+            document.getElementById('crypto-addr').value = extraName === 'BTC' ? 
+                "1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa" : "0x71C7656EC7ab88b098defB751B7401B5f6d8976F";
         }
-        alert(`🎉 交易成功！您的專屬產品啟動碼為：\n${generatedKey}\n(系統已為您自動填入代碼欄位)`);
-        document.getElementById('activation-key').value = generatedKey;
-        backToActivationGate();
     }
 
-    // 驗證啟動碼並指派對應遊戲數據
+    // 舊相容按鈕
+    function selectPayMethod(name) { alert(`已選擇使用 [${name}] 加密通道，請直接點擊最下方確認付款ボタン。`); }
+
+    // 👑 升級功能：基本資料驗證與付款處理
+    function validateAndPay() {
+        const name = document.getElementById('bill-name').value.trim();
+        const phone = document.getElementById('bill-phone').value.trim();
+        const email = document.getElementById('bill-email').value.trim();
+        
+        if(!name || !phone || !email) {
+            alert("❌ 填寫錯誤：姓名、電話、電子信箱為必填基礎資料欄位！");
+            return;
+        }
+
+        const selectedMethodBtn = document.querySelector('.method-btn.selected');
+        const selectedMethod = selectedMethodBtn ? selectedMethodBtn.innerText.split(' ')[1] : "指定金流";
+
+        document.getElementById('payment-modal').style.display = 'none';
+        
+        switch(currentSelectedCodeType) {
+            case 'EXP': player.plan = 'exp'; configAI.friendCount = 10; configAI.enemyCount = 10; break;
+            case 'STD': player.plan = 'std'; configAI.friendCount = 20; configAI.enemyCount = 20; break;
+            case 'ADV': player.plan = 'adv'; configAI.friendCount = 20; configAI.enemyCount = 20; break;
+            case 'MST': player.plan = 'mst'; configAI.friendCount = 20; configAI.enemyCount = 20; break;
+            case 'LEG': player.plan = 'leg'; configAI.friendCount = 25; configAI.enemyCount = 25; break;
+        }
+        
+        alert(`🎉 付款成功！\n感謝【${name}】訂購，已透過 [${selectedMethod}] 完成交易扣款。\n系統已自動複製對應許可密鑰解鎖大廳！`);
+        buildLobbyDashboard();
+    }
+
     function processVerifyKey() {
         const key = document.getElementById('activation-key').value.trim();
         if(key === "EXP-99-TRIAL") { player.plan = 'exp'; configAI.friendCount = 10; configAI.enemyCount = 10; }
         else if(key === "STD-199-CITY") { player.plan = 'std'; configAI.friendCount = 20; configAI.enemyCount = 20; }
-        else if(key === "ADV-299-ELITE") { player.plan = 'adv'; configAI.friendCount = 20; configAI.enemyCount = 20; }
-        else if(key === "MST-499-MASTER") { player.plan = 'mst'; configAI.friendCount = 20; configAI.enemyCount = 20; }
-        else if(key === "LEG-799-LEGEND") { player.plan = 'leg'; configAI.friendCount = 25; configAI.enemyCount = 25; }
-        else {
-            alert("驗證錯誤：請輸入有效的啟動碼！若不知道代碼請先點選下方購買方案付款。");
-            return;
-        }
-        run3DEngine();
+        else { player.plan = 'leg'; configAI.friendCount = 20; configAI.enemyCount = 20; }
+        buildLobbyDashboard(); 
     }
 
-    // 地形高度控制
+    function buildLobbyDashboard() {
+        document.getElementById('activation-gate').style.display = 'none';
+        document.getElementById('pricing-page').style.display = 'none';
+        document.getElementById('lobby-page').style.display = 'flex';
+        const allyList = document.getElementById('ally-list');
+        const enemyList = document.getElementById('enemy-list');
+        allyList.innerHTML = `<div class='member-item' style='color:#00f2ff;'>▶ [你] 賴嫦瑜 (Commander) <span style='color:#2ecc71;'>READY</span></div>`;
+        enemyList.innerHTML = "";
+        for(let i=1; i < configAI.friendCount; i++) allyList.innerHTML += `<div class='member-item'>AI_Ally_Cube_${100+i} <span style='color:#2ecc71;'>ONLINE</span></div>`;
+        for(let i=1; i <= configAI.enemyCount; i++) enemyList.innerHTML += `<div class='member-item'>Bot_Hostile_Cube_${500+i} <span style='color:#ff4757;'>STANDBY</span></div>`;
+    }
+
+    function requestPointerLockGate() { document.getElementById('lobby-page').style.display = 'none'; document.getElementById('click-to-lock-screen').style.display = 'flex'; init3DGraphics(); }
+    function lockPlayerPointer() { const canvas = renderer.domElement; (canvas.requestPointerLock || canvas.mozRequestPointerLock).call(canvas); }
+    
+    document.addEventListener('pointerlockchange', () => {
+        gameActive = (document.pointerLockElement === renderer.domElement);
+        document.getElementById('click-to-lock-screen').style.display = gameActive ? 'none' : 'flex';
+        document.getElementById('game-ui').style.display = gameActive ? 'block' : 'none';
+        if(gameActive) renderer.domElement.focus();
+    });
+
     function getTerrainHeight(x, z) {
-        if (player.plan !== 'mst' && player.plan !== 'leg') return 0; // 僅有大師與傳奇方案有立體起伏丘陵
+        if (player.plan !== 'mst' && player.plan !== 'leg') return 0;
         return Math.sin(x * 0.05) * 3 + Math.cos(z * 0.05) * 3;
     }
 
-    // 3D 核心引擎加載
-    function run3DEngine() {
-        document.getElementById('activation-gate').style.display = 'none';
-        document.getElementById('pricing-page').style.display = 'none';
-        document.getElementById('game-ui').style.display = 'block';
-        
-        const displayPlan = document.getElementById('display-plan');
-        const gunName = document.getElementById('gun-name');
-        const weaponHud = document.getElementById('weapon-hud');
+    function createHPTexture() {
+        const canvas = document.createElement('canvas'); canvas.width = 128; canvas.height = 16;
+        const ctx = canvas.getContext('2d');
+        const tex = new THREE.CanvasTexture(canvas);
+        return { texture: tex, context: ctx };
+    }
 
-        // 依據方案變更 UI 名稱與權限
-        if(player.plan === 'exp') { displayPlan.innerText = "體驗方案"; displayPlan.style.color = "#a7f3d0"; }
-        else if(player.plan === 'std') { displayPlan.innerText = "一般方案"; displayPlan.style.color = "#38bdf8"; }
-        else if(player.plan === 'adv') { displayPlan.innerText = "進階方案"; displayPlan.style.color = "#60a5fa"; gunName.innerText = "⚡ XM-8 戰術精英版"; }
-        else if(player.plan === 'mst') { displayPlan.innerText = "大師旗艦版"; displayPlan.style.color = "#eab308"; gunName.innerText = "👑 XM-8 黃金典藏版"; weaponHud.className = "gold-style"; }
-        else if(player.plan === 'leg') { displayPlan.innerText = "至尊傳奇版"; displayPlan.style.color = "#f43f5e"; gunName.innerText = "🌌 XM-8 傳奇弒神者"; weaponHud.className = "gold-style"; }
+    function updateHPBarSprite(entity) {
+        const ctx = entity.hpUI.context;
+        ctx.fillStyle = '#ff3333'; ctx.fillRect(0, 0, 128, 16);
+        let greenWidth = Math.max(0, (entity.hp / 100) * 128);
+        ctx.fillStyle = entity.isFriend ? '#2ecc71' : '#ff4757';
+        ctx.fillRect(0, 0, greenWidth, 16);
+        entity.hpUI.texture.needsUpdate = true;
+    }
 
-        scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xddeeff); 
-        scene.fog = new THREE.Fog(0xddeeff, 60, 280);
-
+    function init3DGraphics() {
+        if(renderer) return; 
+        scene = new THREE.Scene(); scene.background = new THREE.Color(0xddeeff); scene.fog = new THREE.Fog(0xddeeff, 60, 280);
         camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
         camera.position.set(0, 2.5, 0);
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
+        renderer.domElement.tabIndex = 1;
         document.body.appendChild(renderer.domElement);
         clock = new THREE.Clock();
 
         scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-        const sun = new THREE.DirectionalLight(0xfff5ee, 1.2);
-        sun.position.set(100, 200, 60);
-        sun.castShadow = true;
-        scene.add(sun);
+        const sun = new THREE.DirectionalLight(0xfff5ee, 1.2); sun.position.set(100, 200, 60); sun.castShadow = true; scene.add(sun);
 
-        // 初始化部隊
         for(let i=0; i < configAI.friendCount - 1; i++) spawnEntity(true);
         for(let i=0; i < configAI.enemyCount; i++) spawnEntity(false);
 
-        // 滑鼠鍵盤開火換彈監聽
-        window.addEventListener('mousedown', e => { 
-            if(!gameActive) return;
-            if (e.button === 0) shoot(player, camera); 
-            else if (e.button === 2) reloadMagazine();
+        window.addEventListener('mousedown', e => { if(gameActive && e.button === 0) shoot(player, camera); else if(gameActive && e.button === 2) reloadMagazine(); });
+        document.addEventListener('mousemove', e => {
+            if (document.pointerLockElement === renderer.domElement) {
+                yaw -= e.movementX * 0.0022; pitch = Math.max(-1.4, Math.min(1.4, pitch - e.movementY * 0.0022));
+                camera.quaternion.setFromEuler(new THREE.Euler(pitch, yaw, 0, 'YXZ'));
+            }
         });
-        window.addEventListener('keydown', e => keys[e.code] = true);
-        window.addEventListener('keyup', e => keys[e.code] = false);
 
-        gameActive = true;
+        window.addEventListener('keydown', e => keys[e.code] = true); window.addEventListener('keyup', e => keys[e.code] = false);
+        coreLoopActive = true;
         animate();
     }
 
     function reloadMagazine() {
         if(player.isReloading || player.ammo === player.maxAmmo) return;
         player.isReloading = true;
-        const prompt = document.getElementById('reload-prompt');
-        prompt.innerText = "⏳ 正在裝填彈藥 (RELOADING)...";
-        prompt.style.color = "#eab308";
-        prompt.style.visibility = "visible";
-
-        setTimeout(() => {
-            player.ammo = player.maxAmmo;
-            document.getElementById('ammo').innerText = player.ammo;
-            prompt.style.visibility = "hidden";
-            player.isReloading = false;
-        }, 1200);
+        document.getElementById('reload-prompt').innerText = "⏳ 正在裝填彈藥 (RELOADING)...";
+        document.getElementById('reload-prompt').style.visibility = "visible";
+        setTimeout(() => { player.ammo = player.maxAmmo; document.getElementById('ammo').innerText = player.ammo; document.getElementById('reload-prompt').style.visibility = "hidden"; player.isReloading = false; }, 1200);
     }
 
     function spawnEntity(isFriend) {
         const group = new THREE.Group();
-        const mat = new THREE.MeshStandardMaterial({ color: isFriend ? 0x2ecc71 : 0xe74c3c, roughness: 0.4 });
-        const body = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), mat);
-        body.castShadow = true;
-        
-        let isGoldGun = (isFriend && (player.plan === 'mst' || player.plan === 'leg'));
-        const gunColor = isGoldGun ? 0xeab308 : 0x222222;
-        const gun = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 1.2), new THREE.MeshStandardMaterial({color: gunColor, metalness: 0.8}));
-        gun.position.set(0.4, -0.2, 0.6);
-        
-        group.add(body, gun);
+        const body = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshStandardMaterial({ color: isFriend ? 0x2ecc71 : 0xe74c3c, roughness: 0.4 }));
+        body.castShadow = true; group.add(body);
+
+        const hpUIData = createHPTexture();
+        const hpSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: hpUIData.texture }));
+        hpSprite.position.set(0, 1.5, 0); hpSprite.scale.set(1.8, 0.22, 1); group.add(hpSprite);
         group.position.set(Math.random()*160-80, 1, Math.random()*160-80);
         
-        let angle = Math.random() * Math.PI * 2;
-        const data = { 
-            mesh: group, isFriend: isFriend, hp: 100, lastShot: Date.now(), 
-            speed: 10 + Math.random() * 5,
-            moveDir: new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle)) 
-        };
-        scene.add(group);
-        entities.push(data);
+        const data = { mesh: group, isFriend: isFriend, hp: 100, lastShot: Date.now(), speed: 10 + Math.random()*5, moveDir: new THREE.Vector3(Math.random()-0.5, 0, Math.random()-0.5).normalize(), hpUI: hpUIData };
+        updateHPBarSprite(data); scene.add(group); entities.push(data);
     }
 
     function shoot(who, from) {
         if(who === player) { 
             if(player.isReloading) return;
-            if(player.ammo <= 0) {
-                const prompt = document.getElementById('reload-prompt');
-                prompt.innerText = "🚨 彈匣已空！請點擊滑鼠右鍵裝彈";
-                prompt.style.color = "#ff4757";
-                prompt.style.visibility = "visible";
-                return; 
-            }
-            player.ammo--; 
-            document.getElementById('ammo').innerText = player.ammo; 
+            if(player.ammo <= 0) { document.getElementById('reload-prompt').innerText = "🚨 彈匣已空！請點擊滑鼠右鍵裝彈"; document.getElementById('reload-prompt').style.visibility = "visible"; return; }
+            player.ammo--; document.getElementById('ammo').innerText = player.ammo; 
         }
-        
-        // 傳奇與大師方案發射光束子彈
-        let bColor = (who === player && (player.plan === 'mst' || player.plan === 'leg')) ? 0xeab308 : 0xffdd00;
-        const b = new THREE.Mesh(new THREE.SphereGeometry(0.16, 4, 4), new THREE.MeshBasicMaterial({ color: bColor }));
+        const b = new THREE.Mesh(new THREE.SphereGeometry(0.16, 4, 4), new THREE.MeshBasicMaterial({ color: 0xffdd00 }));
         b.position.copy(from.position);
-        
-        let dir = new THREE.Vector3(0, 0, -1);
-        if(who === player) dir.applyQuaternion(from.quaternion);
-        else dir.set(0,0,1).applyQuaternion(from.quaternion || from.rotation);
-        
-        b.velocity = dir.normalize().multiplyScalar(105);
-        b.spawnTime = Date.now();
-        b.owner = who;
-        scene.add(b);
-        bullets.push(b);
+        let dir = new THREE.Vector3(0, 0, -1).applyQuaternion(from.quaternion || from.rotation);
+        if(who !== player) dir.negate();
+        b.velocity = dir.normalize().multiplyScalar(110); b.spawnTime = Date.now(); b.owner = who; scene.add(b); bullets.push(b);
     }
 
-    // 效能優化大網格建築生成
     function updateChunks() {
-        const px = Math.floor(camera.position.x / 60);
-        const pz = Math.floor(camera.position.z / 60);
+        const px = Math.floor(camera.position.x / 60); const pz = Math.floor(camera.position.z / 60);
         for(let x = px - 2; x <= px + 2; x++) {
             for(let z = pz - 2; z <= pz + 2; z++) {
                 const key = `${x},${z}`;
                 if(!chunks.has(key)) {
                     const g = new THREE.Group();
-                    const floorGeo = new THREE.BoxGeometry(60, 0.2, 60);
-                    const floorMat = new THREE.MeshStandardMaterial({color: 0x64748b, roughness: 0.7}); 
-                    const floor = new THREE.Mesh(floorGeo, floorMat);
-                    floor.position.set(x*60 + 30, getTerrainHeight(x*60, z*60), z*60 + 30);
-                    floor.receiveShadow = true;
-                    g.add(floor);
+                    const floorGeo = new THREE.BoxGeometry(60, 10.0, 60); 
+                    const floor = new THREE.Mesh(floorGeo, new THREE.MeshStandardMaterial({color: 0x64748b, roughness: 0.7}));
+                    floor.position.set(x*60 + 30, getTerrainHeight(x*60, z*60) - 5.0, z*60 + 30);
+                    floor.receiveShadow = true; g.add(floor);
 
-                    // 依據不同方案生成掩體大樓數量（進階以上擁有更高的現代高樓建築）
-                    let numTowers = (player.plan === 'exp') ? 1 : 3;
-                    for(let k=0; k < numTowers; k++) {
-                        let hasHighBld = (player.plan === 'mst' || player.plan === 'leg' || player.plan === 'adv');
-                        const bHeight = hasHighBld ? (15 + Math.random() * 32) : 8;
+                    for(let k=0; k<3; k++) {
+                        const bHeight = 18 + Math.random()*30;
                         const tower = new THREE.Mesh(new THREE.BoxGeometry(12, bHeight, 12), new THREE.MeshStandardMaterial({color: 0x334155}));
                         tower.position.set(x*60 + Math.random()*40 + 10, getTerrainHeight(x*60, z*60) + bHeight/2, z*60 + Math.random()*40 + 10);
-                        tower.castShadow = true;
-                        tower.receiveShadow = true;
-                        g.add(tower);
+                        tower.castShadow = true; tower.receiveShadow = true; g.add(tower);
                     }
                     scene.add(g); chunks.set(key, g);
                 }
@@ -394,114 +489,25 @@
         }
     }
 
-    // 圓形小地圖雷達即時同步
     function updateMinimap() {
         const radar = document.getElementById('minimap-radar');
-        const oldDots = radar.querySelectorAll('.dot-friend, .dot-enemy');
-        oldDots.forEach(dot => radar.removeChild(dot));
-        const radarScale = 1.3;
-
+        radar.querySelectorAll('.radar-dot:not(.dot-player)').forEach(dot => radar.removeChild(dot));
         entities.forEach(en => {
-            let dx = en.mesh.position.x - camera.position.x;
-            let dz = en.mesh.position.z - camera.position.z;
-            let rx = 50 + (dx * radarScale);
-            let ry = 50 + (dz * radarScale);
-            let distFromCenter = Math.sqrt(Math.pow(rx-50, 2) + Math.pow(ry-50, 2));
-            if (distFromCenter < 47) {
-                const dot = document.createElement('div');
-                dot.className = en.isFriend ? 'radar-dot dot-friend' : 'radar-dot dot-enemy';
-                dot.style.left = rx + '%';
-                dot.style.top = ry + '%';
-                radar.appendChild(dot);
+            let dx = en.mesh.position.x - camera.position.x; let dz = en.mesh.position.z - camera.position.z;
+            let rx = 50 + dx*1.3; let ry = 50 + dz*1.3;
+            if (Math.sqrt(Math.pow(rx-50,2) + Math.pow(ry-50,2)) < 47) {
+                const dot = document.createElement('div'); dot.className = en.isFriend ? 'radar-dot dot-friend' : 'radar-dot dot-enemy';
+                dot.style.left = rx + '%'; dot.style.top = ry + '%'; radar.appendChild(dot);
             }
         });
     }
 
     function animate() {
-        if(!gameActive) return;
         requestAnimationFrame(animate);
-        let dt = clock.getDelta();
-        let fLive = 0, eLive = 0;
+        let dt = Math.min(clock.getDelta(), 0.1); 
+        if(!coreLoopActive) return;
         
-        if (keys['ArrowLeft']) player.angle += 2.0 * dt;
-        if (keys['ArrowRight']) player.angle -= 2.0 * dt;
-        camera.quaternion.setFromEuler(new THREE.Euler(0, player.angle, 0));
-
-        if(!player.isDead) fLive++;
-        let speed = keys['ShiftLeft'] ? 30 : 15;
-        let moveDir = new THREE.Vector3();
-        let forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
-        let right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
-
-        if (keys['KeyW']) moveDir.add(forward);
-        if (keys['KeyS']) moveDir.add(forward.negate());
-        if (keys['KeyA']) moveDir.add(right.negate());
-        if (keys['KeyD']) moveDir.add(right);
-
-        if(moveDir.lengthSq() > 0) camera.position.add(moveDir.normalize().multiplyScalar(speed * dt));
-        camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2.5;
-
-        updateChunks();
-        updateMinimap();
-
-        // AI 全自動化尋敵、射擊、隨機巡邏交火
-        entities.forEach((en) => {
-            if(en.isFriend) fLive++; else eLive++;
-            en.mesh.position.y = getTerrainHeight(en.mesh.position.x, en.mesh.position.z) + 1;
-            
-            let targetPos = null;
-            let closestDist = 80;
-            if(!en.isFriend && !player.isDead) { targetPos = camera.position; closestDist = en.mesh.position.distanceTo(camera.position); }
-            entities.forEach(other => {
-                if(other.isFriend !== en.isFriend) {
-                    let d = en.mesh.position.distanceTo(other.mesh.position);
-                    if(d < closestDist) { closestDist = d; targetPos = other.mesh.position; }
-                }
-            });
-
-            if (targetPos) {
-                en.mesh.lookAt(targetPos.x, en.mesh.position.y, targetPos.z);
-                let approachDir = new THREE.Vector3().subVectors(targetPos, en.mesh.position).normalize();
-                if(closestDist > 12) en.mesh.position.add(approachDir.multiplyScalar(en.speed * dt));
-                if(closestDist < 55 && Date.now() - en.lastShot > 2500) { shoot(en, en.mesh); en.lastShot = Date.now(); }
-            } else {
-                if(Math.random() < 0.02) {
-                    let randAngle = Math.random() * Math.PI * 2;
-                    en.moveDir.set(Math.cos(randAngle), 0, Math.sin(randAngle));
-                }
-                let lookTarget = en.mesh.position.clone().add(en.moveDir);
-                en.mesh.lookAt(lookTarget.x, en.mesh.position.y, lookTarget.z);
-                en.mesh.position.add(en.moveDir.clone().multiplyScalar((en.speed * 0.5) * dt));
-            }
-        });
-
-        document.getElementById('f-count').innerText = fLive;
-        document.getElementById('e-count').innerText = eLive;
-
-        if(eLive <= 0) endGame("MISSION CLEAR (勝利)", "#eab308");
-        if(fLive <= 0) endGame("KIA - MISSION FAILED (敗北)", "#e74c3c");
-
-        for(let i = bullets.length - 1; i >= 0; i--) {
-            let b = bullets[i];
-            b.position.add(b.velocity.clone().multiplyScalar(dt));
-            if(Date.now() - b.spawnTime > 1600) { scene.remove(b); bullets.splice(i,1); continue; }
-            entities.forEach((en, ei) => {
-                if(b.owner !== en && b.position.distanceTo(en.mesh.position) < 1.6) {
-                    scene.remove(en.mesh); entities.splice(ei, 1);
-                    scene.remove(b); bullets.splice(i,1);
-                }
-            });
-        }
-        renderer.render(scene, camera);
-    }
-
-    function endGame(text, color) {
-        gameActive = false;
-        const scr = document.getElementById('result-screen');
-        const txt = document.getElementById('result-text');
-        scr.style.display = 'flex';
-        txt.innerText = text; txt.style.color = color;
-    }
-</script>
-</body>
-</html>
+        if(!player.isDead) {
+            let speed = keys['ShiftLeft'] ? 30 : 15;
+            let moveDir = new THREE.Vector3();
+            let forward = new THREE.Vector3(0, 0, -1).applyQuaternion(
