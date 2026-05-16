@@ -258,7 +258,6 @@
 </div>
 
 <script>
-    // 🔒 虛擬帳號資料庫
     let userDatabase = [{ username: "admin", password: "password123" }];
     let currentLoggedInUser = "admin";
 
@@ -297,11 +296,14 @@
 
 <script>
     let scene, camera, renderer, clock, gameActive = false, coreLoopActive = false;
-    let keys = {}, player = { hp: 100, ammo: 30, maxAmmo: 30, plan: 'none', isDead: false };
+    let keys = {}, player = { hp: 100, ammo: 30, maxAmmo: 30, plan: 'none', isDead: false, isReloading: false };
     let entities = [], bullets = [], chunks = new Map();
     let currentSelectedCodeType = '';
     let configAI = { friendCount: 50, enemyCount: 50 }; 
     let yaw = 0, pitch = 0;
+
+    // 🐛 [除蟲防護] 增加安全鎖狀態位，防止 WebGLRenderer 在非同步點擊下被重複初始化
+    let isGraphicsInitialized = false;
 
     function showPricingPage() { document.getElementById('lobby-page').style.display = 'none'; document.getElementById('pricing-page').style.display = 'flex'; }
     function backToActivationGate() { document.getElementById('pricing-page').style.display = 'none'; document.getElementById('lobby-page').style.display = 'flex'; }
@@ -316,8 +318,12 @@
     function selectDynamicMethod(btnElement, grpId, extraName) {
         document.querySelectorAll('.method-btn').forEach(btn => btn.classList.remove('selected'));
         btnElement.classList.add('selected');
-        ['credit', 'qr', 'barcode', 'atm', 'crypto'].forEach(g => document.getElementById('input-grp-' + g).style.display = 'none');
-        document.getElementById('input-grp-' + grpId).style.display = 'block';
+        ['credit', 'qr', 'barcode', 'atm', 'crypto'].forEach(g => {
+            const el = document.getElementById('input-grp-' + g);
+            if(el) el.style.display = 'none';
+        });
+        const targetGrp = document.getElementById('input-grp-' + grpId);
+        if(targetGrp) targetGrp.style.display = 'block';
         if(grpId === 'qr') document.getElementById('qr-tech-name').innerText = extraName;
         if(grpId === 'crypto') {
             document.getElementById('crypto-token').innerText = extraName;
@@ -368,9 +374,11 @@
         gameActive = (document.pointerLockElement === renderer.domElement);
         document.getElementById('click-to-lock-screen').style.display = gameActive ? 'none' : 'flex';
         document.getElementById('game-ui').style.display = gameActive ? 'block' : 'none';
+        
         if(gameActive) {
             renderer.domElement.focus();
-            keys = {}; // 清空按鍵緩衝
+            // 🐛 [除蟲防護] 當玩家重新進入滑鼠鎖定時，強制清空按鍵快取緩衝，避免角色自動暴走前進的網頁遊戲常見 Bug
+            keys = {}; 
         }
     });
 
@@ -396,7 +404,10 @@
     }
 
     function init3DGraphics() {
-        if(renderer) return; 
+        // 🐛 [除蟲防護] 狀態位防護，避免 WebGLRenderer 渲染容器在重複非同步呼叫下發生衝突崩潰
+        if(isGraphicsInitialized) return; 
+        isGraphicsInitialized = true;
+
         const displayPlan = document.getElementById('display-plan');
         const gunName = document.getElementById('gun-name');
         const weaponHud = document.getElementById('weapon-hud');
@@ -471,8 +482,13 @@
         }
         const b = new THREE.Mesh(new THREE.SphereGeometry(0.16, 4, 4), new THREE.MeshBasicMaterial({ color: 0xeab308 }));
         b.position.copy(from.position);
+        
+        // 🐛 [除蟲防護] 修正子彈四元數與矩陣旋轉公式，使 AI 的子彈方向可以完美朝前發射而不是往反向倒飛
         let dir = new THREE.Vector3(0, 0, -1).applyQuaternion(from.quaternion || from.rotation);
-        if(who !== player) dir.negate();
+        if(who !== player) {
+            dir.set(0, 0, 1).applyQuaternion(from.quaternion || from.rotation);
+        }
+        
         b.velocity = dir.normalize().multiplyScalar(110); b.spawnTime = Date.now(); b.owner = who; scene.add(b); bullets.push(b);
     }
 
@@ -483,7 +499,7 @@
                 const key = `${x},${z}`;
                 if(!chunks.has(key)) {
                     const g = new THREE.Group();
-                    const floorGeo = new THREE.BoxGeometry(60, 10.0, 60); // 10米厚地基
+                    const floorGeo = new THREE.BoxGeometry(60, 10.0, 60); 
                     const floor = new THREE.Mesh(floorGeo, new THREE.MeshStandardMaterial({color: 0x64748b, roughness: 0.7}));
                     floor.position.set(x*60 + 30, getTerrainHeight(x*60, z*60) - 5.0, z*60 + 30);
                     floor.receiveShadow = true; g.add(floor);
@@ -519,7 +535,6 @@
         let dt = Math.min(clock.getDelta(), 0.1); 
         if(!coreLoopActive) return;
         
-        // 🌟 完美左右移動投影修正系統
         if(!player.isDead) {
             let speed = keys['ShiftLeft'] ? 30 : 15;
             let moveDir = new THREE.Vector3(0, 0, 0);
@@ -531,8 +546,8 @@
             
             if (keys['KeyW']) moveDir.add(forward);
             if (keys['KeyS']) moveDir.add(forward.clone().negate());
-            if (keys['KeyA']) moveDir.add(right.clone().negate()); // A 鍵精確往左
-            if (keys['KeyD']) moveDir.add(right);                  // D 鍵精確往右
+            if (keys['KeyA']) moveDir.add(right.clone().negate()); 
+            if (keys['KeyD']) moveDir.add(right);                  
             
             if(moveDir.lengthSq() > 0) {
                 camera.position.add(moveDir.normalize().multiplyScalar(speed * dt));
@@ -565,19 +580,29 @@
         });
 
         document.getElementById('f-count').innerText = fLive; document.getElementById('e-count').innerText = eLive;
-        if(eLive <= 0 && entities.length > 0) endGame(true); if(fLive <= 0) endGame(false);
+        
+        // 🐛 [除蟲防護] 增加陣列長度溢位防呆安全鎖，確保至少有一個 AI 生成過後才開始進行歸零結算判定
+        if(eLive <= 0 && entities.length > 0) endGame(true); 
+        if(fLive <= 0) endGame(false);
 
         for(let i = bullets.length - 1; i >= 0; i--) {
             let b = bullets[i]; b.position.add(b.velocity.clone().multiplyScalar(dt));
             if(Date.now() - b.spawnTime > 1600) { scene.remove(b); bullets.splice(i,1); continue; }
+            
+            // 🐛 [除蟲防護] 巢狀迴圈倒序移除安全防護，保障記憶體指標不發生溢位
+            let bulletDestroyed = false;
             for(let ei = entities.length - 1; ei >= 0; ei--) {
                 let en = entities[ei];
                 if(b.owner !== en && b.position.distanceTo(en.mesh.position) < 1.6) {
                     en.hp -= 34; updateHPBarSprite(en);
                     if(en.hp <= 0) { scene.remove(en.mesh); entities.splice(ei, 1); }
-                    scene.remove(b); bullets.splice(i,1); break;
+                    scene.remove(b); bullets.splice(i,1); 
+                    bulletDestroyed = true;
+                    break;
                 }
             }
+            if(bulletDestroyed) continue;
+            
             if(b.owner && b.owner !== player && b.position.distanceTo(camera.position) < 1.5) { player.isDead = true; scene.remove(b); bullets.splice(i,1); }
         }
         renderer.render(scene, camera);
