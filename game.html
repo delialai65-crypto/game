@@ -56,7 +56,7 @@
         .member-item { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 8px; margin: 3px 0; background: rgba(255,255,255,0.02); border-radius: 4px; }
         
         .guide-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; width: 100%; padding: 12px; margin: 15px 0; box-sizing: border-box; }
-        .guide-title { color: #00f2ff; font-weight: bold; font-size: 14px; margin-bottom: 6px; text-align: left; }
+        .guide-title { color: #00f2ff; font-weight: bold; font-size: 14px; margin-bottom: 8px; text-align: left; }
         .guide-text { font-size: 12px; color: #cbd5e1; text-align: left; line-height: 1.6; margin: 0; }
 
         /* 鎖定滑鼠引導層 */
@@ -94,8 +94,8 @@
         <h2 style="color:#00f2ff; margin-top:0; letter-spacing: 3px;">DELTA CUBE</h2>
         <p style="font-size:12px; color:#64748b; margin-top:-10px; margin-bottom:20px;">戰區指揮官中央控制台登入</p>
         
-        <input type="text" id="login-user" placeholder="請輸入使用者帳號">
-        <input type="password" id="login-pass" placeholder="請輸入安全密碼">
+        <input type="text" id="login-user" placeholder="請輸入使用者帳號" value="admin">
+        <input type="password" id="login-pass" placeholder="請輸入安全密碼" value="password123">
         <button class="btn btn-primary" onclick="handleUserLogin()">授權登入</button>
         
         <span class="auth-switch" onclick="switchAuthView('register')">尚未擁有終端帳號？切換至建立註冊</span>
@@ -120,7 +120,7 @@
         <div class="game-marketing">
             <h2>🔥 究極方塊戰區：震撼感官！</h2>
             <div class="fun-grid">
-                <div class="fun-card"><h4>🌍 100個多維添加物件</h4><p>地圖大幅擴展！包含 50 棟動態摩天高樓群、100 人會戰、防穿模厚實路基技術，絕佳流暢體驗。</p></div>
+                <div class="fun-card"><h4>🌍 100個多維添加物件</h4><p>地圖大幅擴展！包含 50 棟動態摩天高樓群、100 人會戰、防穿模厚實路基技術，左右移動精確流暢。</p></div>
                 <div class="fun-card"><h4>📡 實時戰術圓形雷達 HUD</h4><p>完美移植新竹東區戰略圖！右下角高能圓形雷達，滿屏紅綠光點即時交火演繹。</p></div>
                 <div class="fun-card"><h4>🤖 100人大會戰智慧 AI</h4><p>兩軍總計高達 100 人！具備自主意識，全自動奔跑移動開火，頭頂動態光柵血條！</p></div>
             </div>
@@ -135,7 +135,7 @@
                 <button class="btn btn-primary">選擇一般</button>
             </div>
             <div class="plan-card" onclick="openPayment('ADV', '進階方案', '$299')">
-                <div><h3>進階方案</h3><div class="price">$299</div><ul class="features"><li>• 60人 精英突擊模式</li><li>• 戰術精英版槍枝</li></ul></div>
+                <div><h3>進階方案</h3><div class="price">$299</div><ul class="features"><li>• 60人 精英模式</li><li>• 戰術精英版槍枝</li></ul></div>
                 <button class="btn btn-primary">選擇進階</button>
             </div>
             <div class="plan-card gold-border" onclick="openPayment('MST', '大師方案', '$499')">
@@ -163,7 +163,7 @@
                 <div class="field-title">真實姓名 *</div>
                 <input type="text" id="bill-name" placeholder="請輸入姓名" value="賴嫦瑜">
                 <div class="field-title">聯絡電話 *</div>
-                <input type="text" id="bill-phone" placeholder="例如：0912345678">
+                <input type="text" id="bill-phone" placeholder="例如：0912345678" value="0911222333">
                 <div class="field-title">電子信箱 *</div>
                 <input type="email" id="bill-email" placeholder="username@gmail.com" value="changyu@gmail.com">
                 <div class="field-title">發票形式</div>
@@ -222,11 +222,11 @@
         <h2 style="color:#00f2ff; text-shadow:0 0 10px #00f2ff; margin:0;">BATTLEZONE COMMAND CENTER</h2>
         <div class="roster-section">
             <div class="roster-column ally-col"><div class="roster-title" style="color:#2ecc71;">👥 我方突擊大隊 (<span id="lobby-f-max">50</span>人)</div><div id="ally-list"></div></div>
-            <div class="roster-column enemy-col"><div class="roster-title" style="color:#ff4757;">💀 紅區敵對大隊 (<span id="lobby-e-max">50</span>人)</div><div id="enemy-list"></div></div>
+            <div class="roster-column enemy-col"><div class="roster-title" style="color:#ff4757;">💀 紅區敵對者 (<span id="lobby-e-max">50</span>人)</div><div id="enemy-list"></div></div>
         </div>
         <div class="guide-box">
-            <div class="guide-title">⚙️ 戰區作戰說明與情報 (100人大會戰版本)</div>
-            <p class="guide-text">💡 <b>請切換至英文半形輸入法！</b> W/A/S/D 前後左右移動，滑鼠移動旋轉3D視角。左鍵射擊，右鍵裝彈。</p>
+            <div class="guide-title">⚙️ 戰區作戰說明與情報 (已更新左右精確平移移動公式)</div>
+            <p class="guide-text">💡 <b>請切換至英文半形輸入法！</b> W/A/S/D 控制前後左右位移，滑鼠移動旋轉3D視角。左鍵射擊，右鍵裝彈。</p>
         </div>
         <button class="btn btn-gold" style="font-size:16px; padding:12px; width:60%;" onclick="requestPointerLockGate()">⚡ 開始部署，突入大戰區 ⚡</button>
     </div>
@@ -258,8 +258,9 @@
 </div>
 
 <script>
+    // 🔒 虛擬帳號資料庫
     let userDatabase = [{ username: "admin", password: "password123" }];
-    let currentLoggedInUser = "Player1";
+    let currentLoggedInUser = "admin";
 
     function switchAuthView(view) {
         document.getElementById('login-gate').style.display = view === 'login' ? 'flex' : 'none';
@@ -299,7 +300,7 @@
     let keys = {}, player = { hp: 100, ammo: 30, maxAmmo: 30, plan: 'none', isDead: false };
     let entities = [], bullets = [], chunks = new Map();
     let currentSelectedCodeType = '';
-    let configAI = { friendCount: 50, enemyCount: 50 }; // 🌟 100人大會戰配置添加
+    let configAI = { friendCount: 50, enemyCount: 50 }; 
     let yaw = 0, pitch = 0;
 
     function showPricingPage() { document.getElementById('lobby-page').style.display = 'none'; document.getElementById('pricing-page').style.display = 'flex'; }
@@ -324,8 +325,6 @@
         }
     }
 
-    function selectPayMethod(name) { alert(`已選擇使用 [${name}] 通道。`); }
-
     function validateAndPay() {
         const name = document.getElementById('bill-name').value.trim();
         const phone = document.getElementById('bill-phone').value.trim();
@@ -340,13 +339,12 @@
             case 'STD': player.plan = 'std'; configAI.friendCount = 20; configAI.enemyCount = 20; break;
             case 'ADV': player.plan = 'adv'; configAI.friendCount = 30; configAI.enemyCount = 30; break;
             case 'MST': player.plan = 'mst'; configAI.friendCount = 40; configAI.enemyCount = 40; break;
-            case 'LEG': player.plan = 'leg'; configAI.friendCount = 50; configAI.enemyCount = 50; break; // 🌟 滿載 100 人
+            case 'LEG': player.plan = 'leg'; configAI.friendCount = 50; configAI.enemyCount = 50; break; 
         }
-        alert(`🎉 付款完成！感謝【${name}】購買。\n已透過 [${selectedMethod}] 完成扣款結算，自動解鎖戰術指揮所權限。`);
+        alert(`🎉 付款完成！感謝【${name}】購買。\n已透過 [${selectedMethod}] 完成扣款，自動解鎖戰術指揮所。`);
         buildLobbyDashboard();
     }
 
-    // 🌟 100人名單添加渲染技術
     function buildLobbyDashboard() {
         document.getElementById('pricing-page').style.display = 'none';
         document.getElementById('lobby-page').style.display = 'flex';
@@ -359,19 +357,21 @@
         allyList.innerHTML = `<div class='member-item' style='color:#00f2ff;'>▶ [你] ${currentLoggedInUser} (Commander) <span style='color:#2ecc71;'>READY</span></div>`;
         enemyList.innerHTML = "";
         
-        // 循環添加 100 個隊員資料到名單中
         for(let i=1; i < configAI.friendCount; i++) allyList.innerHTML += `<div class='member-item'>AI_Ally_Cube_${100+i} <span style='color:#2ecc71;'>ONLINE</span></div>`;
         for(let i=1; i <= configAI.enemyCount; i++) enemyList.innerHTML += `<div class='member-item'>Bot_Hostile_Cube_${500+i} <span style='color:#ff4757;'>STANDBY</span></div>`;
     }
 
     function requestPointerLockGate() { document.getElementById('lobby-page').style.display = 'none'; document.getElementById('click-to-lock-screen').style.display = 'flex'; init3DGraphics(); }
-    function lockPlayerPointer() { const canvas = renderer.domElement; (canvas.requestPointerLock || canvas.requestPointerLock).call(canvas); }
+    function lockPlayerPointer() { const canvas = renderer.domElement; (canvas.requestPointerLock || canvas.mozRequestPointerLock).call(canvas); }
     
     document.addEventListener('pointerlockchange', () => {
         gameActive = (document.pointerLockElement === renderer.domElement);
         document.getElementById('click-to-lock-screen').style.display = gameActive ? 'none' : 'flex';
         document.getElementById('game-ui').style.display = gameActive ? 'block' : 'none';
-        if(gameActive) renderer.domElement.focus();
+        if(gameActive) {
+            renderer.domElement.focus();
+            keys = {}; // 清空按鍵緩衝
+        }
     });
 
     function getTerrainHeight(x, z) {
@@ -421,7 +421,6 @@
         scene.add(new THREE.AmbientLight(0xffffff, 0.6));
         const sun = new THREE.DirectionalLight(0xfff5ee, 1.2); sun.position.set(100, 200, 60); sun.castShadow = true; scene.add(sun);
 
-        // 🌟 100 名實時作戰電腦人生成添加
         for(let i=0; i < configAI.friendCount - 1; i++) spawnEntity(true);
         for(let i=0; i < configAI.enemyCount; i++) spawnEntity(false);
 
@@ -455,8 +454,10 @@
         const hpSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: hpUIData.texture }));
         hpSprite.position.set(0, 1.5, 0); hpSprite.scale.set(1.8, 0.22, 1); group.add(hpSprite);
         
-        // 100人戰場，稍微擴大分散半徑（260x260）防止出生重疊
-        group.position.set(Math.random()*260-130, 1, Math.random()*260-130);
+        const gun = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 1.2), new THREE.MeshStandardMaterial({color: 0xeab308, metalness: 0.8})); 
+        gun.position.set(0.4, -0.2, 0.6); group.add(gun);
+
+        group.position.set(Math.random()*240-120, 1, Math.random()*240-120);
         
         const data = { mesh: group, isFriend: isFriend, hp: 100, lastShot: Date.now(), speed: 10 + Math.random()*5, moveDir: new THREE.Vector3(Math.random()-0.5, 0, Math.random()-0.5).normalize(), hpUI: hpUIData };
         updateHPBarSprite(data); scene.add(group); entities.push(data);
@@ -468,14 +469,13 @@
             if(player.ammo <= 0) { document.getElementById('reload-prompt').innerText = "🚨 彈匣已空！請點擊滑鼠右鍵裝彈"; document.getElementById('reload-prompt').style.visibility = "visible"; return; }
             player.ammo--; document.getElementById('ammo').innerText = player.ammo; 
         }
-        const b = new THREE.Mesh(new THREE.SphereGeometry(0.16, 4, 4), new THREE.MeshBasicMaterial({ color: 0xffdd00 }));
+        const b = new THREE.Mesh(new THREE.SphereGeometry(0.16, 4, 4), new THREE.MeshBasicMaterial({ color: 0xeab308 }));
         b.position.copy(from.position);
         let dir = new THREE.Vector3(0, 0, -1).applyQuaternion(from.quaternion || from.rotation);
         if(who !== player) dir.negate();
         b.velocity = dir.normalize().multiplyScalar(110); b.spawnTime = Date.now(); b.owner = who; scene.add(b); bullets.push(b);
     }
 
-    // 🌟 50 棟掩體摩天大樓隨機刷新添加
     function updateChunks() {
         const px = Math.floor(camera.position.x / 60); const pz = Math.floor(camera.position.z / 60);
         for(let x = px - 2; x <= px + 2; x++) {
@@ -483,16 +483,15 @@
                 const key = `${x},${z}`;
                 if(!chunks.has(key)) {
                     const g = new THREE.Group();
-                    const floorGeo = new THREE.BoxGeometry(60, 10.0, 60); 
+                    const floorGeo = new THREE.BoxGeometry(60, 10.0, 60); // 10米厚地基
                     const floor = new THREE.Mesh(floorGeo, new THREE.MeshStandardMaterial({color: 0x64748b, roughness: 0.7}));
                     floor.position.set(x*60 + 30, getTerrainHeight(x*60, z*60) - 5.0, z*60 + 30);
                     floor.receiveShadow = true; g.add(floor);
 
-                    // 提高單個區塊生成的大樓密度，在無限空間中形成總計超過 50 棟大樓的城市景觀
                     let bldDensity = (player.plan === 'mst' || player.plan === 'leg' || player.plan === 'adv') ? 6 : 2;
                     for(let k=0; k < bldDensity; k++) {
-                        const bHeight = 18 + Math.random()*35; // 高聳立體結構
-                        const tower = new THREE.Mesh(new THREE.BoxGeometry(10, bHeight, 10), new THREE.MeshStandardMaterial({color: 0x334155}));
+                        const bHeight = 18 + Math.random()*35;
+                        const tower = new THREE.Mesh(new THREE.BoxGeometry(12, bHeight, 12), new THREE.MeshStandardMaterial({color: 0x334155}));
                         tower.position.set(x*60 + Math.random()*40 + 10, getTerrainHeight(x*60, z*60) + bHeight/2, z*60 + Math.random()*40 + 10);
                         tower.castShadow = true; tower.receiveShadow = true; g.add(tower);
                     }
@@ -507,7 +506,7 @@
         radar.querySelectorAll('.radar-dot:not(.dot-player)').forEach(dot => radar.removeChild(dot));
         entities.forEach(en => {
             let dx = en.mesh.position.x - camera.position.x; let dz = en.mesh.position.z - camera.position.z;
-            let rx = 50 + dx*0.7; let ry = 50 + dz*0.7; // 100人大地圖，稍微調小雷達點位間距比例
+            let rx = 50 + dx*0.7; let ry = 50 + dz*0.7;
             if (Math.sqrt(Math.pow(rx-50,2) + Math.pow(ry-50,2)) < 47) {
                 const dot = document.createElement('div'); dot.className = en.isFriend ? 'radar-dot dot-friend' : 'radar-dot dot-enemy';
                 dot.style.left = rx + '%'; dot.style.top = ry + '%'; radar.appendChild(dot);
@@ -520,14 +519,24 @@
         let dt = Math.min(clock.getDelta(), 0.1); 
         if(!coreLoopActive) return;
         
+        // 🌟 完美左右移動投影修正系統
         if(!player.isDead) {
             let speed = keys['ShiftLeft'] ? 30 : 15;
-            let moveDir = new THREE.Vector3();
-            let forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion); forward.y = 0;
-            let right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion); right.y = 0;
-            if (keys['KeyW']) moveDir.add(forward); if (keys['KeyS']) moveDir.add(forward.negate());
-            if (keys['KeyA']) moveDir.add(right.negate()); if (keys['KeyD']) moveDir.add(right);
-            if(moveDir.lengthSq() > 0) camera.position.add(moveDir.normalize().multiplyScalar(speed * dt));
+            let moveDir = new THREE.Vector3(0, 0, 0);
+            
+            let forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+            forward.y = 0; forward.normalize();
+            
+            let right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
+            
+            if (keys['KeyW']) moveDir.add(forward);
+            if (keys['KeyS']) moveDir.add(forward.clone().negate());
+            if (keys['KeyA']) moveDir.add(right.clone().negate()); // A 鍵精確往左
+            if (keys['KeyD']) moveDir.add(right);                  // D 鍵精確往右
+            
+            if(moveDir.lengthSq() > 0) {
+                camera.position.add(moveDir.normalize().multiplyScalar(speed * dt));
+            }
             camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2.5; 
         }
 
@@ -539,7 +548,7 @@
         entities.forEach((en) => {
             if(en.isFriend) fLive++; else eLive++;
             en.mesh.position.y = getTerrainHeight(en.mesh.position.x, en.mesh.position.z) + 1.0;
-            let targetPos = null; let closestDist = 120; // 擴大電腦索敵視野
+            let targetPos = null; let closestDist = 120;
             if(!en.isFriend && !player.isDead) { targetPos = camera.position; closestDist = en.mesh.position.distanceTo(camera.position); }
             entities.forEach(other => { if(other.isFriend !== en.isFriend) { let d = en.mesh.position.distanceTo(other.mesh.position); if(d < closestDist) { closestDist = d; targetPos = other.mesh.position; } } });
 
@@ -577,8 +586,9 @@
     function endGame(isWin) {
         gameActive = false; coreLoopActive = false; document.exitPointerLock();
         const scr = document.getElementById('result-screen'); scr.style.display = 'flex';
-        document.getElementById('result-title-text').className = isWin ? "result-title-win" : "result-title-lose";
-        document.getElementById('result-title-text').innerText = isWin ? "🏆 我方突擊隊大獲全勝！" : "💀 戰區失守，作戰失敗！";
+        const title = document.getElementById('result-title-text');
+        title.style.color = isWin ? "#ffca28" : "#ff3333";
+        title.innerText = isWin ? "🏆 我方突擊隊大獲全勝！" : "💀 戰區失守，作戰失敗！";
         document.getElementById('result-detail-text').innerText = isWin ? "新竹東區防禦線守護成功。" : "指揮中心遭到敵軍攻破。";
     }
 </script>
