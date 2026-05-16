@@ -1,191 +1,286 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8"><title>Delta Cube: Battlezone Terrain Evolution</title>
+    <meta charset="UTF-8"><title>Delta Cube: Hsinchu East Battlezone</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #000; font-family: 'Segoe UI', sans-serif; color: #fff; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; z-index: 5000; background: linear-gradient(135deg, #0f2027, #203a43); }
-        .auth-box { background: rgba(0,0,0,0.9); padding: 30px; border-radius: 15px; border: 1px solid #4facfe; width: 400px; text-align: center; box-shadow: 0 0 30px rgba(79,172,254,0.3); }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #050b14; font-family: 'Segoe UI', sans-serif; color: #fff; }
         
-        /* UI 介面 */
-        .auth-tab-bar { display: flex; margin-bottom: 20px; border-bottom: 1px solid #333; }
-        .auth-tab { flex: 1; padding: 10px; cursor: pointer; color: #777; transition: 0.3s; }
-        .auth-tab.active { color: #4facfe; border-bottom: 2px solid #4facfe; font-weight: bold; }
-        input { width: 90%; padding: 12px; margin: 8px 0; background: #111; color: #fff; border: 1px solid #333; border-radius: 5px; }
-        .btn { width: 100%; padding: 12px; cursor: pointer; border: none; font-weight: bold; margin-top: 10px; border-radius: 5px; transition: 0.3s; }
-        .btn-primary { background: #4facfe; color: #fff; }
-        .btn-gold { background: #ffca28; color: #000; }
+        /* 登入與方案整合牆 */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 5000; background: linear-gradient(135deg, #0f172a, #020617); overflow-y: auto; padding: 20px; box-sizing: border-box; }
+        .auth-box { background: rgba(15, 23, 42, 0.85); padding: 30px; border-radius: 16px; border: 1px solid #00f2ff; width: 360px; text-align: center; box-shadow: 0 0 30px rgba(0,242,255,0.25); margin-bottom: 20px; backdrop-filter: blur(10px); }
         
-        /* 支付管道 */
-        .pay-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .pay-item { background: #222; padding: 10px; border-radius: 5px; cursor: pointer; border: 1px solid #444; font-size: 11px; }
-        .pay-item:hover { background: #4facfe; border-color: #fff; }
+        /* 頂部遊戲好玩特色 */
+        .game-highlights { max-width: 800px; text-align: center; margin-bottom: 20px; }
+        .game-highlights h2 { color: #00f2ff; font-size: 26px; text-shadow: 0 0 10px rgba(0, 242, 255, 0.5); margin-bottom: 15px; }
+        .hl-grid { display: flex; gap: 15px; }
+        .hl-card { flex: 1; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); padding: 15px; border-radius: 10px; font-size: 12px; }
+        .hl-card h4 { margin: 5px 0; color: #fff; }
+        .hl-card p { color: #94a3b8; margin: 0; line-height: 1.5; }
 
-        /* 遊戲 HUD */
+        /* 方案卡片排版 */
+        .plan-container { display: flex; gap: 15px; width: 100%; margin: 15px 0; }
+        .plan-choice { flex: 1; background: rgba(0,0,0,0.4); border: 1px solid #38bdf8; padding: 15px; border-radius: 10px; cursor: pointer; transition: 0.2s; position: relative; }
+        .plan-choice:hover { background: rgba(56, 189, 248, 0.1); transform: translateY(-2px); }
+        .plan-choice.master-plan { border-color: #eab308; }
+        .plan-choice.master-plan:hover { background: rgba(234, 179, 8, 0.1); }
+        .tag { position: absolute; top: -10px; right: 10px; background: #eab308; color: #000; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; }
+
+        input { width: 100%; padding: 10px; margin: 8px 0; background: #0f172a; color: #fff; border: 1px solid #334155; border-radius: 6px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 12px; cursor: pointer; border: none; font-weight: bold; margin-top: 8px; border-radius: 6px; text-transform: uppercase; transition: 0.2s; }
+        .btn-primary { background: #38bdf8; color: #fff; }
+        .btn-primary:hover { background: #0ea5e9; box-shadow: 0 0 15px rgba(56,189,248,0.4); }
+
+        /* 實時戰場 HUD */
         #game-ui { position: fixed; top: 0; width: 100%; height: 100%; pointer-events: none; display: none; z-index: 100; }
-        nav { background: rgba(0,0,0,0.6); padding: 15px; display: flex; justify-content: space-between; border-bottom: 2px solid #4facfe; backdrop-filter: blur(5px); }
-        #weapon-hud { position: fixed; bottom: 30px; right: 30px; background: rgba(0,0,0,0.8); padding: 20px; border-radius: 10px; border-left: 5px solid #ffca28; }
+        nav { padding: 15px 20px; display: flex; justify-content: space-between; background: rgba(15,23,42,0.6); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold; font-size: 14px; }
+        #weapon-hud { position: fixed; bottom: 30px; left: 30px; background: rgba(15,23,42,0.85); padding: 15px 25px; border-radius: 12px; border-left: 5px solid #38bdf8; backdrop-filter: blur(5px); }
+        #weapon-hud.gold-style { border-left-color: #eab308; color: #eab308; }
+
+        /* 右下角圓形戰術小地圖 */
+        #minimap-container { position: fixed; bottom: 30px; right: 30px; width: 170px; height: 170px; border-radius: 50%; border: 3px solid #00f2ff; background: rgba(2, 6, 23, 0.9); box-shadow: 0 0 20px rgba(0, 242, 255, 0.3); overflow: hidden; }
+        #minimap-radar { width: 100%; height: 100%; position: relative; }
+        .radar-dot { position: absolute; width: 6px; height: 6px; border-radius: 50%; transform: translate(-50%, -50%); }
+        .dot-player { background: #00f2ff; box-shadow: 0 0 8px #00f2ff; width: 8px; height: 8px; z-index: 10; }
+        .dot-friend { background: #2ecc71; box-shadow: 0 0 4px #2ecc71; }
+        .dot-enemy { background: #e74c3c; box-shadow: 0 0 6px #e74c3c; }
+
+        #result-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; background: rgba(2,6,23,0.95); }
     </style>
 </head>
 <body>
 
-<!-- 1. 登入與註冊 -->
-<div id="page-auth" class="overlay">
-    <div class="auth-box">
-        <h1 style="color:#4facfe; margin:0 0 10px 0; letter-spacing:3px;">DELTA CUBE</h1>
-        <div class="auth-tab-bar">
-            <div id="tab-login" class="auth-tab active" onclick="switchAuth('login')">登入帳號</div>
-            <div id="tab-register" class="auth-tab" onclick="switchAuth('register')">快速註冊</div>
+<div id="welcome-gate" class="overlay">
+    <div class="game-highlights">
+        <h2>🔥 DELTA CUBE: 新竹東區戰區</h2>
+        <div class="hl-grid">
+            <div class="hl-card"><h4>🌍 無限延伸戰區</h4><p>採用全新大網格技術，地圖隨步伐無限生成，極致流暢不卡頓。</p></div>
+            <div class="hl-card"><h4>📡 圓形戰術雷達</h4><p>右下角即時雷達偵測，完美還原宣傳圖，綠點友軍與紅點敵軍動態一目了然。</p></div>
+            <div class="hl-card"><h4>🤖 電腦全自動開火</h4><p>40名 AI 電腦人全自動瘋狂奔跑、尋找大樓掩體並激烈交火，戰場感拉满！</p></div>
         </div>
-        <input type="text" id="user" placeholder="帳號名稱">
-        <input type="password" id="pass" placeholder="密碼">
-        <input type="password" id="pass-confirm" placeholder="確認密碼" style="display:none">
-        <button id="auth-btn" class="btn btn-primary" onclick="handleAuth()">進入系統</button>
     </div>
-</div>
 
-<!-- 2. 啟動碼驗證 -->
-<div id="page-activation" class="overlay" style="display:none">
     <div class="auth-box">
-        <h3>授權驗證</h3>
-        <input type="text" id="activation-key" placeholder="輸入啟動碼 (STD-123 或 MST-999)">
-        <button class="btn btn-primary" onclick="verifyKey()">確認啟動</button>
-        <button class="btn btn-gold" onclick="showPricing()">我不知道啟動碼 (前往購買)</button>
-    </div>
-</div>
-
-<!-- 3. 方案選擇 -->
-<div id="page-pricing" class="overlay" style="display:none">
-    <div class="auth-box" style="width:450px;">
-        <h3>選擇訂閱方案</h3>
-        <div style="display:flex; gap:10px;">
-            <div style="flex:1; background:#1a1a1a; padding:15px; border-radius:10px; border:1px solid #4facfe;">
-                <h4>一般方案</h4>
-                <p style="font-size:20px;">$199</p>
-                <button class="btn btn-primary" onclick="showPayment('STD')">選擇</button>
+        <h3 style="margin-top: 0; color:#38bdf8;">系統授權登入</h3>
+        <input type="text" id="username" placeholder="請輸入使用者帳號" value="Player1">
+        <input type="password" id="password" placeholder="請輸入密碼" value="123456">
+        
+        <p style="font-size: 12px; color:#94a3b8; margin: 15px 0 5px 0; text-align: left;">請選擇您的訂閱方案（點擊將自動配置激活碼）：</p>
+        <div class="plan-container">
+            <div class="plan-choice" onclick="selectPlan('STD')">
+                <b style="color:#38bdf8;">一般方案</b><br><span style="font-size:11px; color:#aaa;">$199/月<br>平坦都市/標準槍</span>
             </div>
-            <div style="flex:1; background:#1a1a1a; padding:15px; border-radius:10px; border:1px solid #ffca28;">
-                <h4 style="color:#ffca28">大師方案</h4>
-                <p style="font-size:20px;">$499</p>
-                <button class="btn btn-gold" onclick="showPayment('MST')">選擇</button>
+            <div class="plan-choice master-plan" onclick="selectPlan('MST')">
+                <div class="tag">推薦</div>
+                <b style="color:#eab308;">大師方案</b><br><span style="font-size:11px; color:#aaa;">$499/月<br>起伏地形/黃金槍</span>
             </div>
         </div>
+
+        <input type="text" id="activation-key" placeholder="激活金鑰 (選擇方案後自動填入)">
+        <button class="btn btn-primary" onclick="processStart()">驗證並部署至戰區</button>
     </div>
 </div>
 
-<!-- 4. 10 種支付管道 -->
-<div id="page-payment" class="overlay" style="display:none">
-    <div class="auth-box">
-        <h3>選擇支付管道</h3>
-        <div class="pay-grid">
-            <div class="pay-item" onclick="openGate('VISA')">💳 信用卡</div>
-            <div class="pay-item" onclick="openGate('PayPal')">🅿️ PayPal</div>
-            <div class="pay-item" onclick="openGate('LINE Pay')">🟢 LINE Pay</div>
-            <div class="pay-item" onclick="openGate('Apple')">🍎 Apple Pay</div>
-            <div class="pay-item" onclick="openGate('Google')">🔍 Google Pay</div>
-            <div class="pay-item" onclick="openGate('BTC')">₿ 比特幣</div>
-            <div class="pay-item" onclick="openGate('AliPay')">🔵 支付寶</div>
-            <div class="pay-item" onclick="openGate('WeChat')">🟢 微信支付</div>
-            <div class="pay-item" onclick="openGate('Bank')">🏦 銀行轉帳</div>
-            <div class="pay-item" onclick="openGate('Steam')">🎮 Steam</div>
-        </div>
-    </div>
-</div>
-
-<!-- 5. 支付授權 -->
-<div id="page-gate" class="overlay" style="display:none">
-    <div class="auth-box">
-        <h2 id="gate-name">授權中</h2>
-        <input type="text" id="p-user" placeholder="支付帳號">
-        <input type="password" id="p-pass" placeholder="支付密碼">
-        <button class="btn btn-gold" onclick="finalizePayment()">確認付款</button>
-    </div>
-</div>
-
-<!-- 6. 遊戲 HUD -->
 <div id="game-ui">
     <nav>
-        <div>GPS: ACTIVE | 高度: <span id="alt">0</span>m</div>
-        <div>PLAN: <span id="ui-plan" style="color:#ffca28">None</span></div>
+        <div>East District, Hsinchu City | 授權級別: <span id="display-plan">None</span></div>
+        <div>👥 友軍生存: <span id="f-count">20</span> | 💀 敵軍生存: <span id="e-count">20</span></div>
     </nav>
     <div id="weapon-hud">
-        <div id="gun-name" style="font-size:14px; color:#aaa;">STANDARD XM-8</div>
-        <div style="font-size:32px; font-weight:bold;">AMMO: <span id="ammo">30</span></div>
+        <div id="gun-name" style="font-size: 16px; font-weight: bold;">XM-8 ADVANCED</div>
+        <div style="font-size: 32px; font-weight: bold; margin-top:5px;">AMMO: <span id="ammo">30</span></div>
+        <div style="font-size: 11px; color:#aaa; margin-top:5px;">操作說明: W/A/S/D 移動 | ← / → 旋轉視角 | 滑鼠左鍵開火</div>
     </div>
-    <div style="position:absolute; top:50%; left:50%; width:20px; height:20px; border:2px solid red; transform:translate(-50%,-50%); border-radius:50%; opacity:0.6;"></div>
+    
+    <div id="minimap-container">
+        <div id="minimap-radar">
+            <div class="radar-dot dot-player" style="top:50%; left:50%;"></div>
+        </div>
+    </div>
+</div>
+
+<div id="result-screen">
+    <h1 id="result-text" style="font-size:60px; margin-bottom:20px;"></h1>
+    <button class="btn btn-primary" style="width:220px;" onclick="location.reload()">重新初始化系統</button>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
 <script>
     let scene, camera, renderer, clock, gameActive = false;
-    let player = { plan: 'none', ammo: 30 };
-    let entities = [], chunks = new Map(), keys = {};
-    let selectedPlan = "";
+    let keys = {}, player = { ammo: 30, plan: 'none', angle: 0 };
+    let entities = [], bullets = [], chunks = new Map();
 
-    // UI 邏輯
-    function switchAuth(mode) {
-        document.getElementById('tab-login').classList.toggle('active', mode === 'login');
-        document.getElementById('tab-register').classList.toggle('active', mode === 'register');
-        document.getElementById('pass-confirm').style.display = mode === 'register' ? 'block' : 'none';
-    }
-    function handleAuth() { hideAll(); document.getElementById('page-activation').style.display = 'flex'; }
-    function showPricing() { hideAll(); document.getElementById('page-pricing').style.display = 'flex'; }
-    function showPayment(p) { selectedPlan = p; hideAll(); document.getElementById('page-payment').style.display = 'flex'; }
-    function openGate(n) { hideAll(); document.getElementById('page-gate').style.display = 'flex'; document.getElementById('gate-name').innerText = n + " 授權"; }
-    function finalizePayment() {
-        if(!document.getElementById('p-user').value || !document.getElementById('p-pass').value) return alert("請填寫支付帳密");
-        let k = selectedPlan === 'MST' ? "MST-999" : "STD-123";
-        alert("付款成功！啟動碼: " + k);
-        hideAll(); document.getElementById('page-activation').style.display = 'flex';
-    }
-    function verifyKey() {
-        const k = document.getElementById('activation-key').value;
-        if(k === "STD-123" || k === "MST-999") {
-            player.plan = k === "MST-999" ? "大師" : "一般";
-            startEngine();
-        } else alert("啟動失敗");
-    }
-    function hideAll() { document.querySelectorAll('.overlay').forEach(e => e.style.display = 'none'); }
-
-    // 遊戲引擎
-    function startEngine() {
-        hideAll(); document.getElementById('game-ui').style.display = 'block';
-        document.getElementById('ui-plan').innerText = player.plan;
-        init3D(); animate();
+    // 方案選擇自動填入啟動碼
+    function selectPlan(type) {
+        if(type === 'STD') {
+            document.getElementById('activation-key').value = "STD-DELTA-2026";
+            player.plan = 'standard';
+        } else {
+            document.getElementById('activation-key').value = "MST-GOLD-MASTER";
+            player.plan = 'master';
+        }
     }
 
-    function getTerrainH(x, z) {
-        // 大師方案才有起伏地形
-        if(player.plan !== '大師') return 10;
-        return (Math.sin(x*0.1) * 3 + Math.cos(z*0.1) * 2) + 10;
+    function processStart() {
+        const key = document.getElementById('activation-key').value.trim();
+        if(key === "STD-DELTA-2026" || key === "MST-GOLD-MASTER") {
+            if(key === "MST-GOLD-MASTER") player.plan = 'master';
+            else player.plan = 'standard';
+            runGameCore();
+        } else {
+            alert("請先點選上方的『一般方案』或『大師方案』卡片來獲取正確的激活碼！");
+        }
     }
 
-    function init3D() {
+    function getTerrainHeight(x, z) {
+        if (player.plan !== 'master') return 0; // 一般方案為平地
+        return Math.sin(x * 0.05) * 3 + Math.cos(z * 0.05) * 3; // 大師方案丘陵起伏
+    }
+
+    // 啟動 3D 渲染
+    function runGameCore() {
+        document.getElementById('welcome-gate').style.display = 'none';
+        document.getElementById('game-ui').style.display = 'block';
+        
+        if(player.plan === 'master') {
+            document.getElementById('display-plan').innerText = "大師極致版";
+            document.getElementById('display-plan').style.color = "#eab308";
+            document.getElementById('gun-name').innerText = "👑 XM-8 黃金典藏版";
+            document.getElementById('weapon-hud').className = "gold-style";
+        } else {
+            document.getElementById('display-plan').innerText = "一般體驗版";
+            document.getElementById('display-plan').style.color = "#38bdf8";
+        }
+
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xddeeff);
-        scene.fog = new THREE.Fog(0xddeeff, 50, 300);
+        scene.background = new THREE.Color(0xddeeff); // 清晨天空
+        scene.fog = new THREE.Fog(0xddeeff, 60, 280);
+
         camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 2.5, 0);
+
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
         document.body.appendChild(renderer.domElement);
         clock = new THREE.Clock();
 
-        const sun = new THREE.DirectionalLight(0xffffff, 1.2);
-        sun.position.set(50, 100, 50);
-        scene.add(sun);
         scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+        const sun = new THREE.DirectionalLight(0xfff5ee, 1.2);
+        sun.position.set(100, 200, 60);
+        sun.castShadow = true;
+        scene.add(sun);
 
-        renderer.domElement.onclick = () => renderer.domElement.requestPointerLock();
-        document.addEventListener('mousemove', e => {
-            if(document.pointerLockElement) {
-                camera.rotation.y -= e.movementX * 0.002;
-                camera.rotation.x -= e.movementY * 0.002;
-                camera.rotation.x = Math.max(-1.5, Math.min(1.5, camera.rotation.x));
+        // 生成 40 名 AI 電腦人
+        for(let i=0; i<19; i++) spawnEntity(true);
+        for(let i=0; i<20; i++) spawnEntity(false);
+
+        // 開火事件
+        window.addEventListener('mousedown', e => { if(gameActive && e.button === 0) shoot(player, camera); });
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        gameActive = true;
+        animate();
+    }
+
+    function spawnEntity(isFriend) {
+        const group = new THREE.Group();
+        const mat = new THREE.MeshStandardMaterial({ color: isFriend ? 0x2ecc71 : 0xe74c3c, roughness: 0.4 });
+        const body = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), mat);
+        body.castShadow = true;
+        
+        const gunColor = (isFriend && player.plan === 'master') ? 0xeab308 : 0x222222;
+        const gun = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 1.2), new THREE.MeshStandardMaterial({color: gunColor, metalness:0.8}));
+        gun.position.set(0.4, -0.2, 0.6);
+        
+        group.add(body, gun);
+        group.position.set(Math.random()*160-80, 1, Math.random()*160-80);
+        
+        let angle = Math.random() * Math.PI * 2;
+        const data = { 
+            mesh: group, isFriend: isFriend, hp: 100, lastShot: Date.now(), 
+            speed: 10 + Math.random() * 5,
+            moveDir: new THREE.Vector3(Math.cos(angle), 0, Math.sin(angle)) 
+        };
+        scene.add(group);
+        entities.push(data);
+    }
+
+    function shoot(who, from) {
+        if(who === player) { if(player.ammo <= 0) return; player.ammo--; document.getElementById('ammo').innerText = player.ammo; }
+        const b = new THREE.Mesh(new THREE.SphereGeometry(0.16, 4, 4), new THREE.MeshBasicMaterial({ color: 0xffdd00 }));
+        b.position.copy(from.position);
+        
+        let dir = new THREE.Vector3(0, 0, -1);
+        if(who === player) {
+            dir.applyQuaternion(from.quaternion);
+        } else {
+            dir.set(0,0,1).applyQuaternion(from.quaternion || from.rotation);
+        }
+        
+        b.velocity = dir.normalize().multiplyScalar(100);
+        b.spawnTime = Date.now();
+        b.owner = who;
+        scene.add(b);
+        bullets.push(b);
+    }
+
+    // 順暢大網格地形加載技術
+    function updateChunks() {
+        const px = Math.floor(camera.position.x / 60);
+        const pz = Math.floor(camera.position.z / 60);
+        for(let x = px - 2; x <= px + 2; x++) {
+            for(let z = pz - 2; z <= pz + 2; z++) {
+                const key = `${x},${z}`;
+                if(!chunks.has(key)) {
+                    const g = new THREE.Group();
+                    const floorGeo = new THREE.BoxGeometry(60, 0.2, 60);
+                    const floorMat = new THREE.MeshStandardMaterial({color: 0x475569, roughness: 0.8}); // 城市道路
+                    const floor = new THREE.Mesh(floorGeo, floorMat);
+                    floor.position.set(x*60 + 30, getTerrainHeight(x*60, z*60), z*60 + 30);
+                    floor.receiveShadow = true;
+                    g.add(floor);
+
+                    // 生成大樓
+                    for(let k=0; k<3; k++) {
+                        const bHeight = player.plan === 'master' ? (15 + Math.random() * 30) : 8;
+                        const tower = new THREE.Mesh(new THREE.BoxGeometry(12, bHeight, 12), new THREE.MeshStandardMaterial({color: 0x334155}));
+                        tower.position.set(x*60 + Math.random()*40 + 10, getTerrainHeight(x*60, z*60) + bHeight/2, z*60 + Math.random()*40 + 10);
+                        tower.castShadow = true;
+                        tower.receiveShadow = true;
+                        g.add(tower);
+                    }
+                    scene.add(g); chunks.set(key, g);
+                }
+            }
+        }
+    }
+
+    // 更新雷達地圖點位
+    function updateMinimap() {
+        const radar = document.getElementById('minimap-radar');
+        const oldDots = radar.querySelectorAll('.dot-friend, .dot-enemy');
+        oldDots.forEach(dot => radar.removeChild(dot));
+
+        const radarScale = 1.3;
+
+        entities.forEach(en => {
+            let dx = en.mesh.position.x - camera.position.x;
+            let dz = en.mesh.position.z - camera.position.z;
+
+            let rx = 50 + (dx * radarScale);
+            let ry = 50 + (dz * radarScale);
+
+            let distFromCenter = Math.sqrt(Math.pow(rx-50, 2) + Math.pow(ry-50, 2));
+            if (distFromCenter < 47) {
+                const dot = document.createElement('div');
+                dot.className = en.isFriend ? 'radar-dot dot-friend' : 'radar-dot dot-enemy';
+                dot.style.left = rx + '%';
+                dot.style.top = ry + '%';
+                radar.appendChild(dot);
             }
         });
-        window.addEventListener('keydown', e => keys[e.code]=true);
-        window.addEventListener('keyup', e => keys[e.code]=false);
-        gameActive = true;
     }
 
     function animate() {
@@ -193,33 +288,96 @@
         requestAnimationFrame(animate);
         let dt = clock.getDelta();
 
-        let moveDir = new THREE.Vector3(0,0,0);
-        if(keys['KeyW']) moveDir.z -= 1; if(keys['KeyS']) moveDir.z += 1;
-        if(keys['KeyA']) moveDir.x -= 1; if(keys['KeyD']) moveDir.x += 1;
-        camera.translateOnAxis(moveDir.normalize(), 15 * dt);
+        let fLive = 0, eLive = 0;
         
-        let ground = getTerrainH(camera.position.x, camera.position.z);
-        camera.position.y = ground + 2.5;
-        document.getElementById('alt').innerText = Math.floor(ground);
+        // 玩家視角與鍵盤移動邏輯 (修復鎖定失敗問題)
+        if (keys['ArrowLeft']) player.angle += 2.0 * dt;
+        if (keys['ArrowRight']) player.angle -= 2.0 * dt;
+        camera.quaternion.setFromEuler(new THREE.Euler(0, player.angle, 0));
 
-        // 無限地圖與建築生成
-        const cx = Math.floor(camera.position.x / 20), cz = Math.floor(camera.position.z / 20);
-        for(let x=cx-2; x<=cx+2; x++) {
-            for(let z=cz-2; z<=cz+2; z++) {
-                if(!chunks.has(`${x},${z}`)) {
-                    let h = getTerrainH(x*20, z*20);
-                    const b = new THREE.Mesh(new THREE.BoxGeometry(20, 1, 20), new THREE.MeshStandardMaterial({color: player.plan === '大師' ? 0xffca28 : 0x95a5a6}));
-                    b.position.set(x*20, h, z*20);
-                    scene.add(b); chunks.set(`${x},${z}`, b);
-                    if(player.plan === '大師' && Math.random() < 0.1) {
-                        const tower = new THREE.Mesh(new THREE.BoxGeometry(5, 15, 5), new THREE.MeshStandardMaterial({color: 0x555}));
-                        tower.position.set(x*20, h+7.5, z*20);
-                        scene.add(tower);
-                    }
-                }
-            }
+        fLive++;
+        let speed = keys['ShiftLeft'] ? 26 : 13;
+        let moveDir = new THREE.Vector3();
+        let forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+        let right = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+
+        if (keys['KeyW']) moveDir.add(forward);
+        if (keys['KeyS']) moveDir.add(forward.negate());
+        if (keys['KeyA']) moveDir.add(right.negate());
+        if (keys['KeyD']) moveDir.add(right);
+
+        if(moveDir.lengthSq() > 0) {
+            camera.position.add(moveDir.normalize().multiplyScalar(speed * dt));
         }
+        camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2.5;
+
+        updateChunks();
+        updateMinimap();
+
+        // AI 全自動化移動射擊運算
+        entities.forEach((en) => {
+            if(en.isFriend) fLive++; else eLive++;
+            en.mesh.position.y = getTerrainHeight(en.mesh.position.x, en.mesh.position.z) + 1;
+            
+            let targetPos = null;
+            let closestDist = 80;
+            
+            if(!en.isFriend) {
+                targetPos = camera.position;
+                closestDist = en.mesh.position.distanceTo(camera.position);
+            }
+            entities.forEach(other => {
+                if(other.isFriend !== en.isFriend) {
+                    let d = en.mesh.position.distanceTo(other.mesh.position);
+                    if(d < closestDist) { closestDist = d; targetPos = other.mesh.position; }
+                }
+            });
+
+            if (targetPos) {
+                en.mesh.lookAt(targetPos.x, en.mesh.position.y, targetPos.z);
+                let approachDir = new THREE.Vector3().subVectors(targetPos, en.mesh.position).normalize();
+                if(closestDist > 12) en.mesh.position.add(approachDir.multiplyScalar(en.speed * dt));
+                if(closestDist < 55 && Date.now() - en.lastShot > 2400) { shoot(en, en.mesh); en.lastShot = Date.now(); }
+            } else {
+                if(Math.random() < 0.02) {
+                    let randAngle = Math.random() * Math.PI * 2;
+                    en.moveDir.set(Math.cos(randAngle), 0, Math.sin(randAngle));
+                }
+                let lookTarget = en.mesh.position.clone().add(en.moveDir);
+                en.mesh.lookAt(lookTarget.x, en.mesh.position.y, lookTarget.z);
+                en.mesh.position.add(en.moveDir.clone().multiplyScalar((en.speed * 0.5) * dt));
+            }
+        });
+
+        document.getElementById('f-count').innerText = fLive;
+        document.getElementById('e-count').innerText = eLive;
+
+        if(eLive <= 0) endGame("MISSION CLEAR (勝利)", "#eab308");
+        if(fLive <= 0) endGame("KIA - MISSION FAILED (敗北)", "#e74c3c");
+
+        // 子彈消除
+        for(let i = bullets.length - 1; i >= 0; i--) {
+            let b = bullets[i];
+            b.position.add(b.velocity.clone().multiplyScalar(dt));
+            if(Date.now() - b.spawnTime > 1600) { scene.remove(b); bullets.splice(i,1); continue; }
+            
+            entities.forEach((en, ei) => {
+                if(b.owner !== en && b.position.distanceTo(en.mesh.position) < 1.6) {
+                    scene.remove(en.mesh); entities.splice(ei, 1);
+                    scene.remove(b); bullets.splice(i,1);
+                }
+            });
+        }
+
         renderer.render(scene, camera);
+    }
+
+    function endGame(text, color) {
+        gameActive = false;
+        const scr = document.getElementById('result-screen');
+        const txt = document.getElementById('result-text');
+        scr.style.display = 'flex';
+        txt.innerText = text; txt.style.color = color;
     }
 </script>
 </body>
