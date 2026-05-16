@@ -225,7 +225,7 @@
             <div class="roster-column enemy-col"><div class="roster-title" style="color:#ff4757;">💀 紅區敵對者 (<span id="lobby-e-max">50</span>人)</div><div id="enemy-list"></div></div>
         </div>
         <div class="guide-box">
-            <div class="guide-title">⚙️ 戰區作戰說明與情報 (已更新左右精確平移移動公式)</div>
+            <div class="guide-title">⚙️ 戰區作戰說明與情報 (第一人稱槍枝視角已上線)</div>
             <p class="guide-text">💡 <b>請切換至英文半形輸入法！</b> W/A/S/D 控制前後左右位移，滑鼠移動旋轉3D視角。左鍵射擊，右鍵裝彈。</p>
         </div>
         <button class="btn btn-gold" style="font-size:16px; padding:12px; width:60%;" onclick="requestPointerLockGate()">⚡ 開始部署，突入大戰區 ⚡</button>
@@ -302,7 +302,8 @@
     let configAI = { friendCount: 50, enemyCount: 50 }; 
     let yaw = 0, pitch = 0;
 
-    // 🐛 [除蟲防護] 增加安全鎖狀態位，防止 WebGLRenderer 在非同步點擊下被重複初始化
+    // 🔫 第一人稱持槍模型變數
+    let playerWeaponMesh = null;
     let isGraphicsInitialized = false;
 
     function showPricingPage() { document.getElementById('lobby-page').style.display = 'none'; document.getElementById('pricing-page').style.display = 'flex'; }
@@ -377,7 +378,6 @@
         
         if(gameActive) {
             renderer.domElement.focus();
-            // 🐛 [除蟲防護] 當玩家重新進入滑鼠鎖定時，強制清空按鍵快取緩衝，避免角色自動暴走前進的網頁遊戲常見 Bug
             keys = {}; 
         }
     });
@@ -403,8 +403,56 @@
         entity.hpUI.texture.needsUpdate = true;
     }
 
+    // 🌟 [新增核心] 第一人稱持槍模型構造函數
+    function initPlayerFirstPersonWeapon(gunColorHex) {
+        const gunGroup = new THREE.Group();
+
+        // 1. 主槍身
+        const mainBody = new THREE.Mesh(
+            new THREE.BoxGeometry(0.12, 0.16, 0.7),
+            new THREE.MeshStandardMaterial({ color: gunColorHex, metalness: 0.7, roughness: 0.2 })
+        );
+        mainBody.position.set(0, 0, -0.2);
+        gunGroup.add(mainBody);
+
+        // 2. 槍管
+        const barrel = new THREE.Mesh(
+            new THREE.CylinderGeometry(0.02, 0.02, 0.4, 8),
+            new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9 })
+        );
+        barrel.rotation.x = Math.PI / 2;
+        barrel.position.set(0, 0.03, -0.6);
+        gunGroup.add(barrel);
+
+        // 3. 戰術瞄準鏡
+        const scope = new THREE.Mesh(
+            new THREE.BoxGeometry(0.04, 0.04, 0.2),
+            new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.5 })
+        );
+        scope.position.set(0, 0.11, -0.2);
+        gunGroup.add(scope);
+
+        // 4. 彈匣
+        const mag = new THREE.Mesh(
+            new THREE.BoxGeometry(0.04, 0.18, 0.08),
+            new THREE.MeshStandardMaterial({ color: 0x111111 })
+        );
+        mag.position.set(0, -0.14, -0.2);
+        mag.rotation.x = -Math.PI / 12;
+        gunGroup.add(mag);
+
+        // 將整把槍固定在相機視野的「右下角」
+        gunGroup.position.set(0.35, -0.28, -0.55);
+        
+        // 稍微往左微調角度，使其有向中心瞄準的感覺
+        gunGroup.rotation.set(0, -Math.PI / 16, 0);
+
+        playerWeaponMesh = gunGroup;
+        camera.add(gunGroup); // 🔥 關鍵：將槍綁定在相機上，隨視角移動同步
+        scene.add(camera);    // 相機有子物件時，必須將相機加入場景中
+    }
+
     function init3DGraphics() {
-        // 🐛 [除蟲防護] 狀態位防護，避免 WebGLRenderer 渲染容器在重複非同步呼叫下發生衝突崩潰
         if(isGraphicsInitialized) return; 
         isGraphicsInitialized = true;
 
@@ -412,11 +460,27 @@
         const gunName = document.getElementById('gun-name');
         const weaponHud = document.getElementById('weapon-hud');
 
+        let weaponColor = 0x2c3e50; // 預設黑藍色槍身
+
         if(player.plan === 'exp') displayPlan.innerText = "體驗方案";
         else if(player.plan === 'std') displayPlan.innerText = "一般方案";
-        else if(player.plan === 'adv') { displayPlan.innerText = "進階方案"; gunName.innerText = "⚡ XM-8 戰術精英版"; }
-        else if(player.plan === 'mst') { displayPlan.innerText = "大師旗艦版"; gunName.innerText = "👑 XM-8 黃金典藏版"; weaponHud.className = "gold-style"; }
-        else if(player.plan === 'leg') { displayPlan.innerText = "至尊傳奇版"; gunName.innerText = "🌌 XM-8 傳奇弒神者"; weaponHud.className = "gold-style"; }
+        else if(player.plan === 'adv') { 
+            displayPlan.innerText = "進階方案"; 
+            gunName.innerText = "⚡ XM-8 戰術精英版"; 
+            weaponColor = 0x3498db; // 進階版藍色槍身
+        }
+        else if(player.plan === 'mst') { 
+            displayPlan.innerText = "大師旗艦版"; 
+            gunName.innerText = "👑 XM-8 黃金典藏版"; 
+            weaponHud.className = "gold-style"; 
+            weaponColor = 0xd4af37; // 黃金典藏金色槍身
+        }
+        else if(player.plan === 'leg') { 
+            displayPlan.innerText = "至尊傳奇版"; 
+            gunName.innerText = "🌌 XM-8 傳奇弒神者"; 
+            weaponHud.className = "gold-style"; 
+            weaponColor = 0xe74c3c; // 傳奇炫紅槍身
+        }
 
         scene = new THREE.Scene(); scene.background = new THREE.Color(0xddeeff); scene.fog = new THREE.Fog(0xddeeff, 60, 280);
         camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
@@ -431,6 +495,9 @@
 
         scene.add(new THREE.AmbientLight(0xffffff, 0.6));
         const sun = new THREE.DirectionalLight(0xfff5ee, 1.2); sun.position.set(100, 200, 60); sun.castShadow = true; scene.add(sun);
+
+        // 初始化第一人稱槍枝
+        initPlayerFirstPersonWeapon(weaponColor);
 
         for(let i=0; i < configAI.friendCount - 1; i++) spawnEntity(true);
         for(let i=0; i < configAI.enemyCount; i++) spawnEntity(false);
@@ -453,7 +520,18 @@
         player.isReloading = true;
         document.getElementById('reload-prompt').innerText = "⏳ 正在裝填彈藥 (RELOADING)...";
         document.getElementById('reload-prompt').style.visibility = "visible";
-        setTimeout(() => { player.ammo = player.maxAmmo; document.getElementById('ammo').innerText = player.ammo; document.getElementById('reload-prompt').style.visibility = "hidden"; player.isReloading = false; }, 1200);
+        
+        // 裝彈時槍枝往下縮的動態效果
+        if(playerWeaponMesh) playerWeaponMesh.position.y = -0.5;
+
+        setTimeout(() => { 
+            player.ammo = player.maxAmmo; 
+            document.getElementById('ammo').innerText = player.ammo; 
+            document.getElementById('reload-prompt').style.visibility = "hidden"; 
+            player.isReloading = false; 
+            // 恢復槍枝原位
+            if(playerWeaponMesh) playerWeaponMesh.position.y = -0.28;
+        }, 1200);
     }
 
     function spawnEntity(isFriend) {
@@ -479,11 +557,16 @@
             if(player.isReloading) return;
             if(player.ammo <= 0) { document.getElementById('reload-prompt').innerText = "🚨 彈匣已空！請點擊滑鼠右鍵裝彈"; document.getElementById('reload-prompt').style.visibility = "visible"; return; }
             player.ammo--; document.getElementById('ammo').innerText = player.ammo; 
+
+            // 射擊時的微小後座力震動模擬
+            if(playerWeaponMesh) {
+                playerWeaponMesh.position.z = -0.48;
+                setTimeout(() => { if(!player.isReloading) playerWeaponMesh.position.z = -0.55; }, 60);
+            }
         }
         const b = new THREE.Mesh(new THREE.SphereGeometry(0.16, 4, 4), new THREE.MeshBasicMaterial({ color: 0xeab308 }));
         b.position.copy(from.position);
         
-        // 🐛 [除蟲防護] 修正子彈四元數與矩陣旋轉公式，使 AI 的子彈方向可以完美朝前發射而不是往反向倒飛
         let dir = new THREE.Vector3(0, 0, -1).applyQuaternion(from.quaternion || from.rotation);
         if(who !== player) {
             dir.set(0, 0, 1).applyQuaternion(from.quaternion || from.rotation);
@@ -551,6 +634,11 @@
             
             if(moveDir.lengthSq() > 0) {
                 camera.position.add(moveDir.normalize().multiplyScalar(speed * dt));
+                
+                // 走路時手上持槍微幅上下晃動，增加寫實沉浸感
+                if(playerWeaponMesh && !player.isReloading) {
+                    playerWeaponMesh.position.y = -0.28 + Math.sin(Date.now() * 0.01) * 0.01;
+                }
             }
             camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2.5; 
         }
@@ -581,7 +669,6 @@
 
         document.getElementById('f-count').innerText = fLive; document.getElementById('e-count').innerText = eLive;
         
-        // 🐛 [除蟲防護] 增加陣列長度溢位防呆安全鎖，確保至少有一個 AI 生成過後才開始進行歸零結算判定
         if(eLive <= 0 && entities.length > 0) endGame(true); 
         if(fLive <= 0) endGame(false);
 
@@ -589,7 +676,6 @@
             let b = bullets[i]; b.position.add(b.velocity.clone().multiplyScalar(dt));
             if(Date.now() - b.spawnTime > 1600) { scene.remove(b); bullets.splice(i,1); continue; }
             
-            // 🐛 [除蟲防護] 巢狀迴圈倒序移除安全防護，保障記憶體指標不發生溢位
             let bulletDestroyed = false;
             for(let ei = entities.length - 1; ei >= 0; ei--) {
                 let en = entities[ei];
@@ -603,7 +689,12 @@
             }
             if(bulletDestroyed) continue;
             
-            if(b.owner && b.owner !== player && b.position.distanceTo(camera.position) < 1.5) { player.isDead = true; scene.remove(b); bullets.splice(i,1); }
+            if(b.owner && b.owner !== player && b.position.distanceTo(camera.position) < 1.5) { 
+                player.isDead = true; 
+                if(playerWeaponMesh) camera.remove(playerWeaponMesh); // 死亡時卸載手上的槍
+                scene.remove(b); 
+                bullets.splice(i,1); 
+            }
         }
         renderer.render(scene, camera);
     }
