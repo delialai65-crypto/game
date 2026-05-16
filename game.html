@@ -70,8 +70,14 @@
 
         /* 戰場 HUD */
         #game-ui { position: fixed; top: 0; width: 100%; height: 100%; pointer-events: none; display: none; z-index: 100; }
-        nav { padding: 15px 20px; display: flex; justify-content: space-between; background: rgba(15,23,42,0.6); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold; font-size: 14px; }
-        #weapon-hud { position: fixed; bottom: 30px; left: 30px; background: rgba(15,23,42,0.85); padding: 15px 25px; border-radius: 12px; border-left: 5px solid #38bdf8; backdrop-filter: blur(5px); }
+        nav { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(15,23,42,0.6); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold; font-size: 14px; }
+        
+        /* 🌟 新增：個人血量 HUD 容器樣式 */
+        .player-hp-hud-container { display: flex; align-items: center; gap: 10px; background: rgba(0, 0, 0, 0.4); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .hp-bar-bg { width: 120px; height: 10px; background: #334155; border-radius: 5px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .hp-bar-fill { width: 100%; height: 100%; background: #2ecc71; box-shadow: 0 0 8px #2ecc71; transition: width 0.15s ease-out, background-color 0.3s; }
+
+        #weapon-hud { position: fixed; bottom: 30px; left: 30px; background: rgba(15, 23, 42, 0.85); padding: 15px 25px; border-radius: 12px; border-left: 5px solid #38bdf8; backdrop-filter: blur(5px); }
         #weapon-hud.gold-style { border-left-color: #eab308; color: #eab308; }
 
         /* 雷達小地圖 */
@@ -83,11 +89,13 @@
         .dot-enemy { background: #ff4757; box-shadow: 0 0 6px #ff4757; }
 
         #result-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; background: rgba(2,6,23,0.95); backdrop-filter: blur(8px); }
-        .result-title-win { font-size: 64px; font-weight: bold; color: #ffca28; }
-        .result-title-lose { font-size: 64px; font-weight: bold; color: #ff3333; }
+        .result-title-win { font-size: 64px; font-weight: bold; color: #ffca28; text-shadow: 0 0 30px rgba(255, 202, 40, 0.6); }
+        .result-title-lose { font-size: 64px; font-weight: bold; color: #ff3333; text-shadow: 0 0 30px rgba(255, 51, 51, 0.6); }
     </style>
 </head>
 <body>
+
+<script>window.addEventListener('contextmenu', e => e.preventDefault()); // 禁用右鍵</script>
 
 <div id="login-gate" class="overlay">
     <div class="auth-box" style="margin-top: 20vh;">
@@ -135,7 +143,7 @@
                 <button class="btn btn-primary">選擇一般</button>
             </div>
             <div class="plan-card" onclick="openPayment('ADV', '進階方案', '$299')">
-                <div><h3>進階方案</h3><div class="price">$299</div><ul class="features"><li>• 60人 精英模式</li><li>• 戰術精英版槍枝</li></ul></div>
+                <div><h3>進階方案</h3><div class="price">$299</div><ul class="features"><li>• 精英模式</li><li>• 戰術精英版槍枝</li></ul></div>
                 <button class="btn btn-primary">選擇進階</button>
             </div>
             <div class="plan-card gold-border" onclick="openPayment('MST', '大師方案', '$499')">
@@ -240,6 +248,14 @@
 <div id="game-ui">
     <nav>
         <div>Hsinchu East District | 指揮官: <span id="display-user-tag" style="color:#00f2ff;">None</span> | 方案: <span id="display-plan">None</span></div>
+        
+        <div class="player-hp-hud-container">
+            <span style="color:#ff4757; font-size:12px; font-weight:bold;">❤️ 你的血量: <span id="display-player-hp">100</span>%</span>
+            <div class="hp-bar-bg">
+                <div id="player-hp-fill" class="hp-bar-fill"></div>
+            </div>
+        </div>
+
         <div>👥 我方生存: <span id="f-count">0</span> | 💀 敵方生存: <span id="e-count">0</span></div>
     </nav>
     <div id="weapon-hud">
@@ -254,7 +270,7 @@
 <div id="result-screen">
     <div id="result-title-text"></div>
     <p id="result-detail-text" style="color: #94a3b8; font-size: 16px;"></p>
-    <button class="btn btn-primary" style="width:240px; padding: 14px;" onclick="location.reload()">返回指揮中心</button>
+    <button class="btn btn-primary" style="width:240px; padding: 14px;" onclick="handleMatchRestartLoop()">⚡ 重新集結，再來一場 ⚡</button>
 </div>
 
 <script>
@@ -302,7 +318,6 @@
     let configAI = { friendCount: 50, enemyCount: 50 }; 
     let yaw = 0, pitch = 0;
 
-    // 🔫 第一人稱持槍模型變數
     let playerWeaponMesh = null;
     let isGraphicsInitialized = false;
 
@@ -403,53 +418,68 @@
         entity.hpUI.texture.needsUpdate = true;
     }
 
-    // 🌟 [新增核心] 第一人稱持槍模型構造函數
     function initPlayerFirstPersonWeapon(gunColorHex) {
+        if(playerWeaponMesh) camera.remove(playerWeaponMesh);
+
         const gunGroup = new THREE.Group();
+        const mainBody = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.16, 0.7), new THREE.MeshStandardMaterial({ color: gunColorHex, metalness: 0.7, roughness: 0.2 }));
+        mainBody.position.set(0, 0, -0.2); gunGroup.add(mainBody);
 
-        // 1. 主槍身
-        const mainBody = new THREE.Mesh(
-            new THREE.BoxGeometry(0.12, 0.16, 0.7),
-            new THREE.MeshStandardMaterial({ color: gunColorHex, metalness: 0.7, roughness: 0.2 })
-        );
-        mainBody.position.set(0, 0, -0.2);
-        gunGroup.add(mainBody);
+        const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.4, 8), new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9 }));
+        barrel.rotation.x = Math.PI / 2; barrel.position.set(0, 0.03, -0.6); gunGroup.add(barrel);
 
-        // 2. 槍管
-        const barrel = new THREE.Mesh(
-            new THREE.CylinderGeometry(0.02, 0.02, 0.4, 8),
-            new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9 })
-        );
-        barrel.rotation.x = Math.PI / 2;
-        barrel.position.set(0, 0.03, -0.6);
-        gunGroup.add(barrel);
+        const scope = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.2), new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.5 }));
+        scope.position.set(0, 0.11, -0.2); gunGroup.add(scope);
 
-        // 3. 戰術瞄準鏡
-        const scope = new THREE.Mesh(
-            new THREE.BoxGeometry(0.04, 0.04, 0.2),
-            new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.5 })
-        );
-        scope.position.set(0, 0.11, -0.2);
-        gunGroup.add(scope);
+        const mag = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.18, 0.08), new THREE.MeshStandardMaterial({ color: 0x111111 }));
+        mag.position.set(0, -0.14, -0.2); mag.rotation.x = -Math.PI / 12; gunGroup.add(mag);
 
-        // 4. 彈匣
-        const mag = new THREE.Mesh(
-            new THREE.BoxGeometry(0.04, 0.18, 0.08),
-            new THREE.MeshStandardMaterial({ color: 0x111111 })
-        );
-        mag.position.set(0, -0.14, -0.2);
-        mag.rotation.x = -Math.PI / 12;
-        gunGroup.add(mag);
-
-        // 將整把槍固定在相機視野的「右下角」
         gunGroup.position.set(0.35, -0.28, -0.55);
-        
-        // 稍微往左微調角度，使其有向中心瞄準的感覺
         gunGroup.rotation.set(0, -Math.PI / 16, 0);
 
         playerWeaponMesh = gunGroup;
-        camera.add(gunGroup); // 🔥 關鍵：將槍綁定在相機上，隨視角移動同步
-        scene.add(camera);    // 相機有子物件時，必須將相機加入場景中
+        camera.add(gunGroup); 
+        scene.add(camera);    
+    }
+
+    // 🌟 重新集結，再來一場
+    function handleMatchRestartLoop() {
+        document.getElementById('result-screen').style.display = 'none';
+        
+        entities.forEach(en => { scene.remove(en.mesh); });
+        entities = [];
+        bullets.forEach(b => { scene.remove(b); });
+        bullets = [];
+
+        // 玩家血量與子彈完美回復滿值
+        player.hp = 100;
+        player.ammo = player.maxAmmo;
+        player.isDead = false;
+        player.isReloading = false;
+        
+        // 🌟 新增：重置頂端玩家血量 HUD 的文字與寬度
+        document.getElementById('display-player-hp').innerText = "100";
+        document.getElementById('player-hp-fill').style.width = "100%";
+        document.getElementById('player-hp-fill').style.backgroundColor = "#2ecc71";
+        document.getElementById('player-hp-fill').style.boxShadow = "0 0 8px #2ecc71";
+
+        document.getElementById('ammo').innerText = player.ammo;
+        document.getElementById('reload-prompt').style.visibility = "hidden";
+
+        camera.position.set(0, 2.5, 0);
+        yaw = 0; pitch = 0;
+        camera.quaternion.setFromEuler(new THREE.Euler(0, 0, 0));
+
+        let weaponColor = 0x2c3e50;
+        if(player.plan === 'adv') weaponColor = 0x3498db;
+        if(player.plan === 'mst') weaponColor = 0xd4af37;
+        if(player.plan === 'leg') weaponColor = 0xe74c3c;
+        initPlayerFirstPersonWeapon(weaponColor);
+
+        for(let i=0; i < configAI.friendCount - 1; i++) spawnEntity(true);
+        for(let i=0; i < configAI.enemyCount; i++) spawnEntity(false);
+
+        buildLobbyDashboard();
     }
 
     function init3DGraphics() {
@@ -460,27 +490,13 @@
         const gunName = document.getElementById('gun-name');
         const weaponHud = document.getElementById('weapon-hud');
 
-        let weaponColor = 0x2c3e50; // 預設黑藍色槍身
+        let weaponColor = 0x2c3e50;
 
         if(player.plan === 'exp') displayPlan.innerText = "體驗方案";
         else if(player.plan === 'std') displayPlan.innerText = "一般方案";
-        else if(player.plan === 'adv') { 
-            displayPlan.innerText = "進階方案"; 
-            gunName.innerText = "⚡ XM-8 戰術精英版"; 
-            weaponColor = 0x3498db; // 進階版藍色槍身
-        }
-        else if(player.plan === 'mst') { 
-            displayPlan.innerText = "大師旗艦版"; 
-            gunName.innerText = "👑 XM-8 黃金典藏版"; 
-            weaponHud.className = "gold-style"; 
-            weaponColor = 0xd4af37; // 黃金典藏金色槍身
-        }
-        else if(player.plan === 'leg') { 
-            displayPlan.innerText = "至尊傳奇版"; 
-            gunName.innerText = "🌌 XM-8 傳奇弒神者"; 
-            weaponHud.className = "gold-style"; 
-            weaponColor = 0xe74c3c; // 傳奇炫紅槍身
-        }
+        else if(player.plan === 'adv') { displayPlan.innerText = "進階方案"; gunName.innerText = "⚡ XM-8 戰術精英版"; weaponColor = 0x3498db; }
+        else if(player.plan === 'mst') { displayPlan.innerText = "大師旗艦版"; gunName.innerText = "👑 XM-8 黃金典藏版"; weaponHud.className = "gold-style"; weaponColor = 0xd4af37; }
+        else if(player.plan === 'leg') { displayPlan.innerText = "至尊傳奇版"; gunName.innerText = "🌌 XM-8 傳奇弒神者"; weaponHud.className = "gold-style"; weaponColor = 0xe74c3c; }
 
         scene = new THREE.Scene(); scene.background = new THREE.Color(0xddeeff); scene.fog = new THREE.Fog(0xddeeff, 60, 280);
         camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
@@ -496,7 +512,6 @@
         scene.add(new THREE.AmbientLight(0xffffff, 0.6));
         const sun = new THREE.DirectionalLight(0xfff5ee, 1.2); sun.position.set(100, 200, 60); sun.castShadow = true; scene.add(sun);
 
-        // 初始化第一人稱槍枝
         initPlayerFirstPersonWeapon(weaponColor);
 
         for(let i=0; i < configAI.friendCount - 1; i++) spawnEntity(true);
@@ -520,8 +535,6 @@
         player.isReloading = true;
         document.getElementById('reload-prompt').innerText = "⏳ 正在裝填彈藥 (RELOADING)...";
         document.getElementById('reload-prompt').style.visibility = "visible";
-        
-        // 裝彈時槍枝往下縮的動態效果
         if(playerWeaponMesh) playerWeaponMesh.position.y = -0.5;
 
         setTimeout(() => { 
@@ -529,7 +542,6 @@
             document.getElementById('ammo').innerText = player.ammo; 
             document.getElementById('reload-prompt').style.visibility = "hidden"; 
             player.isReloading = false; 
-            // 恢復槍枝原位
             if(playerWeaponMesh) playerWeaponMesh.position.y = -0.28;
         }, 1200);
     }
@@ -558,7 +570,6 @@
             if(player.ammo <= 0) { document.getElementById('reload-prompt').innerText = "🚨 彈匣已空！請點擊滑鼠右鍵裝彈"; document.getElementById('reload-prompt').style.visibility = "visible"; return; }
             player.ammo--; document.getElementById('ammo').innerText = player.ammo; 
 
-            // 射擊時的微小後座力震動模擬
             if(playerWeaponMesh) {
                 playerWeaponMesh.position.z = -0.48;
                 setTimeout(() => { if(!player.isReloading) playerWeaponMesh.position.z = -0.55; }, 60);
@@ -568,9 +579,7 @@
         b.position.copy(from.position);
         
         let dir = new THREE.Vector3(0, 0, -1).applyQuaternion(from.quaternion || from.rotation);
-        if(who !== player) {
-            dir.set(0, 0, 1).applyQuaternion(from.quaternion || from.rotation);
-        }
+        if(who !== player) { dir.set(0, 0, 1).applyQuaternion(from.quaternion || from.rotation); }
         
         b.velocity = dir.normalize().multiplyScalar(110); b.spawnTime = Date.now(); b.owner = who; scene.add(b); bullets.push(b);
     }
@@ -634,8 +643,6 @@
             
             if(moveDir.lengthSq() > 0) {
                 camera.position.add(moveDir.normalize().multiplyScalar(speed * dt));
-                
-                // 走路時手上持槍微幅上下晃動，增加寫實沉浸感
                 if(playerWeaponMesh && !player.isReloading) {
                     playerWeaponMesh.position.y = -0.28 + Math.sin(Date.now() * 0.01) * 0.01;
                 }
@@ -689,11 +696,31 @@
             }
             if(bulletDestroyed) continue;
             
+            // 🌟 核心修正：當被敵軍射中時，玩家扣減生命值
             if(b.owner && b.owner !== player && b.position.distanceTo(camera.position) < 1.5) { 
-                player.isDead = true; 
-                if(playerWeaponMesh) camera.remove(playerWeaponMesh); // 死亡時卸載手上的槍
                 scene.remove(b); 
                 bullets.splice(i,1); 
+                
+                if(!player.isDead) {
+                    player.hp -= 20; // 每中一槍扣 20% 生命值 (可挨5槍)
+                    if(player.hp < 0) player.hp = 0;
+                    
+                    // 🌟 實時更新網頁正上方的個人生命條 HUD 與文字
+                    document.getElementById('display-player-hp').innerText = player.hp;
+                    const fill = document.getElementById('player-hp-fill');
+                    fill.style.width = player.hp + "%";
+                    
+                    // 血量低於 40% 時血條自動變紅，增加危急感
+                    if(player.hp <= 40) {
+                        fill.style.backgroundColor = "#ff3333";
+                        fill.style.boxShadow = "0 0 8px #ff3333";
+                    }
+                    
+                    if(player.hp <= 0) {
+                        player.isDead = true; 
+                        if(playerWeaponMesh) camera.remove(playerWeaponMesh); 
+                    }
+                }
             }
         }
         renderer.render(scene, camera);
