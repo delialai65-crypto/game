@@ -46,19 +46,39 @@
         .field-title { font-size: 12px; color: #94a3b8; font-weight: bold; margin: 8px 0 3px 0; }
         .qr-placeholder { background: white; width: 140px; height: 140px; margin: 10px auto; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #000; font-size: 11px; font-weight: bold; border: 4px solid #10b981; }
 
-        /* 作戰大廳 (Lobby) */
-        .lobby-container { display: none; flex-direction: column; align-items: center; background: rgba(15, 23, 42, 0.9); border: 1px solid #00f2ff; padding: 30px; border-radius: 16px; width: 90%; max-width: 900px; box-shadow: 0 0 40px rgba(0,242,255,0.15); margin: auto; }
-        .roster-section { display: flex; gap: 30px; width: 100%; margin-top: 15px; }
-        .roster-column { flex: 1; background: rgba(0,0,0,0.4); border-radius: 10px; padding: 15px; border: 1px solid #334155; height: 320px; overflow-y: auto; }
-        .roster-column.ally-col { border-color: #2ecc71; }
-        .roster-column.enemy-col { border-color: #ff4757; }
-        .roster-title { font-size: 16px; font-weight: bold; margin-bottom: 12px; padding-bottom: 5px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; }
-        .member-item { display: flex; justify-content: space-between; font-size: 12px; padding: 5px 8px; margin: 3px 0; background: rgba(255,255,255,0.02); border-radius: 4px; }
+        /* 📡 戰術作戰大廳 (Lobby) 綜合排版版面 */
+        .lobby-container { display: none; flex-direction: column; align-items: center; background: rgba(15, 23, 42, 0.95); border: 1px solid #00f2ff; padding: 25px; border-radius: 16px; width: 95%; max-width: 1200px; box-shadow: 0 0 50px rgba(0,242,255,0.2); margin: auto; }
+        .lobby-grid-layout { display: grid; grid-template-columns: 280px 1fr 300px; gap: 20px; width: 100%; margin-top: 15px; }
         
-        .guide-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; width: 100%; padding: 12px; margin: 15px 0; box-sizing: border-box; }
-        .guide-title { color: #00f2ff; font-weight: bold; font-size: 14px; margin-bottom: 8px; text-align: left; }
-        .guide-text { font-size: 12px; color: #cbd5e1; text-align: left; line-height: 1.6; margin: 0; }
+        .lobby-panel { background: rgba(0,0,0,0.35); border: 1px solid #334155; border-radius: 10px; padding: 15px; display: flex; flex-direction: column; height: 480px; box-sizing: border-box; }
+        .panel-title { font-size: 14px; font-weight: bold; color: #00f2ff; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #334155; display: flex; align-items: center; gap: 6px; }
+        
+        /* 1. 新手報到簽到格子 */
+        .checkin-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 10px; }
+        .checkin-day { background: #0f172a; border: 1px solid #334155; border-radius: 6px; padding: 6px 2px; text-align: center; font-size: 11px; cursor: pointer; transition: 0.2s; }
+        .checkin-day:hover { border-color: #38bdf8; background: rgba(56,189,248,0.05); }
+        .checkin-day.done { border-color: #10b981; color: #10b981; background: rgba(16,185,129,0.1); }
+        
+        /* 2. 10種限時活動滾動列表 */
+        .event-scroll-list { flex: 1; overflow-y: auto; padding-right: 4px; }
+        .event-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; font-size: 12px; }
+        .event-item:hover { border-color: #eab308; background: rgba(234,179,8,0.05); }
+        .event-item.active { border-color: #00f2ff; background: rgba(0,242,255,0.08); font-weight: bold; }
+        .event-tag-hot { background: #ff4757; color: #fff; font-size: 9px; padding: 1px 4px; border-radius: 3px; float: right; margin-top: 2px; }
 
+        /* 3. 每日任務列表 */
+        .task-item { background: rgba(0,0,0,0.2); border: 1px solid #1e293b; border-radius: 6px; padding: 10px; margin-bottom: 8px; font-size: 12px; }
+        .task-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+        .task-progress-bg { background: #1e293b; height: 6px; border-radius: 3px; overflow: hidden; margin-top: 6px; position: relative; }
+        .task-progress-fill { height: 100%; background: #38bdf8; width: 0%; }
+        .task-claim-btn { background: #10b981; color:#fff; border:none; border-radius:4px; padding: 2px 6px; font-size: 10px; cursor: pointer; font-weight: bold; }
+        .task-claim-btn:disabled { background: #334155; color: #64748b; cursor: default; }
+
+        /* 敵我雙方隊員名單 */
+        .roster-flex { display: flex; gap: 15px; flex: 1; min-height: 0; }
+        .roster-list-box { flex: 1; background: rgba(0,0,0,0.5); border-radius: 8px; border: 1px solid #1e293b; padding: 10px; height: 210px; overflow-y: auto; }
+        .member-item { display: flex; justify-content: space-between; font-size: 11px; padding: 4px 6px; margin: 3px 0; background: rgba(255,255,255,0.02); border-radius: 4px; }
+        
         /* 鎖定滑鼠引導層 */
         #click-to-lock-screen { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 4000; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; }
 
@@ -71,12 +91,9 @@
         /* 戰場 HUD */
         #game-ui { position: fixed; top: 0; width: 100%; height: 100%; pointer-events: none; display: none; z-index: 100; }
         nav { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(15,23,42,0.6); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: bold; font-size: 14px; }
-        
-        /* 🌟 新增：個人血量 HUD 容器樣式 */
         .player-hp-hud-container { display: flex; align-items: center; gap: 10px; background: rgba(0, 0, 0, 0.4); padding: 5px 15px; border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .hp-bar-bg { width: 120px; height: 10px; background: #334155; border-radius: 5px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.05); }
-        .hp-bar-fill { width: 100%; height: 100%; background: #2ecc71; box-shadow: 0 0 8px #2ecc71; transition: width 0.15s ease-out, background-color 0.3s; }
-
+        .hp-bar-bg { width: 120px; height: 10px; background: #334155; border-radius: 5px; overflow: hidden; }
+        .hp-bar-fill { width: 100%; height: 100%; background: #2ecc71; box-shadow: 0 0 8px #2ecc71; transition: width 0.15s ease-out; }
         #weapon-hud { position: fixed; bottom: 30px; left: 30px; background: rgba(15, 23, 42, 0.85); padding: 15px 25px; border-radius: 12px; border-left: 5px solid #38bdf8; backdrop-filter: blur(5px); }
         #weapon-hud.gold-style { border-left-color: #eab308; color: #eab308; }
 
@@ -89,23 +106,19 @@
         .dot-enemy { background: #ff4757; box-shadow: 0 0 6px #ff4757; }
 
         #result-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; background: rgba(2,6,23,0.95); backdrop-filter: blur(8px); }
-        .result-title-win { font-size: 64px; font-weight: bold; color: #ffca28; text-shadow: 0 0 30px rgba(255, 202, 40, 0.6); }
-        .result-title-lose { font-size: 64px; font-weight: bold; color: #ff3333; text-shadow: 0 0 30px rgba(255, 51, 51, 0.6); }
+        .result-title-win { font-size: 64px; font-weight: bold; color: #ffca28; }
+        .result-title-lose { font-size: 64px; font-weight: bold; color: #ff3333; }
     </style>
 </head>
 <body>
-
-<script>window.addEventListener('contextmenu', e => e.preventDefault()); // 禁用右鍵</script>
 
 <div id="login-gate" class="overlay">
     <div class="auth-box" style="margin-top: 20vh;">
         <h2 style="color:#00f2ff; margin-top:0; letter-spacing: 3px;">DELTA CUBE</h2>
         <p style="font-size:12px; color:#64748b; margin-top:-10px; margin-bottom:20px;">戰區指揮官中央控制台登入</p>
-        
         <input type="text" id="login-user" placeholder="請輸入使用者帳號" value="admin">
         <input type="password" id="login-pass" placeholder="請輸入安全密碼" value="password123">
         <button class="btn btn-primary" onclick="handleUserLogin()">授權登入</button>
-        
         <span class="auth-switch" onclick="switchAuthView('register')">尚未擁有終端帳號？切換至建立註冊</span>
     </div>
 </div>
@@ -113,12 +126,9 @@
 <div id="register-gate" class="overlay" style="display:none;">
     <div class="auth-box" style="margin-top: 20vh;">
         <h2 style="color:#38bdf8; margin-top:0; letter-spacing: 2px;">建立新終端帳號</h2>
-        <p style="font-size:12px; color:#64748b; margin-top:-10px; margin-bottom:20px;">請建立一組專屬的指揮官存取權限</p>
-        
         <input type="text" id="reg-user" placeholder="請設定新帳號名稱">
-        <input type="password" id="reg-pass" placeholder="請設定安全密碼（至少6碼）">
+        <input type="password" id="reg-pass" placeholder="請設定安全密碼">
         <button class="btn btn-gold" onclick="handleUserRegister()">提交註冊並建立</button>
-        
         <span class="auth-switch" onclick="switchAuthView('login')">已有現存帳號？返回登入介面</span>
     </div>
 </div>
@@ -129,7 +139,7 @@
             <h2>🔥 究極方塊戰區：震撼感官！</h2>
             <div class="fun-grid">
                 <div class="fun-card"><h4>🌍 100個多維添加物件</h4><p>地圖大幅擴展！包含 50 棟動態摩天高樓群、100 人會戰、防穿模厚實路基技術，左右移動精確流暢。</p></div>
-                <div class="fun-card"><h4>📡 實時戰術圓形雷達 HUD</h4><p>完美移植新竹東區戰略圖！右下角高能圓形雷達，滿屏紅綠光點即時交火演繹。</p></div>
+                <div class="fun-card"><h4>📡 實時戰術圓形雷達 HUD</h4><p>右下角高能圓形雷達，滿屏紅綠光點即時交火演繹。</p></div>
                 <div class="fun-card"><h4>🤖 100人大會戰智慧 AI</h4><p>兩軍總計高達 100 人！具備自主意識，全自動奔跑移動開火，頭頂動態光柵血條！</p></div>
             </div>
         </div>
@@ -226,36 +236,87 @@
 </div>
 
 <div id="lobby-page" class="overlay" style="display:none;">
-    <div class="lobby-container" style="display:flex; margin-top: 2vh;">
-        <h2 style="color:#00f2ff; text-shadow:0 0 10px #00f2ff; margin:0;">BATTLEZONE COMMAND CENTER</h2>
-        <div class="roster-section">
-            <div class="roster-column ally-col"><div class="roster-title" style="color:#2ecc71;">👥 我方突擊大隊 (<span id="lobby-f-max">50</span>人)</div><div id="ally-list"></div></div>
-            <div class="roster-column enemy-col"><div class="roster-title" style="color:#ff4757;">💀 紅區敵對者 (<span id="lobby-e-max">50</span>人)</div><div id="enemy-list"></div></div>
+    <div class="lobby-container" style="display:flex;">
+        <h2 style="color:#00f2ff; text-shadow:0 0 10px #00f2ff; margin:0;">BATTLEZONE CENTRAL HUB</h2>
+        <p style="font-size:12px; color:#64748b; margin:0;">東區控制總台 - 指揮官數據終端</p>
+        
+        <div class="lobby-grid-layout">
+            <div class="lobby-panel">
+                <div class="panel-title">📅 限時戰術活動 (10大模式)</div>
+                <div class="event-scroll-list">
+                    <div class="event-item active" onclick="selectLobbyEvent(this, '新竹東區邊境防衛戰')"><span class="event-tag-hot">HOT</span>1. 新竹東區邊境防衛戰</div>
+                    <div class="event-item" onclick="selectLobbyEvent(this, '5G+ 數位電磁風暴')">2. 5G+ 數位電磁風暴</div>
+                    <div class="event-item" onclick="selectLobbyEvent(this, '端午節龍舟爭霸奪旗賽')">3. 端午節龍舟爭霸奪旗賽</div>
+                    <div class="event-item" onclick="selectLobbyEvent(this, '中秋夜間照明突擊戰')">4. 中秋夜間照明突擊戰</div>
+                    <div class="event-item" onclick="selectLobbyEvent(this, '國慶方塊大會戰')">5. 國慶方塊大會戰</div>
+                    <div class="event-item" onclick="selectLobbyEvent(this, '跨年無限生存遠征')">6. 跨年無限生存遠征</div>
+                    <div class="event-item" onclick="selectLobbyEvent(this, '新竹巨城攻防死鬥')">7. 新竹巨城攻防死鬥</div>
+                    <div class="event-item" onclick="selectLobbyEvent(this, '精英狙擊演練賽')">8. 精英狙擊演練賽</div>
+                    <div class="event-item" onclick="selectLobbyEvent(this, '鋼筋水泥巷戰拉鋸戰')">9. 鋼筋水泥巷戰拉鋸戰</div>
+                    <div class="event-item" onclick="selectLobbyEvent(this, '黑客矩陣奪金大作戰')">10. 黑客矩陣奪金大作戰</div>
+                </div>
+            </div>
+            
+            <div class="lobby-panel" style="overflow:hidden;">
+                <div class="panel-title">🎁 指揮官新手報到特區 (7日簽到補給)</div>
+                <div class="checkin-grid">
+                    <div class="checkin-day" id="c-day1" onclick="claimCheckin(1)">第1天<br><b>金幣</b></div>
+                    <div class="checkin-day" id="c-day2" onclick="claimCheckin(2)">第2天<br><b>特製彈</b></div>
+                    <div class="checkin-day" id="c-day3" onclick="claimCheckin(3)">第3天<br><b>瞄準鏡</b></div>
+                    <div class="checkin-day" id="c-day4" onclick="claimCheckin(4)">第4天<br><b>穩定器</b></div>
+                    <div class="checkin-day" id="c-day5" onclick="claimCheckin(5)">第5天<br><b>擴容匣</b></div>
+                    <div class="checkin-day" id="c-day6" onclick="claimCheckin(6)">第6天<br><b>黃金漆</b></div>
+                    <div class="checkin-day" id="c-day7" onclick="claimCheckin(7)">第7天<br><b>傳奇槍</b></div>
+                </div>
+                
+                <div class="panel-title" style="margin-top:5px; margin-bottom:5px;">👥 戰線配對陣容 (<span id="active-event-title">新竹東區邊境防衛戰</span>)</div>
+                <div class="roster-flex">
+                    <div class="roster-list-box" style="border-color:#2ecc71;"><div id="ally-list"></div></div>
+                    <div class="roster-list-box" style="border-color:#ff4757;"><div id="enemy-list"></div></div>
+                </div>
+            </div>
+            
+            <div class="lobby-panel">
+                <div class="panel-title">📋 每日核心戰術任務</div>
+                <div style="flex:1; overflow-y:auto;">
+                    <div class="task-item">
+                        <div class="task-header"><span>擊碎紅區方塊人</span><button class="task-claim-btn" id="t-btn1" onclick="claimTask(1, this)">領取</button></div>
+                        <span style="font-size:11px; color:#94a3b8;">進度: <span id="t-p1">0</span> / 10</span>
+                        <div class="task-progress-bg"><div class="task-progress-fill" id="t-fill1" style="width: 50%;"></div></div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-header"><span>進行戰術右鍵換彈</span><button class="task-claim-btn" id="t-btn2" onclick="claimTask(2, this)" disabled>鎖定</button></div>
+                        <span style="font-size:11px; color:#94a3b8;">進度: <span id="t-p2">0</span> / 3</span>
+                        <div class="task-progress-bg"><div class="task-progress-fill" id="t-fill2" style="width: 0%;"></div></div>
+                    </div>
+                    <div class="task-item">
+                        <div class="task-header"><span>在丘陵中完成奔跑</span><button class="task-claim-btn" id="t-btn3" onclick="claimTask(3, this)">領取</button></div>
+                        <span style="font-size:11px; color:#94a3b8;">進度: <span id="t-p3">1</span> / 1</span>
+                        <div class="task-progress-bg"><div class="task-progress-fill" id="t-fill3" style="width: 100%; background:#10b981;"></div></div>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="guide-box">
-            <div class="guide-title">⚙️ 戰區作戰說明與情報 (第一人稱槍枝視角已上線)</div>
-            <p class="guide-text">💡 <b>請切換至英文半形輸入法！</b> W/A/S/D 控制前後左右位移，滑鼠移動旋轉3D視角。左鍵射擊，右鍵裝彈。</p>
+
+        <div class="guide-box" style="margin-top:12px; margin-bottom:10px;">
+            <p class="guide-text" style="text-align:center;">💡 <b>作戰指令：</b>鍵盤 <b>W/A/S/D</b> 控制前後左右精確平移。滑鼠移動控制轉向，左鍵射擊，右鍵換彈匣。</p>
         </div>
-        <button class="btn btn-gold" style="font-size:16px; padding:12px; width:60%;" onclick="requestPointerLockGate()">⚡ 開始部署，突入大戰區 ⚡</button>
+        <button class="btn btn-gold" style="font-size:16px; padding:12px; width:50%;" onclick="requestPointerLockGate()">⚡ 部署並突入指定戰區 ⚡</button>
     </div>
 </div>
 
 <div id="click-to-lock-screen" onclick="lockPlayerPointer()">
     <h2 style="color:#00f2ff; text-shadow: 0 0 10px #00f2ff;">[ 系統連線完畢 ]</h2>
-    <p style="color:#aaa;">請點擊「螢幕任意地方」鎖定滑鼠視角並啟動鍵盤控制</p>
+    <p style="color:#aaa;">請點擊「螢幕任意地方」激活滑鼠跟隨視角</p>
 </div>
 
 <div id="game-ui">
     <nav>
         <div>Hsinchu East District | 指揮官: <span id="display-user-tag" style="color:#00f2ff;">None</span> | 方案: <span id="display-plan">None</span></div>
-        
         <div class="player-hp-hud-container">
             <span style="color:#ff4757; font-size:12px; font-weight:bold;">❤️ 你的血量: <span id="display-player-hp">100</span>%</span>
-            <div class="hp-bar-bg">
-                <div id="player-hp-fill" class="hp-bar-fill"></div>
-            </div>
+            <div class="hp-bar-bg"><div id="player-hp-fill" class="hp-bar-fill"></div></div>
         </div>
-
         <div>👥 我方生存: <span id="f-count">0</span> | 💀 敵方生存: <span id="e-count">0</span></div>
     </nav>
     <div id="weapon-hud">
@@ -306,6 +367,35 @@
             document.getElementById('pricing-page').style.display = 'flex';
         } else { alert("❌ 帳號或密碼輸入錯誤！"); }
     }
+
+    // 🎁 新增：大廳新手簽到模組邏輯
+    function claimCheckin(day) {
+        const target = document.getElementById('c-day' + day);
+        if(target.classList.contains('done')) {
+            alert("此日的新手報到補給物資先前已提領完畢。");
+            return;
+        }
+        target.classList.add('done');
+        target.innerHTML += "<br><span style='font-size:9px;color:#10b981;'>✓已領</span>";
+        alert(`🎁 新手報到成功！第 ${day} 天戰略物資已成功發放至虛擬庫存。`);
+    }
+
+    // 📋 新增：大廳每日任務獎勵領取邏輯
+    function claimTask(id, btn) {
+        btn.disabled = true;
+        btn.innerText = "已領取";
+        btn.style.background = "#334155";
+        btn.style.color = "#64748b";
+        alert(`🏆 每日任務 ${id} 戰術酬金提領成功！獲得 250 榮譽晶球。`);
+    }
+
+    // 📅 新增：大廳10種限時活動點選動態聯動
+    function selectLobbyEvent(element, eventName) {
+        document.querySelectorAll('.event-item').forEach(item => item.classList.remove('active'));
+        element.classList.add('active');
+        document.getElementById('active-event-title').innerText = eventName;
+        alert(`📡 戰術雷達已切換定位：\n當前聚焦戰場區域 ➔ [${eventName}]`);
+    }
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -321,9 +411,6 @@
     let playerWeaponMesh = null;
     let isGraphicsInitialized = false;
 
-    function showPricingPage() { document.getElementById('lobby-page').style.display = 'none'; document.getElementById('pricing-page').style.display = 'flex'; }
-    function backToActivationGate() { document.getElementById('pricing-page').style.display = 'none'; document.getElementById('lobby-page').style.display = 'flex'; }
-    
     function openPayment(type, name, price) { 
         currentSelectedCodeType = type; 
         document.getElementById('payment-modal').style.display = 'flex'; 
@@ -390,11 +477,7 @@
         gameActive = (document.pointerLockElement === renderer.domElement);
         document.getElementById('click-to-lock-screen').style.display = gameActive ? 'none' : 'flex';
         document.getElementById('game-ui').style.display = gameActive ? 'block' : 'none';
-        
-        if(gameActive) {
-            renderer.domElement.focus();
-            keys = {}; 
-        }
+        if(gameActive) { renderer.domElement.focus(); keys = {}; }
     });
 
     function getTerrainHeight(x, z) {
@@ -420,55 +503,32 @@
 
     function initPlayerFirstPersonWeapon(gunColorHex) {
         if(playerWeaponMesh) camera.remove(playerWeaponMesh);
-
         const gunGroup = new THREE.Group();
         const mainBody = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.16, 0.7), new THREE.MeshStandardMaterial({ color: gunColorHex, metalness: 0.7, roughness: 0.2 }));
         mainBody.position.set(0, 0, -0.2); gunGroup.add(mainBody);
-
         const barrel = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.4, 8), new THREE.MeshStandardMaterial({ color: 0x111111, metalness: 0.9 }));
         barrel.rotation.x = Math.PI / 2; barrel.position.set(0, 0.03, -0.6); gunGroup.add(barrel);
-
         const scope = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.2), new THREE.MeshStandardMaterial({ color: 0x222222, metalness: 0.5 }));
         scope.position.set(0, 0.11, -0.2); gunGroup.add(scope);
-
         const mag = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.18, 0.08), new THREE.MeshStandardMaterial({ color: 0x111111 }));
         mag.position.set(0, -0.14, -0.2); mag.rotation.x = -Math.PI / 12; gunGroup.add(mag);
-
-        gunGroup.position.set(0.35, -0.28, -0.55);
-        gunGroup.rotation.set(0, -Math.PI / 16, 0);
-
-        playerWeaponMesh = gunGroup;
-        camera.add(gunGroup); 
-        scene.add(camera);    
+        gunGroup.position.set(0.35, -0.28, -0.55); gunGroup.rotation.set(0, -Math.PI / 16, 0);
+        playerWeaponMesh = gunGroup; camera.add(gunGroup); scene.add(camera);    
     }
 
-    // 🌟 重新集結，再來一場
     function handleMatchRestartLoop() {
         document.getElementById('result-screen').style.display = 'none';
-        
-        entities.forEach(en => { scene.remove(en.mesh); });
-        entities = [];
-        bullets.forEach(b => { scene.remove(b); });
-        bullets = [];
+        entities.forEach(en => { scene.remove(en.mesh); }); entities = [];
+        bullets.forEach(b => { scene.remove(b); }); bullets = [];
 
-        // 玩家血量與子彈完美回復滿值
-        player.hp = 100;
-        player.ammo = player.maxAmmo;
-        player.isDead = false;
-        player.isReloading = false;
-        
-        // 🌟 新增：重置頂端玩家血量 HUD 的文字與寬度
+        player.hp = 100; player.ammo = player.maxAmmo; player.isDead = false; player.isReloading = false;
         document.getElementById('display-player-hp').innerText = "100";
         document.getElementById('player-hp-fill').style.width = "100%";
         document.getElementById('player-hp-fill').style.backgroundColor = "#2ecc71";
-        document.getElementById('player-hp-fill').style.boxShadow = "0 0 8px #2ecc71";
 
         document.getElementById('ammo').innerText = player.ammo;
         document.getElementById('reload-prompt').style.visibility = "hidden";
-
-        camera.position.set(0, 2.5, 0);
-        yaw = 0; pitch = 0;
-        camera.quaternion.setFromEuler(new THREE.Euler(0, 0, 0));
+        camera.position.set(0, 2.5, 0); yaw = 0; pitch = 0; camera.quaternion.setFromEuler(new THREE.Euler(0, 0, 0));
 
         let weaponColor = 0x2c3e50;
         if(player.plan === 'adv') weaponColor = 0x3498db;
@@ -489,7 +549,6 @@
         const displayPlan = document.getElementById('display-plan');
         const gunName = document.getElementById('gun-name');
         const weaponHud = document.getElementById('weapon-hud');
-
         let weaponColor = 0x2c3e50;
 
         if(player.plan === 'exp') displayPlan.innerText = "體驗方案";
@@ -504,16 +563,13 @@
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.domElement.tabIndex = 1;
-        document.body.appendChild(renderer.domElement);
-        clock = new THREE.Clock();
+        renderer.shadowMap.enabled = true; renderer.domElement.tabIndex = 1;
+        document.body.appendChild(renderer.domElement); clock = new THREE.Clock();
 
         scene.add(new THREE.AmbientLight(0xffffff, 0.6));
         const sun = new THREE.DirectionalLight(0xfff5ee, 1.2); sun.position.set(100, 200, 60); sun.castShadow = true; scene.add(sun);
 
         initPlayerFirstPersonWeapon(weaponColor);
-
         for(let i=0; i < configAI.friendCount - 1; i++) spawnEntity(true);
         for(let i=0; i < configAI.enemyCount; i++) spawnEntity(false);
 
@@ -524,10 +580,8 @@
                 camera.quaternion.setFromEuler(new THREE.Euler(pitch, yaw, 0, 'YXZ'));
             }
         });
-
         window.addEventListener('keydown', e => keys[e.code] = true); window.addEventListener('keyup', e => keys[e.code] = false);
-        coreLoopActive = true;
-        animate();
+        coreLoopActive = true; animate();
     }
 
     function reloadMagazine() {
@@ -538,10 +592,8 @@
         if(playerWeaponMesh) playerWeaponMesh.position.y = -0.5;
 
         setTimeout(() => { 
-            player.ammo = player.maxAmmo; 
-            document.getElementById('ammo').innerText = player.ammo; 
-            document.getElementById('reload-prompt').style.visibility = "hidden"; 
-            player.isReloading = false; 
+            player.ammo = player.maxAmmo; document.getElementById('ammo').innerText = player.ammo; 
+            document.getElementById('reload-prompt').style.visibility = "hidden"; player.isReloading = false; 
             if(playerWeaponMesh) playerWeaponMesh.position.y = -0.28;
         }, 1200);
     }
@@ -550,16 +602,12 @@
         const group = new THREE.Group();
         const body = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshStandardMaterial({ color: isFriend ? 0x2ecc71 : 0xe74c3c, roughness: 0.4 }));
         body.castShadow = true; group.add(body);
-
         const hpUIData = createHPTexture();
         const hpSprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: hpUIData.texture }));
         hpSprite.position.set(0, 1.5, 0); hpSprite.scale.set(1.8, 0.22, 1); group.add(hpSprite);
-        
         const gun = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 1.2), new THREE.MeshStandardMaterial({color: 0xeab308, metalness: 0.8})); 
         gun.position.set(0.4, -0.2, 0.6); group.add(gun);
-
         group.position.set(Math.random()*240-120, 1, Math.random()*240-120);
-        
         const data = { mesh: group, isFriend: isFriend, hp: 100, lastShot: Date.now(), speed: 10 + Math.random()*5, moveDir: new THREE.Vector3(Math.random()-0.5, 0, Math.random()-0.5).normalize(), hpUI: hpUIData };
         updateHPBarSprite(data); scene.add(group); entities.push(data);
     }
@@ -569,18 +617,12 @@
             if(player.isReloading) return;
             if(player.ammo <= 0) { document.getElementById('reload-prompt').innerText = "🚨 彈匣已空！請點擊滑鼠右鍵裝彈"; document.getElementById('reload-prompt').style.visibility = "visible"; return; }
             player.ammo--; document.getElementById('ammo').innerText = player.ammo; 
-
-            if(playerWeaponMesh) {
-                playerWeaponMesh.position.z = -0.48;
-                setTimeout(() => { if(!player.isReloading) playerWeaponMesh.position.z = -0.55; }, 60);
-            }
+            if(playerWeaponMesh) { playerWeaponMesh.position.z = -0.48; setTimeout(() => { if(!player.isReloading) playerWeaponMesh.position.z = -0.55; }, 60); }
         }
         const b = new THREE.Mesh(new THREE.SphereGeometry(0.16, 4, 4), new THREE.MeshBasicMaterial({ color: 0xeab308 }));
         b.position.copy(from.position);
-        
         let dir = new THREE.Vector3(0, 0, -1).applyQuaternion(from.quaternion || from.rotation);
         if(who !== player) { dir.set(0, 0, 1).applyQuaternion(from.quaternion || from.rotation); }
-        
         b.velocity = dir.normalize().multiplyScalar(110); b.spawnTime = Date.now(); b.owner = who; scene.add(b); bullets.push(b);
     }
 
@@ -595,7 +637,6 @@
                     const floor = new THREE.Mesh(floorGeo, new THREE.MeshStandardMaterial({color: 0x64748b, roughness: 0.7}));
                     floor.position.set(x*60 + 30, getTerrainHeight(x*60, z*60) - 5.0, z*60 + 30);
                     floor.receiveShadow = true; g.add(floor);
-
                     let bldDensity = (player.plan === 'mst' || player.plan === 'leg' || player.plan === 'adv') ? 6 : 2;
                     for(let k=0; k < bldDensity; k++) {
                         const bHeight = 18 + Math.random()*35;
@@ -630,22 +671,15 @@
         if(!player.isDead) {
             let speed = keys['ShiftLeft'] ? 30 : 15;
             let moveDir = new THREE.Vector3(0, 0, 0);
-            
-            let forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
-            forward.y = 0; forward.normalize();
-            
+            let forward = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion); forward.y = 0; forward.normalize();
             let right = new THREE.Vector3().crossVectors(forward, new THREE.Vector3(0, 1, 0)).normalize();
             
-            if (keys['KeyW']) moveDir.add(forward);
-            if (keys['KeyS']) moveDir.add(forward.clone().negate());
-            if (keys['KeyA']) moveDir.add(right.clone().negate()); 
-            if (keys['KeyD']) moveDir.add(right);                  
+            if (keys['KeyW']) moveDir.add(forward); if (keys['KeyS']) moveDir.add(forward.clone().negate());
+            if (keys['KeyA']) moveDir.add(right.clone().negate()); if (keys['KeyD']) moveDir.add(right);                  
             
             if(moveDir.lengthSq() > 0) {
                 camera.position.add(moveDir.normalize().multiplyScalar(speed * dt));
-                if(playerWeaponMesh && !player.isReloading) {
-                    playerWeaponMesh.position.y = -0.28 + Math.sin(Date.now() * 0.01) * 0.01;
-                }
+                if(playerWeaponMesh && !player.isReloading) { playerWeaponMesh.position.y = -0.28 + Math.sin(Date.now() * 0.01) * 0.01; }
             }
             camera.position.y = getTerrainHeight(camera.position.x, camera.position.z) + 2.5; 
         }
@@ -675,9 +709,7 @@
         });
 
         document.getElementById('f-count').innerText = fLive; document.getElementById('e-count').innerText = eLive;
-        
-        if(eLive <= 0 && entities.length > 0) endGame(true); 
-        if(fLive <= 0) endGame(false);
+        if(eLive <= 0 && entities.length > 0) endGame(true); if(fLive <= 0) endGame(false);
 
         for(let i = bullets.length - 1; i >= 0; i--) {
             let b = bullets[i]; b.position.add(b.velocity.clone().multiplyScalar(dt));
@@ -689,37 +721,20 @@
                 if(b.owner !== en && b.position.distanceTo(en.mesh.position) < 1.6) {
                     en.hp -= 34; updateHPBarSprite(en);
                     if(en.hp <= 0) { scene.remove(en.mesh); entities.splice(ei, 1); }
-                    scene.remove(b); bullets.splice(i,1); 
-                    bulletDestroyed = true;
-                    break;
+                    scene.remove(b); bullets.splice(i,1); bulletDestroyed = true; break;
                 }
             }
             if(bulletDestroyed) continue;
             
-            // 🌟 核心修正：當被敵軍射中時，玩家扣減生命值
             if(b.owner && b.owner !== player && b.position.distanceTo(camera.position) < 1.5) { 
-                scene.remove(b); 
-                bullets.splice(i,1); 
-                
+                scene.remove(b); bullets.splice(i,1); 
                 if(!player.isDead) {
-                    player.hp -= 20; // 每中一槍扣 20% 生命值 (可挨5槍)
-                    if(player.hp < 0) player.hp = 0;
-                    
-                    // 🌟 實時更新網頁正上方的個人生命條 HUD 與文字
+                    player.hp -= 20; if(player.hp < 0) player.hp = 0;
                     document.getElementById('display-player-hp').innerText = player.hp;
                     const fill = document.getElementById('player-hp-fill');
                     fill.style.width = player.hp + "%";
-                    
-                    // 血量低於 40% 時血條自動變紅，增加危急感
-                    if(player.hp <= 40) {
-                        fill.style.backgroundColor = "#ff3333";
-                        fill.style.boxShadow = "0 0 8px #ff3333";
-                    }
-                    
-                    if(player.hp <= 0) {
-                        player.isDead = true; 
-                        if(playerWeaponMesh) camera.remove(playerWeaponMesh); 
-                    }
+                    if(player.hp <= 40) { fill.style.backgroundColor = "#ff3333"; }
+                    if(player.hp <= 0) { player.isDead = true; if(playerWeaponMesh) camera.remove(playerWeaponMesh); }
                 }
             }
         }
