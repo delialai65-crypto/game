@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>Delta Cube: Battlezone Absolute Order v15.0</title>
+    <title>Delta Cube: Battlezone Absolute Order v13.0</title>
     <style>
         body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #050b14; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #fff; user-select: none; }
         canvas { display: block; position: fixed; top: 0; left: 0; z-index: 1; outline: none; }
@@ -23,7 +23,6 @@
         .btn-cyan { background: #00f2ff; color: #000; box-shadow: 0 0 15px rgba(0,242,255,0.4); } .btn-cyan:hover { background: #38bdf8; box-shadow: 0 0 25px #00f2ff; transform: translateY(-2px); }
         .btn-gold { background: #eab308; color: #000; box-shadow: 0 0 15px rgba(234,179,8,0.4); } .btn-gold:hover { background: #facc15; box-shadow: 0 0 25px #eab308; transform: translateY(-2px); }
         .btn-green { background: #10b981; color: #fff; box-shadow: 0 0 10px rgba(16,185,129,0.3); } .btn-green:hover { background: #059669; }
-        .btn-dark { background: #1e293b; color: #fff; border: 1px solid #334155; } .btn-dark:hover { background: #334155; }
         .auth-switch { font-size: 13px; color: #38bdf8; cursor: pointer; text-decoration: underline; margin-top: 15px; display: inline-block; }
 
         /* 10 種方案畫面牆 */
@@ -48,8 +47,7 @@
         .lobby-panel { background: rgba(13, 23, 49, 0.85); border: 1px solid #1d3557; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; height: 500px; }
         .panel-title { color: #00f2ff; font-weight: bold; font-size: 15px; border-bottom: 1px solid rgba(0,242,255,0.3); padding-bottom: 8px; margin-bottom: 10px; }
         .event-list { flex: 1; overflow-y: auto; padding-right: 5px; }
-        .event-item { padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid #1e293b; margin-bottom: 6px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: 0.2s; }
-        .event-item:hover { border-color: #eab308; }
+        .event-item { padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid #1e293b; margin-bottom: 6px; border-radius: 6px; font-size: 12px; cursor: pointer; }
         .event-item.active { border-color: #00f2ff; background: rgba(0,242,255,0.15); box-shadow: 0 0 10px rgba(0,242,255,0.2); font-weight:bold; }
         
         .checkin-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 15px; }
@@ -62,7 +60,7 @@
         .bar-bg { height: 6px; background: #1e293b; border-radius: 3px; margin-top: 8px; overflow: hidden; }
         .bar-fill { height: 100%; background: #38bdf8; width: 100%; }
 
-        /* 選擇槍枝與地圖 */
+        /* 整備室 & 地圖選擇 */
         .weapon-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 800px; margin: 30px auto; }
         .weapon-card { background: #0b1120; border: 2px solid #1e3a8a; padding: 30px 15px; text-align: center; border-radius: 12px; cursor: pointer; transition: 0.3s; }
         .weapon-card.selected { border-color: #eab308; background: rgba(234,179,8,0.15); box-shadow: 0 0 20px rgba(234,179,8,0.3); transform: scale(1.05); }
@@ -74,28 +72,24 @@
         .roster-area { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 950px; margin-top: 15px; }
         .roster-box { background: rgba(0,0,0,0.6); border: 1px solid #1e3a8a; height: 160px; border-radius: 8px; padding: 15px; overflow-y: auto; font-size: 13px; line-height: 1.8; }
 
-        /* 3D 鎖定與 UI */
+        /* 3D 遊戲啟動層 (保證點擊能鎖定) */
+        #scr-lock { position: fixed; top:0; left:0; width:100%; height:100%; display: none; z-index: 9999; flex-direction:column; align-items:center; justify-content:center; background:rgba(0,0,0,0.95); cursor:pointer; }
+        #scr-lock.active { display: flex; }
+
+        /* 戰場 HUD */
         #game-ui { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; display: none; z-index: 100; }
         .hud-nav { padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; background: rgba(15,23,42,0.8); border-bottom: 1px solid #1e3a8a; font-weight: bold; font-size: 14px; }
         .hp-container { display: flex; align-items: center; gap: 10px; background: rgba(0,0,0,0.5); padding: 8px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
         .hp-bar { width: 150px; height: 12px; background: #1e293b; border-radius: 6px; overflow: hidden; }
         .hp-fill { height: 100%; background: #2ecc71; width: 100%; box-shadow: 0 0 10px #2ecc71; transition: 0.2s; }
-        .weapon-hud { position: absolute; bottom: 30px; left: 30px; background: rgba(15,23,42,0.9); padding: 20px 30px; border-radius: 12px; border-left: 5px solid #eab308; }
-        .radar-hud { position: absolute; bottom: 30px; right: 30px; width: 180px; height: 180px; background: rgba(0,0,0,0.8); border-radius: 50%; border: 2px solid #00f2ff; overflow: hidden; box-shadow: 0 0 20px rgba(0,242,255,0.3); }
+        .weapon-hud { position: absolute; bottom: 30px; left: 30px; background: rgba(15,23,42,0.9); padding: 20px; border-radius: 12px; border-left: 5px solid #eab308; }
+        .radar-hud { position: absolute; bottom: 30px; right: 30px; width: 180px; height: 180px; background: rgba(0,0,0,0.8); border-radius: 50%; border: 2px solid #00f2ff; overflow: hidden; }
         .radar-dot { position: absolute; width: 6px; height: 6px; border-radius: 50%; transform: translate(-50%, -50%); }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-
-<script>
-    // 全域資料庫與遊戲狀態
-    var userDB = [{u: 'admin', p: 'password123'}];
-    var cUser = 'admin';
-    var sWpn = 'AK47';
-    var pData = { hp: 100, ammo: 30, maxAmmo: 30, spd: 1.0, dmg: 34, reload: false, dead: false };
-</script>
 
 <div id="scr-register" class="screen screen-center active">
     <div class="auth-box">
@@ -111,8 +105,8 @@
 <div id="scr-login" class="screen screen-center">
     <div class="auth-box">
         <h2>中央控制台登入</h2>
-        <input type="text" id="login-u" placeholder="輸入帳號" value="admin">
-        <input type="password" id="login-p" placeholder="輸入密碼" value="password123">
+        <input type="text" id="login-u" placeholder="admin" value="admin">
+        <input type="password" id="login-p" placeholder="password123" value="password123">
         <button class="btn btn-cyan" onclick="doLogin()">安全授權登入</button>
         <span class="auth-switch" onclick="goScreen('scr-register')">尚未註冊？點此建立</span>
     </div>
@@ -136,9 +130,9 @@
         <p style="color:#94a3b8; text-align:center; font-size:14px;">選好後選擇付款方式並填寫真實資料，購買完後系統會為你自動代填啟動碼：</p>
         <div class="plan-grid">
             <div class="plan-card" onclick="goScreen('scr-payment')"><h3>新兵體驗版</h3><div class="plan-price">$9</div><ul class="plan-features"><li>• 10V10基礎對抗</li></ul></div>
-            <div class="plan-card" onclick="goScreen('scr-payment')"><h3>平坦都市版</h3><div class="plan-price">$29</div><ul class="plan-features"><li>• 都市平原圖解鎖</li></ul></div>
+            <div class="plan-card" onclick="goScreen('scr-payment')"><h3>平坦都市版</h3><div class="plan-price">$29</div><ul class="plan-features"><li>• 都市平原圖</li></ul></div>
             <div class="plan-card" onclick="goScreen('scr-payment')"><h3>標準對抗版</h3><div class="plan-price">$49</div><ul class="plan-features"><li>• 20V20標準會戰</li></ul></div>
-            <div class="plan-card" onclick="goScreen('scr-payment')"><h3>戰術防穿版</h3><div class="plan-price">$79</div><ul class="plan-features"><li>• 硬體物理防護</li></ul></div>
+            <div class="plan-card" onclick="goScreen('scr-payment')"><h3>戰術防穿版</h3><div class="plan-price">$79</div><ul class="plan-features"><li>• 硬體級防穿牆</li></ul></div>
             <div class="plan-card" onclick="goScreen('scr-payment')"><h3>突擊精英版</h3><div class="plan-price">$99</div><ul class="plan-features"><li>• 解鎖專屬槍枝</li></ul></div>
             <div class="plan-card gold" onclick="goScreen('scr-payment')"><h3>大師旗艦版</h3><div class="plan-price" style="color:#eab308;">$149</div><ul class="plan-features"><li>• 80人山丘地形</li></ul></div>
             <div class="plan-card gold" onclick="goScreen('scr-payment')"><h3>雷達科技版</h3><div class="plan-price" style="color:#eab308;">$199</div><ul class="plan-features"><li>• 發光掃描雷達</li></ul></div>
@@ -147,7 +141,7 @@
             <div class="plan-card legend" onclick="goScreen('scr-payment')"><h3>至尊傳奇版</h3><div class="plan-price" style="color:#ff4757;">$799</div><ul class="plan-features"><li>• 100人世紀會戰</li></ul></div>
         </div>
         <div style="text-align:center; margin-top: 20px;">
-            <button class="btn btn-dark" style="width:200px;" onclick="goScreen('scr-key')">返回密鑰輸入</button>
+            <button class="btn" style="background:#1e293b; color:#fff; width:200px;" onclick="goScreen('scr-key')">返回密鑰輸入</button>
         </div>
     </div>
 </div>
@@ -203,7 +197,7 @@
                 <div>
                     <div class="panel-title">🎁 新生報到特區 (7日簽到補給)</div>
                     <div class="checkin-grid">
-                        <div class="checkin-box done" onclick="alert('已簽到！獲得金幣')">第1天<br>金幣</div><div class="checkin-box done" onclick="alert('已簽到！')">第2天<br>彈藥</div>
+                        <div class="checkin-box done" onclick="alert('已簽到！')">第1天<br>金幣</div><div class="checkin-box done" onclick="alert('已簽到！')">第2天<br>彈藥</div>
                         <div class="checkin-box done" onclick="alert('已簽到！')">第3天<br>配件</div><div class="checkin-box done" onclick="alert('已簽到！')">第4天<br>噴漆</div>
                         <div class="checkin-box done" onclick="alert('已簽到！')">第5天<br>擴容</div><div class="checkin-box done" onclick="alert('已簽到！')">第6天<br>黃金</div>
                         <div class="checkin-box done" style="border-color:#eab308; color:#eab308;" onclick="alert('已領取傳奇弒神武器！')">第7天<br>弒神</div>
@@ -211,7 +205,7 @@
                 </div>
                 <div style="text-align:center;">
                     <div style="width: 140px; height: 140px; border-radius: 50%; border: 2px solid #00f2ff; background: repeating-radial-gradient(circle, transparent, transparent 15px, rgba(0,242,255,0.1) 15px, rgba(0,242,255,0.1) 30px); margin: 0 auto; animation: spin 4s linear infinite; box-shadow: 0 0 20px rgba(0,242,255,0.2);"></div>
-                    <p style="color:#eab308; font-size:18px; font-weight:bold; margin-top:20px;">✓ 啟動碼自動填入成功<br>[至尊傳奇級別]</p>
+                    <p style="color:#eab308; font-size:18px; font-weight:bold; margin-top:20px;">✓ 啟動碼代填成功<br>[至尊傳奇級別]</p>
                 </div>
             </div>
             <div class="lobby-panel">
@@ -221,16 +215,16 @@
                 
                 <div class="panel-title" style="margin-top:10px; border-color:#eab308; color:#eab308;">🛒 總部商店 (購買道具角色和槍)</div>
                 <div class="event-list">
-                    <div class="shop-row"><span>🔥 防彈甲衣</span><button class="shop-buy-btn" onclick="alert('購買裝備成功！防禦提升15%')">購買</button></div>
-                    <div class="shop-row"><span>👥 角色: 賴嫦瑜</span><button class="shop-buy-btn" onclick="alert('解鎖傳奇人物成功！')">解鎖</button></div>
-                    <div class="shop-row"><span>⚡ 特工武器紅點鏡</span><button class="shop-buy-btn" onclick="alert('購買槍枝配件成功！')">加裝</button></div>
-                    <div class="shop-row"><span>🌌 宇宙星空漆料</span><button class="shop-buy-btn" onclick="alert('購買噴漆成功！')">塗裝</button></div>
+                    <div class="shop-row"><span>🔥 防彈甲衣</span><button class="shop-buy-btn" onclick="alert('購買成功！')">購買</button></div>
+                    <div class="shop-row"><span>👥 角色: 賴嫦瑜</span><button class="shop-buy-btn" onclick="alert('解鎖角色成功！')">解鎖</button></div>
+                    <div class="shop-row"><span>⚡ 特工武器紅點鏡</span><button class="shop-buy-btn" onclick="alert('購買配件成功！')">加裝</button></div>
+                    <div class="shop-row"><span>🌌 宇宙星空漆料</span><button class="shop-buy-btn" onclick="alert('購買成功！')">塗裝</button></div>
                 </div>
             </div>
         </div>
         <div style="width:100%; margin-top: 20px; display:flex; justify-content:space-between; align-items:center; background: rgba(15,23,42,0.8); padding:20px 30px; border-radius:12px; border:1px solid #1e3a8a; box-sizing:border-box;">
-            <span style="font-size:14px; color:#94a3b8;">作戰情報：整備完畢後，請點擊右側按鈕進行槍枝與地圖配置。</span>
-            <button class="btn btn-gold" style="width:280px; font-size:18px;" onclick="goScreen('scr-weapon')">開始遊戲 ➔</button>
+            <span style="font-size:14px; color:#94a3b8;">作戰情報：整備完畢後，請點擊右側按鈕進行裝備配置。</span>
+            <button class="btn btn-gold" style="width:280px; font-size:18px;" onclick="switchWeaponScreen()">開始遊戲 ➔</button>
         </div>
     </div>
 </div>
@@ -238,7 +232,7 @@
 <div id="scr-weapon" class="screen screen-center">
     <div style="width: 100%; max-width: 900px;">
         <h2 style="color:#eab308; text-align:center; font-size:32px;">🛡️ 整備室：選擇出戰角色與槍枝</h2>
-        <p style="text-align:center; color:#cbd5e1; font-size:15px; margin-bottom:30px;">選好後，要按右下角的準備開始鍵</p>
+        <p style="text-align:center; color:#cbd5e1; font-size:15px; margin-bottom:30px;">(有敵人和我方隊友頭上要顯示血量與硬體級防穿牆升級)</p>
         <div class="weapon-grid">
             <div class="weapon-card selected" id="w-ak" onclick="doSelectWeapon('AK47')"><h1 style="margin:10px 0; font-size:40px;">🔫</h1><h3 style="font-size:20px;">AK-47 步槍</h3><p style="color:#94a3b8;">30發 | 標準高傷</p></div>
             <div class="weapon-card" id="w-gatling" onclick="doSelectWeapon('GATLING')"><h1 style="margin:10px 0; font-size:40px;">🔥</h1><h3 style="font-size:20px;">加特靈機槍</h3><p style="color:#94a3b8;">100發 | 火力壓制</p></div>
@@ -252,7 +246,7 @@
 
 <div id="scr-map" class="screen screen-center">
     <div style="width: 100%; max-width: 1050px;">
-        <h2 style="color:#00f2ff; text-align:center; margin-bottom:5px; font-size:32px;">🌍 戰略部：選擇地圖 (20種讓你選)</h2>
+        <h2 style="color:#00f2ff; text-align:center; margin-bottom:5px; font-size:32px;">🌍 戰略部：選擇地圖防線 (20種讓你選)</h2>
         <p style="text-align:center; color:#94a3b8; font-size:15px;">選好後就會跑出我方和敵方的遊玩名子</p>
         <div class="map-grid">
             <div class="map-card selected" onclick="doSelectMap(this)">01. 新竹東區防線</div><div class="map-card" onclick="doSelectMap(this)">02. 十八尖山密林</div>
@@ -267,20 +261,20 @@
             <div class="map-card" onclick="doSelectMap(this)">19. 古奇峰高地戰</div><div class="map-card" onclick="doSelectMap(this)">20. 香山風力濕地</div>
         </div>
         
-        <p style="text-align:center; color:#eab308; font-size:16px; margin-top:25px; font-weight:bold;">👥 本場 100人戰區我方與敵方遊玩名字名單：</p>
+        <p style="text-align:center; color:#eab308; font-size:16px; margin-top:25px; font-weight:bold;">👥 本場 100人世紀會戰我方與敵方名單：</p>
         <div class="roster-area">
             <div class="roster-box" id="ally-roster" style="color:#2ecc71;"></div>
             <div class="roster-box" id="enemy-roster" style="color:#ff4757;"></div>
         </div>
         
-        <button class="btn btn-gold" style="width:100%; font-size:22px; margin-top:30px; padding:20px; box-shadow: 0 0 20px rgba(234,179,8,0.5);" onmousedown="launch3DGame(event)">🖱️ 看好後，按「滑鼠中鍵」在這裡：開始遊戲 🖱️</button>
+        <button class="btn btn-gold" style="width:100%; font-size:22px; margin-top:30px; padding:20px; box-shadow: 0 0 20px rgba(234,179,8,0.5);" onmousedown="launch3DGame(event)">🖱️ 看好名單後，按「滑鼠中鍵」在這裡：開始遊戲 🖱️</button>
     </div>
 </div>
 
-<div id="scr-lock" class="screen screen-center" style="background:rgba(0,0,0,0.95); z-index:9999;" onclick="forceStart3D()">
+<div id="scr-lock" onclick="lockPointer()">
     <h1 style="color:#00f2ff; text-shadow:0 0 30px #00f2ff; font-size:54px;">[ 戰區連線就緒 ]</h1>
-    <p style="color:#eab308; font-size:22px; margin-top:10px;">請用滑鼠「左鍵」點擊螢幕任意處，進入 3D 戰場</p>
-    <p style="color:#cbd5e1; font-size:16px; margin-top:30px; line-height:1.8;">作戰指令：移動 (W/A/S/D) | 視角 (滑鼠)<br>左鍵攻擊 | 右鍵裝子彈<br>敵我方頭上顯示血量 & 硬體級防穿牆已開通</p>
+    <p style="color:#eab308; font-size:22px; margin-top:10px;">請用滑鼠「左鍵」點擊螢幕任意處，鎖定視角進入 3D 戰場</p>
+    <p style="color:#cbd5e1; font-size:16px; margin-top:30px; line-height:1.8;">作戰指令：移動 (W/A/S/D)、左鍵攻擊、右鍵裝子彈<br>敵我方頭上顯示血量 & 硬體級防穿牆已開通</p>
 </div>
 
 <div id="game-ui">
@@ -290,7 +284,7 @@
             <span style="color:#ff4757;">❤️ 你的血量: <span id="hp-val">100</span>%</span>
             <div class="hp-bar"><div class="hp-fill" id="hp-fill"></div></div>
         </div>
-        <div>👥 友軍: <span id="f-count">50</span> | 💀 敵軍: <span id="e-count">50</span></div>
+        <div>👥 友軍: <span id="f-count">50</span> | 💀 敵人: <span id="e-count">50</span></div>
     </div>
     <div class="weapon-hud">
         <div id="hud-w-name" style="font-size:18px; color:#eab308;">AK-47</div>
@@ -305,7 +299,7 @@
     <h1 id="result-title" style="font-size:72px; margin-bottom: 20px;"></h1>
     <p style="font-size:24px; color:#cbd5e1; margin-bottom:50px;">世紀會戰已結束。請指揮官指示下一步方案：</p>
     <div style="display: flex; gap: 20px; width: 100%; max-width: 700px;">
-        <button class="btn btn-gold" id="btn-play-again" style="flex:1; font-size:20px; padding:20px;">再次打一場 ➔</button>
+        <button class="btn btn-gold" id="btn-play-again" style="flex:1; font-size:20px; padding:20px;">再次開戰 ➔</button>
         <button class="btn btn-cyan" id="btn-to-lobby" style="flex:1; font-size:20px; padding:20px;">返回大廳</button>
     </div>
 </div>
@@ -333,7 +327,7 @@
     function doLogin() {
         let u = document.getElementById('login-u').value.trim(); let p = document.getElementById('login-p').value.trim();
         if(userDB.some(x => x.u===u && x.p===p)) { cUser = u; goScreen('scr-key'); } 
-        else { alert('❌ 指揮官，帳號或密碼發生錯誤！'); }
+        else { alert('❌ 指揮官，帳號或密碼發生安全驗證錯誤！'); }
     }
 
     function verifyKey() {
@@ -351,7 +345,7 @@
     function doPayment() {
         let n = document.getElementById('pay-n').value;
         if(!n) { alert('請填寫真實姓名完成金流認證！'); return; }
-        goScreen('empty'); // 隱藏目前畫面
+        goScreen('empty'); // 先隱藏目前畫面
         let loader = document.getElementById('loading-overlay');
         loader.style.display = 'flex';
         setTimeout(() => {
@@ -359,6 +353,10 @@
             alert('💰 真實金流授權成功！系統已自動為您代填啟動碼金鑰。');
             goScreen('scr-lobby');
         }, 1500);
+    }
+
+    function switchWeaponScreen() {
+        goScreen('scr-weapon');
     }
 
     function doSelectWeapon(type) {
@@ -402,22 +400,24 @@
         // HUD 初始化
         document.getElementById('hud-w-name').innerText = sWpn;
         document.getElementById('hud-ammo').innerText = pData.ammo;
-        goScreen('scr-lock'); 
+        document.getElementById('scr-lock').classList.add('active'); // 顯示鎖定畫面
         
+        // 延遲啟動，確保畫面準備好
         setTimeout(init3DEngine, 100);
     }
 
     // 決策視窗邏輯
     document.getElementById('btn-to-lobby').onclick = function() {
         if(renderer) { document.body.removeChild(renderer.domElement); renderer.dispose(); renderer=null; }
-        location.reload(); 
+        location.reload(); // 最徹底的重置
     };
     
     document.getElementById('btn-play-again').onclick = function() {
         document.getElementById('scr-result').classList.remove('active');
         if(renderer) { document.body.removeChild(renderer.domElement); renderer.dispose(); renderer=null; }
         engineReady = false; ents = []; bullets = []; walls = [];
-        goScreen('scr-lock');
+        // 跳過中鍵開戰，直接進入開戰鎖定
+        document.getElementById('scr-lock').classList.add('active');
         pData.hp = 100; pData.ammo = pData.maxAmmo; pData.dead = false; pData.reload = false;
         document.getElementById('hp-val').innerText = '100';
         document.getElementById('hp-fill').style.width = '100%';
@@ -433,23 +433,15 @@
     var keys = {}, ents = [], bullets = [], walls = [];
     var wMesh = null, engineReady = false;
 
-    // 滑鼠鎖定邏輯與防呆
-    function forceStart3D() {
-        if(renderer && renderer.domElement) {
-            try {
-                renderer.domElement.requestPointerLock = renderer.domElement.requestPointerLock || renderer.domElement.mozRequestPointerLock || renderer.domElement.webkitRequestPointerLock;
-                renderer.domElement.requestPointerLock();
-            } catch(err) {}
-        }
-        document.getElementById('scr-lock').classList.remove('active');
-        document.getElementById('game-ui').style.display = 'block';
-        isActive = true; keys = {};
-    }
-
+    // 滑鼠鎖定邏輯
+    function lockPointer() { if(renderer) renderer.domElement.requestPointerLock(); }
     document.addEventListener('pointerlockchange', () => {
-        let isLocked = (document.pointerLockElement === renderer.domElement);
-        if(!isLocked && !pData.dead && isActive) {
-            isActive = false;
+        isActive = (document.pointerLockElement === renderer.domElement);
+        if(isActive) {
+            document.getElementById('scr-lock').classList.remove('active');
+            document.getElementById('game-ui').style.display = 'block';
+            keys = {}; // 防止移動鬼畜
+        } else if(!pData.dead) {
             document.getElementById('game-ui').style.display = 'none';
             document.getElementById('scr-lock').classList.add('active');
         }
@@ -459,7 +451,7 @@
     function checkAABB(x, z, radius) {
         for(let i=0; i<walls.length; i++) {
             let b = walls[i];
-            if(x >= b.minX-radius && x <= b.maxX+radius && z >= b.minZ-radius && z <= b.maxZ+radius) return true;
+            if(x >= b.minX-radius && x <= b.maxX+radius && z >= b.minZ-radius && z <= b.maxZ+r) return true;
         }
         return false;
     }
@@ -470,7 +462,7 @@
         
         scene = new THREE.Scene(); scene.background = new THREE.Color(0x050b14); scene.fog = new THREE.Fog(0x050b14, 50, 300);
         camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-        camera.position.set(0, 2.5, 0);
+        camera.position.set(0, 2.5, 0); // 眼睛高度
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -494,7 +486,7 @@
                 let floor = new THREE.Mesh(new THREE.BoxGeometry(60, 2, 60), new THREE.MeshStandardMaterial({color: 0x1e293b, roughness:0.8}));
                 floor.position.set(x*60, -1, z*60); scene.add(floor);
                 
-                // 大樓 (物理層，不能穿牆)
+                // 大樓 (物理硬體層，不能穿牆)
                 for(let k=0; k<6; k++) {
                     let h = 20 + Math.random()*40; let bw = 10 + Math.random()*5; let bd = 10 + Math.random()*5;
                     let bld = new THREE.Mesh(new THREE.BoxGeometry(bw, h, bd), new THREE.MeshStandardMaterial({color: 0x0f172a, emissive: 0x00f2ff, emissiveIntensity: 0.1, roughness:0.6}));
@@ -507,16 +499,19 @@
             }
         }
 
-        // 生成 AI 隊友和敵人 (頭上顯示血量)
-        for(let i=0; i<49; i++) spawnAIEntity(true);  // 友軍
+        // 生成 AI 隊友和敵人 (頭上顯示血量核心)
+        for(let i=0; i<49; i++) spawnAIEntity(true);  // 我方隊友
         for(let i=0; i<50; i++) spawnAIEntity(false); // 敵方
 
+        // 核心遊玩操作升級
         let yaw = 0, pitch = 0;
         document.addEventListener('mousemove', e => { if(isActive) { yaw -= e.movementX*0.002; pitch -= e.movementY*0.002; pitch = Math.max(-1.4, Math.min(1.4, pitch)); camera.quaternion.setFromEuler(new THREE.Euler(pitch,yaw,0,'YXZ')); } });
         
-        // 控制
+        // 移動控制與防穿牆核心
         window.addEventListener('keydown', e => keys[e.code]=true); 
         window.addEventListener('keyup', e => keys[e.code]=false);
+
+        // 攻擊與裝彈
         window.addEventListener('mousedown', e => { if(isActive && e.button===0) playerShoot(); else if(isActive && e.button===2) playerReload(); });
 
         mainRenderLoop();
@@ -525,20 +520,22 @@
     // 生成頭上顯示血量的 AI 實體
     function spawnAIEntity(isF) {
         let group = new THREE.Group();
+        // 聰明的頭腦身體
         let body = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshStandardMaterial({color: isF ? 0x2ecc71 : 0xff4757, metalness:0.3, roughness:0.7})); group.add(body);
         
-        // 抬頭血量條顯示器
+        // 抬頭血量條顯示裝置器 (Billboard)
         const canvas = document.createElement('canvas'); canvas.width = 128; canvas.height = 32;
         const ctx = canvas.getContext('2d');
         const texture = new THREE.CanvasTexture(canvas);
         const spriteMat = new THREE.SpriteMaterial({ map: texture });
         const sprite = new THREE.Sprite(spriteMat);
         sprite.scale.set(3, 0.75, 1);
-        sprite.position.set(0, 2.5, 0); // 在上方
+        sprite.position.set(0, 2.5, 0); // 在身體上方
         group.add(sprite);
 
+        // 尋找不能穿牆的出生點
         let rx, rz;
-        do { rx = (Math.random()-0.5)*220; rz = (Math.random()-0.5)*220; } while(checkAABB(rx, rz, 1.0)); 
+        do { rx = (Math.random()-0.5)*220; rz = (Math.random()-0.5)*220; } while(checkAABB(rx, rz, 1.0)); // 避免生在牆內
         group.position.set(rx, 1, rz);
         
         ents.push({ 
@@ -552,7 +549,9 @@
     // 更新抬頭血量條
     function updateAIHealthBar(en) {
         en.hbCtx.clearRect(0,0,128,32);
+        // 背景
         en.hbCtx.fillStyle = '#111'; en.hbCtx.fillRect(0,0,128,32); en.hbCtx.strokeStyle = '#fff'; en.hbCtx.strokeRect(0,0,128,32);
+        // 血量條 (動態顏色變換)
         let fillPct = en.hp/100;
         let c = en.hbColor; if(fillPct < 0.5) c = '#eab308'; if(fillPct < 0.25) c = '#ff4757';
         en.hbCtx.fillStyle = c; en.hbCtx.fillRect(4,4, (128-8)*fillPct, 32-8);
@@ -564,7 +563,7 @@
         if(pData.reload) return;
         if(pData.ammo <= 0) { document.getElementById('hud-reload').style.visibility="visible"; return; }
         pData.ammo--; document.getElementById('hud-ammo').innerText = pData.ammo;
-        wMesh.position.z = -0.4; setTimeout(()=>{ if(!pData.reload) wMesh.position.z = -0.5; }, 50); 
+        wMesh.position.z = -0.4; setTimeout(()=>{ if(!pData.reload) wMesh.position.z = -0.5; }, 50); // 聰明換彈動作
         
         let b = new THREE.Mesh(new THREE.SphereGeometry(0.2,4,4), new THREE.MeshBasicMaterial({color: 0xeab308}));
         b.position.copy(camera.position); b.velocity = new THREE.Vector3(0,0,-1).applyQuaternion(camera.quaternion).normalize().multiplyScalar(150);
@@ -602,12 +601,13 @@
             }
         }
 
+        // AI 智慧防穿牆、聰明的頭腦尋路與血量條更新
         let fCount = !pData.dead?1:0, eCount = 0;
         let rHud = document.getElementById('radar'); rHud.innerHTML = "";
 
         ents.forEach(en => {
             if(en.isF) fCount++; else eCount++;
-            updateAIHealthBar(en); // 更新頭上血量條
+            updateAIHealthBar(en); // 每幀更新頭上血量條
 
             // 雷達發光掃描
             let dx = en.m.position.x - camera.position.x; let dz = en.m.position.z - camera.position.z;
@@ -629,7 +629,7 @@
                 // 🤖 聰明繞道 (不能穿牆)
                 if(minD > 15) {
                     let hx = checkAABB(nx, en.m.position.z, 0.8); let hz = checkAABB(en.m.position.x, nextZ, 0.8);
-                    if(!hx) en.m.position.x = nx; else en.m.position.z += (Math.random()>0.5?1:-1)*en.spd*dt; // 撞牆繞開
+                    if(!hx) en.m.position.x = nx; else en.m.position.z += (Math.random()>0.5?1:-1)*en.spd*dt; // 撞牆側滑
                     if(!hz) en.m.position.z = nextZ; else en.m.position.x += (Math.random()>0.5?1:-1)*en.spd*dt;
                 }
                 if(minD < 70 && Date.now() - en.lastS > 2000) { 
@@ -638,6 +638,7 @@
                     scene.add(b); bullets.push(b); en.lastS = Date.now(); 
                 }
             } else {
+                // 自由不能穿牆巡邏
                 if(Math.random()<0.02) en.dir.set(Math.random()-0.5, 0, Math.random()-0.5).normalize();
                 let nx = en.m.position.x + en.dir.x * en.spd * dt; let nextZ = en.m.position.z + en.dir.z * en.spd * dt;
                 if(!checkAABB(nx, en.m.position.z, 0.8)) en.m.position.x = nx; else en.dir.x *= -1;
@@ -646,9 +647,11 @@
             }
         });
 
+        // 結束條件
         document.getElementById('f-count').innerText = fCount; document.getElementById('e-count').innerText = eCount;
         if(eCount <= 0 && ents.length > 0 && isActive) triggerEndModal(true); if(fCount <= 0 && isActive) triggerEndModal(false);
 
+        // 子彈物理與防穿牆打大樓
         for(let i=bullets.length-1; i>=0; i--) {
             let b = bullets[i]; b.position.add(b.velocity.clone().multiplyScalar(dt));
             if(Date.now() - b.spawn > 2000 || checkAABB(b.position.x, b.position.z, 0.2)) { scene.remove(b); bullets.splice(i,1); continue; } 
@@ -674,7 +677,7 @@
         if(renderer && isActive) renderer.render(scene, camera);
     }
 
-    // 世紀會戰結束決策 (打完問你要再打一場還是返回大廳)
+    // 世紀會戰結束決策
     function triggerEndModal(win) {
         isActive = false; document.exitPointerLock();
         document.getElementById('game-ui').style.display = 'none';
