@@ -1,87 +1,71 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Collections;
 
-public class GameController : MonoBehaviour
+public enum CPBLTeam
 {
-    // --- 遊戲狀態機 ---
-    public enum GameState { Login, Purchase, Lobby, Matching, Ready, Battle }
-    public GameState currentState = GameState.Login;
+    Elephants, // 台中大象 (兄弟)
+    Monkeys,   // 樂天桃子 (樂天)
+    Dragons,   // 台北飛龍 (味全)
+    Lions,     // 南方獅王 (統一)
+    Guardians, // 新北悍將 (富邦)
+    Hawks      // 高雄雄鷹 (台鋼)
+}
 
-    // --- 玩家與商店資料 ---
-    [Header("Player Data")]
+public enum Position { Pitcher, Catcher, Infield, Outfield }
+
+[CreateAssetMenu(fileName = "NewPlayer", menuName = "CPBL Game/Player Data")]
+public class PlayerStaticData : ScriptableObject
+{
+    [Header("基本資料")]
+    public string playerID;
     public string playerName;
-    public string email;
-    public bool isAuthorized = false;
-    
-    [Header("Inventory")]
-    public List<string> guns = new List<string>(100); // 100種槍
-    public List<string> characters = new List<string>(20); // 20種角色
+    public CPBLTeam team;
+    public Position position;
 
-    [Header("Combat Stats")]
-    public int ammo = 30;
-    public float health = 100f;
+    [Header("打者打擊數值 (0-100)")]
+    public float contact = 50f; // 影響打擊框大小
+    public float power = 50f;   // 影響擊球初速
+    public float speed = 50f;   // 影響跑壘與守備移速
 
-    // --- 1. 系統流程 ---
-    public void RegisterAndPurchase(string name, string mail, int planIndex, int payIndex)
+    [Header("投手投球數值 (0-100)")]
+    public float velocity = 50f; // 基礎球速
+    public float control = 50f;  // 控球精準度
+    public float stamina = 100f; // 體力值
+
+    /// <summary>
+    /// 計算中職球隊天賦加成後的最終數值
+    /// </summary>
+    public float GetModifiedStat(string statName, bool isHomeGame, int currentInning, int runnersOnBase)
     {
-        // 模擬註冊與購買驗證
-        Debug.Log($"處理註冊: {name}, 方案: {planIndex}, 付款: {payIndex}");
-        string activationCode = "ACT-" + System.Guid.NewGuid().ToString().Substring(0, 8);
-        Debug.Log($"自動生成啟動碼: {activationCode}");
-        isAuthorized = true;
-        currentState = GameState.Lobby;
-    }
+        float baseStat = 50f;
+        switch (statName.ToLower())
+        {
+            case "power": baseStat = power; break;
+            case "contact": baseStat = contact; break;
+            case "control": baseStat = control; break;
+            case "speed": baseStat = speed; break;
+        }
 
-    // --- 2. 大廳與賽季 ---
-    public void EnterActivity(int activityIndex)
-    {
-        // 處理 10 種賽季活動規則
-        Debug.Log($"進入活動 {activityIndex}: 根據不同規則顯示福利");
-    }
-
-    // --- 3. 配對與準備 ---
-    public void StartMatchmaking()
-    {
-        StartCoroutine(MatchmakingRoutine());
-    }
-
-    IEnumerator MatchmakingRoutine()
-    {
-        currentState = GameState.Matching;
-        Debug.Log("上方顯示：配對中 (預計 10 秒)...");
-        yield return new WaitForSeconds(10f);
-        currentState = GameState.Ready;
-        Debug.Log("配對成功！請選擇角色與槍枝。");
-    }
-
-    public void ConfirmReady()
-    {
-        currentState = GameState.Battle;
-        Debug.Log("準備完成，遊戲開始！(100vs100)");
-    }
-
-    // --- 4. 戰鬥邏輯 ---
-    void Update()
-    {
-        if (currentState != GameState.Battle) return;
-
-        // 操作：左鍵攻擊、右鍵裝彈、Q回血
-        if (Input.GetMouseButtonDown(0)) Attack();
-        if (Input.GetMouseButtonDown(1)) Reload();
-        if (Input.GetKeyDown(KeyCode.Q)) Heal();
-
-        // AI 協防 (簡單邏輯)
-        CheckTeamSupport();
-    }
-
-    void Attack() { ammo--; Debug.Log("攻擊，剩餘子彈: " + ammo); }
-    void Reload() { ammo = 30; Debug.Log("裝填完畢"); }
-    void Heal() { health += 20; Debug.Log("回血至: " + health); }
-
-    void CheckTeamSupport()
-    {
-        // 當玩家危險時，隊友協助邏輯
-        if (health < 30) Debug.Log("偵測到危險，隊友前來協助！");
+        // 六隊被動天賦邏輯實作
+        switch (team)
+        {
+            case CPBLTeam.Elephants:
+                // 象魂：7局以後後半段比賽，打擊框(Contact)加成 10%
+                if (currentInning >= 7 && statName.ToLower() == "contact") return baseStat * 1.10f;
+                break;
+            case CPBLTeam.Monkeys:
+                // 暴力猿：只要壘有人，力量(Power)加成 8%
+                if (runnersOnBase > 0 && statName.ToLower() == "power") return baseStat * 1.08f;
+                break;
+            case CPBLTeam.Lions:
+                // 南霸天：若是主場作戰，投手控球(Control)提升 7%
+                if (isHomeGame && statName.ToLower() == "control") return baseStat * 1.07f;
+                break;
+            case CPBLTeam.Guardians:
+                // 悍將：雖然防守有時有梗，但危機處理強，滿壘時控球提升 5%
+                if (runnersOnBase == 3 && statName.ToLower() == "control") return baseStat * 1.05f;
+                break;
+        }
+        return baseStat;
     }
 }
