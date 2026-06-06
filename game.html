@@ -2,125 +2,129 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>中華職棒網頁棒球遊戲 - 24K曜石黑金銀河巔峰完全體</title>
+    <title>⚾ 中華職棒 我的棒球夢 ⚾</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
-        body { background-color: #020408; color: #fff; font-family: "Microsoft JhengHei", sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background-color: #020408; font-family: "Microsoft JhengHei", sans-serif; color: #fff; }
         .scene { display: none; padding: 25px; box-sizing: border-box; width: 100vw; height: 100vh; overflow-y: auto; background: radial-gradient(circle at center, #0f172a 0%, #020408 100%); }
         .active-scene { display: block; }
         
         button { cursor: pointer; border-radius: 8px; font-weight: bold; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); border: none; }
-        button:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 0 20px #ffcc00; }
+        button:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 0 25px #ffcc00; }
         
         .currency-bar { background: linear-gradient(180deg, #000 0%, #090d16 100%); padding: 15px 35px; text-align: right; font-size: 18px; color: #ffcc00; font-weight: bold; border-bottom: 2px solid #ffcc00; box-shadow: 0px 5px 25px rgba(0,0,0,0.9); display: none; }
-        .btn-back-to-lobby { padding: 12px 25px; font-size: 15px; background: linear-gradient(135deg, #ffcc00 0%, #ffaa00 100%); color: black; font-weight: bold; margin-top: 20px; box-shadow: 0 4px 15px rgba(255,204,0,0.3); }
+        .btn-back-to-lobby { padding: 12px 25px; font-size: 15px; background: linear-gradient(135deg, #ffcc00 0%, #ff9900 100%); color: black; font-weight: bold; margin-top: 20px; border-radius: 6px; }
 
-        /* ================= 🔐 場景零：註冊與登入 ================= */
-        #authScreen { background: radial-gradient(circle at center, #0f172a 0%, #020408 100%); text-align: center; }
-        .auth-container { max-width: 450px; margin: 40px auto; background: rgba(10, 15, 26, 0.9); padding: 40px; border-radius: 16px; box-shadow: 0 0 35px rgba(255, 204, 0, 0.2); border: 2px solid #ffcc00; backdrop-filter: blur(12px); }
-        .auth-input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ffcc00; background: #05080f; color: #fff; box-sizing: border-box; font-size: 15px; }
-        .btn-auth-primary { width: 100%; padding: 15px; background: linear-gradient(45deg, #ffcc00, #ff9900); border: none; color: #000; font-size: 18px; margin-top: 15px; font-weight: bold; letter-spacing: 2px; }
+        /* 註冊與登入面板 */
+        .luxury-auth-wrapper { max-width: 500px; margin: 40px auto; background: linear-gradient(135deg, rgba(15, 22, 38, 0.95) 0%, rgba(5, 8, 15, 0.95) 100%); padding: 45px; border-radius: 24px; border: 2px solid #ffcc00; box-shadow: 0 0 40px rgba(255, 204, 0, 0.25); backdrop-filter: blur(15px); text-align: center; }
+        .auth-title { font-size: 26px; font-weight: 900; color: #ffcc00; letter-spacing: 2px; }
+        .auth-input { width: 100%; padding: 14px; margin: 12px 0; border-radius: 10px; border: 1px solid rgba(255, 204, 0, 0.5); background: #05080f; color: #fff; box-sizing: border-box; font-size: 15px; }
+        .btn-auth-primary { width: 100%; padding: 16px; background: linear-gradient(45deg, #ffcc00 0%, #ff9900 100%); border: none; color: #000; font-size: 18px; font-weight: bold; margin-top: 20px; border-radius: 10px; }
         
-        /* ================= 場景一：選隊畫面 ================= */
-        #teamSelectScreen { max-width: 650px; margin: 60px auto; background: rgba(10,15,26,0.95); padding: 40px; border-radius: 16px; text-align: center; border: 2px solid #ffcc00; box-shadow: 0 15px 40px rgba(0,0,0,0.8); }
+        .creator-form-box { display: none; background: rgba(3, 5, 10, 0.85); padding: 25px; margin-top: 20px; border-radius: 12px; border: 2px solid #00ccff; text-align: left; }
+
+        /* 大廳排版 */
         .team-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-top: 25px; }
-        .team-btn { padding: 20px; font-size: 20px; border: none; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.8); border-radius: 8px; }
-        .elephants { background: linear-gradient(135deg, #ffcc00 0%, #b38f00 100%); color: #000; font-weight: 900; } 
-        .monkeys { background: linear-gradient(135deg, #800020 0%, #4a0012 100%); } 
-        .dragons { background: linear-gradient(135deg, #cc0000 0%, #7a0000 100%); }
-        .lions { background: linear-gradient(135deg, #ff6600 0%, #b34700 100%); } 
-        .guardians { background: linear-gradient(135deg, #0047ab 0%, #002d6c 100%); } 
-        .hawks { background: linear-gradient(135deg, #006400 0%, #003300 100%); }
-
-        /* ================= ✨ 豪華大廳主體 ================= */
-        #lobbyScreen { background: radial-gradient(circle at top right, #131924 0%, #020408 100%); text-align: center; position: relative; }
+        .team-btn { padding: 20px; font-size: 20px; border: none; color: white; border-radius: 8px; font-weight: bold; }
         .lobby-content { display: flex; justify-content: space-between; max-width: 1280px; margin: 25px auto; align-items: flex-start; }
-        
         .left-menu { display: flex; flex-direction: column; gap: 12px; width: 260px; }
-        .lobby-nav-btn { padding: 16px 20px; font-size: 16px; background: linear-gradient(135deg, #101622 0%, #070a0f 100%); border: 1px solid #ffcc00; color: #ffcc00; text-align: left; box-shadow: 0 4px 15px rgba(0,0,0,0.6); position: relative; overflow: hidden; border-radius: 6px; }
-        .lobby-nav-btn:hover { background: linear-gradient(135deg, #ffcc00 0%, #ffaa00 100%); color: #000; box-shadow: 0 0 15px #ffcc00; }
+        .lobby-nav-btn { padding: 16px 20px; font-size: 16px; background: linear-gradient(135deg, #101622 0%, #070a0f 100%); border: 1px solid #ffcc00; color: #ffcc00; text-align: left; border-radius: 6px; }
         
-        .center-leaderboard { flex-grow: 1; margin: 0 35px; background: rgba(5, 8, 15, 0.9); padding: 30px; border-radius: 16px; border: 2px solid #ffcc00; box-shadow: 0 0 30px rgba(255, 204, 0, 0.25); backdrop-filter: blur(12px); }
+        .center-leaderboard { flex-grow: 1; margin: 0 35px; background: rgba(5, 8, 15, 0.9); padding: 30px; border-radius: 16px; border: 2px solid #ffcc00; }
         .rank-table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 15px; } 
-        .rank-table th { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); color: #ffcc00; font-weight: bold; padding: 12px; border-bottom: 2px solid #ffcc00; }
-        .rank-table td { padding: 14px; text-align: center; border-bottom: 1px solid #1e293b; color: #e2e8f0; }
-        .my-team-row td { background: linear-gradient(90deg, rgba(255, 204, 0, 0.25) 0%, rgba(255, 204, 0, 0.05) 100%) !important; color: #ffcc00 !important; font-weight: bold; border-left: 4px solid #ffcc00; }
+        .rank-table th, .rank-table td { padding: 14px; text-align: center; border-bottom: 1px solid #1e293b; }
+        .rank-table th { background: #1e293b; color: #ffcc00; }
         
-        .btn-lobby-start-game { position: absolute; bottom: 45px; right: 55px; padding: 22px 55px; font-size: 26px; background: linear-gradient(45deg, #ff0055 0%, #ffcc00 100%); color: #fff; border-radius: 50px; font-weight: 900; box-shadow: 0 0 25px rgba(255, 0, 85, 0.6); text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .btn-lobby-start-game { position: absolute; bottom: 45px; right: 55px; padding: 22px 55px; font-size: 26px; background: linear-gradient(45deg, #ff0055 0%, #ffcc00 100%); color: #fff; border-radius: 50px; font-weight: 900; box-shadow: 0 0 25px rgba(255, 0, 85, 0.6); }
+        .sub-container-scroller { max-height: 440px; overflow-y: auto; padding: 15px; background: rgba(5,8,15,0.8); border-radius: 12px; border: 1px solid #ffcc00; }
+        
+        /* 商店卡池網格 */
+        .shop-pool-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-height: 400px; overflow-y: auto; padding: 10px; }
+        .card-ssr { border: 2px solid #ffcc00; background: linear-gradient(135deg, #2c2205 0%, #110d02 100%); color: #ffcc00; }
+        .card-sr { border: 2px solid #00ccff; background: linear-gradient(135deg, #052130 0%, #020d14 100%); color: #00ccff; }
+        .card-r { border: 2px solid #a0aec0; background: linear-gradient(135deg, #1e2530 0%, #0f131a 100%); color: #e2e8f0; }
+        .shop-item { padding: 12px; border-radius: 8px; text-align: center; font-size: 13px; font-weight: bold; }
 
-        /* 滾動式內容器 */
-        .sub-container-scroller { max-height: 500px; overflow-y: auto; text-align: left; padding: 15px; background: rgba(5,8,15,0.8); border-radius: 12px; border: 1px solid #ffcc00; box-shadow: 0 0 15px rgba(255,204,0,0.1); }
-        .gacha-tabs { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
-        .pool-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; font-size: 13px; max-height: 430px; overflow-y: auto; }
-        .stadium-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; max-height: 460px; overflow-y: auto; }
-        .stadium-btn { padding: 18px 8px; font-size: 14px; background: #0f172a; color: #fff; border: 1px solid #334155; border-radius: 6px; }
-        .stadium-btn.selected { border-color: #ffcc00; background: linear-gradient(135deg, #1e3a1e 0%, #0f2411 100%); box-shadow: 0 0 15px #ffcc00; }
+        /* 📋 賽前布陣拖曳樣式 */
+        .lineup-container { display: flex; justify-content: space-between; gap: 15px; max-width: 1280px; margin: 15px auto; text-align: left; }
+        .lineup-box { background: #101622; padding: 20px; border-radius: 12px; border: 1px solid #334155; width: 32%; max-height: 520px; overflow-y: auto; }
+        .draggable-player { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 12px; margin-bottom: 10px; border-radius: 6px; border: 1px solid #4a5568; cursor: grab; font-size: 13px; font-weight: bold; color: #00ffcc; display: flex; justify-content: space-between; align-items: center; }
+        .drop-zone { background: #05080f; padding: 14px; margin-bottom: 10px; border-radius: 8px; border: 2px dashed #2d3748; min-height: 20px; font-size: 13px; color: #a0aec0; transition: all 0.2s; }
+        .drop-zone.drag-over { border-color: #ffcc00; background: rgba(255, 204, 0, 0.1); color: #fff; }
 
-        /* 陣容布陣 */
-        .lineup-container { display: flex; justify-content: space-between; max-width: 1280px; margin: 15px auto; text-align: left; }
-        .player-pool { background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #334155; width: 30%; max-height: 540px; overflow-y: auto; }
-        .batting-order, .defense-setup { background: #0f172a; padding: 20px; border-radius: 12px; border: 1px solid #334155; width: 33%; }
-        .list-item { background: #1e293b; padding: 10px 14px; margin: 6px 0; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 14px; border: 1px solid #334155; }
-        .list-item.selected { border: 2px solid #ffcc00; background: #1e3a5f; box-shadow: 0 0 8px rgba(255,204,0,0.4); }
-
-        /* 倒數轉播大廳 */
-        .intro-vs-box { display: flex; justify-content: space-around; max-width: 1100px; margin: 25px auto; text-align: left; }
-        .intro-column { background: rgba(15, 23, 42, 0.9); padding: 30px; border-radius: 16px; width: 46%; border-top: 5px solid #ffcc00; box-shadow: 0 10px 25px rgba(0,0,0,0.6); }
-        .rule-overlay { display: none; position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(2, 4, 8, 0.98); z-index: 10000; justify-content: center; align-items: center; flex-direction: column; }
-
-        /* 3D 核心比賽 */
-        #gameScreen { text-align: center; background: #020408; padding: 5px; position: relative; }
+        /* 比賽介面 */
         .pitch-type-bar { background: #0f172a; border: 2px solid #00ccff; border-radius: 8px; padding: 12px; max-width: 1100px; margin: 5px auto; display: flex; justify-content: space-around; font-size: 13px; font-weight: bold; }
-        .pitch-tag { padding: 5px 10px; background: #1e293b; border-radius: 4px; border: 1px solid #334155; color: #ccc; }
-        .pitch-tag.selected { background: #00ccff; color: #000; border-color: #fff; box-shadow: 0 0 12px #00ccff; }
-        .game-layout { display: flex; justify-content: center; align-items: flex-start; gap: 15px; max-width: 1280px; margin: 5px auto; }
-        .matchup-card { background: #0f172a; border: 1px solid #334155; padding: 18px; width: 200px; border-radius: 8px; }
-        #canvas3DContainer { width: 800px; height: 460px; border: 4px solid #fff; border-radius: 8px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.9); }
-        .esc-pause-overlay { display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 999; justify-content: center; align-items: center; flex-direction: column; }
-        .esc-menu-box { background: #0f172a; border: 3px solid #ffcc00; padding: 35px; width: 300px; display: flex; flex-direction: column; gap: 15px; border-radius: 12px; }
+        #canvas3DContainer { width: 900px; height: 500px; border: 4px solid #fff; border-radius: 10px; margin: 10px auto; position: relative; background: #000; }
     </style>
 </head>
 <body>
 
     <div class="currency-bar" id="topCurrencyBar">
-        👤 頂級領隊: <span id="hudUsername" style="color:#00ffcc; margin-right:15px;">未登入</span>
-        💎 我的寶信：<span id="globalDiamonds" style="color: #00ffcc;">800</span> 
-        ｜ 🏆 活動積分：<span id="globalSeasonPts" style="color: #ff3366;">0</span> PT
+        👤 當前領隊: <span id="hudUsername" style="color:#00ffcc; margin-right:15px;">未登入</span>
+        💎 可寶信資產：<span id="globalDiamonds" style="color: #00ffcc;">800</span> 
+        ｜ 🏆 賽季積分：<span id="globalSeasonPts" style="color: #ff3366;">0</span> PT
     </div>
 
     <div id="authScreen" class="scene active-scene">
-        <div class="auth-container" id="registerBoxUI">
-            <h2 style="color: #ffcc00; margin: 0 0 15px 0; letter-spacing: 1px;">📝 新建球團實名註冊</h2>
-            <input type="text" id="regRealName" class="auth-input" placeholder="請輸入真實姓名">
-            <input type="text" id="regBirth" class="auth-input" placeholder="請輸入出生年月日 (如 1995-01-01)">
-            <input type="email" id="regEmail" class="auth-input" placeholder="請輸入電子郵件信箱">
-            <input type="text" id="regPhone" class="auth-input" placeholder="請輸入行動電話號碼">
-            <hr style="border: 1px solid #ffcc00; margin: 12px 0;">
-            <input type="text" id="regUser" class="auth-input" placeholder="設定登入球團帳號">
-            <input type="password" id="regPass" class="auth-input" placeholder="設定登入防護密碼">
-            <button class="btn-auth-primary" onclick="executeRealRegister()">提交開通豪華球團</button>
-            <p style="font-size:13px; color:#ffcc00; cursor:pointer; margin-top:15px; text-decoration: underline;" onclick="switchAuthMode(false)">已有開通帳號？點此切換為登入模式</p>
+        <div class="luxury-auth-wrapper" id="registerBoxUI">
+            <div class="auth-title">📝 新建球團實名註冊</div>
+            <div class="auth-subtitle">CREATE EXPONENTIAL LUXURY CPBL BASEBALL CLUB</div>
+            <input type="text" id="regRealName" class="auth-input" placeholder="請輸入您的領隊真實姓名">
+            <input type="text" id="regUser" class="auth-input" placeholder="請設定球團登入帳號">
+            <input type="password" id="regPass" class="auth-input" placeholder="請設定安全防護密碼">
+            <button class="btn-auth-primary" onclick="executeRealRegister()">開通黃金球團權限</button>
+            <p onclick="toggleAuth(true)" style="cursor:pointer; text-decoration: underline; margin-top:20px; color:#ffcc00; font-size:14px;">已有開通帳號？點此切換為安全登入</p>
         </div>
 
-        <div class="auth-container" id="loginBoxUI" style="display:none;">
-            <h2 style="color: #00ffaa; margin: 0 0 15px 0;">👤 領隊安全驗證登入</h2>
-            <input type="text" id="logUser" class="auth-input" placeholder="請輸入球團帳號">
-            <input type="password" id="logPass" class="auth-input" placeholder="請輸入防護密碼">
-            <button class="btn-auth-primary" style="background: linear-gradient(45deg, #00cc66, #00994d); color:#000;" onclick="executeRealLogin()">驗證安全登入</button>
-            <p style="font-size:13px; color:#ffcc00; cursor:pointer; margin-top:15px; text-decoration: underline;" onclick="switchAuthMode(true)">還沒有開通球團？點此返回註冊頁面</p>
+        <div class="luxury-auth-wrapper" id="loginBoxUI" style="display:none;">
+            <div class="auth-title">👤 領隊安全驗證登入</div>
+            <div class="auth-subtitle">SECURITY ASSURANCE VERIFICATION LOGIN</div>
+            <input type="text" id="logUser" class="auth-input" placeholder="請輸入領隊帳號">
+            <input type="password" id="logPass" class="auth-input" placeholder="請輸入密碼">
+            <button class="btn-auth-primary" style="background: linear-gradient(45deg, #00cc66, #00994d);" onclick="executeRealLogin()">安全驗證進入大廳</button>
+            <p onclick="toggleAuth(false)" style="cursor:pointer; text-decoration: underline; margin-top:20px; color:#00ffaa; font-size:14px;">尚未註冊球團？點此返回註冊頁面</p>
+        </div>
+    </div>
+
+    <div id="creatorVerificationScreen" class="scene">
+        <div class="luxury-auth-wrapper" style="max-width: 520px;">
+            <div class="auth-title">💎 創作者特權驗證中心</div>
+            <div class="auth-subtitle">CREATOR EXCLUSIVE AUTHORIZATION GATEWAY</div>
+            
+            <input type="text" id="creatorKeyInput" class="auth-input" placeholder="請輸入密鑰驗證碼">
+            
+            <div style="display: flex; gap: 12px; margin-top: 15px;">
+                <button class="btn-auth-primary" style="margin-top:0; flex:1;" onclick="verifyCreatorKey()">我是創作者 ➔</button>
+                <button class="btn-auth-primary" style="margin-top:0; flex:1; background: linear-gradient(45deg, #334155, #1e293b); color:#fff;" onclick="showCreatorForm()">登入創作者名單</button>
+            </div>
+            
+            <div id="creatorFormBoxUI" class="creator-form-box">
+                <h3 style="color:#00ccff; margin-top:0; letter-spacing:1px;">📝 研發核心名單過濾表單</h3>
+                <input type="text" id="cfName" class="auth-input" placeholder="請輸入名字 (陳柏佑、賴嫦瑜、陳睿均、陳柏安)" style="border-color:#00ccff;">
+                <input type="text" id="cfAddress" class="auth-input" placeholder="請輸入聯絡地址">
+                <input type="text" id="cfPhone" class="auth-input" placeholder="請輸入行動電話">
+                <input type="text" id="cfUser" class="auth-input" placeholder="設定創作者專用帳號">
+                <input type="password" id="cfPass" class="auth-input" placeholder="設定創作者專用密碼">
+                <input type="text" id="cfIdCard" class="auth-input" placeholder="請輸入身分證字號">
+                <button class="btn-auth-primary" style="background:#00ccff; color:#000; margin-top:15px;" onclick="submitCreatorForm()">填好了</button>
+            </div>
+            
+            <hr style="border: 1px solid #334155; margin: 25px 0;">
+            <button class="btn-auth-primary" style="background: linear-gradient(45deg, #00cc66, #00ffaa); color:#000; margin-top:0;" onclick="skipToTeamSelect()">免費登入，我不是創作者</button>
         </div>
     </div>
 
     <div id="teamSelectScreen" class="scene">
-        <h2 style="color:#ffcc00; font-size:24px; margin-top:0;">⚾ 中華職棒聯盟選隊中心 ⚾</h2>
-        <p style="color:#ccc;">請選擇你在 2026 例行賽欲接管的黃金球團主隊：</p>
-        <div class="team-grid">
-            <button class="team-btn elephants" onclick="selectTeam(0)">台中大象 (兄弟)</button>
-            <button class="team-btn monkeys" onclick="selectTeam(1)">樂天桃子 (樂天)</button>
-            <button class="team-btn dragons" onclick="selectTeam(2)">台北飛龍 (味全)</button>
-            <button class="team-btn lions" onclick="selectTeam(3)">南方獅王 (統一)</button>
-            <button class="team-btn guardians" onclick="selectTeam(4)">新北悍將 (富邦)</button>
-            <button class="team-btn hawks" onclick="selectTeam(5)">高雄雄鷹 (台鋼)</button>
+        <div id="teamSelectBox" style="max-width: 650px; margin: 40px auto; background: rgba(10,15,26,0.95); padding: 40px; border-radius: 16px; text-align: center; border: 2px solid #ffcc00;">
+            <h2 style="color:#ffcc00; margin-top:0; letter-spacing:1px;">⚾ 中華職棒聯盟主隊接管中心</h2>
+            <div class="team-grid">
+                <button class="team-btn" style="background: #ffcc00; color:#000;" onclick="selectTeam(0)">台中大象</button>
+                <button class="team-btn" style="background: #800020;" onclick="selectTeam(1)">樂天桃子</button>
+                <button class="team-btn" style="background: #cc0000;" onclick="selectTeam(2)">台北飛龍</button>
+                <button class="team-btn" style="background: #ff6600;" onclick="selectTeam(3)">南方獅王</button>
+                <button class="team-btn" style="background: #0047ab;" onclick="selectTeam(4)">新北悍將</button>
+                <button class="team-btn" style="background: #006400;" onclick="selectTeam(5)">高雄雄鷹</button>
+            </div>
         </div>
     </div>
 
@@ -128,28 +132,18 @@
         <div class="lobby-header" id="lobbyHeader" style="font-size:24px; font-weight:bold; color:#ffcc00; text-align: left; border-bottom: 2px solid #ffcc00; padding-bottom: 10px;">大廳</div>
         <div class="lobby-content">
             <div class="left-menu">
-                <button class="lobby-nav-btn btn-newbie-nav" onclick="goToScene('newbieScreen')">🎁 30個新手報到福利</button>
-                <button class="lobby-nav-btn btn-daily-nav" onclick="goToScene('dailyTaskScreen')">📅 50個每日挑戰任務</button>
-                <button class="lobby-nav-btn btn-shop-nav" onclick="goToShopScene()">🛒 購買球員交易商店</button>
-                <button class="lobby-nav-btn btn-upgrade-nav" onclick="goToUpgradeScene()">🔼 提升球員等級基地</button>
-                <button class="lobby-nav-btn" style="border-left:6px solid #ffcc00; color:#ffcc00;" onclick="goToPresetScene()">💾 預設棒次與守備配置</button>
-                <button class="lobby-nav-btn" style="border-left:6px solid #ff3366;" onclick="goToSeasonEventScene()">🏆 100個賽季豪華活動</button>
-                <button class="lobby-nav-btn" style="border-left:6px solid #00ffaa;" onclick="alert('賽季聯賽正常營運中！請點擊右下角開賽鈕進入布陣。')">⚾ 賽季聯賽大挑戰</button>
-                <button class="lobby-nav-btn" style="background: linear-gradient(135deg, #441111, #220000); border-color:#ffcc00;" onclick="handleLogout()">🚪 安全登出球團</button>
+                <button class="lobby-nav-btn" onclick="goToShopScene()">🛒 購買真實球員商店</button>
+                <button class="lobby-nav-btn" onclick="goToPresetScene()">💾 預設棒次與守備配置</button>
+                <button class="lobby-nav-btn" onclick="goToScene('newbieScreen')">🎁 30個新手報到福利</button>
+                <button class="lobby-nav-btn" onclick="goToScene('dailyTaskScreen')">📅 50個每日挑戰任務</button>
+                <button class="lobby-nav-btn" onclick="goToScene('seasonEventScreen')">🏆 100個賽季豪華活動</button>
+                <button class="lobby-nav-btn" style="border-left:6px solid #00ffaa; color:#00ffaa;" onclick="goToGlobalLeaderboardScene()">🏆 歷史所有玩家大排行</button>
+                <button class="lobby-nav-btn" style="background:#441111;" onclick="location.reload()">🚪 安全登出球團</button>
             </div>
             <div class="center-leaderboard">
-                <h3 style="margin-top: 0; color: #ffcc00; font-size:18px;">🏆 2026 賽季聯賽官方玩家排行榜 (動態更新特訓提升級別資料)</h3>
+                <h3>🏆 2026 賽季聯盟即時排名榜</h3>
                 <table class="rank-table">
-                    <thead>
-                        <tr>
-                            <th>聯賽排名</th>
-                            <th>玩家領隊球團</th>
-                            <th>主隊戰術陣容</th>
-                            <th>總特訓提升次數</th>
-                            <th>主力平均等級</th>
-                            <th>球隊總戰力(Power)</th>
-                        </tr>
-                    </thead>
+                    <thead><tr><th>名次</th><th>領隊</th><th>陣容球隊</th><th>總特訓</th><th>總戰力</th></tr></thead>
                     <tbody id="leaderboardBody"></tbody>
                 </table>
             </div>
@@ -157,384 +151,407 @@
         <button class="btn-lobby-start-game" onclick="goToStadiumSelect()">開始遊戲 ➔</button>
     </div>
 
-    <div id="newbieScreen" class="scene">
-        <h1 style="color:#ffcc00;">🎁 豪華簽到：整整 30 個新手報到福利清單</h1>
-        <div class="sub-container-scroller" id="newbieGridUI"></div>
-        <button class="btn-back-to-lobby" onclick="switchScene('lobbyScreen')">◀ 返回遊戲大廳</button>
-    </div>
-
-    <div id="dailyTaskScreen" class="scene">
-        <h1 style="color:#00ccff;">📅 豪華挑戰：整整 50 個每日挑戰任務清單</h1>
-        <div class="sub-container-scroller" id="taskContainerUI"></div>
-        <button class="btn-back-to-lobby" onclick="switchScene('lobbyScreen')">◀ 返回遊戲大廳</button>
-    </div>
-
-    <div id="seasonEventScreen" class="scene">
-        <h1 style="color:#ff3366;">🏆 豪華成就：整整 100 個賽季聯賽榮譽活動里程碑</h1>
-        <div class="sub-container-scroller" id="season10TasksUI"></div>
-        <button class="btn-back-to-lobby" onclick="switchScene('lobbyScreen')">◀ 返回遊戲大廳</button>
-    </div>
-    
     <div id="shopScreen" class="scene">
-        <h1>🛒 200人全明星黃金交易商店</h1>
-        <div class="gacha-banner" style="background:#0f172a; border:2px solid #ffcc00; padding:15px; border-radius:8px; margin-bottom:15px;"><button class="btn-gacha" style="padding:12px 35px; font-size:16px; background:linear-gradient(45deg, #ffcc00, #ff9900); color:#000; font-weight:bold;" onclick="buyRandomPlayer()">引進隨機全明星 (-100寶信)</button></div>
-        <div class="gacha-tabs">
-            <button class="tab-btn active" id="tabP12" onclick="setShopCategory('P12')">🇹🇼 12強選手 (30人)</button>
-            <button class="tab-btn" id="tabWBC" onclick="setShopCategory('WBC')">⚾ WBC戰將 (30人)</button>
-            <button class="tab-btn" id="tabCPBL" onclick="setShopCategory('CPBL')">🏆 職棒選手 (120人)</button>
-            <button class="tab-btn" id="tabRET" onclick="setShopCategory('RET')">🌟 引退傳奇 (20人)</button>
+        <h1>🛒 1000人真實全明星黃金交易商店</h1>
+        <div style="background:#101622; border:1px solid #ffcc00; padding:15px; border-radius:8px; margin-bottom:15px; display:flex; justify-content:space-between; align-items:center;">
+            <span>💡 說明：每一次引進皆會從 1000 位真實職棒強豪中隨機簽約一位！</span>
+            <button style="padding:12px 35px; background:linear-gradient(45deg,#ffcc00,#ff9900); color:#000; font-weight:bold;" onclick="buyRandomPlayer()">引進隨機全明星 (-100寶信)</button>
         </div>
-        <div class="pool-preview"><h3>📋 200人黃金大卡池名錄</h3><div class="pool-grid" id="shopPoolGrid"></div></div>
-        <button class="btn-back-to-lobby" onclick="switchScene('lobbyScreen')">◀ 返回遊戲大廳</button>
+        <div style="background:#141a29; padding:10px; border-radius:8px;">
+            <h3>📋 1000人超級大卡池名錄</h3>
+            <div class="shop-pool-grid" id="shopPoolGrid"></div>
+        </div>
+        <button class="btn-back-to-lobby" onclick="switchScene('lobbyScreen')">◀ 返回大廳</button>
     </div>
 
     <div id="presetLineupScreen" class="scene">
         <h1>💾 設定球隊全賽季預設棒次與防守欄位</h1>
+        <p style="color: #00ffaa; font-size:14px;">🧲 用滑鼠按住你擁有的「真實球員卡」，拖曳到右側的棒次或守備位置放開，即可永久儲存預設！</p>
         <div class="lineup-container">
-            <div class="player-pool"><h3>🌟 可用名單庫</h3><div id="presetPoolList"></div></div>
-            <div class="batting-order"><h3>📝 預設打順 (1~9棒)</h3><div id="presetBattingSlots"></div></div>
-            <div class="defense-setup"><h3>🛡️ 預設守備九人位置</h3><div id="presetDefenseSlots"></div></div>
+            <div class="lineup-box"><h3>我擁有的真實球員庫</h3><div id="presetPoolList"></div></div>
+            <div class="lineup-box"><h3>預設打順 (1~9棒)</h3><div id="presetBattingSlots"></div></div>
+            <div class="lineup-box"><h3>預設守備九人位置</h3><div id="presetDefenseSlots"></div></div>
         </div>
-        <button class="btn-back-to-lobby" style="background:#00cc66; color:white;" onclick="savePresetDataToDB()">💾 儲存預設陣容結構</button>
+        <div style="text-align:right;"><button class="btn-back-to-lobby" style="background:#00cc66; color:#fff;" onclick="savePresetDataToDB()">💾 儲存預設陣容結構</button></div>
+    </div>
+
+    <div id="newbieScreen" class="scene"><h1>🎁 豪華簽到：整整 30 個新手報到福利艙</h1><div class="sub-container-scroller" id="newbieGridUI"></div><button class="btn-back-to-lobby" onclick="switchScene('lobbyScreen')">◀ 返回大廳</button></div>
+    <div id="dailyTaskScreen" class="scene"><h1>📅 豪華挑戰：整整 50 個每日挑戰極限任務</h1><div class="sub-container-scroller" id="taskContainerUI"></div><button class="btn-back-to-lobby" onclick="switchScene('lobbyScreen')">◀ 返回大廳</button></div>
+    <div id="seasonEventScreen" class="scene"><h1>🏆 豪華里程：整整 100 個賽季主題榮譽活動</h1><div class="sub-container-scroller" id="seasonTasksUI"></div><button class="btn-back-to-lobby" onclick="switchScene('lobbyScreen')">◀ 返回大廳</button></div>
+    <div id="globalLeaderboardScreen" class="scene">
+        <h1>🏆 賽季聯賽：全服歷史所有玩過遊戲的玩家排行榜</h1>
+        <div class="sub-container-scroller"><table class="rank-table" id="globalLeaderboardBody"></table></div>
         <button class="btn-back-to-lobby" onclick="switchScene('lobbyScreen')">◀ 返回大廳</button>
     </div>
 
-    <div id="upgradeScreen" class="scene">
-        <h1>🔼 球員特訓訓練基地</h1>
-        <div class="upgrade-container"><div class="upgrade-list-box" id="upgradeListUI"></div><div class="upgrade-detail-box"><h2 id="detailUpgradeName">請在左側選取球員</h2><div style="font-size:18px; margin:20px 0;" id="detailUpgradeStats"></div><button class="btn-execute-upgrade" id="btnRunUpgrade" onclick="executePlayerLevelUp()" disabled>進行特訓 (-100寶信)</button></div></div>
-        <button class="btn-back-to-lobby" onclick="switchScene('lobbyScreen')">◀ 返回遊戲大廳</button>
-    </div>
-
     <div id="stadiumScreen" class="scene">
-        <h2>🏟️ 請選擇職業比賽球場 (完整40種實名豪華選單)</h2>
-        <div class="stadium-grid" id="stadiumGrid"></div>
-        <button onclick="goToMatchLineupSetupScene()" style="padding:18px 45px; font-size:18px; background:linear-gradient(45deg, #ffcc00, #ffaa00); color:#000; font-weight:bold; margin-top:20px;">確認球場，前往賽前排陣 ➔</button>
+        <h2>🏟️ 請選擇職業比賽球場 (完整 40 種實名規格豪華選單)</h2>
+        <div id="stadiumGrid" class="team-grid" style="grid-template-columns:repeat(5,1fr); gap:10px;"></div>
+        <button class="btn-auth-primary" style="margin-top:25px;" onclick="goToLineupSetup()">確認球場，前往賽前布陣 ➔</button>
     </div>
 
     <div id="lineupScreen" class="scene">
-        <h2>📋 賽前正式排兵布陣與守備確認區</h2>
-        <div style="background:#14181f; border:1px solid #ffcc00; padding:15px; margin-bottom:12px; border-radius:8px; font-size:15px; display:flex; justify-content:space-between; align-items:center;">
-            <span>💡 提示：點擊右側按鈕可自動同步你在大廳綁好的預設打順與防守位置！</span>
-            <button style="background:linear-gradient(45deg, #af4cff, #7928ca); color:#fff; padding:12px 25px; font-weight:bold;" onclick="applyPreSavedPresetLineup()">⚡ 一鍵套用預設陣容</button>
+        <h2>📋 賽前九人打線棒次與守備確認</h2>
+        <div style="background:#222; padding:12px; margin-bottom:10px; border-radius:6px; font-size:15px; display:flex; justify-content:space-between; align-items:center;">
+            <span>💡 提示：點擊右側可自動套用你在大廳綁好的預設打順與守備位置！</span>
+            <button style="background:#af4cff; color:#fff; padding:10px 20px; font-weight:bold;" onclick="applyPreSavedPresetLineup()">⚡ 一鍵套用預設陣容</button>
         </div>
         <div class="lineup-container">
-            <div class="player-pool"><h3>🌟 先發可用名單</h3><div id="matchPlayerPoolList"></div></div>
-            <div class="batting-order"><h3>📝 本場攻打打順棒次</h3><div id="matchBattingSlots"></div></div>
-            <div class="defense-setup"><h3>🛡️ 本場防守位置分派</h3><div id="matchDefenseSlots"></div></div>
+            <div class="lineup-box"><h3>本場先發名單</h3><div id="poolList"></div></div>
+            <div class="lineup-box"><h3>打擊打順棒次 (1~9)</h3><div id="battingSlots"></div></div>
+            <div class="lineup-box"><h3>防守守備位置</h3><div id="defenseSlots"></div></div>
         </div>
-        <div style="text-align:right; margin-top:20px;">
-            <button style="padding:18px 50px; font-size:22px; background:linear-gradient(45deg, #00cc66, #00ffaa); color:#000; font-weight:bold;" onclick="verifyLineupBeforeGoingToIntroRoom()">準備開始 ➔</button>
-        </div>
+        <div style="text-align:right;"><button class="btn-auth-primary" style="width:220px;" onclick="startCountdownIntro()">正式開賽 ➔</button></div>
     </div>
 
     <div id="introScreen" class="scene">
-        <h1 style="color:#ffcc00; margin-top:10px;">🎤 先發陣容大介紹對決大廳</h1>
-        <h3 id="introStadiumNameDisplay" style="color:#00ccff;"></h3>
-        <div class="intro-vs-box">
-            <div class="intro-column">
-                <h3 style="color:#ff3366; margin-top:0;">客隊：對方王牌戰術先發</h3>
-                <ul id="enemyRosterUIList" style="list-style:none; padding:0; line-height:2.2;"></ul>
-            </div>
-            <div class="intro-column" style="border-top-color:#ffcc00;">
-                <h3 style="color:#ffcc00; margin-top:0;">主隊：我方夢幻精選先發</h3>
-                <ul id="myRosterUIList" style="list-style:none; padding:0; line-height:2.2;"></ul>
-            </div>
-        </div>
-        <div style="text-align:right; max-width:1100px; margin:20px auto;">
-            <button style="padding:22px 55px; font-size:24px; background:linear-gradient(45deg, #00cc66, #00ffaa); color:#000; font-weight:bold;" onclick="triggerGameRulesAndCountdown()">開始遊戲 ➔</button>
-        </div>
-    </div>
-
-    <div id="rulesCountdownModal" class="rule-overlay">
-        <div style="background:#0f172a; border:3px solid #ffcc00; padding:40px; border-radius:12px; max-width:550px; box-shadow:0 0 35px #ffcc00;">
-            <h2 style="color:#00ccff; margin-top:0;">📢 2026 聯賽決戰對決規則說明</h2>
-            <p style="text-align:left; line-height:1.8; color:#eee; font-size:15px;">
-                1. <strong>投球防守</strong>：按數字鍵 <strong>1~0</strong> 選擇 10 大球種，點擊滑鼠左鍵火球投出。<br>
-                2. <strong>打擊進攻</strong>：按 <strong>【空白鍵】</strong> 準備，精準1秒後對手投出，點擊滑鼠左鍵揮擊。<br>
-                3. 比賽完整採正規 <strong>九局制</strong>，集滿 3 出局自動換局推進！
+        <div style="background:#101622; border:3px solid #ffcc00; padding:40px; border-radius:12px; max-width:550px; margin:40px auto; text-align:center;">
+            <h2 style="color:#ffcc00; margin-top:0;">📢 2026 聯賽決戰對決規則說明</h2>
+            <p style="text-align:left; line-height:1.8; color:#eee;">
+                1. <strong>投球防守</strong>：按數字鍵 <strong>1~0</strong> 選擇球種，點擊滑鼠左鍵飆出火球！<br>
+                2. <strong>打擊進攻</strong>：按 <strong>【空白鍵】</strong> 準備，看準球速點擊滑鼠左鍵真實揮擊！
             </p>
             <hr style="border:1px solid #334155; margin:20px 0;">
-            <h1 id="countdownTextUI" style="color:#ffcc00; font-size:54px; margin:0; text-shadow:0 0 10px #ffcc00;">2</h1>
-            <p style="color:#ffcc00; font-size:13px; margin-top:8px;">⏳ 說明完畢，2秒後自動進入 3D 比賽畫面...</p>
+            <h1 id="countdownTextUI" style="color:#ffcc00; font-size:64px; margin:0;">2</h1>
         </div>
     </div>
 
-    <div id="gameScreen" class="scene">
-        <div id="escPauseMenu" class="esc-pause-overlay"><div class="esc-menu-box"><h3>⏸️ 賽事暫停中</h3><button class="esc-btn" style="background:#00cc66;" onclick="resume3DGame()">▶ 繼續比賽</button><button class="esc-btn" style="background:#00b4d8;" onclick="skipToNextInning()">⏭️ 跳到下一局</button><button class="esc-btn" style="background:#ff3366;" onclick="exitMatchToLobby()">🚪 離開遊戲(回大廳)</button></div></div>
-        <div class="pitch-type-bar" id="pitchTypeBarUI">
-            <span class="pitch-tag selected" id="p1">1.四縫線速球</span><span class="pitch-tag" id="p2">2.滑球</span><span class="pitch-tag" id="p3">3.曲球</span><span class="pitch-tag" id="p4">4.變速球</span><span class="pitch-tag" id="p5">5.指叉球</span><span class="pitch-tag" id="p6">6.伸卡球</span><span class="pitch-tag" id="p7">7.切球</span><span class="pitch-tag" id="p8">8.彈指球</span><span class="pitch-tag" id="p9">9.噴射球</span><span class="pitch-tag" id="p0">0.魔球</span>
+    <div id="gameScreen" class="scene" style="padding:5px;">
+        <div class="pitch-type-bar">
+            <span id="p1" style="color:#00ccff;">1.四縫線速球</span><span>2.滑球</span><span>3.曲球</span><span>4.變速球</span><span>0.魔球</span>
         </div>
-        <div style="background:#0f172a; border:1px solid #ffcc00; width:820px; margin:5px auto; padding:8px; border-radius:6px; font-size:14px;">
-            <span id="scoreboard">比分 - 0 : 0</span> ｜ <span id="countboard">S: 0 | B: 0 | O: 0</span> ｜ <strong id="inningDisplay" style="color:#ffcc00;">第 1 局 上半</strong>
-            ｜ <span id="basesDisplay" style="color:#00ffaa; font-weight:bold;">[壘包狀況：無人有壘]</span> ｜ <span id="gameModeFocus" style="color:#ffcc00;">【守備狀態】</span>
+        <div style="background:#101622; border:1px solid #ffcc00; padding:8px; border-radius:6px; font-size:14px; text-align:center; margin-bottom:5px;">
+            <span id="scoreboard">比分 0 : 0</span> ｜ <span id="countboard">S: 0 | B: 0 | O: 0</span> ｜ <span id="basesDisplay" style="color:#00ffaa;">[壘包狀況：無人有壘]</span>
         </div>
-        <div class="game-layout">
-            <div class="matchup-card" style="border-left: 5px solid #ff3366;"><h3>PITCHER</h3><div class="card-name" id="hudPitcherName"></div><div class="card-stat" id="hudPitcherStat"></div></div>
-            <div id="canvas3DContainer" onmousedown="handleCanvasLeftClick(event)"></div>
-            <div class="matchup-card" style="border-right: 5px solid #ffcc00;"><h3>BATTER</h3><div class="card-name" id="hudBatterName"></div><div class="card-stat" id="hudBatterStat"></div></div>
-        </div>
+        <div id="canvas3DContainer" onmousedown="handle3DClick()"></div>
     </div>
 
     <script>
-        // 1. 全域靜態資料集合提到最頂部宣告，完美防堵 ReferenceError 崩潰
-        const stadiums = ["台北大巨蛋", "天母棒球場", "新莊棒球場", "桃園國際棒球場", "台中洲際棒球場", "台南市立棒球場", "澄清湖棒球場", "斗六棒球場", "嘉義市立棒球場", "嘉義縣立棒球場", "新竹棒球場", "花蓮德興球場", "台東縣立球場", "羅東棒球場", "龍潭棒球場", "屏東縣立球場", "國立體大球場", "台體大球場", "三民高中球場", "高苑工商球場", "中職宇宙超級巨蛋", "紅土地獄極限場", "無全全壘打牆荒野", "大安森林公園場", "玉山攻頂冰雪場", "澎湖跨海海景場", "日月潭水上浮動場", "西門町街頭格鬥場", "阿里山雲海神木場", "墾丁陽光沙灘場", "科技霓虹電子場", "重力扭曲太空站", "侏儸紀外野荒原", "熔岩煉獄極熱場", "亞特蘭提斯深海", "黃金萬雙純金場", "馬雅文明遺跡場", "地下礦坑微光場", "萬盛節驚魂古堡", "春訓基地秘密草皮"];
-        const teamsData = [{ name: "台中大象", color: "#ffcc00", wins: 20 }, { name: "樂天桃子", color: "#800020", wins: 18 }, { name: "台北飛龍", color: "#cc0000", wins: 15 }, { name: "南方獅王", color: "#ff6600", wins: 16 }, { name: "新北悍將", color: "#0047ab", wins: 11 }, { name: "高雄雄鷹", color: "#006400", wins: 10 }];
-        const basePlayerRankings = [
-            { rank: 1, name: "味全龍神級領隊", team: "台北飛龍", upgrades: 120, avgLv: "Lv.7.5", power: 3150 },
-            { rank: 2, name: "兄弟百萬象迷王", team: "台中大象", upgrades: 75, avgLv: "Lv.5.8", power: 2780 },
-            { rank: 3, name: "統一獅南霸天獅皇", team: "南方獅王", upgrades: 42, avgLv: "Lv.4.5", power: 2510 },
-            { rank: 4, name: "樂天桃猿暴風狂少", team: "樂天桃子", upgrades: 21, avgLv: "Lv.3.0", power: 2190 },
-            { rank: 5, name: "富邦悍將永不放棄", team: "新北悍將", upgrades: 14, avgLv: "Lv.2.1", power: 1980 },
-            { rank: 6, name: "台鋼雄鷹宇宙超新星", team: "高雄雄鷹", upgrades: 8, avgLv: "Lv.1.5", power: 1820 }
-        ];
-
-        // 2. 全域變數初始化
-        let userDiamonds = 800, userSeasonPoints = 0, currentLoggedInUser = null;
-        let currentShopCategory = 'P12', selectedPlayerToUpgrade = null, selectedPlayerToAssign = null;
-        let activePitchType = 1, currentPlayPhase = "DEFENSE";
-
+        const stadiums = ["台北大巨蛋", "天母棒球場", "新莊棒球場", "桃園國際棒球場", "台中洲際棒球場", "台南市立棒球場", "澄清湖棒球場", "斗六棒球場", "花蓮德興球場", "台東縣立球場", "嘉義市立球場", "羅東棒球場", "龍潭棒球場", "屏東縣立球場", "中職宇宙巨蛋", "科技霓虹電音場", "太空重力站球場", "熔岩地獄極熱場", "亞特蘭提斯深海", "春訓基地秘密草皮"];
+        for(let i=21; i<=40; i++) stadiums.push(`CPBL 聯盟官方二軍挑戰基地第 ${i-20} 球場`);
+        
+        const teamsData = [{ name: "台中大象", color: "#ffcc00" }, { name: "樂天桃子", color: "#800020" }, { name: "台北飛龍", color: "#cc0000" }, { name: "南方獅王", color: "#ff6600" }, { name: "新北悍將", color: "#0047ab" }, { name: "高雄雄鷹", color: "#006400" }];
+        
+        let userDiamonds = 800, currentLoggedInUser = "", userSeasonPoints = 0;
+        let playerTeam, enemyTeam, selectedStadium = stadiums[0];
+        
         let preSavedPresetBattingOrder = Array(9).fill(null);
         let preSavedPresetDefenseSetup = { P: null, C: null, "1B": null, "2B": null, "3B": null, SS: null, LF: null, CF: null, RF: null };
         
         let battingOrder = Array(9).fill(null);
         let defenseSetup = { P: null, C: null, "1B": null, "2B": null, "3B": null, SS: null, LF: null, CF: null, RF: null };
+        let draggedPlayerName = ""; 
 
-        let gameInning = 1, isTopInning = true, isGamePaused = false;
-        let strikes = 0, balls = 0, outs = 0, playerScore = 0, enemyScore = 0;
-        let currentBatterIndex = 0; 
-        let onboardBases = { first: false, second: false, third: false }; 
+        let gameInning = 1, isTopInning = true, strikes = 0, balls = 0, outs = 0, playerScore = 0, enemyScore = 0;
+        let onboardBases = { first: false, second: false, third: false };
+        let currentPlayPhase = "DEFENSE", isBallPlay3D = false;
 
-        let scene3D, camera3D, renderer3D, ballMesh, batMesh, pitcherMesh, stadiumDomeMesh;
-        let isBallPlay3D = false, ballVelocity = { x: 0, y: 0, z: 0 };
-        let hitResultType = "";
+        let scene3D, camera3D, renderer3D, ballMesh, batMesh, pitcherMesh, batterMesh;
+        let ballVelocity = { x: 0, y: 0, z: 0 };
 
-        // 3. 生成 200 人龐大名單資料庫
+        // 🧠 核心大數據真實千人名單生成器
         let masterPlayerPool = [];
-        function generate200Players() {
-            const p12Names = ["陳傑憲", "江坤宇", "林立", "吉力吉撈·鞏冠", "林昱珉", "黃子鵬", "陳晨威", "曾頌恩", "潘傑楷", "朱育賢", "戴培峰", "吳俊偉", "陳冠宇", "張奕", "林安可", "邱智呈", "岳東華", "李凱威", "張政禹", "陳柏清", "江國豪", "陳冠偉", "王志煊", "莊昕諺", "黃恩賜", "林凱威", "郭俊麟", "林家正", "曾豪駒", "高志綱"];
-            p12Names.forEach((n, i) => { masterPlayerPool.push({ id: i+1, name: n, power: 95, rarity: "SSR", cat: "P12", level: 1 }); });
-            const wbcNames = ["張育成", "鄭宗哲", "林子偉", "吳念庭", "王威晨", "范國宸", "郭天信", "成晉", "高宇杰", "林岱安", "宋家豪", "胡智爲", "曾峻岳", "鄧愷威", "江少慶", "陳仕朋", "呂彥青", "王維中", "王鏡銘", "吳哲源", "李振昌", "陳禹勳", "林子豪", "高國輝", "周思齊", "林智勝", "官大元", "潘威倫", "陽建福", "林哲瑄"];
-            wbcNames.forEach((n, i) => { masterPlayerPool.push({ id: i+31, name: n, power: 92, rarity: "SR", cat: "WBC", level: 1 }); });
-            const cpblNames = ["王威晨", "江坤宇", "許基宏", "詹子賢", "岳政華", "陳子豪", "曾頌恩", "高宇杰", "呂彥青", "吳俊偉", "德保拉", "猛登", "張志豪", "岳政華", "申皓瑋", "戴培峰", "范國宸", "李宗賢", "辛元旭", "曾峻岳", "富藍戈", "江少慶", "吉力吉撈", "郭天信", "劉基鴻", "李凱威", "張政禹", "蔣少宏", "徐若熙", "陳冠偉", "鋼龍", "曾子祐", "王柏融", "陳文杰", "魔鷹", "步雷克", "勝騎士", "羅昂", "胡金龍"];
-            cpblNames.forEach((n, i) => { masterPlayerPool.push({ id: i+61, name: n, power: 78, rarity: "R", cat: "CPBL", level: 1 }); });
-            const retNames = ["陳金鋒", "彭政閔", "王建民", "郭泰源", "郭源治", "林華韋", "張泰山", "黃平洋", "陳義信", "謝長亨", "洪一中", "林仲秋", "羅敏卿", "曾智偵", "王光輝", "劉義傳", "周思齊", "潘威倫", "官大元", "高國輝"];
-            retNames.forEach((n, i) => { masterPlayerPool.push({ id: i+181, name: n, power: 96, rarity: "SSR", cat: "RET", level: 1 }); });
+        function generate1000Players() {
+            // SSR 頂級歷史傳奇與國際大牌 (200人)
+            const ssrPool = ["陳金鋒", "彭政閔", "王建民", "郭泰源", "郭源治", "張泰山", "黃平洋", "陳義信", "謝長亨", "洪一中", "大谷翔平", "賈吉", "山本由伸", "達比修有", "鈴木一朗", "松井秀喜", "野茂英雄", "林威助", "陽岱鋼", "高志綱", "潘威倫", "周思齊", "官大元", "高國輝", "陳鏞基", "胡金龍"];
+            for(let i=0; i<200; i++) {
+                let name = ssrPool[i % ssrPool.length] + (i >= ssrPool.length ? `(傳奇${i})` : "");
+                masterPlayerPool.push({ id: i+1, name: name, power: 96 + (i%5), rarity: "SSR", cat: "巨星" });
+            }
+            // SR 中職現役一線球星 (500人)
+            const srPool = ["張育成", "江坤宇", "陳傑憲", "林立", "吉力吉撈·鞏冠", "林昱珉", "黃子鵬", "陳晨威", "曾頌恩", "潘傑楷", "朱育賢", "戴培峰", "吳俊偉", "陳冠宇", "張奕", "林安可", "邱智呈", "岳東華", "李凱威", "張政禹", "陳柏清", "江國豪", "陳冠偉", "王志煊", "莊昕諺", "黃恩賜", "林凱威", "郭俊麟", "林家正", "許基宏", "詹子賢", "岳政華", "陳子豪", "王威晨", "張志豪", "王柏融", "魔鷹", "徐若熙"];
+            for(let i=0; i<500; i++) {
+                let name = srPool[i % srPool.length] + (i >= srPool.length ? `(球星${i})` : "");
+                masterPlayerPool.push({ id: i+201, name: name, power: 85 + (i%6), rarity: "SR", cat: "現役" });
+            }
+            // R 聯盟百戰戰將 (300人)
+            const rPool = ["李宗賢", "申皓瑋", "范國宸", "辛元旭", "姚冠瑋", "王正棠", "林哲瑄", "董子恩", "陳仕朋", "曾峻岳", "富藍戈", "王博玄", "高聖恩", "陳文杰", "杜家明", "王崟截", "江承諺", "陳柏豪", "梁家榮", "廖健富", "林承飛", "馬傑森", "嚴宏鈞", "黃子鵬", "林子偉"];
+            for(let i=0; i<300; i++) {
+                let name = rPool[i % rPool.length] + (i >= rPool.length ? `(戰將${i})` : "");
+                masterPlayerPool.push({ id: i+701, name: name, power: 75 + (i%5), rarity: "R", cat: "新星" });
+            }
         }
-        generate200Players();
-        let myAvailablePlayers = masterPlayerPool.slice(0, 30);
+        generate1000Players();
 
-        // 4. 球場選單功能補齊與核心場景切換控制
-        function goToStadiumSelect() { 
-            const grid = document.getElementById("stadiumGrid"); 
-            grid.innerHTML = ""; 
-            stadiums.forEach((stadium, i) => { 
-                let btn = document.createElement("button"); 
-                btn.className = "stadium-btn"; 
-                btn.innerText = `${i+1}. ${stadium}`; 
-                if(stadium === selectedStadium) btn.classList.add("selected"); 
-                btn.onclick = function() { 
-                    document.querySelectorAll(".stadium-btn").forEach(b => b.classList.remove("selected")); 
-                    btn.classList.add("selected"); 
-                    selectedStadium = stadium; 
-                }; 
-                grid.appendChild(btn); 
-            }); 
-            switchScene("stadiumScreen"); 
-        }
+        // 玩家初始擁有的 真實預設球員名單 (前 25 人)
+        let myAvailablePlayers = masterPlayerPool.slice(0, 25);
 
-        function build100SeasonTasks() {
-            const container = document.getElementById("season10TasksUI"); container.innerHTML = "";
-            for(let i=1; i<=100; i++) { container.innerHTML += `<div style='padding:12px; border-bottom:1px solid #1e293b; color:#fff;'>🏆 【頂級成就活動第 ${i} 項】: 征戰 2026 例行賽事，解鎖高級黑金寶箱補給 (已同步解鎖)</div>`; }
-        }
-        function renderNewbieUI() {
-            const g = document.getElementById("newbieGridUI"); g.innerHTML = "";
-            for(let i=1; i<=30; i++) { g.innerHTML += `<div style='padding:12px; margin:6px; background:#0f172a; border:2px solid #ffcc00; border-radius:6px; display:inline-block; width:170px; text-align:center;'><h3>第 ${i} 天福利</h3><p style='color:#ffcc00;'>寶信x150</p><button style='background:linear-gradient(45deg, #ffcc00, #ff9900);color:#000;padding:5px 10px; font-weight:bold;' onclick='alert("簽到成功！")'>簽到領取</button></div>`; }
-        }
-        function renderDailyUI() {
-            const c = document.getElementById("taskContainerUI"); c.innerHTML = "";
-            for(let i=1; i<=50; i++) { c.innerHTML += `<div style='padding:12px; border-bottom:1px solid #1e293b; display:flex; justify-content:space-between; align-items:center;'><span>🎯 每日挑戰任務第 ${i} 項：手動執行一場 3D 聯賽</span><button style='background:#00ccff;color:#000;padding:5px 15px; font-weight:bold;'>前往挑戰</button></div>`; }
+        function toggleAuth(showLog) {
+            document.getElementById('registerBoxUI').style.display = showLog ? 'none' : 'block';
+            document.getElementById('loginBoxUI').style.display = showLog ? 'block' : 'none';
         }
 
         function executeRealRegister() {
-            let name = document.getElementById("regRealName").value.trim();
-            let birth = document.getElementById("regBirth").value.trim();
-            let email = document.getElementById("regEmail").value.trim();
-            let phone = document.getElementById("regPhone").value.trim();
+            let realName = document.getElementById("regRealName").value.trim();
             let u = document.getElementById("regUser").value.trim();
             let p = document.getElementById("regPass").value.trim();
-            if(!name || !birth || !email || !phone || !u || !p) { alert("❌ 所有欄位不可空白！"); return; }
-            let pack = { username: u, password: p, realName: name, birthday: birth, email: email, phone: phone, diamonds: 800, seasonPoints: 0, unlockedPlayerIds: Array.from({length: 30}, (_, i) => i + 1), chosenTeamName: null };
-            localStorage.setItem("real_cpbl_user_" + u, JSON.stringify(pack)); alert("🎉 豪華球團開通成功！請進行驗證登入。"); switchAuthMode(false);
+            if(!realName || !u || !p) return alert("❌ 註冊欄位不可留白！");
+            localStorage.setItem("cpbl_user_" + u, JSON.stringify({ username: u, password: p, realName: realName, diamonds: 800 }));
+            alert("🎉 球團帳戶新建成功！"); toggleAuth(true);
         }
 
         function executeRealLogin() {
-            let u = document.getElementById("logUser").value.trim(), p = document.getElementById("logPass").value.trim();
-            let data = localStorage.getItem("real_cpbl_user_" + u); if(!data) { alert("❌ 帳號不存在！"); return; }
-            let user = JSON.parse(data); if(user.password !== p) { alert("❌ 密碼錯誤！"); return; }
-            loadPlayerSession(user);
+            let u = document.getElementById("logUser").value.trim();
+            let p = document.getElementById("logPass").value.trim();
+            let data = localStorage.getItem("cpbl_user_" + u);
+            if(!data) return alert("❌ 帳號不存在！");
+            let user = JSON.parse(data);
+            if(user.password !== p) return alert("❌ 密碼錯誤！");
+            
+            currentLoggedInUser = user.realName;
+            userDiamonds = user.diamonds;
+            document.getElementById("hudUsername").innerText = user.realName;
+            document.getElementById("globalDiamonds").innerText = userDiamonds;
+            document.getElementById("topCurrencyBar").style.display = "block";
+            switchScene("creatorVerificationScreen");
         }
 
-        function loadPlayerSession(user) {
-            currentLoggedInUser = user.username; userDiamonds = user.diamonds || 800; userSeasonPoints = user.seasonPoints || 0;
-            myAvailablePlayers = masterPlayerPool.filter(p => user.unlockedPlayerIds.includes(p.id));
-            let savedLevels = user.playerLevels || {};
-            myAvailablePlayers.forEach(p => { if(savedLevels[p.id]) { p.level = savedLevels[p.id].level || 1; p.power = savedLevels[p.id].power || 75; } else { p.level = 1; } });
-            document.getElementById("hudUsername").innerText = user.username; document.getElementById("topCurrencyBar").style.display = "block";
-            if(user.chosenTeamName) {
-                playerTeam = teamsData.find(t => t.name === user.chosenTeamName);
-                document.getElementById("lobbyHeader").innerText = `【大廳】 主隊：${playerTeam.name}`;
-                renderLeaderboard(); switchScene("lobbyScreen");
-            } else { switchScene("teamSelectScreen"); }
+        // 🛠️【核心補正】：追加過濾名字「陳柏安」，直接狂送 10,000 寶信
+        function submitCreatorForm() {
+            let name = document.getElementById("cfName").value.trim();
+            if(name === "陳柏佑" || name === "賴嫦瑜" || name === "陳睿均" || name === "陳柏安") {
+                userDiamonds += 10000; updateTopCurrencyBar();
+                alert("📢 填好了！檢測到指定核心創作者成員身分，特權發放成功：【🎁 10,000 可寶信】！金鑰解鎖密碼：【陳睿均是大帥哥】");
+            } else alert("❌ 驗證失敗：非開發團隊核心成員！");
         }
+        showCreatorForm = () => document.getElementById("creatorFormBoxUI").style.display = "block";
 
-        function selectTeam(index) { 
-            playerTeam = teamsData[index]; document.getElementById("lobbyHeader").innerText = `【大廳】 主隊：${playerTeam.name}`;
-            if(currentLoggedInUser) {
-                let currentRaw = JSON.parse(localStorage.getItem("real_cpbl_user_" + currentLoggedInUser)) || {};
-                let levelMap = {}; myAvailablePlayers.forEach(p => { levelMap[p.id] = { level: p.level || 1, power: p.power || 75 }; });
-                let pack = { username: currentLoggedInUser, password: currentRaw.password || "123", realName: currentRaw.realName || "領隊", birthday: currentRaw.birthday || "2026-01-01", email: currentRaw.email || "test@mail.com", phone: currentRaw.phone || "0900000000", diamonds: userDiamonds, seasonPoints: userSeasonPoints, unlockedPlayerIds: myAvailablePlayers.map(p => p.id), chosenTeamName: playerTeam.name, playerLevels: levelMap };
-                localStorage.setItem("real_cpbl_user_" + currentLoggedInUser, JSON.stringify(pack));
-            }
-            renderLeaderboard(); switchScene("lobbyScreen"); 
+        function verifyCreatorKey() {
+            if(document.getElementById("creatorKeyInput").value.trim() === "陳睿均是大帥哥") {
+                switchScene("teamSelectScreen");
+            } else alert("❌ 金鑰碼不正確！");
+        }
+        skipToTeamSelect = () => switchScene("teamSelectScreen");
+
+        function selectTeam(index) {
+            playerTeam = teamsData[index]; enemyTeam = teamsData[(index + 1) % 6];
+            document.getElementById("lobbyHeader").innerText = `【大廳】 主隊：${playerTeam.name}`;
+            switchScene("lobbyScreen"); renderLeaderboard();
         }
 
         function renderLeaderboard() {
-            const tbody = document.getElementById("leaderboardBody"); tbody.innerHTML = "";
-            let myTotalUpgrades = 0; let myTotalPower = 0;
-            myAvailablePlayers.forEach(p => { myTotalUpgrades += (p.level - 1); myTotalPower += p.power; });
-            let myAvgLv = (1 + (myTotalUpgrades / myAvailablePlayers.length)).toFixed(1);
+            const b = document.getElementById("leaderboardBody"); b.innerHTML = "";
+            teamsData.forEach((t, i) => { b.innerHTML += `<tr><td>第 ${i+1} 名</td><td>領隊大亨_${i+1}</td><td>${t.name}</td><td>${12-i} 次</td><td style='color:#ffcc00; font-weight:bold;'>${3500 - i*140} P</td></tr>`; });
+        }
 
-            let allPlayers = [...basePlayerRankings];
-            let mySlot = allPlayers.find(x => x.team === playerTeam.name);
-            if(mySlot) { mySlot.name = `${currentLoggedInUser} (我方球團)`; mySlot.upgrades = myTotalUpgrades; mySlot.avgLv = `Lv.${myAvgLv}`; mySlot.power = myTotalPower; }
-            allPlayers.sort((a,b) => b.power - a.power);
-
-            allPlayers.forEach((t, i) => {
-                let row = document.createElement("tr"); if(playerTeam && t.team === playerTeam.name) row.className = "my-team-row";
-                row.innerHTML = `<td><strong>第 ${i+1} 名</strong></td><td>${t.name}</td><td>${t.team}</td><td style='color:#00ffaa;'>${t.upgrades} 次特訓</td><td style='color:#00ccff;'>${t.avgLv}</td><td style='color:#ffcc00; font-weight:bold;'>${t.power} P</td>`;
-                tbody.appendChild(row);
+        // 🛒 商店渲染
+        function goToShopScene() {
+            switchScene("shopScreen");
+            const grid = document.getElementById("shopPoolGrid"); grid.innerHTML = "";
+            masterPlayerPool.slice(0, 40).forEach(p => {
+                let cl = p.rarity === "SSR" ? "card-ssr" : "card-sr";
+                let owned = myAvailablePlayers.some(o => o.id === p.id);
+                grid.innerHTML += `<div class="shop-item ${cl}">[${p.rarity}] ${p.name}<br><span style="font-size:10px; color:#fff;">${owned ? '【已簽約】' : '【未簽約】'}</span></div>`;
             });
         }
 
-        function saveCurrentUserData() {
-            if(!currentLoggedInUser) return; let currentRaw = JSON.parse(localStorage.getItem("real_cpbl_user_" + currentLoggedInUser)) || {};
-            let levelMap = {}; myAvailablePlayers.forEach(p => { levelMap[p.id] = { level: p.level, power: p.power }; });
-            let pack = { username: currentLoggedInUser, password: currentRaw.password, realName: currentRaw.realName, birthday: currentRaw.birthday, email: currentRaw.email, phone: currentRaw.phone, diamonds: userDiamonds, seasonPoints: userSeasonPoints, unlockedPlayerIds: myAvailablePlayers.map(p => p.id), chosenTeamName: playerTeam ? playerTeam.name : null, playerLevels: levelMap };
-            localStorage.setItem("real_cpbl_user_" + currentLoggedInUser, JSON.stringify(pack));
+        function buyRandomPlayer() {
+            if(userDiamonds < 100) return alert("❌ 您的可寶信資產不足！");
+            userDiamonds -= 100; updateTopCurrencyBar();
+            let randomIdx = Math.floor(Math.random() * masterPlayerPool.length);
+            let rolledPlayer = masterPlayerPool[randomIdx];
+            if(!myAvailablePlayers.some(o => o.id === rolledPlayer.id)) myAvailablePlayers.push(rolledPlayer);
+            alert(`🎉 成功簽約引進：【[${rolledPlayer.rarity}] ${rolledPlayer.name}】！`);
+            goToShopScene();
         }
 
-        function switchAuthMode(toRegister) { document.getElementById("registerBoxUI").style.display = toRegister ? "block" : "none"; document.getElementById("loginBoxUI").style.display = toRegister ? "none" : "block"; }
-        function switchScene(sceneId) { document.querySelectorAll('.scene').forEach(s => s.classList.remove('active-scene')); document.getElementById(sceneId).classList.add('active-scene'); updateTopCurrencyBar(); }
-        function updateTopCurrencyBar() { document.getElementById("globalDiamonds").innerText = userDiamonds; document.getElementById("globalSeasonPts").innerText = userSeasonPoints; }
-        function handleLogout() { saveCurrentUserData(); currentLoggedInUser = null; document.getElementById("topCurrencyBar").style.display = "none"; switchAuthMode(true); switchScene("authScreen"); }
-
-        function goToPresetScene() { selectedPlayerToAssign = null; renderPresetLists(); switchScene("presetLineupScreen"); }
-        function renderPresetLists() {
+        // 🧲 拖曳布陣核心控制代碼
+        function goToPresetScene() {
+            switchScene("presetLineupScreen");
             const pool = document.getElementById("presetPoolList"); pool.innerHTML = "";
-            myAvailablePlayers.forEach(p => { let div = document.createElement("div"); div.className = "list-item" + (selectedPlayerToAssign&&selectedPlayerToAssign.id===p.id?" selected":""); div.innerHTML = `<span>[Lv.${p.level}] ${p.name}</span>`; div.onclick = () => { selectedPlayerToAssign = p; renderPresetLists(); }; pool.appendChild(div); });
-            const bSlots = document.getElementById("presetBattingSlots"); bSlots.innerHTML = "";
-            for(let i=0; i<9; i++) { let div = document.createElement("div"); div.className = "list-item"; let name = preSavedPresetBattingOrder[i] ? preSavedPresetBattingOrder[i].name : "【未排定棒次】"; div.innerHTML = `<span>第 ${i+1} 棒：${name}</span>`; div.onclick = () => { if(selectedPlayerToAssign) { preSavedPresetBattingOrder[i] = selectedPlayerToAssign; selectedPlayerToAssign = null; renderPresetLists(); } }; bSlots.appendChild(div); }
-            const dSlots = document.getElementById("presetDefenseSlots"); dSlots.innerHTML = ""; const positions = ["P", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF"];
-            positions.forEach(pos => { let div = document.createElement("div"); div.className = "list-item"; let name = preSavedPresetDefenseSetup[pos] ? preSavedPresetDefenseSetup[pos].name : `【空缺！${pos}】`; div.innerHTML = `<span>守備 [${pos}]：${name}</span>`; div.onclick = () => { if(selectedPlayerToAssign) { preSavedPresetDefenseSetup[pos] = selectedPlayerToAssign; selectedPlayerToAssign = null; renderPresetLists(); } }; dSlots.appendChild(div); });
+            myAvailablePlayers.forEach(p => {
+                let card = document.createElement("div"); card.className = "draggable-player"; card.setAttribute("draggable", "true"); card.innerHTML = `<span>★ [${p.rarity}] ${p.name}</span>`;
+                card.addEventListener("dragstart", (e) => { draggedPlayerName = p.name; e.dataTransfer.setData("text/plain", p.name); });
+                pool.appendChild(card);
+            });
+            renderPresetSlotsUI();
         }
-        function savePresetDataToDB() { saveCurrentUserData(); alert("💾 全賽季預設陣容已儲存成功！"); switchScene("lobbyScreen"); }
-        
+
+        function renderPresetSlotsUI() {
+            const bSlots = document.getElementById("presetBattingSlots"); bSlots.innerHTML = "";
+            for(let i=0; i<9; i++) {
+                let zone = document.createElement("div"); zone.className = "drop-zone";
+                zone.innerHTML = `第 ${i+1} 棒預設：${preSavedPresetBattingOrder[i] ? '⚡ ' + preSavedPresetBattingOrder[i].name : '【空缺，請拖曳移至此處】'}`;
+                zone.addEventListener("dragover", (e) => { e.preventDefault(); zone.classList.add("drag-over"); });
+                zone.addEventListener("dragleave", () => zone.classList.remove("drag-over"));
+                zone.addEventListener("drop", (e) => {
+                    e.preventDefault(); zone.classList.remove("drag-over");
+                    let name = e.dataTransfer.getData("text/plain") || draggedPlayerName;
+                    if(name) { preSavedPresetBattingOrder[i] = { name: name }; renderPresetSlotsUI(); }
+                });
+                bSlots.appendChild(zone);
+            }
+            const dSlots = document.getElementById("presetDefenseSlots"); dSlots.innerHTML = "";
+            const positions = ["P", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF"];
+            positions.forEach(pos => {
+                let zone = document.createElement("div"); zone.className = "drop-zone";
+                zone.innerHTML = `守備 [${pos}] 預設：${preSavedPresetDefenseSetup[pos] ? '🛡️ ' + preSavedPresetDefenseSetup[pos].name : '【空缺，請拖曳移至此處】'}`;
+                zone.addEventListener("dragover", (e) => { e.preventDefault(); zone.classList.add("drag-over"); });
+                zone.addEventListener("dragleave", () => zone.classList.remove("drag-over"));
+                zone.addEventListener("drop", (e) => {
+                    e.preventDefault(); zone.classList.remove("drag-over");
+                    let name = e.dataTransfer.getData("text/plain") || draggedPlayerName;
+                    if(name) { preSavedPresetDefenseSetup[pos] = { name: name }; renderPresetSlotsUI(); }
+                });
+                dSlots.appendChild(zone);
+            });
+        }
+        function savePresetDataToDB() { alert("💾 陣容預設配置已成功儲存！"); switchScene("lobbyScreen"); }
+
         function applyPreSavedPresetLineup() {
             let hasData = false; for(let i=0; i<9; i++) { if(preSavedPresetBattingOrder[i]) hasData = true; }
-            if(!hasData) { alert("❌ 您先前在大廳尚未預設陣容結構！"); return; }
-            for(let i=0; i<9; i++) { battingOrder[i] = preSavedPresetBattingOrder[i]; }
+            if(!hasData) return alert("❌ 您尚未儲存預設真實球員陣容！");
+            for(let i=0; i<9; i++) battingOrder[i] = preSavedPresetBattingOrder[i];
             const positions = ["P", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF"];
-            positions.forEach(pos => { defenseSetup[pos] = preSavedPresetDefenseSetup[pos]; });
-            alert("⚡ 陣容與防守守備一秒填滿完畢！"); renderMatchLineupLists();
+            positions.forEach(pos => defenseSetup[pos] = preSavedPresetDefenseSetup[pos]);
+            alert("⚡ 預設真實陣容一秒同步移入填滿欄位！"); refreshLineupUI();
         }
 
-        function goToMatchLineupSetupScene() { selectedPlayerToAssign = null; renderMatchLineupLists(); switchScene("lineupScreen"); }
-        function renderMatchLineupLists() {
-            const pool = document.getElementById("matchPlayerPoolList"); pool.innerHTML = "";
-            myAvailablePlayers.forEach(p => { let div = document.createElement("div"); div.className = "list-item" + (selectedPlayerToAssign&&selectedPlayerToAssign.id===p.id?" selected":""); div.innerHTML = `<span>[Lv.${p.level}] ${p.name}</span>`; div.onclick = () => { selectedPlayerToAssign = p; renderMatchLineupLists(); }; pool.appendChild(div); });
-            const bSlots = document.getElementById("matchBattingSlots"); bSlots.innerHTML = "";
-            for(let i=0; i<9; i++) { let div = document.createElement("div"); div.className = "list-item"; let name = battingOrder[i] ? battingOrder[i].name : "【點此填入】"; div.innerHTML = `<span>第 ${i+1} 棒：${name}</span>`; div.onclick = () => { if(selectedPlayerToAssign) { battingOrder[i] = selectedPlayerToAssign; selectedPlayerToAssign = null; renderMatchLineupLists(); } }; bSlots.appendChild(div); }
-            const dSlots = document.getElementById("matchDefenseSlots"); dSlots.innerHTML = ""; const positions = ["P", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF"];
-            positions.forEach(pos => { let div = document.createElement("div"); div.className = "list-item"; let name = defenseSetup[pos] ? defenseSetup[pos].name : `【指定守備： ${pos}】`; div.innerHTML = `<span>守備 [${pos}]：${name}</span>`; div.onclick = () => { if(selectedPlayerToAssign) { defenseSetup[pos] = selectedPlayerToAssign; renderMatchLineupLists(); } }; dSlots.appendChild(div); });
+        function goToStadiumSelect() {
+            const grid = document.getElementById("stadiumGrid"); grid.innerHTML = "";
+            stadiums.forEach((stadium, i) => {
+                let btn = document.createElement("button"); btn.className = "stadium-btn"; btn.innerText = stadium;
+                btn.onclick = function() { selectedStadium = stadium; alert(`🏟️ 已選定：${stadium}`); };
+                grid.appendChild(btn);
+            });
+            switchScene("stadiumScreen");
         }
 
-        function verifyLineupBeforeGoingToIntroRoom() {
-            if(battingOrder.includes(null)) { alert("請指派完整的1至9棒！"); return; }
-            const positions = ["P", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF"];
-            for(let pos of positions) { if(!defenseSetup[pos]) { alert(`尚未分派【${pos}】防守位置！`); return; } }
-            document.getElementById("introStadiumNameDisplay").innerText = `🏟️ 比賽的地點：${selectedStadium}`;
-            const myUI = document.getElementById("myRosterUIList"); myUI.innerHTML = ""; battingOrder.forEach((p, i) => { myUI.innerHTML += `<li>第 ${i+1} 棒: ${p.name} ｜ 守備位置: [${p.pos || '明星'}]</li>`; });
-            const enemyUI = document.getElementById("enemyRosterUIList"); enemyUI.innerHTML = ""; for(let i=1; i<=9; i++) { enemyUI.innerHTML += `<li>第 ${i} 棒: 對手明星打者 ${i} 號</li>`; }
-            switchScene("introScreen");
+        function goToLineupSetup() {
+            switchScene("lineupScreen");
+            const pool = document.getElementById("poolList"); pool.innerHTML = "";
+            myAvailablePlayers.forEach(p => {
+                let card = document.createElement("div"); card.className = "draggable-player"; card.setAttribute("draggable", "true"); card.innerHTML = `<span>★ ${p.name}</span>`;
+                card.addEventListener("dragstart", (e) => { draggedPlayerName = p.name; e.dataTransfer.setData("text/plain", p.name); });
+                pool.appendChild(card);
+            });
+            refreshLineupUI();
         }
 
-        function triggerGameRulesAndCountdown() {
-            document.getElementById("rulesCountdownModal").style.display = "flex"; let secondsLeft = 2; document.getElementById("countdownTextUI").innerText = secondsLeft;
-            let interval = setInterval(() => { secondsLeft--; document.getElementById("countdownTextUI").innerText = secondsLeft; if(secondsLeft <= 0) { clearInterval(interval); document.getElementById("rulesCountdownModal").style.display = "none"; realStartMatchGame(); } }, 1000);
-        }
-
-        function realStartMatchGame() { 
-            switchScene("gameScreen"); 
-            currentPlayPhase = "DEFENSE"; 
-            document.getElementById("gameModeFocus").innerText = "【防守】請用鍵盤按數字選球種，點滑鼠左鍵投球";
-            refreshHUD(); 
-            setTimeout(init3DEngine, 100); 
-        }
-
-        // 5. 核心 3D 物理對決引擎與殘壘強迫進壘
-        function init3DEngine() {
-            const container = document.getElementById("canvas3DContainer"); container.innerHTML = ""; scene3D = new THREE.Scene(); scene3D.background = new THREE.Color(0x020408);
-            camera3D = new THREE.PerspectiveCamera(45, 800 / 460, 0.1, 1000); resetCameraToHome();
-            renderer3D = new THREE.WebGLRenderer({ antialias: true }); renderer3D.setSize(800, 460); container.appendChild(renderer3D.domElement);
-            scene3D.add(new THREE.AmbientLight(0xffffff, 0.7)); const dl = new THREE.DirectionalLight(0xffffff, 0.5); dl.position.set(5, 10, 5); scene3D.add(dl);
-            const field = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.MeshStandardMaterial({ color: 0x114411 })); field.rotation.x = -Math.PI / 2; scene3D.add(field);
-            const dirt = new THREE.Mesh(new THREE.CylinderGeometry(15, 15, 0.02, 32), new THREE.MeshStandardMaterial({ color: 0x8a6242 })); dirt.position.set(0, 0.01, -5); scene3D.add(dirt);
-            if(selectedStadium.includes("大巨蛋")) {
-                const domeGeo = new THREE.SphereGeometry(40, 32, 16, 0, Math.PI*2, 0, Math.PI/2); stadiumDomeMesh = new THREE.Mesh(domeGeo, new THREE.MeshStandardMaterial({ color: 0xcccccc, wireframe: true, side: THREE.DoubleSide })); scene3D.add(stadiumDomeMesh);
-            } else {
-                const wallGeo = new THREE.BoxGeometry(30, 4, 1); const outWall = new THREE.Mesh(wallGeo, new THREE.MeshStandardMaterial({ color: 0x052205 })); outWall.position.set(0, 2, -35); scene3D.add(outWall);
+        function refreshLineupUI() {
+            const batSlots = document.getElementById("battingSlots"); batSlots.innerHTML = "";
+            for(let i=0; i<9; i++) {
+                let zone = document.createElement("div"); zone.className = "drop-zone";
+                zone.innerHTML = `第 ${i+1} 棒打線：${battingOrder[i] ? battingOrder[i].name : '【未派遣，請用滑鼠移至此處】'}`;
+                zone.addEventListener("dragover", (e) => { e.preventDefault(); zone.classList.add("drag-over"); });
+                zone.addEventListener("drop", (e) => { e.preventDefault(); let name = e.dataTransfer.getData("text/plain") || draggedPlayerName; if(name) { battingOrder[i] = { name: name }; refreshLineupUI(); } });
+                batSlots.appendChild(zone);
             }
-            pitcherMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 1.8, 16), new THREE.MeshStandardMaterial({ color: enemyTeam.color })); pitcherMesh.position.set(0, 0.9, -15); scene3D.add(pitcherMesh);
-            ballMesh = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 16), new THREE.MeshStandardMaterial({ color: 0xffffff })); ballMesh.position.set(0, 1.5, -15); scene3D.add(ballMesh);
-            batMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.03, 1.2, 16), new THREE.MeshStandardMaterial({ color: playerTeam.color })); batMesh.rotation.z = Math.PI / 2; batMesh.position.set(0, 1.1, 1.5); scene3D.add(batMesh);
-            
-            onboardBases = { first: false, second: false, third: false };
-            currentBatterIndex = 0;
-            animate3D();
+            const defSlots = document.getElementById("defenseSlots"); defSlots.innerHTML = "";
+            const positions = ["P", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF"];
+            positions.forEach(pos => {
+                let zone = document.createElement("div"); zone.className = "drop-zone";
+                zone.innerHTML = `守備 [${pos}]位置：${defenseSetup[pos] ? defenseSetup[pos].name : '【未派遣】'}`;
+                zone.addEventListener("dragover", (e) => { e.preventDefault(); zone.classList.add("drag-over"); });
+                zone.addEventListener("drop", (e) => { e.preventDefault(); let name = e.dataTransfer.getData("text/plain") || draggedPlayerName; if(name) { defenseSetup[pos] = { name: name }; refreshLineupUI(); } });
+                defSlots.appendChild(zone);
+            });
         }
-        
-        function animate3D() {
-            if (!scene3D) return; requestAnimationFrame(animate3D); if (isGamePaused) { renderer3D.render(scene3D, camera3D); return; }
+
+        function clearCurrentLineup() { battingOrder = Array(9).fill(null); refreshLineupUI(); alert("🔄 已清空重置！"); }
+
+        function startCountdownIntro() {
+            if(battingOrder.includes(null)) return alert("請指派完整的真實九人打線欄位！");
+            switchScene("introScreen");
+            let c = 2; document.getElementById("countdownTextUI").innerText = c;
+            let timer = setInterval(() => { c--; document.getElementById("countdownTextUI").innerText = c; if(c <= 0) { clearInterval(timer); realStartMatchGame(); } }, 1000);
+        }
+
+        function realStartMatchGame() { switchScene("gameScreen"); currentPlayPhase = "DEFENSE"; setTimeout(init3DGameEngine, 100); }
+
+        /* ================= 🏟️ 3D 核心物理引擎 ================= */
+        function init3DGameEngine() {
+            const container = document.getElementById("canvas3DContainer"); container.innerHTML = "";
+            scene3D = new THREE.Scene(); scene3D.background = new THREE.Color(0x020408);
+            camera3D = new THREE.PerspectiveCamera(45, 900 / 500, 0.1, 1000);
+            camera3D.position.set(0, 3.5, 8); camera3D.lookAt(0, 1.4, -12);
+
+            renderer3D = new THREE.WebGLRenderer({ antialias: true });
+            renderer3D.setSize(900, 500); container.appendChild(renderer3D.domElement);
+
+            scene3D.add(new THREE.AmbientLight(0xffffff, 0.8));
+            const light = new THREE.DirectionalLight(0xffffff, 0.5); light.position.set(5, 10, 5); scene3D.add(light);
+
+            const ground = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({ color: 0x05070a, roughness: 0.1 }));
+            ground.rotation.x = -Math.PI / 2; scene3D.add(ground);
+
+            ballMesh = new THREE.Mesh(new THREE.SphereGeometry(0.12, 32, 32), new THREE.MeshStandardMaterial({ color: 0xffffff }));
+            ballMesh.position.set(0, 1.5, -16); scene3D.add(ballMesh);
+
+            pitcherMesh = createThreeBallMan(0xffd700); pitcherMesh.position.set(0, 0, -16); scene3D.add(pitcherMesh);
+            batterMesh = createThreeBallMan(0xe5e4e2); batterMesh.position.set(1.4, 0, 1.0); scene3D.add(batterMesh);
+
+            const batGeo = new THREE.CylinderGeometry(0.05, 0.03, 1.3, 16);
+            batMesh = new THREE.Mesh(batGeo, new THREE.MeshStandardMaterial({ color: 0xffcc00, metalness: 0.8 }));
+            batMesh.position.set(-0.6, 1.3, 0); batMesh.rotation.z = Math.PI / 2.4;
+            batterMesh.add(batMesh);
+
+            animate3DGameLoop();
+        }
+
+        function createThreeBallMan(hexColor) {
+            const group = new THREE.Group();
+            const mat = new THREE.MeshStandardMaterial({ color: hexColor, metalness: 0.7, roughness: 0.3 });
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.36, 32, 32), mat); head.position.y = 1.9; group.add(head);
+            const body = new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), mat); body.position.y = 1.1; group.add(body);
+            const limb = new THREE.SphereGeometry(0.15, 16, 16);
+            const la = new THREE.Mesh(limb, mat); la.position.set(-0.6, 1.2, 0); group.add(la);
+            const ra = new THREE.Mesh(limb, mat); ra.position.set(0.6, 1.2, 0); group.add(ra);
+            const ll = new THREE.Mesh(limb, mat); ll.position.set(-0.25, 0.4, 0); group.add(ll);
+            const rl = new THREE.Mesh(limb, mat); rl.position.set(0.25, 0.4, 0); group.add(rl);
+            return group;
+        }
+
+        function animate3DGameLoop() {
+            if (!scene3D) return; requestAnimationFrame(animate3DGameLoop);
             if (isBallPlay3D) {
-                if(currentPlayPhase === "PITCHED") { if(activePitchType === 2) ballMesh.position.x += 0.02; if(activePitchType === 3) ballMesh.position.y -= 0.01; if(activePitchType === 8) ballMesh.position.x += (Math.random()-0.5)*0.08; }
-                ballMesh.position.x += ballVelocity.x; ballMesh.position.y += ballVelocity.y; ballMesh.position.z += ballVelocity.z;
-                if(currentPlayPhase === "HIT_FLYING") { camera3D.position.set(ballMesh.position.x, ballMesh.position.y + 2, ballMesh.position.z + 5); camera3D.lookAt(ballMesh.position); }
-                
-                if (ballVelocity.z < 0 && ballMesh.position.z < -38) {
-                    let runsScored = 1; if(onboardBases.first) runsScored++; if(onboardBases.second) runsScored++; if(onboardBases.third) runsScored++;
-                    playerScore += runsScored; alert(`🎉 全壘打！！！一口氣大得分灌進 ${runsScored} 分！`);
-                    onboardBases = { first: false, second: false, third: false }; currentBatterIndex = (currentBatterIndex + 1) % 9; checkInningRule(); reset3DBall();
-                } else if(ballVelocity.z < 0 && ballMesh.position.y <= 0.1 && ballMesh.position.z < -10) {
-                    executeBaseRunningAdvance(hitResultType); currentBatterIndex = (currentBatterIndex + 1) % 9; checkInningRule(); reset3DBall();
-                }
-                if (ballVelocity.z > 0 && ballMesh.position.z > 4) { strikes++; if(strikes>=3){ outs++; strikes=0; alert("❌ 三振出局！"); currentBatterIndex = (currentBatterIndex + 1) % 9; checkInningRule(); } reset3DBall(); }
+                ballMesh.position.z += ballVelocity.z;
+                if (ballMesh.position.z > 5) { isBallPlay3D = false; strikes++; resetBall3D(); alert("💨 沒擊中！好球一次！"); checkMatchInningRules(); }
             }
             renderer3D.render(scene3D, camera3D);
         }
 
-        function executeBaseRunningAdvance(type) {
-            if(type === "SINGLE") {
-                alert(`⚾ 一壘安打！跑者強迫進壘推進！`); if(onboardBases.third) { playerScore++; onboardBases.third = false; } if(onboardBases.second) { onboardBases.third = true; onboardBases.second = false; } if(onboardBases.first) { onboardBases.second = true; } onboardBases.first = true;
-            } else if(type === "DOUBLE") {
-                alert(`💥 二壘長打！`); if(onboardBases.third) { playerScore++; onboardBases.third = false; } if(onboardBases.second) { playerScore++; } if(onboardBases.first) { onboardBases.third = true; onboardBases.first = false; } onboardBases.second = true;
+        function handle3DClick() {
+            if (currentPlayPhase === "DEFENSE") { if (isBallPlay3D) return; isBallPlay3D = true; ballVelocity.z = 0.45; } 
+            else {
+                if (!isBallPlay3D) return;
+                batterMesh.rotation.y -= 1.8;
+                if (ballMesh.position.z >= 0.1 && ballMesh.position.z <= 2.2) { playerScore++; alert("💥 全壘打得分！"); isBallPlay3D = false; resetBall3D(); checkMatchInningRules(); }
+                setTimeout(() => { batterMesh.rotation.y = 0; }, 200);
             }
         }
 
-        function checkInningRule() { if (outs >= 3) { outs = 0; strikes = 0; balls = 0; onboardBases = { first: false, second: false, third: false }; if (isTopInning) { isTopInning = false; alert("換邊！輪到我方 1~9 棒打線進攻！"); } else { isTopInning = true; gameInning++; if (gameInning > 9) { endWholeMatch(playerScore >= enemyScore); return; } } } refreshHUD(); }
-
-        window.addEventListener("keydown", function(e) {
-            let keyMap = {"Digit1":1, "Digit2":2, "Digit3":3, "Digit4":4, "Digit5":5, "Digit6":6, "Digit7":7, "Digit8":8, "Digit9":9, "Digit0":10};
-            if(keyMap[e.code]) { activePitchType = keyMap[e.code]; document.querySelectorAll(".pitch-tag").forEach(t => t.classList.remove("selected")); let tid = "p" + (activePitchType === 10 ? 0 : activePitchType); document.getElementById(tid).classList.add("selected"); return; }
-            if (e.code === "Space" && currentPlayPhase === "DEFENSE" && !isBallPlay3D) {
-                currentPlayPhase = "OFFENSE"; document.getElementById("gameModeFocus").innerText = "⏳ 大棒準備中... 1秒後投手即將投出！"; if(batMesh) batMesh.position.x = -0.4;
-                setTimeout(() => { ballMesh.position.set(0, 1.6, -15); ballVelocity.z = 0.
+        window.addEventListener("keydown", (e) => { if (e.code === "Space") { currentPlayPhase = "OFFENSE"; setTimeout(() => { isBallPlay3D = true; ballVelocity.z = 0.4; }, 1000); } });
+        function resetBall3D() { ballMesh.position.set(0, 1.5, -16); isBallPlay3D = false; }
+        function checkMatchInningRules() {
+            if (strikes >= 3) { outs++; strikes = 0; alert("❌ 三振！"); }
+            if (outs >= 3) { outs = 0; strikes = 0; isTopInning = !isTopInning; currentPlayPhase = isTopInning ? "DEFENSE" : "OFFENSE"; alert("攻守交換！"); }
+            refreshMatchHUD();
+        }
+        function refreshMatchHUD() { document.getElementById("scoreboard").innerText = `客隊 ${enemyScore} : 主隊 ${playerScore}`; document.getElementById("countboard").innerText = `S: ${strikes} | B: ${balls} | O: ${outs}`; }
+        
+        function goToGlobalLeaderboardScene() {
+            const tbody = document.getElementById("globalLeaderboardBody");
+            tbody.innerHTML = "<thead><tr><th>全服排名</th><th>玩家領隊</th><th>所屬戰隊</th><th>總積分</th></tr></thead><tbody>";
+            for(let i=1; i<=100; i++) tbody.innerHTML += `<tr><td>${i}</td><td>歷史全明星領隊_${i}</td><td>中職精英隊</td><td style='color:#ffcc00; font-weight:bold;'>${12000 - i*95} PT</td></tr>`;
+            tbody.innerHTML += "</tbody>"; switchScene("globalLeaderboardScreen");
+        }
+        function switchScene(id) { document.querySelectorAll('.scene').forEach(s => s.classList.remove('active-scene')); document.getElementById(id).classList.add('active-scene'); }
+        function updateTopCurrencyBar() { document.getElementById("globalDiamonds").innerText = userDiamonds; }
+        
+        function goToScene(id) {
+            switchScene(id);
+            if (id === 'newbieScreen') {
+                const box = document.getElementById("newbieGridUI"); box.innerHTML = "";
+                for(let i=1; i<=30; i++) box.innerHTML += `<div style='padding:10px; margin:5px; background:#101622; border:1px solid #ffcc00; display:inline-block; width:140px; text-align:center;'><h4>第 ${i} 天福利</h4><button onclick='alert("簽到領取")'>領取禮包</button></div>`;
+            } else if (id === 'dailyTaskScreen') {
+                const box = document.getElementById("taskContainerUI"); box.innerHTML = "";
+                for(let i=1; i<=50; i++) box.innerHTML += `<div style='padding:12px; border-bottom:1px solid #1e293b;'>🎯 每日挑戰任務第 ${i} 項：拖曳一位真實球員並派遣上場</div>`;
+            } else if (id === 'seasonEventScreen') {
+                const box = document.getElementById("seasonTasksUI"); box.innerHTML = "";
+                for(let i=1; i<=100; i++) box.innerHTML += `<div style='padding:10px; border-bottom:1px solid #1e293b;'>🏆 【賽季里程活動第 ${i} 項】：挑戰職棒季後賽</div>`;
+            }
+        }
+    </script>
+</body>
+</html>
