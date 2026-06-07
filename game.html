@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <title>⚾ 我的棒球夢⚾</title>
+    <title>⚾ 中華職棒 24K 曜石黑金銀河巔峰完全體 ⚾</title>
     <!-- 引入網頁 3D 核心引擎 Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
@@ -22,7 +22,7 @@
         .top-right-assets { display: flex; align-items: center; gap: 12px; }
         .asset-item { background: rgba(0,0,0,0.6); padding: 5px 12px; border-radius: 12px; border: 1px solid #ffcc00; display: flex; align-items: center; gap: 6px; }
 
-        /* 認證與付費面版 */
+        /* 認證與付費視覺 */
         .luxury-auth-wrapper { max-width: 450px; margin: 20px auto; background: rgba(15, 23, 42, 0.95); padding: 30px; border-radius: 16px; border: 2px solid #ffcc00; box-shadow: 0 0 30px rgba(255, 204, 0, 0.15); text-align: center; }
         .auth-title { font-size: 22px; font-weight: 900; color: #ffcc00; margin-bottom: 15px; }
         .auth-input { width: 100%; padding: 11px; margin: 6px 0; border-radius: 8px; border: 1px solid #475569; background: #05080f; color: #fff; box-sizing: border-box; font-size: 14px; }
@@ -37,10 +37,12 @@
         /* 🏟️ 豪華大廳排版 */
         .lobby-main-container { width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; position: relative; }
         
-        /* 🛠️ 大廳新增 15 種東西的 UI 佈局組件 */
-        .lobby-rich-widgets-top { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; z-index: 2; }
-        .widget-item { padding: 6px 12px; background: rgba(30, 41, 59, 0.8); border: 1px solid #475569; border-radius: 6px; font-size: 11px; font-weight: bold; color: #e2e8f0; }
+        /* 🛠️ 大廳 15 種功能組件東西排版 */
+        .lobby-rich-widgets-top { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 10px; z-index: 2; position: relative; }
+        .widget-item-btn { padding: 8px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 1px solid #475569; border-radius: 6px; font-size: 11px; font-weight: bold; color: #00ffcc; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .widget-item-btn:hover { border-color: #ffcc00; color: #fff; box-shadow: 0 0 10px rgba(0, 255, 204, 0.3); }
         
+        /* 大廳中央展示看台 */
         .player-stage-zone { width: 85%; margin: 5px auto 0 auto; background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.4) 100%); border: 2px solid #ffcc00; border-radius: 16px; padding: 15px; text-align: center; box-shadow: 0 0 25px rgba(255, 204, 0, 0.25); position: relative; z-index: 2; }
         .stage-badges-row { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
         .player-circle-badge { background: #0f172a; border: 2px solid #ffcc00; border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: bold; display: flex; gap: 6px; align-items: center; }
@@ -63,26 +65,23 @@
         .nav-tab-item { display: flex; flex-direction: column; justify-content: center; align-items: center; color: #a0aec0; font-size: 12px; font-weight: bold; cursor: pointer; }
         .nav-tab-item:hover, .nav-tab-item.active { background: rgba(0, 204, 255, 0.15); color: #ffff00; }
 
-        /* 四大看板豪華化樣式 */
+        /* 看板面板卡片樣式 */
         .luxury-feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; padding-bottom: 20px; }
         .luxury-glowing-card { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border: 2px solid #334155; border-radius: 12px; padding: 18px; display: flex; flex-direction: column; justify-content: space-between; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.4); }
-        .card-badge-ssr { position: absolute; top: 10px; right: 10px; background: #ffcc00; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 900; }
+        .card-badge-ssr { absolute: position; top: 10px; right: 10px; background: #ffcc00; color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 900; }
         .card-progress-bar { width: 100%; height: 6px; background: #334155; border-radius: 3px; margin: 10px 0; overflow: hidden; }
         .card-progress-fill { height: 100%; background: linear-gradient(90deg, #00ffcc, #0077ff); width: 45%; }
 
-        /* 商店卡池網格 */
+        /* 商店卡池 */
         .shop-pool-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-height: 400px; overflow-y: auto; padding: 10px; }
-        .card-ssr { border: 2px solid #ffcc00; background: linear-gradient(135deg, #2c2205 0%, #110d02 100%); color: #ffcc00; }
-        .card-sr { border: 2px solid #00ccff; background: linear-gradient(135deg, #052130 0%, #020d14 100%); color: #00ccff; }
-        .card-r { border: 2px solid #a0aec0; background: linear-gradient(135deg, #1e2530 0%, #0f131a 100%); color: #e2e8f0; }
         .shop-item { padding: 12px; border-radius: 8px; text-align: center; font-size: 13px; font-weight: bold; display: flex; flex-direction: column; justify-content: space-between; gap: 8px; }
 
-        /* 布陣排陣拖曳 */
+        /* 布陣拖曳 */
         .lineup-container { display: flex; justify-content: space-between; gap: 12px; margin-top: 15px; text-align: left; }
         .lineup-box { background: #101622; padding: 20px; border-radius: 12px; border: 1px solid #334155; width: 32%; max-height: 380px; overflow-y: auto; }
         .draggable-player { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); padding: 10px; margin-bottom: 8px; border-radius: 6px; border: 1px solid #4a5568; cursor: grab; font-size: 12px; font-weight: bold; color: #00ffcc; }
         .drop-zone { background: #05080f; padding: 12px; margin-bottom: 8px; border-radius: 6px; border: 2px dashed #2d3748; min-height: 18px; font-size: 12px; color: #a0aec0; }
-        .drop-zone.drag-over { border-color: #ffcc00; background: rgba(255, 204, 0, 0.1); }
+        .drop-zone.drag-over { border-color: #ffcc00; background: rgba(255, 204, 0, 0.1); color: #fff; }
 
         /* 3D 比賽 HUD */
         .hud-score-panel { position: absolute; top: 15px; left: 15px; width: 200px; background: rgba(0,0,0,0.85); border: 2px solid #444; border-radius: 6px; z-index: 5; font-size: 13px; font-weight: bold; }
@@ -100,7 +99,6 @@
         .action-right-btn { right: 30px; border-color: #ff3366; background: linear-gradient(135deg, #ff3366 0%, #aa0022 100%); z-index: 6; }
         
         /* ESC 暫停選單 */
-        .luxury-plan-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
         #luxuryEscPauseMenuOverlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(2, 4, 8, 0.85); z-index: 9999; display: none; justify-content: center; align-items: center; backdrop-filter: blur(8px); }
         .esc-menu-content-box { text-align: center; padding: 40px; background: #0f172a; border: 3px solid #ffcc00; border-radius: 16px; box-shadow: 0 0 35px #ffcc00; width: 340px; }
 
@@ -125,17 +123,16 @@
             </div>
         </div>
 
-        <!-- 實裝：ESC 安全退場/暫停選單 -->
+        <!-- ESC 安全暫停選單 -->
         <div id="luxuryEscPauseMenuOverlay">
             <div class="esc-menu-content-box">
                 <h2 style="color:#ffcc00; margin-top:0;">⏸️ 賽事安全暫停</h2>
-                <p style="color:#cbd5e1; font-size:14px; margin-bottom:30px;">領隊大人，比賽已安全掛起暫停。請選擇：</p>
                 <button class="btn-auth-primary" style="margin-top:0;" onclick="resumeMatchFromEscMenu()">繼續比賽對決 ➔</button>
                 <button class="btn-auth-primary" style="background:linear-gradient(45deg,#ef4444,#b91c1c); color:#fff; margin-top:12px;" onclick="quitMatchToLobbyViaEsc()">棄賽認輸回大廳 🚪</button>
             </div>
         </div>
 
-        <!-- 流光動態通知字幕（取代 Alert） -->
+        <!-- 流光動態通知字幕 -->
         <div id="luxuryMatchInGameTickerNotify">好球！</div>
 
         <!-- ================= 場景零：註冊與驗證登入 ================= -->
@@ -157,11 +154,10 @@
             </div>
         </div>
 
-        <!-- ================= 👑 創作者頁面（金鑰認證、不能提示） ================= -->
+        <!-- ================= 👑 創作者頁面（無提示保護、秒通行修正） ================= -->
         <div id="creatorVerificationScreen" class="scene">
             <div class="luxury-auth-wrapper" style="max-width: 480px; margin: 10px auto;">
                 <div class="auth-title">💎 創作者特權驗證中心</div>
-                <!-- 🛠️ 遵照最高指示：完全隱藏過濾名字的字樣提示 -->
                 <input type="text" id="creatorKeyInput" class="auth-input" placeholder="驗證碼">
                 <div style="display: flex; gap: 10px; margin-top: 10px;">
                     <button class="btn-auth-primary" style="margin-top:0; flex:1;" onclick="verifyCreatorKey()">我是創作者 ➔</button>
@@ -182,23 +178,20 @@
         <!-- 3種頂級方案選擇頁面 -->
         <div id="premiumPlansScreen" class="scene">
             <h2 style="text-align:center; color:#ffcc00; margin-top:0;">💳 選擇您的 2026 賽季頂級開通方案</h2>
-            <div class="luxury-plan-grid">
+            <div class="plan-grid">
                 <div class="plan-card">
                     <h3 style="color:#cd7f32; margin-top:0;">🥉 基礎新星方案</h3>
                     <div class="plan-price">$290 TWD</div>
-                    <div class="plan-features">• 獲得 500 可寶信<br>• 隨機解鎖 10 位球員<br>• 常規賽球場通行權</div>
                     <button class="btn-auth-primary" onclick="selectPlanAndGoToPay('基礎新星方案', 290)">選擇此方案</button>
                 </div>
                 <div class="plan-card" style="border-color:#00ccff;">
                     <h3 style="color:#00ccff; margin-top:0;">🥈 精英全明星方案</h3>
                     <div class="plan-price">$990 TWD</div>
-                    <div class="plan-features">• 獲得 3,000 可寶信<br>• 必得 5 位 SR 中職球星<br>• 解鎖臺北大巨蛋主場</div>
                     <button class="btn-auth-primary" style="background:linear-gradient(45deg,#00ccff,#0077ff); color:#fff;" onclick="selectPlanAndGoToPay('精英全明星方案', 990)">選擇此方案</button>
                 </div>
-                <div class="plan-card" style="border-color:#ffcc00; background:rgba(255,204,0,0.05);">
+                <div class="plan-card" style="border-color:#ffcc00;">
                     <h3 style="color:#ffcc00; margin-top:0;">🥇 傳奇殿堂至尊版</h3>
                     <div class="plan-price">$2,990 TWD</div>
-                    <div class="plan-features">• 獲得 15,000 可寶信大禮包<br>• 直送 SSR 引退傳奇王牌球星<br>• 全服排行榜特殊流光字體</div>
                     <button class="btn-auth-primary" onclick="selectPlanAndGoToPay('傳奇殿堂至尊版', 2990)">選擇此方案</button>
                 </div>
             </div>
@@ -208,25 +201,14 @@
         <div id="paymentFormScreen" class="scene">
             <div class="luxury-auth-wrapper" style="max-width: 600px; margin: 10px auto; text-align: left;">
                 <h2 style="color:#ffcc00; text-align:center; margin-top:0;" id="payTitleText">結帳櫃檯</h2>
-                <h3 style="color:#00ffaa; margin-bottom:5px; font-size:14px;">1. 選擇付款方式</h3>
                 <div class="pay-method-grid">
                     <button class="pay-btn" id="pm1" onclick="selectPayMethod(1)">信用卡 / 簽帳卡</button>
                     <button class="pay-btn" id="pm2" onclick="selectPayMethod(2)">LINE Pay 支付</button>
                     <button class="pay-btn" id="pm3" onclick="selectPayMethod(3)">街口支付</button>
                     <button class="pay-btn" id="pm4" onclick="selectPayMethod(4)">Apple Pay</button>
                 </div>
-                <h3 style="color:#00ffaa; margin-bottom:5px; font-size:14px;">2. 填入領隊 10 項安全實名基本資料</h3>
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                    <input type="text" id="p_field1" class="auth-input" placeholder="① 真實姓名">
-                    <input type="text" id="p_field2" class="auth-input" placeholder="② 行動電話">
-                    <input type="text" id="p_field3" class="auth-input" placeholder="③ 身分證字號">
-                    <input type="email" id="p_field4" class="auth-input" placeholder="④ 電子郵件信箱">
-                    <input type="text" id="p_field5" class="auth-input" placeholder="⑤ 通訊住址">
-                    <input type="text" id="p_field6" class="auth-input" placeholder="⑥ 球團領隊暱稱">
-                    <input type="text" id="p_field7" class="auth-input" placeholder="⑦ 出生年月日">
-                    <input type="password" id="p_field8" class="auth-input" placeholder="⑧ 設定安全防護密碼">
-                    <input type="text" id="p_field9" class="auth-input" placeholder="⑨ 喜愛的中職球隊">
-                    <input type="text" id="p_field10" class="auth-input" placeholder="⑩ 付款帳號後五碼">
+                    <input type="text" id="p_field1" class="auth-input" placeholder="① 真實姓名"><input type="text" id="p_field2" class="auth-input" placeholder="② 行動電話"><input type="text" id="p_field3" class="auth-input" placeholder="③ 身分證字號"><input type="email" id="p_field4" class="auth-input" placeholder="④ 電子郵件信箱"><input type="text" id="p_field5" class="auth-input" placeholder="⑤ 通訊住址"><input type="text" id="p_field6" class="auth-input" placeholder="⑥ 球團領隊暱稱"><input type="text" id="p_field7" class="auth-input" placeholder="⑦ 出生年月日"><input type="password" id="p_field8" class="auth-input" placeholder="⑧ 設定安全防護密碼"><input type="text" id="p_field9" class="auth-input" placeholder="⑨ 喜愛的中職球隊"><input type="text" id="p_field10" class="auth-input" placeholder="⑩ 付款帳號後五碼">
                 </div>
                 <button class="btn-auth-primary" style="background: linear-gradient(45deg, #00ffaa, #00cc66); color:#000; margin-top:20px; width:100%;" onclick="executeOrderPaymentSubmit()">確認扣款並解鎖聯賽權限 ➔</button>
             </div>
@@ -247,53 +229,50 @@
             </div>
         </div>
 
-        <!-- ================= 🏟️ 完美還原：豪華星空主大廳 (大廳添加 15 種東西) ================= -->
+        <!-- ================= 🏟️ 完美還原：豪華星空主大廳 ================= -->
         <div id="lobbyScreen" class="scene" style="padding:15px; position:relative;">
             <div id="lobbyStarCanvasBg"></div>
-            
             <div class="lobby-main-container">
-                <!-- 🛠️ 滿足要求：大廳強勢添加 15 種手遊核心組件東西 -->
+                
+                <!-- 🛠️ 15種全新東西卡片，綁定專屬 JavaScript Panel，通通都能點進去！ -->
                 <div class="lobby-rich-widgets-top">
-                    <div class="widget-item">⚡ 體力: 120/120</div>
-                    <div class="widget-item">👑 VIP: 等級 5</div>
-                    <div class="widget-item">📩 郵件 (2)</div>
-                    <div class="widget-item">⚙️ 系統設定</div>
-                    <div class="widget-item">📢 [公告] 2026 總冠軍賽即將開打！</div>
-                    <div class="widget-item">⚔️ 即時對戰中</div>
-                    <div class="widget-item">💬 公會: 線上32人</div>
-                    <div class="widget-item">🔍 球探中心</div>
-                    <div class="widget-item">🛡️ 裝備庫</div>
-                    <div class="widget-item">🏆 成就勳章</div>
-                    <div class="widget-item">⏳ 限時活動: 4小時</div>
-                    <div class="widget-item">🎡 幸運大輪盤</div>
-                    <div class="widget-item">📅 每日簽到</div>
-                    <div class="widget-item">🎫 賽季通行證</div>
-                    <div class="widget-item">📖 球員圖鑑</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(1)">⚡ 體力值</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(2)">👑 VIP級別</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(3)">📩 郵件箱</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(4)">⚙️ 遊戲設定</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(5)">📢 廣播公告</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(6)">⚔️ 即時對戰</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(7)">💬 聯盟公會</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(8)">🔍 球探中心</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(9)">🛡️ 裝備晶片</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(10)">🏆 榮譽獎盃</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(11)">⏳ 限時倒數</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(12)">🎡 幸運輪盤</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(13)">📅 簽到日曆</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(14)">🎫 賽季通行</div>
+                    <div class="widget-item-btn" onclick="clickWidgetAction(15)">📖 球員圖鑑</div>
                 </div>
 
                 <div style="display:flex; justify-content:space-between; align-items:flex-start; width:100%;">
-                    <!-- 左側四大面板按鈕 -->
                     <div class="left-shortcut-menu">
                         <button class="shortcut-green-btn" style="background:linear-gradient(135deg,#e11d48 0%,#be123c 100%);" onclick="goToLobbySubListScene('newbie')">🎁 30個新手福利</button>
                         <button class="shortcut-green-btn" style="background:linear-gradient(135deg,#d97706 0%,#b45309 100%);" onclick="goToLobbySubListScene('daily')">📅 50個每日任務</button>
                         <button class="shortcut-green-btn" style="background:linear-gradient(135deg,#4f46e5 0%,#4338ca 100%);" onclick="goToLobbySubListScene('season')">🏆 100個賽季活動</button>
                         <button class="shortcut-green-btn" style="background:linear-gradient(135deg,#059669 0%,#047857 100%);" onclick="goToLobbySubListScene('rank')">📊 玩家總實力排行</button>
                     </div>
-
-                    <!-- 右側通用功能 -->
                     <div style="display:flex; gap:10px; z-index:2;">
-                        <button class="pay-btn" style="background:#00bfa5; font-weight:bold; color:#fff; padding:10px 20px; border-radius:6px;" onclick="alertNoPopup('💎 免費可寶信福利充值成功！')">免費寶石</button>
+                        <button class="pay-btn" style="background:#00bfa5; font-weight:bold; color:#fff; padding:10px 20px; border-radius:6px;" onclick="alertNoPopup('💎 免費可寶信充值成功！')">免費寶石</button>
                         <button class="pay-btn" style="background:#00bfa5; font-weight:bold; color:#fff; padding:10px 20px; border-radius:6px;" onclick="goToShopScene()">招募選手</button>
                     </div>
                 </div>
 
-                <!-- 中央先發五人展示舞台 ( image_764e2e.jpg 擬真還原) -->
+                <!-- 中央展示看台 (image_764e2e.jpg) -->
                 <div class="player-stage-zone">
                     <div class="stage-badges-row" id="lobbyStageBadgesUI"></div>
                     <div class="chibi-standees-row" id="lobbyChibiFiguresUI"></div>
                 </div>
 
-                <!-- 底部導覽列 navbar -->
+                <!-- 底部導覽列 -->
                 <div class="lobby-bottom-navbar">
                     <div class="nav-tab-item" onclick="goToPresetScene()">📋 陣容配置</div>
                     <div class="nav-tab-item" onclick="goToShopScene()">🛒 交易商店</div>
@@ -303,7 +282,7 @@
             </div>
         </div>
 
-        <!-- 看板大專頁 -->
+        <!-- 看板大專頁 (四大功能與15種全新東西子頁面共用此超級面板) -->
         <div id="lobbyRichFeaturesScreen" class="scene">
             <h1 id="richFeaturesTitleText" style="color:#ffcc00; text-align:center; font-size:24px;">大廳核心資產看板</h1>
             <div class="sub-container-scroller">
@@ -312,7 +291,7 @@
             <div style="text-align:center; margin-top:10px;"><button class="btn-back-to-lobby" onclick="switchScene('lobbyScreen')">◀ 返回遊戲主大廳</button></div>
         </div>
 
-        <!-- 🛒 滿足要求：1000種真實球員交易商店且包含購買解鎖機制 -->
+        <!-- 🛒 1000種球員真實交易商店與購買解鎖機制 -->
         <div id="shopScreen" class="scene">
             <h2>🛒 1000人真實全明星黃金交易商店</h2>
             <div style="padding:10px; text-align:center;"><button style="padding:12px 30px; background:linear-gradient(45deg,#ffcc00,#ff9900); color:#000;" onclick="buyRandomPlayer()">引進隨機強豪卡牌 (-100寶信)</button></div>
@@ -320,7 +299,7 @@
             <button class="btn-back-to-lobby" onclick="switchScene('lobbyScreen')">◀ 返回大廳</button>
         </div>
 
-        <!-- 💾 陣容配置頁 -->
+        <!-- 💾 陣容手動拖曳配置頁 -->
         <div id="presetLineupScreen" class="scene">
             <h2>💾 設定球隊全賽季預設陣容</h2>
             <div class="lineup-container">
@@ -331,14 +310,14 @@
             <div style="text-align:right; padding:10px;"><button class="btn-back-to-lobby" style="background:#00cc66; color:#fff;" onclick="savePresetDataToDB()">💾 儲存預設配置</button></div>
         </div>
 
-        <!-- 40種球場選單 -->
+        <!-- 40種實名球場選單 -->
         <div id="stadiumScreen" class="scene">
             <h2>🏟️ 請選擇職業比賽球場 (40種實名大選單)</h2>
             <div id="stadiumGrid" class="team-grid" style="grid-template-columns:repeat(5,1fr); gap:8px;"></div>
             <button class="btn-auth-primary" style="margin:20px auto; width:220px;" onclick="goToLineupSetup()">前往賽前確認 ➔</button>
         </div>
 
-        <!-- 📋 賽前確認 -->
+        <!-- 📋 賽前布陣確認 -->
         <div id="lineupScreen" class="scene">
             <h2>📋 賽前九人打線與守備位置確認</h2>
             <div style="padding:10px; text-align:center;"><button style="background:#af4cff; color:#fff; padding:10px 20px; font-weight:bold;" onclick="applyPreSavedPresetLineup()">⚡ 一鍵套用大廳預設陣容</button></div>
@@ -350,14 +329,14 @@
             <button class="btn-auth-primary" style="margin:15px auto; width:220px;" onclick="startCountdownIntro()">正式開賽 ➔</button>
         </div>
 
-        <!-- 轉場說明 -->
+        <!-- 說明轉場 -->
         <div id="introScreen" class="scene">
-            <div style="background:rgba(15,22,38,0.95); border:2px solid #ffcc00; padding:30px; border-radius:12px; max-width:500px; margin:40px auto; text-align:center;">
+            <div style="background:rgba(15,22,38,0.95); border:2px solid #ffcc00; padding:30px; border-radius:12px; max-width:550px; margin:40px auto; text-align:center;">
                 <h2>📢 聯賽決戰全手動投打規則</h2>
                 <p style="text-align:left; font-size:14px; color:#ddd; line-height:1.7;">
                     1. <strong>【防守投球】</strong>：點擊右下角**【投球】**巨鈕放球！<br>
                     2. <strong>【進攻打擊】</strong>：按【視角】切到打者側。**必須按鍵盤【Enter鍵】命令AI投球**，球靠近時點右下角**【揮棒】**（或空白鍵）！<br>
-                    3. <strong>【ESC安全退場】</strong>：賽事進行中，隨時按下鍵盤 **`ESC` 鍵**，即可開啟暫停選單安全退出！
+                    3. <strong>【ESC安全退場】</strong>：賽事進行中，隨時按下鍵盤 **`ESC` 鍵**，即可點選安全暫停面板退出比賽！
                 </p>
                 <hr style="border:1px solid #334155; margin:15px 0;">
                 <h1 id="countdownTextUI" style="color:#ffcc00; font-size:54px; margin:0;">2</h1>
@@ -410,7 +389,7 @@
             <div class="action-circle-btn action-left-btn" onclick="toggleViewCameraMode()">🔄 視角</div>
             <div class="action-circle-btn action-right-btn" id="mainActionButtonUI" onclick="handleMainActionBtnClick()">投球</div>
 
-            <!-- 3D Canvas 畫布 -->
+            <!-- 3D Canvas -->
             <div id="canvas3DContainer"></div>
         </div>
     </div>
@@ -439,19 +418,17 @@
         let ballVelocity = { x: 0, y: 0, z: 0 };
         let selectedPayMethodIdx = 1, chosenPlanName = "", chosenPlanPrice = 0;
 
-        // 🧠 1000位真實球星與購買價格設定
         let masterPlayerPool = [];
         function generate1000Players() {
-            const ssrNames = ["王建民", "陳金鋒", "彭政閔", "郭泰源", "郭源治", "張泰山", "黃平洋", "陳義信", "大谷翔平", "賈吉"];
+            const ssrNames = ["王建民", "陳金鋒", "彭政閔", "郭泰源", "郭源治", "張泰山", "黃平洋", "陳義信", "世界大谷", "法官賈集"];
             for(let i=0; i<1000; i++) {
                 let name = ssrNames[i % ssrNames.length] + (i >= ssrNames.length ? `${i}` : "");
-                // 前 50 名設定為需要用可寶信解鎖購買的球員
-                let price = i < 50 ? (100 + (i%5)*50) : 0;
+                let price = i < 60 ? (100 + (i%4)*100) : 0;
                 masterPlayerPool.push({ id: i+1, name: name, power: 96, rarity: i%3===0?"SSR":(i%3===1?"SR":"R"), number: Math.floor(Math.random()*99)+1, avg: "0.346", hr: 8, rbi: 29, price: price });
             }
         }
         generate1000Players();
-        let myAvailablePlayers = masterPlayerPool.slice(50, 75); // 初始配給25位不用購買的球星
+        let myAvailablePlayers = masterPlayerPool.slice(60, 85);
 
         function alertNoPopup(msg, isWarning=false) {
             const ticker = document.getElementById("luxuryMatchInGameTickerNotify");
@@ -490,49 +467,32 @@
             switchScene("creatorVerificationScreen");
         }
 
-        // 🛠️ 創作者大專頁修正：徹底解決點不進去死鎖、不能提示
         function submitCreatorForm() {
             let name = document.getElementById("cfName").value.trim();
             if(name === "陳柏佑" || name === "賴嫦瑜" || name === "陳睿均" || name === "陳柏安") {
                 userDiamonds += 10000; document.getElementById("topDiamondsDisplay").innerText = userDiamonds;
-                alertNoPopup("👑 特權核發成功！加贈 10,000 可寶信！授權代碼已解鎖。");
-                switchScene("teamSelectScreen"); // 直接放行至選隊大方塊
+                alertNoPopup("👑 研發成員認證成功！豪送 10,000 可寶信。");
+                switchScene("teamSelectScreen"); // 正確暢行放行選隊！
             } else {
-                alertNoPopup("核對失敗", true);
+                alertNoPopup("審查未通過", true);
             }
         }
-        showCreatorForm = () => document.getElementById("creatorFormBoxUI").style.display = "block";
 
         function verifyCreatorKey() {
             if(document.getElementById("creatorKeyInput").value.trim() === "陳睿均是大帥哥") {
-                alertNoPopup("👑 通行代碼驗證成功！"); switchScene("teamSelectScreen");
+                alertNoPopup("👑 金鑰放行通過！"); switchScene("teamSelectScreen");
             } else alertNoPopup("密鑰錯誤！", true);
         }
 
         function showPremiumPlansScene() { switchScene("premiumPlansScreen"); }
-        function selectPlanAndGoToPay(planName, price) {
-            chosenPlanName = planName; chosenPlanPrice = price;
-            document.getElementById("payTitleText").innerText = `確認訂閱：${planName} ($${price} TWD)`;
-            switchScene("paymentFormScreen");
-        }
-        function selectPayMethod(idx) {
-            selectedPayMethodIdx = idx;
-            for(let i=1; i<=4; i++) document.getElementById("pm"+i).className = "pay-btn";
-            document.getElementById("pm"+idx).className = "pay-btn selected";
-        }
-
-        function executeOrderPaymentSubmit() {
-            for(let i=1; i<=10; i++) { if(!document.getElementById("p_field"+i).value.trim()) return alertNoPopup("請填寫完整基本資料！", true); }
-            alertNoPopup(`💳 扣款成功！聯賽通行證解鎖！`);
-            switchScene("teamSelectScreen");
-        }
+        function selectPlanAndGoToPay(planName, price) { chosenPlanName = planName; chosenPlanPrice = price; document.getElementById("payTitleText").innerText = `確認訂閱：${planName} ($${price} TWD)`; switchScene("paymentFormScreen"); }
+        function selectPayMethod(idx) { selectedPayMethodIdx = idx; for(let i=1; i<=4; i++) document.getElementById("pm"+i).className = "pay-btn"; document.getElementById("pm"+idx).className = "pay-btn selected"; }
+        function executeOrderPaymentSubmit() { for(let i=1; i<=10; i++) { if(!document.getElementById("p_field"+i).value.trim()) return alertNoPopup("請填寫基本資料！", true); } alertNoPopup(`💳 Pass通行證開通成功！`); switchScene("teamSelectScreen"); }
 
         function selectTeam(index) {
             playerTeam = teamsData[index]; enemyTeam = teamsData[(index + 1) % 6];
             document.getElementById("topUsernameDisplay").innerText = currentLoggedInUser + " (" + playerTeam.name + ")";
-            renderLobbyChibiStage(); 
-            switchScene("lobbyScreen"); 
-            renderLeaderboard();
+            renderLobbyChibiStage(); switchScene("lobbyScreen"); renderLeaderboard();
             setTimeout(initLobbyStarBackground, 100); 
         }
 
@@ -541,13 +501,7 @@
             const figuresRow = document.getElementById("lobbyChibiFiguresUI"); figuresRow.innerHTML = "";
             myAvailablePlayers.slice(0, 5).forEach(p => {
                 badgesRow.innerHTML += `<div class="player-circle-badge"><div class="badge-num">${p.number}</div>${p.name}</div>`;
-                figuresRow.innerHTML += `
-                    <div class="chibi-figure">
-                        <div class="figure-head"><div class="figure-cap"></div></div>
-                        <div class="figure-body" style="background:${playerTeam.color};"></div>
-                        <div class="figure-name">${p.name}</div>
-                        <div class="figure-base"></div>
-                    </div>`;
+                figuresRow.innerHTML += `<div class="chibi-figure"><div class="figure-head"><div class="figure-cap"></div></div><div class="figure-body" style="background:${playerTeam.color};"></div><div class="figure-name">${p.name}</div><div class="figure-base"></div></div>`;
             });
         }
 
@@ -555,8 +509,8 @@
             const container = document.getElementById("lobbyStarCanvasBg"); container.innerHTML = "";
             let s_scene = new THREE.Scene(); let s_camera = new THREE.PerspectiveCamera(60, container.clientWidth/container.clientHeight, 0.1, 1000); s_camera.position.set(0, 0, 5);
             let s_renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); s_renderer.setSize(container.clientWidth, container.clientHeight); container.appendChild(s_renderer.domElement);
-            let starGeo = new THREE.BufferGeometry(); let starCount = 150; let starPositions = new Float32Array(starCount * 3);
-            for(let i=0; i<starCount*3; i+=3) { starPositions[i] = (Math.random() - 0.5) * 8; starPositions[i+1] = (Math.random() - 0.5) * 6; starPositions[i+2] = (Math.random() - 0.5) * 5; }
+            let starGeo = new THREE.BufferGeometry(); let starPositions = new Float32Array(150 * 3);
+            for(let i=0; i<150*3; i+=3) { starPositions[i] = (Math.random() - 0.5) * 8; starPositions[i+1] = (Math.random() - 0.5) * 6; starPositions[i+2] = (Math.random() - 0.5) * 5; }
             starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
             let starPoints = new THREE.Points(starGeo, new THREE.PointsMaterial({ size: 0.06, color: 0xffcc00, transparent: true, opacity: 0.8 })); s_scene.add(starPoints);
             function animateLobbyBg() { if(!document.getElementById("lobbyScreen").classList.contains("active-scene")) return; requestAnimationFrame(animateLobbyBg); starPoints.rotation.y += 0.001; s_renderer.render(s_scene, s_camera); }
@@ -568,95 +522,83 @@
             teamsData.forEach((t, i) => { b.innerHTML += `<tr><td>第 ${i+1}名</td><td>教頭_${i+1}</td><td>${t.name}</td><td>10 次</td><td style='color:#ffcc00; font-weight:bold;'>${3500 - i*140} P</td></tr>`; });
         }
 
-        function goToLobbySubListScene(type) {
+        // 🛠️ 15種東西點進去的專屬子介面 JavaScript 機制
+        function clickWidgetAction(idx) {
             const title = document.getElementById("richFeaturesTitleText");
             const grid = document.getElementById("richFeaturesContentScrollerUI");
             grid.innerHTML = "";
+            
+            const list = [
+                "⚡ 體力值恢復中心：每日免費領取 100 點能量體力！",
+                "👑 VIP 尊爵特權卡：查看專屬引進 SSR 引退名將的高級概率修正。",
+                "📩 系統郵件箱：領取官方對決維護補償 500 可寶信福利！",
+                "⚙️ 安全核心遊戲設定：音效高幀率與拖曳靈敏度補正調整。",
+                "📢 賽事即時滾動公告：2026 常規季後挑戰大賽火熱開打中！",
+                "⚔️ 跨服PVP即時對戰天梯：與全球玩家在40大球場手動打擊一決勝負！",
+                "💬 中職公會聯盟聊天室：與線上 1500 位教頭討論陳柏安等明星派遣配置。",
+                "🔍 高級球探雷達中心：鎖定下半季即將加盟的高星洋將探子報告。",
+                "🛡️ 皇家黑金打擊晶片與球棒裝備庫：升級手動揮棒的完美甜蜜點判定範圍。",
+                "🏆 聯賽榮譽成就獎盃牆：記錄您在九局比賽中手動擊出全壘打的史詩瞬間。",
+                "⏳ 常規例行賽限時狂歡倒數：剩餘時間 4 小時 12 分鐘。",
+                "🎡 幸運大輪盤：消耗 50 寶信即可抽獎（大獎：直送世界大谷卡片）！",
+                "📅 月度實名簽到日曆：累計簽到 7 天解鎖王建民引退巨星卡！",
+                "🎫 黃金賽季鑽石通行證：開通高級打擊特效與專屬黑色棒球外觀。",
+                "📖 千人球員百科圖鑑：查看 1000 位現役與傳奇本土戰將的真實打擊率與OPS數據。"
+            ];
+            
+            title.innerText = `💡 豪華開通：${list[idx-1].split('：')[0]}`;
+            grid.innerHTML = `
+                <div class="luxury-glowing-card" style="width:200%; grid-column: span 2; border-color:#ffcc00;">
+                    <h3 style="color:#ffcc00;">手遊系統數據卡</h3>
+                    <p style="color:#e2e8f0; line-height:1.8;">${list[idx-1].split('：')[1] || list[idx-1]}</p>
+                    <button style="background:#00ffaa; color:#000; padding:10px; font-weight:bold; margin-top:20px; width:150px;" onclick="alertNoPopup('操作執行成功！')">⚡ 立即啟動互動</button>
+                </div>`;
+            switchScene("lobbyRichFeaturesScreen");
+        }
+
+        function goToLobbySubListScene(type) {
+            const title = document.getElementById("richFeaturesTitleText"); const grid = document.getElementById("richFeaturesContentScrollerUI"); grid.innerHTML = "";
             if (type === 'newbie') {
                 title.innerText = "🎁 30個新手報到豪華霓虹福利卡片";
-                for (let i = 1; i <= 30; i++) {
-                    grid.innerHTML += `
-                        <div class="luxury-glowing-card">
-                            <div class="card-badge-ssr">福利 DAY ${i}</div>
-                            <h3 style="color:#00ffcc; margin-top:0;">簽到資產大禮包</h3>
-                            <p style="font-size:12px; color:#94a3b8;">• 隨機真實強豪解鎖券 ×1</p>
-                            <button style="background:linear-gradient(45deg,#ffcc00,#ff9900); color:#000; padding:8px; border-radius:4px; font-size:12px;" onclick="alertNoPopup('簽到領取成功')">🔓 點擊開箱</button>
-                        </div>`;
-                }
+                for (let i = 1; i <= 30; i++) grid.innerHTML += `<div class="luxury-glowing-card"><div class="card-badge-ssr">DAY ${i}</div><h3 style="color:#00ffcc; margin-top:0;">簽到資產包</h3><p style="font-size:12px; color:#94a3b8;">• 真實球星解鎖券 ×1</p><button style="background:linear-gradient(45deg,#ffcc00,#ff9900); color:#000; padding:8px; font-size:12px;" onclick="alertNoPopup('領取成功')">🔓 領取</button></div>`;
             } else if (type === 'daily') {
                 title.innerText = "📅 50個每日極限挑戰霓虹目標卡片";
-                for (let i = 1; i <= 50; i++) {
-                    grid.innerHTML += `
-                        <div class="luxury-glowing-card" style="border-color:#00ccff;">
-                            <h3 style="color:#00ccff; margin-top:0;">每日挑戰 #${i}</h3>
-                            <p style="font-size:12px; color:#cbd5e1;">任務要求：完成一局 40 種實名球場的對決戰役。</p>
-                        </div>`;
-                }
+                for (let i = 1; i <= 50; i++) grid.innerHTML += `<div class="luxury-glowing-card" style="border-color:#00ccff;"><h3 style="color:#00ccff; margin-top:0;">每日挑戰 #${i}</h3><p style="font-size:12px;">任務要求：完成一局手動排陣更換。</p></div>`;
             } else if (type === 'season') {
                 title.innerText = "🏆 100個賽季史詩活動豪華里程碑卡片";
-                for (let i = 1; i <= 100; i++) {
-                    grid.innerHTML += `
-                        <div class="luxury-glowing-card" style="border-color:#a855f7;">
-                            <h3 style="color:#c084fc; margin-top:0;">活動進程第 ${i} 戰</h3>
-                            <div class="card-progress-bar"><div class="card-progress-fill" style="background:#a855f7; width:${i}%"></div></div>
-                        </div>`;
-                }
+                for (let i = 1; i <= 100; i++) grid.innerHTML += `<div class="luxury-glowing-card" style="border-color:#a855f7;"><h3 style="color:#c084fc; margin-top:0;">活動進程第 ${i} 戰</h3><div class="card-progress-bar"><div class="card-progress-fill" style="background:#a855f7; width:${i}%"></div></div></div>`;
             } else if (type === 'rank') {
-                title.innerText = "📊 全服玩過遊戲歷史領隊總實力發光排行";
-                for (let i = 1; i <= 100; i++) {
-                    grid.innerHTML += `
-                        <div class="luxury-glowing-card" style="border-color:#22c55e; flex-direction:row; justify-content:space-between; align-items:center;">
-                            <div><span style="font-weight:900; color:#22c55e;">RANK #${i}</span><div style="font-size:13px; margin-top:4px;">中職夢幻教頭_${i}</div></div>
-                            <strong style="color:#ffcc00;">${15000 - i*115} PT</strong>
-                        </div>`;
-                }
+                title.innerText = "📊 全服玩過遊戲歷史領隊總實力排行";
+                for (let i = 1; i <= 40; i++) grid.innerHTML += `<div class="luxury-glowing-card" style="border-color:#22c55e; flex-direction:row; justify-content:space-between; align-items:center;"><div><span style="font-weight:900; color:#22c55e;">RANK #${i}</span><div>教頭領隊_${i}</div></div><strong style="color:#ffcc00;">${15000 - i*115} PT</strong></div>`;
             }
             switchScene("lobbyRichFeaturesScreen");
         }
 
-        // 🛒 1000人商店渲染機制 (含付費解鎖購買)
         function goToShopScene() {
             switchScene("shopScreen"); const grid = document.getElementById("shopPoolGrid"); grid.innerHTML = "";
             masterPlayerPool.slice(0, 40).forEach(p => {
                 let owned = myAvailablePlayers.some(o => o.id === p.id);
-                let priceText = p.price > 0 ? `💰 ${p.price}寶信` : "免費簽約";
-                let btnText = owned ? "【已引進】" : (p.price > 0 ? "🛒 點擊購買" : "⚡ 免費引進");
-                grid.innerHTML += `
-                    <div class="shop-item card-ssr">
-                        <div>[${p.rarity}] ${p.name}</div>
-                        <div style="font-size:11px; color:#ffcc00;">${priceText}</div>
-                        <button style="background:#ffcc00; color:#000; padding:4px; font-size:11px;" ${owned ? 'disabled' : ''} onclick="buyStorePlayerAction(${p.id})">${btnText}</button>
-                    </div>`;
+                let priceText = p.price > 0 ? `💰 ${p.price}寶信` : "解鎖擁有";
+                let btnText = owned ? "【已簽約】" : (p.price > 0 ? "🛒 點擊購買" : "⚡ 引進上場");
+                grid.innerHTML += `<div class="shop-item card-ssr"><div>[${p.rarity}] ${p.name}</div><div style="font-size:11px; color:#ffcc00;">${priceText}</div><button style="background:#ffcc00; color:#000; padding:4px; font-size:11px;" ${owned ? 'disabled' : ''} onclick="buyStorePlayerAction(${p.id})">${btnText}</button></div>`;
             });
         }
-
-        function buyStorePlayerAction(id) {
-            let player = masterPlayerPool.find(p => p.id === id);
-            if(userDiamonds < player.price) return alertNoPopup("可寶信餘額不足！", true);
-            userDiamonds -= player.price; updateTopCurrencyBar();
-            myAvailablePlayers.push(player);
-            alertNoPopup(`🎉 成功引進簽約真實球員：【${player.name}】！`);
-            goToShopScene(); renderLobbyChibiStage();
-        }
+        function buyStorePlayerAction(id) { let player = masterPlayerPool.find(p => p.id === id); if(userDiamonds < player.price) return alertNoPopup("資產不足！", true); userDiamonds -= player.price; updateTopCurrencyBar(); myAvailablePlayers.push(player); alertNoPopup(`🎉 成功簽約真實球員：【${player.name}】！`); goToShopScene(); renderLobbyChibiStage(); }
         function buyRandomPlayer() { buyStorePlayerAction(Math.floor(Math.random()*40)+1); }
 
         function goToPresetScene() {
             switchScene("presetLineupScreen"); const pool = document.getElementById("presetPoolList"); pool.innerHTML = "";
             myAvailablePlayers.forEach(p => {
                 let card = document.createElement("div"); card.className = "draggable-player"; card.setAttribute("draggable", "true"); card.innerHTML = `<span>★ ${p.name}</span>`;
-                card.addEventListener("dragstart", (e) => { draggedPlayerName = p.name; e.dataTransfer.setData("text/plain", p.name); });
-                pool.appendChild(card);
+                card.addEventListener("dragstart", (e) => { draggedPlayerName = p.name; e.dataTransfer.setData("text/plain", p.name); }); pool.appendChild(card);
             });
             renderPresetSlotsUI();
         }
-
         function renderPresetSlotsUI() {
             const bSlots = document.getElementById("presetBattingSlots"); bSlots.innerHTML = "";
             for(let i=0; i<9; i++) {
-                let zone = document.createElement("div"); zone.className = "drop-zone";
-                zone.innerHTML = `第 ${i+1} 棒預設：${preSavedPresetBattingOrder[i] ? '⚡ ' + preSavedPresetBattingOrder[i].name : '【可拖曳球員置此】'}`;
-                zone.addEventListener("dragover", (e) => e.preventDefault());
-                zone.addEventListener("drop", (e) => { e.preventDefault(); let name = e.dataTransfer.getData("text/plain") || draggedPlayerName; if(name) { preSavedPresetBattingOrder[i] = { name: name }; renderPresetSlotsUI(); } });
+                let zone = document.createElement("div"); zone.className = "drop-zone"; zone.innerHTML = `第 ${i+1} 棒預設：${preSavedPresetBattingOrder[i] ? '⚡ ' + preSavedPresetBattingOrder[i].name : '【可拖曳球員置此】'}`;
+                zone.addEventListener("dragover", (e) => e.preventDefault()); zone.addEventListener("drop", (e) => { e.preventDefault(); let name = e.dataTransfer.getData("text/plain") || draggedPlayerName; if(name) { preSavedPresetBattingOrder[i] = { name: name }; renderPresetSlotsUI(); } });
                 bSlots.appendChild(zone);
             }
         }
@@ -667,7 +609,7 @@
             const grid = document.getElementById("stadiumGrid"); grid.innerHTML = "";
             stadiums.slice(0, 15).forEach(stadium => {
                 let btn = document.createElement("button"); btn.className = "stadium-btn"; btn.style.padding = "10px"; btn.innerText = stadium;
-                btn.onclick = function() { selectedStadium = stadium; alertNoPopup(`已選定球場：${stadium}`); }; grid.appendChild(btn);
+                btn.onclick = function() { selectedStadium = stadium; alertNoPopup(`已指定球場：${stadium}`); }; grid.appendChild(btn);
             });
             switchScene("stadiumScreen");
         }
@@ -676,8 +618,7 @@
             switchScene("lineupScreen"); const pool = document.getElementById("poolList"); pool.innerHTML = "";
             myAvailablePlayers.forEach(p => {
                 let card = document.createElement("div"); card.className = "draggable-player"; card.setAttribute("draggable", "true"); card.innerHTML = `<span>★ ${p.name}</span>`;
-                card.addEventListener("dragstart", (e) => { draggedPlayerName = p.name; e.dataTransfer.setData("text/plain", p.name); });
-                pool.appendChild(card);
+                card.addEventListener("dragstart", (e) => { draggedPlayerName = p.name; e.dataTransfer.setData("text/plain", p.name); }); pool.appendChild(card);
             });
             refreshLineupUI();
         }
@@ -685,10 +626,8 @@
         function refreshLineupUI() {
             const batSlots = document.getElementById("battingSlots"); batSlots.innerHTML = "";
             for(let i=0; i<9; i++) {
-                let zone = document.createElement("div"); zone.className = "drop-zone";
-                zone.innerHTML = `第 ${i+1} 棒打線：${battingOrder[i] ? battingOrder[i].name : '【未派遣】'}`;
-                zone.addEventListener("dragover", (e) => e.preventDefault());
-                zone.addEventListener("drop", (e) => { e.preventDefault(); let name = e.dataTransfer.getData("text/plain") || draggedPlayerName; if(name) { battingOrder[i] = { name: name }; refreshLineupUI(); } });
+                let zone = document.createElement("div"); zone.className = "drop-zone"; zone.innerHTML = `第 ${i+1} 棒打線：${battingOrder[i] ? battingOrder[i].name : '【未派遣】'}`;
+                zone.addEventListener("dragover", (e) => e.preventDefault()); zone.addEventListener("drop", (e) => { e.preventDefault(); let name = e.dataTransfer.getData("text/plain") || draggedPlayerName; if(name) { battingOrder[i] = { name: name }; refreshLineupUI(); } });
                 batSlots.appendChild(zone);
             }
         }
@@ -696,113 +635,56 @@
         function startCountdownIntro() { switchScene("introScreen"); let c = 2; let timer = setInterval(() => { c--; document.getElementById("countdownTextUI").innerText = c; if(c <= 0) { clearInterval(timer); realStartMatchGame(); } }, 1000); }
 
         function realStartMatchGame() { 
-            switchScene("gameScreen"); currentPlayPhase = "DEFENSE"; 
-            document.getElementById("stadiumTitleDisplay").innerText = selectedStadium;
-            let activeBatter = battingOrder[currentBatterIndex] || { name: "張育成" };
-            let realPlayerPoolData = masterPlayerPool.find(p => p.name === activeBatter.name) || masterPlayerPool[0];
-            document.getElementById("cardBatterName").innerText = realPlayerPoolData.name;
-            updateMatchHUDCounts();
-            setTimeout(init3DGameEngine, 150); 
+            switchScene("gameScreen"); currentPlayPhase = "DEFENSE"; document.getElementById("stadiumTitleDisplay").innerText = selectedStadium; document.getElementById("mainActionButtonUI").innerText = "投球";
+            let activeBatter = battingOrder[currentBatterIndex] || { name: "張育成" }; let realPlayerPoolData = masterPlayerPool.find(p => p.name === activeBatter.name) || masterPlayerPool[0]; document.getElementById("cardBatterName").innerText = realPlayerPoolData.name;
+            updateMatchHUDCounts(); setTimeout(init3DGameEngine, 150); 
         }
 
         function toggleViewCameraMode() {
             if (isBallPlay3D) return;
             if (currentPlayPhase === "DEFENSE") {
-                currentPlayPhase = "OFFENSE"; document.getElementById("mainActionButtonUI").innerText = "揮棒";
-                alertNoPopup("⚔️ 【打擊模式】請手動按鍵盤 [Enter鍵] 命令AI放球！");
-                camera3D.position.set(2.5, 2.2, 3); camera3D.lookAt(-0.5, 1.2, -6);
+                currentPlayPhase = "OFFENSE"; document.getElementById("mainActionButtonUI").innerText = "揮棒"; alertNoPopup("⚔️ 【打擊模式】請手動按鍵盤 [Enter鍵] 放球！"); camera3D.position.set(2.5, 2.2, 3); camera3D.lookAt(-0.5, 1.2, -6);
             } else {
-                currentPlayPhase = "DEFENSE"; document.getElementById("mainActionButtonUI").innerText = "投球";
-                camera3D.position.set(0, 2.8, -18); camera3D.lookAt(0, 1.2, 4);
+                currentPlayPhase = "DEFENSE"; document.getElementById("mainActionButtonUI").innerText = "投球"; camera3D.position.set(0, 2.8, -18); camera3D.lookAt(0, 1.2, 4);
             }
         }
 
         function handleMainActionBtnClick() {
-            if (currentPlayPhase === "DEFENSE") {
-                if (isBallPlay3D) return; isBallPlay3D = true; totalPitchesCount++;
-                ballMesh.position.set(0, 1.4, -14); ballVelocity.z = 0.38;
-            } else {
-                if (!isBallPlay3D) return; batterMesh.rotation.y -= 1.8;
-                if (ballMesh.position.z >= -0.2 && ballMesh.position.z <= 2.2) {
-                    playerScore++; alertNoPopup("💥 全壘打得分！"); isBallPlay3D = false; resetBall3D(); checkMatchInningRules();
-                }
-                setTimeout(() => { batterMesh.rotation.y = 0; }, 200);
-            }
+            if (currentPlayPhase === "DEFENSE") { if (isBallPlay3D) return; isBallPlay3D = true; totalPitchesCount++; ballMesh.position.set(0, 1.4, -14); ballVelocity.z = 0.38; } 
+            else { if (!isBallPlay3D) return; batterMesh.rotation.y -= 1.8; if (ballMesh.position.z >= -0.2 && ballMesh.position.z <= 2.2) { playerScore++; alertNoPopup("💥 全壘打得分！！！"); isBallPlay3D = false; resetBall3D(); checkMatchInningRules(); } setTimeout(() => { batterMesh.rotation.y = 0; }, 200); }
         }
 
-        // 🛠️ 整合 ESC 暫停、手動放球與出棒監聽
         window.addEventListener("keydown", (e) => { 
-            if (e.key === "Escape" || e.keyCode === 27) { // 實裝 ESC 鍵安全暫停與退場機制
-                if (document.getElementById("gameScreen").classList.contains("active-scene")) {
-                    document.getElementById("luxuryEscPauseMenuOverlay").style.display = "flex";
-                }
-            }
-            if (e.code === "Enter" && currentPlayPhase === "OFFENSE") {
-                if (isBallPlay3D) return; isBallPlay3D = true;
-                ballMesh.position.set(0, 1.4, -14); ballVelocity.z = 0.38;
-                alertNoPopup("⚾ 投手已放球！準備出棒！");
-            }
+            if (e.key === "Escape" || e.keyCode === 27) { if (document.getElementById("gameScreen").classList.contains("active-scene")) { document.getElementById("luxuryEscPauseMenuOverlay").style.display = "flex"; } }
+            if (e.code === "Enter" && currentPlayPhase === "OFFENSE") { if (isBallPlay3D) return; isBallPlay3D = true; ballMesh.position.set(0, 1.4, -14); ballVelocity.z = 0.38; alertNoPopup("⚾ AI投手已放球！"); }
             if (e.code === "Space" && currentPlayPhase === "OFFENSE") { handleMainActionBtnClick(); }
         });
 
         function resumeMatchFromEscMenu() { document.getElementById("luxuryEscPauseMenuOverlay").style.display = "none"; }
-        function quitMatchToLobbyViaEsc() {
-            document.getElementById("luxuryEscPauseMenuOverlay").style.display = "none";
-            isBallPlay3D = false; resetBall3D(); switchScene("lobbyScreen"); setTimeout(initLobbyStarBackground, 100);
-        }
+        function quitMatchToLobbyViaEsc() { document.getElementById("luxuryEscPauseMenuOverlay").style.display = "none"; isBallPlay3D = false; resetBall3D(); switchScene("lobbyScreen"); setTimeout(initLobbyStarBackground, 100); }
 
         function init3DGameEngine() {
-            const container = document.getElementById("canvas3DContainer"); container.innerHTML = "";
-            let w = container.clientWidth || 800; let h = container.clientHeight || 450;
-            
-            scene3D = new THREE.Scene(); scene3D.background = new THREE.Color(0x1e293b);
-            camera3D = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
-            if (currentPlayPhase === "DEFENSE") { camera3D.position.set(0, 2.8, -18); camera3D.lookAt(0, 1.2, 4); } 
-            else { camera3D.position.set(2.5, 2.2, 3); camera3D.lookAt(-0.5, 1.2, -6); }
-
-            renderer3D = new THREE.WebGLRenderer({ antialias: true });
-            renderer3D.setSize(w, h); container.appendChild(renderer3D.domElement);
-
-            scene3D.add(new THREE.AmbientLight(0xffffff, 0.9));
-            const sun = new THREE.DirectionalLight(0xffffff, 0.4); sun.position.set(5, 15, -5); scene3D.add(sun);
-
-            const field = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.6 }));
-            field.rotation.x = -Math.PI / 2; scene3D.add(field);
-
-            ballMesh = new THREE.Mesh(new THREE.SphereGeometry(0.12, 32, 32), new THREE.MeshStandardMaterial({ color: 0xffffff }));
-            ballMesh.position.set(0, 1.4, -14); scene3D.add(ballMesh);
-
+            const container = document.getElementById("canvas3DContainer"); container.innerHTML = ""; let w = container.clientWidth || 800; let h = container.clientHeight || 450;
+            scene3D = new THREE.Scene(); scene3D.background = new THREE.Color(0x1e293b); camera3D = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+            if (currentPlayPhase === "DEFENSE") { camera3D.position.set(0, 2.8, -18); camera3D.lookAt(0, 1.2, 4); } else { camera3D.position.set(2.5, 2.2, 3); camera3D.lookAt(-0.5, 1.2, -6); }
+            renderer3D = new THREE.WebGLRenderer({ antialias: true }); renderer3D.setSize(w, h); container.appendChild(renderer3D.domElement);
+            scene3D.add(new THREE.AmbientLight(0xffffff, 0.9)); const sun = new THREE.DirectionalLight(0xffffff, 0.4); sun.position.set(5, 15, -5); scene3D.add(sun);
+            const field = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.6 })); field.rotation.x = -Math.PI / 2; scene3D.add(field);
+            ballMesh = new THREE.Mesh(new THREE.SphereGeometry(0.12, 32, 32), new THREE.MeshStandardMaterial({ color: 0xffffff })); ballMesh.position.set(0, 1.4, -14); scene3D.add(ballMesh);
             pitcherMesh = createMangaChibiMan("#ff3366"); pitcherMesh.position.set(0, 0, -14); scene3D.add(pitcherMesh);
             batterMesh = createMangaChibiMan("#ffffff"); batterMesh.position.set(0.9, 0, 0.8); batterMesh.rotation.y = -Math.PI / 2; scene3D.add(batterMesh);
             catcherMesh = createMangaChibiMan("#444"); catcherMesh.position.set(0, 0, 2.2); scene3D.add(catcherMesh);
-
-            const batGeo = new THREE.CylinderGeometry(0.06, 0.03, 1.4, 16);
-            batMesh = new THREE.Mesh(batGeo, new THREE.MeshStandardMaterial({ color: 0xd2b48c }));
-            batMesh.position.set(0, 1.2, -0.4); batMesh.rotation.x = Math.PI / 2; batterMesh.add(batMesh);
-
-            for(let i = -15; i <= 15; i += 3) {
-                let fan = new THREE.Group();
-                let fHead = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.7), new THREE.MeshStandardMaterial({ color: Math.random() > 0.5 ? 0xffcc00 : 0x00ccff })); fHead.position.y = 2.5; fan.add(fHead);
-                let fBody = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.6, 0.5), new THREE.MeshStandardMaterial({ color: 0x334155 })); fBody.position.y = 1.9; fan.add(fBody); fan.position.set(i, 0, 8); scene3D.add(fan);
-            }
+            batMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.03, 1.4, 16), new THREE.MeshStandardMaterial({ color: 0xd2b48c })); batMesh.position.set(0, 1.2, -0.4); batMesh.rotation.x = Math.PI / 2; batterMesh.add(batMesh);
+            for(let i = -15; i <= 15; i += 3) { let fan = new THREE.Group(); let fHead = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.7, 0.7), new THREE.MeshStandardMaterial({ color: Math.random() > 0.5 ? 0xffcc00 : 0x00ccff })); fHead.position.y = 2.5; fan.add(fHead); let fBody = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.6, 0.5), new THREE.MeshStandardMaterial({ color: 0x334155 })); fBody.position.y = 1.9; fan.add(fBody); fan.position.set(i, 0, 8); scene3D.add(fan); }
             animate3DGameLoop();
         }
 
-        function createMangaChibiMan(shirtColor) {
-            const group = new THREE.Group();
-            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.4 });
-            const shirtMat = new THREE.MeshStandardMaterial({ color: shirtColor });
-            const head = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), skinMat); head.position.y = 1.8; group.add(head);
-            const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.8, 0.5), shirtMat); body.position.y = 1.1; group.add(body);
-            return group;
-        }
-
+        function createMangaChibiMan(shirtColor) { const group = new THREE.Group(); const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.4 }); const shirtMat = new THREE.MeshStandardMaterial({ color: shirtColor }); const head = new THREE.Mesh(new THREE.BoxGeometry(0.75, 0.75, 0.75), skinMat); head.position.y = 1.8; group.add(head); const body = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.8, 0.5), shirtMat); body.position.y = 1.1; group.add(body); return group; }
         function animate3DGameLoop() { if (!scene3D) return; requestAnimationFrame(animate3DGameLoop); if (isBallPlay3D) { ballMesh.position.z += ballVelocity.z; if (ballMesh.position.z > 2.5) { isBallPlay3D = false; strikes++; resetBall3D(); alertNoPopup("💨 好球！"); checkMatchInningRules(); } } renderer3D.render(scene3D, camera3D); }
         function resetBall3D() { ballMesh.position.set(0, 1.4, -14); isBallPlay3D = false; }
         function checkMatchInningRules() { if (strikes >= 2) { outs++; strikes = 0; alertNoPopup("❌ 三振出局！", true); currentBatterIndex = (currentBatterIndex + 1) % 9; realStartMatchGame(); } if (outs >= 3) { outs = 0; strikes = 0; isTopInning = !isTopInning; alertNoPopup("🔄 攻守交換！"); realStartMatchGame(); } updateMatchHUDCounts(); }
         function updateMatchHUDCounts() { document.getElementById("scoreEnemyText").innerText = enemyScore; document.getElementById("scorePlayerText").innerText = playerScore; document.getElementById("matchInningDisplay").innerText = `第 ${gameInning} 局 ${isTopInning ? '上半' : '下半'}`; document.getElementById("dot-s1").className = strikes >= 1 ? "dot yellow" : "dot"; document.getElementById("dot-s2").className = strikes >= 2 ? "dot yellow" : "dot"; document.getElementById("dot-o1").className = outs >= 1 ? "dot red" : "dot"; document.getElementById("dot-o2").className = outs >= 2 ? "dot red" : "dot"; }
-        function switchScene(id) { document.querySelectorAll('.scene').forEach(s => s.classList.remove('active-scene')); document.getElementById(id).classList.add('active-scene'); }
         function updateTopCurrencyBar() { document.getElementById("topDiamondsDisplay").innerText = userDiamonds; }
     </script>
 </body>
-</html>
+            </html>
