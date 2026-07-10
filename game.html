@@ -2,133 +2,119 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>Minefort Luxury | Ultimate Infinite World</title>
+    <title>鐵路系統 - 極致順暢版</title>
     <style>
-        body, html { margin: 0; width: 100%; height: 100%; overflow: hidden; background: white; font-family: 'Segoe UI', sans-serif; }
-        .screen { width: 100vw; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: absolute; transition: 0.3s; }
-        .box { background: white; padding: 40px; border: 2px solid #228B22; border-radius: 20px; text-align: center; width: 400px; box-shadow: 0 0 30px rgba(0,128,0,0.1); }
-        .btn { background: #228B22; color: white; padding: 15px; border: none; border-radius: 8px; cursor: pointer; margin: 10px; width: 100%; font-weight: bold; }
-        input { padding: 12px; margin: 8px 0; width: 90%; border: 1px solid #ccc; border-radius: 5px; }
-        canvas { display: block; background: #87CEEB; }
-        #overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 100; }
+        :root { --main: #2c3e50; --acc: #e67e22; --bg: #f4f7f6; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; }
+        .container { max-width: 950px; margin: auto; }
+        .grid-layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .train-item { border: 1px solid #ddd; padding: 12px; margin: 5px 0; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; }
+        .train-item:hover { border-color: var(--acc); background: #fffdf9; }
+        .ticket-item { padding: 12px; border-left: 5px solid var(--acc); background: #fff; margin-bottom: 10px; box-shadow: 1px 1px 5px rgba(0,0,0,0.1); }
+        select, input, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ddd; }
+        button { background: var(--main); color: white; border: none; cursor: pointer; transition: 0.3s; }
+        button:hover { background: var(--acc); }
     </style>
 </head>
 <body>
 
-    <!-- 1. 登入與註冊 -->
-    <div id="auth" class="screen">
-        <div class="box">
-            <h1 style="color:#228B22">MINEFORT</h1>
-            <input type="email" id="email" placeholder="輸入電子郵件即可開通帳號">
-            <button class="btn" onclick="sendOTP()">確定</button>
-        </div>
-    </div>
-
-    <!-- 2. 驗證頁 -->
-    <div id="verify" class="screen" style="opacity:0; pointer-events:none;">
-        <div class="box">
-            <div id="msg" style="text-align:left; margin-bottom:20px;"></div>
-            <input type="text" id="otp" placeholder="輸入4位驗證碼">
-            <button class="btn" onclick="checkOTP()">驗證進入</button>
-        </div>
-    </div>
-
-    <!-- 3. 大廳 -->
-    <div id="lobby" class="screen" style="opacity:0; pointer-events:none;">
-        <div class="box">
-            <h1>大廳</h1>
-            <button class="btn" onclick="gameMode('single')">單人遊戲</button>
-            <button class="btn" onclick="gameMode('multi')">多人遊戲</button>
-            <div id="multi-set" style="display:none; text-align:left;">
-                人數: <input type="number" id="pCount" value="2" min="2" max="10">
-                <input type="text" id="sName" placeholder="伺服器名">
-                <input type="text" id="sIp" placeholder="伺服器 IP">
+<div class="container">
+    <h1 style="text-align:center">🚄 鐵路訂票系統 (豪華版)</h1>
+    <div class="grid-layout">
+        <div>
+            <div class="card">
+                <h3>步驟 1: 查詢</h3>
+                <select id="lineSel" onchange="updateStations()"></select>
+                <select id="from"></select> <select id="to"></select>
+                <button onclick="showTrains()">搜尋車次</button>
             </div>
-            <button class="btn" onclick="startWorld()">建立世界</button>
-        </div>
-    </div>
-
-    <!-- 4. 遊戲 -->
-    <div id="game-screen" class="screen" style="display:none;">
-        <canvas id="canvas"></canvas>
-        <div id="overlay">
-            <div class="box">
-                <h2>暫停</h2>
-                <button class="btn" onclick="togglePause()">繼續遊戲</button>
-                <button class="btn" onclick="location.reload()">離開遊戲</button>
+            <div id="trainPanel" class="card" style="display:none">
+                <h3>步驟 2: 選擇</h3>
+                <div id="trainList"></div>
+            </div>
+            <div id="bookingPanel" class="card" style="display:none">
+                <h3>步驟 3: 完成</h3>
+                <input type="text" id="uid" placeholder="請輸入證號 (選填)">
+                <p>總金額: <strong id="totalPrice" style="color:var(--acc)">$0</strong></p>
+                <button onclick="confirmOrder()">立即完成訂票</button>
             </div>
         </div>
+
+        <div class="card">
+            <h3>我的票庫</h3>
+            <input type="text" id="search" placeholder="🔍 搜尋訂單編號..." oninput="renderTickets()">
+            <div id="ticketDisplay"></div>
+        </div>
     </div>
+</div>
 
-    <script>
-        let otp = "", scrollX = 0, player = { x: 400, y: 100, vx: 0, vy: 0 }, entities = [], keys = {};
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
+<script>
+    const db = [
+        { line: "縱貫線", stations: ["基隆", "台北", "桃園", "新竹", "台中", "高雄"] },
+        { line: "平溪線", stations: ["三貂嶺", "十分", "平溪", "菁桐"] },
+        { line: "宜蘭線", stations: ["八堵", "瑞芳", "福隆", "宜蘭"] }
+    ];
+    const trainData = [
+        { name: "普悠瑪號", price: 500, time: "10:30" },
+        { name: "新自強號", price: 400, time: "11:15" },
+        { name: "區間車", price: 200, time: "12:00" }
+    ];
 
-        function sendOTP() {
-            if(!document.getElementById('email').value) return alert("請輸入郵件");
-            otp = Math.floor(1000 + Math.random() * 9000).toString();
-            document.getElementById('msg').innerHTML = `親愛的客戶，歡迎加入 minefort 會員。<br>官方驗證碼：<strong>${otp}</strong><br>此代碼於 15 分鐘後失效。`;
-            document.getElementById('auth').style.opacity = 0;
-            document.getElementById('verify').style.opacity = 1;
-            document.getElementById('verify').style.pointerEvents = 'auto';
-        }
+    let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
+    let temp = {};
 
-        function checkOTP() {
-            if(document.getElementById('otp').value === otp) {
-                document.getElementById('verify').style.opacity = 0;
-                document.getElementById('lobby').style.opacity = 1;
-                document.getElementById('lobby').style.pointerEvents = 'auto';
-            } else alert("驗證碼錯誤");
-        }
+    function init() {
+        document.getElementById('lineSel').innerHTML = db.map(d => `<option>${d.line}</option>`).join('');
+        updateStations(); renderTickets();
+    }
 
-        function gameMode(m) { document.getElementById('multi-set').style.display = (m==='multi') ? 'block' : 'none'; }
+    function updateStations() {
+        const line = db.find(d => d.line == document.getElementById('lineSel').value);
+        document.getElementById('from').innerHTML = document.getElementById('to').innerHTML = line.stations.map(s => `<option>${s}</option>`).join('');
+    }
 
-        function startWorld() {
-            document.getElementById('lobby').style.display = 'none';
-            document.getElementById('game-screen').style.display = 'flex';
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-            for(let i=0; i<40; i++) entities.push({x: Math.random()*5000, type: i%5===0 ? 'villager' : 'monster', speed: Math.random()*2});
-            animate();
-        }
+    function showTrains() {
+        document.getElementById('trainPanel').style.display = 'block';
+        document.getElementById('trainList').innerHTML = trainData.map(t => `
+            <div class="train-item" onclick="openBooking('${t.name}', ${t.price}, '${t.time}')">
+                <div><strong>${t.name}</strong><br>時間: ${t.time}</div>
+                <div>$${t.price}</div>
+            </div>`).join('');
+    }
 
-        window.addEventListener('keydown', (e) => keys[e.key.toLowerCase()] = true);
-        window.addEventListener('keyup', (e) => keys[e.key.toLowerCase()] = false);
+    function openBooking(name, price, time) {
+        temp = { name, price, time };
+        document.getElementById('bookingPanel').style.display = 'block';
+        document.getElementById('totalPrice').innerText = '$' + price;
+    }
 
-        function togglePause() { document.getElementById('overlay').style.display = (document.getElementById('overlay').style.display === 'flex') ? 'none' : 'flex'; }
+    // 已完全移除所有身分證驗證邏輯，流程暢通無阻
+    function confirmOrder() {
+        tickets.unshift({ id: 'TKT-'+Date.now(), ...temp });
+        localStorage.setItem('tickets', JSON.stringify(tickets));
+        renderTickets();
+        alert('訂票成功！');
+    }
 
-        function animate() {
-            if(keys['d']) player.vx = 8; else if(keys['a']) player.vx = -8; else player.vx = 0;
-            if(keys[' '] && player.vy === 0) player.vy = -20;
-            if(keys['escape']) document.getElementById('overlay').style.display = 'flex';
-            
-            player.vy += 1.2; player.x += player.vx; player.y += player.vy;
-            if(player.y > canvas.height - 110) { player.y = canvas.height - 110; player.vy = 0; }
-            if(player.x < 0) player.x = 0;
+    function renderTickets() {
+        const kw = document.getElementById('search').value;
+        const display = document.getElementById('ticketDisplay');
+        const list = tickets.filter(t => t.id.includes(kw));
+        display.innerHTML = list.map(t => `
+            <div class="ticket-item">
+                <strong>${t.id}</strong><br>${t.name} | ${t.time} | $${t.price}
+                <button onclick="del('${t.id}')" style="background:#e74c3c">退票</button>
+            </div>`).join('');
+    }
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            let cameraX = -player.x + canvas.width / 2;
+    function del(id) {
+        tickets = tickets.filter(t => t.id !== id);
+        localStorage.setItem('tickets', JSON.stringify(tickets));
+        renderTickets();
+    }
 
-            // 生成 3000 米主山脈與周圍丘陵
-            ctx.fillStyle = "#556B2F";
-            for(let i=-100; i<100; i++) {
-                let dist = Math.abs(player.x - (i*100));
-                let h = (dist < 400) ? 900 : 200 + Math.abs(Math.sin(i*0.2)*150);
-                ctx.fillRect(i*100 + cameraX, canvas.height - h - 60, 100, h);
-            }
-            
-            // 繪製村莊與怪物
-            entities.forEach(e => {
-                e.x += Math.sin(Date.now() / 1000) * e.speed;
-                ctx.fillStyle = e.type === 'villager' ? '#f1c40f' : '#e74c3c';
-                ctx.fillRect(e.x + cameraX, canvas.height - 110, 50, 50);
-            });
-
-            ctx.fillStyle = "#228B22"; ctx.fillRect(-5000 + cameraX, canvas.height-60, 15000, 60);
-            ctx.fillStyle = "#FFD700"; ctx.fillRect(canvas.width/2-25, player.y, 50, 50);
-            
-            requestAnimationFrame(animate);
-        }
-    </script>
+    init();
+</script>
 </body>
 </html>
