@@ -2,51 +2,57 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>終極鐵路訂票系統 - 專業豪華版</title>
+    <title>豪華鐵路訂票系統 - 100車次旗艦版</title>
     <style>
-        body { font-family: '微軟正黑體', sans-serif; background-color: #eef2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
-        .box { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 500px; margin-bottom: 20px; }
-        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { background-color: #3498db; color: white; border: none; cursor: pointer; font-weight: bold; }
-        .train-row { background: white; padding: 15px; margin-top: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 100%; max-width: 500px; cursor: pointer; }
-        .tag { padding: 4px 8px; border-radius: 4px; color: white; font-size: 12px; font-weight: bold; }
+        :root { --primary: #6366f1; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; padding: 20px; }
+        .container { width: 100%; max-width: 500px; }
+        .box { background: var(--card); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px; border: 1px solid #334155; }
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border: none; border-radius: 8px; background: #334155; color: white; box-sizing: border-box; }
+        button { background: var(--primary); font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { filter: brightness(1.2); }
+        .train-list { height: 350px; overflow-y: auto; padding-right: 10px; }
+        .train-item { background: #334155; padding: 12px; margin-bottom: 8px; border-radius: 8px; display: flex; justify-content: space-between; cursor: pointer; }
+        .train-item:hover { border: 1px solid var(--primary); }
         .page { display: none; }
         .active { display: block; }
+        #bookingBox { background: #0f172a; padding: 15px; border-radius: 12px; border: 1px solid var(--primary); margin-top: 15px; display: none; }
     </style>
 </head>
 <body>
 
-<!-- 1. 會員驗證頁 -->
-<div id="authPage" class="box page active">
-    <h3>會員登入 / 註冊</h3>
-    <input type="text" id="u" placeholder="請設定或輸入帳號">
-    <input type="password" id="p" placeholder="請設定或輸入密碼">
-    <button onclick="auth()">進入訂票系統</button>
-</div>
+<div class="container">
+    <!-- 1. 會員中心 -->
+    <div id="authPage" class="box page active">
+        <h2 style="text-align:center">系統登入</h2>
+        <input type="text" placeholder="請輸入帳號">
+        <input type="password" placeholder="請輸入密碼">
+        <button onclick="show('searchPage')">登入並進入系統</button>
+    </div>
 
-<!-- 2. 查詢與訂票頁 -->
-<div id="searchPage" class="box page">
-    <h3 style="text-align:center;">🚄 即時火車時刻查詢</h3>
-    <select id="start"><option>台北</option><option>台中</option><option>高雄</option></select>
-    <select id="end"><option>台北</option><option>台中</option><option>高雄</option></select>
-    <button onclick="searchTrains()">立即查詢</button>
-    <div id="results"></div>
-</div>
+    <!-- 2. 100 車次查詢 -->
+    <div id="searchPage" class="box page">
+        <h3>🚄 100 種車次時刻表</h3>
+        <select><option>台北</option><option>台中</option><option>高雄</option><option>花蓮</option></select>
+        <select><option>台北</option><option>台中</option><option>高雄</option><option>花蓮</option></select>
+        <button onclick="generate100Trains()">載入所有車次 (100種)</button>
+        <div id="results" class="train-list"></div>
 
-<!-- 3. 付款頁 -->
-<div id="payPage" class="box page">
-    <h3>付款資訊</h3>
-    <div id="orderSummary" style="margin-bottom:10px; font-size: 14px;"></div>
-    <input type="text" placeholder="持卡人姓名">
-    <input type="text" placeholder="信用卡號 (XXXX-XXXX-XXXX-XXXX)">
-    <button onclick="paySuccess()">確認付款</button>
-</div>
+        <div id="bookingBox">
+            <h4 style="margin-top:0">訂購確認</h4>
+            人數：<input type="number" value="1" min="1">
+            <label><input type="checkbox"> 加購豪華便當</label>
+            <button onclick="show('payPage')" style="margin-top:10px">確認結帳</button>
+        </div>
+    </div>
 
-<!-- 4. 取票頁 -->
-<div id="ticketPage" class="box page" style="text-align:center;">
-    <h3>電子車票</h3>
-    <div id="qrCode"></div>
-    <button onclick="location.reload()">完成並返回首頁</button>
+    <!-- 3. 付款與 QR Code -->
+    <div id="payPage" class="box page" style="text-align:center;">
+        <h3>安全支付與領票</h3>
+        <input type="text" placeholder="信用卡號 (XXXX-XXXX-XXXX-XXXX)">
+        <button onclick="finish()">完成付款</button>
+        <div id="qrArea" style="margin-top:20px; background:white; padding:10px; border-radius:10px; display:none;"></div>
+    </div>
 </div>
 
 <script>
@@ -55,37 +61,26 @@
         document.getElementById(id).classList.add('active');
     }
 
-    // 登入驗證
-    function auth() {
-        if(document.getElementById('u').value && document.getElementById('p').value) show('searchPage');
-        else alert("請輸入帳號與密碼");
-    }
-
-    function searchTrains() {
+    function generate100Trains() {
         let html = "";
-        for(let i=0; i<5; i++) {
-            let type = (i%2===0 ? "自強號" : "區間車");
-            let color = (type==="自強號" ? "#e74c3c" : "#27ae60");
-            html += `<div class="train-row" onclick="book('${type}')">
-                <div><span class="tag" style="background:${color}">${type}</span> ${100+i*5} 次</div>
-                <strong>${10+i}:30</strong>
+        for(let i=0; i<100; i++) {
+            let type = (i%3===0 ? "普悠瑪" : (i%3===1 ? "新自強" : "區間車"));
+            html += `<div class="train-item" onclick="document.getElementById('bookingBox').style.display='block'">
+                <span><b>${type} #${1000+i}</b></span>
+                <span>${Math.floor(i/4)%24}:00</span>
             </div>`;
         }
         document.getElementById('results').innerHTML = html;
     }
 
-    function book(type) {
-        let p = prompt("搭乘人數?");
-        let b = confirm("加購便當 ($100)?");
-        let c = (type === "自強號") ? confirm("升級騰雲座艙 (+$150)?") : false;
-        document.getElementById('orderSummary').innerHTML = `<strong>訂購明細:</strong><br>${type} x ${p}人<br>便當: ${b?'是':'否'}<br>騰雲: ${c?'是':'否'}`;
-        show('payPage');
-    }
-
-    function paySuccess() {
-        show('ticketPage');
-        let code = Math.floor(1000+Math.random()*9000);
-        document.getElementById('qrCode').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?data=${code}"><h3>驗證碼: ${code}</h3>`;
+    function finish() {
+        document.getElementById('qrArea').style.display = 'block';
+        let code = Math.floor(10000000 + Math.random()*90000000);
+        document.getElementById('qrArea').innerHTML = `
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${code}">
+            <p style="color:black">驗證碼: ${code}</p>
+            <button onclick="location.reload()" style="background:#dc2626">返回首頁</button>
+        `;
     }
 </script>
 </body>
