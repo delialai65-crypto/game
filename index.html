@@ -2,119 +2,91 @@
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
-    <title>鐵路系統 - 極致順暢版</title>
+    <title>終極鐵路訂票系統 - 專業豪華版</title>
     <style>
-        :root { --main: #2c3e50; --acc: #e67e22; --bg: #f4f7f6; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; }
-        .container { max-width: 950px; margin: auto; }
-        .grid-layout { display: grid; grid-template-columns: 350px 1fr; gap: 20px; }
-        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        .train-item { border: 1px solid #ddd; padding: 12px; margin: 5px 0; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; }
-        .train-item:hover { border-color: var(--acc); background: #fffdf9; }
-        .ticket-item { padding: 12px; border-left: 5px solid var(--acc); background: #fff; margin-bottom: 10px; box-shadow: 1px 1px 5px rgba(0,0,0,0.1); }
-        select, input, button { width: 100%; padding: 12px; margin: 5px 0; border-radius: 8px; border: 1px solid #ddd; }
-        button { background: var(--main); color: white; border: none; cursor: pointer; transition: 0.3s; }
-        button:hover { background: var(--acc); }
+        body { font-family: '微軟正黑體', sans-serif; background-color: #eef2f5; display: flex; flex-direction: column; align-items: center; padding: 20px; }
+        .box { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); width: 100%; max-width: 500px; margin-bottom: 20px; }
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { background-color: #3498db; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .train-row { background: white; padding: 15px; margin-top: 10px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); width: 100%; max-width: 500px; cursor: pointer; }
+        .tag { padding: 4px 8px; border-radius: 4px; color: white; font-size: 12px; font-weight: bold; }
+        .page { display: none; }
+        .active { display: block; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1 style="text-align:center">🚄 鐵路訂票系統 (豪華版)</h1>
-    <div class="grid-layout">
-        <div>
-            <div class="card">
-                <h3>步驟 1: 查詢</h3>
-                <select id="lineSel" onchange="updateStations()"></select>
-                <select id="from"></select> <select id="to"></select>
-                <button onclick="showTrains()">搜尋車次</button>
-            </div>
-            <div id="trainPanel" class="card" style="display:none">
-                <h3>步驟 2: 選擇</h3>
-                <div id="trainList"></div>
-            </div>
-            <div id="bookingPanel" class="card" style="display:none">
-                <h3>步驟 3: 完成</h3>
-                <input type="text" id="uid" placeholder="請輸入證號 (選填)">
-                <p>總金額: <strong id="totalPrice" style="color:var(--acc)">$0</strong></p>
-                <button onclick="confirmOrder()">立即完成訂票</button>
-            </div>
-        </div>
+<!-- 1. 會員驗證頁 -->
+<div id="authPage" class="box page active">
+    <h3>會員登入 / 註冊</h3>
+    <input type="text" id="u" placeholder="請設定或輸入帳號">
+    <input type="password" id="p" placeholder="請設定或輸入密碼">
+    <button onclick="auth()">進入訂票系統</button>
+</div>
 
-        <div class="card">
-            <h3>我的票庫</h3>
-            <input type="text" id="search" placeholder="🔍 搜尋訂單編號..." oninput="renderTickets()">
-            <div id="ticketDisplay"></div>
-        </div>
-    </div>
+<!-- 2. 查詢與訂票頁 -->
+<div id="searchPage" class="box page">
+    <h3 style="text-align:center;">🚄 即時火車時刻查詢</h3>
+    <select id="start"><option>台北</option><option>台中</option><option>高雄</option></select>
+    <select id="end"><option>台北</option><option>台中</option><option>高雄</option></select>
+    <button onclick="searchTrains()">立即查詢</button>
+    <div id="results"></div>
+</div>
+
+<!-- 3. 付款頁 -->
+<div id="payPage" class="box page">
+    <h3>付款資訊</h3>
+    <div id="orderSummary" style="margin-bottom:10px; font-size: 14px;"></div>
+    <input type="text" placeholder="持卡人姓名">
+    <input type="text" placeholder="信用卡號 (XXXX-XXXX-XXXX-XXXX)">
+    <button onclick="paySuccess()">確認付款</button>
+</div>
+
+<!-- 4. 取票頁 -->
+<div id="ticketPage" class="box page" style="text-align:center;">
+    <h3>電子車票</h3>
+    <div id="qrCode"></div>
+    <button onclick="location.reload()">完成並返回首頁</button>
 </div>
 
 <script>
-    const db = [
-        { line: "縱貫線", stations: ["基隆", "台北", "桃園", "新竹", "台中", "高雄"] },
-        { line: "平溪線", stations: ["三貂嶺", "十分", "平溪", "菁桐"] },
-        { line: "宜蘭線", stations: ["八堵", "瑞芳", "福隆", "宜蘭"] }
-    ];
-    const trainData = [
-        { name: "普悠瑪號", price: 500, time: "10:30" },
-        { name: "新自強號", price: 400, time: "11:15" },
-        { name: "區間車", price: 200, time: "12:00" }
-    ];
-
-    let tickets = JSON.parse(localStorage.getItem('tickets')) || [];
-    let temp = {};
-
-    function init() {
-        document.getElementById('lineSel').innerHTML = db.map(d => `<option>${d.line}</option>`).join('');
-        updateStations(); renderTickets();
+    function show(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
     }
 
-    function updateStations() {
-        const line = db.find(d => d.line == document.getElementById('lineSel').value);
-        document.getElementById('from').innerHTML = document.getElementById('to').innerHTML = line.stations.map(s => `<option>${s}</option>`).join('');
+    // 登入驗證
+    function auth() {
+        if(document.getElementById('u').value && document.getElementById('p').value) show('searchPage');
+        else alert("請輸入帳號與密碼");
     }
 
-    function showTrains() {
-        document.getElementById('trainPanel').style.display = 'block';
-        document.getElementById('trainList').innerHTML = trainData.map(t => `
-            <div class="train-item" onclick="openBooking('${t.name}', ${t.price}, '${t.time}')">
-                <div><strong>${t.name}</strong><br>時間: ${t.time}</div>
-                <div>$${t.price}</div>
-            </div>`).join('');
+    function searchTrains() {
+        let html = "";
+        for(let i=0; i<5; i++) {
+            let type = (i%2===0 ? "自強號" : "區間車");
+            let color = (type==="自強號" ? "#e74c3c" : "#27ae60");
+            html += `<div class="train-row" onclick="book('${type}')">
+                <div><span class="tag" style="background:${color}">${type}</span> ${100+i*5} 次</div>
+                <strong>${10+i}:30</strong>
+            </div>`;
+        }
+        document.getElementById('results').innerHTML = html;
     }
 
-    function openBooking(name, price, time) {
-        temp = { name, price, time };
-        document.getElementById('bookingPanel').style.display = 'block';
-        document.getElementById('totalPrice').innerText = '$' + price;
+    function book(type) {
+        let p = prompt("搭乘人數?");
+        let b = confirm("加購便當 ($100)?");
+        let c = (type === "自強號") ? confirm("升級騰雲座艙 (+$150)?") : false;
+        document.getElementById('orderSummary').innerHTML = `<strong>訂購明細:</strong><br>${type} x ${p}人<br>便當: ${b?'是':'否'}<br>騰雲: ${c?'是':'否'}`;
+        show('payPage');
     }
 
-    // 已完全移除所有身分證驗證邏輯，流程暢通無阻
-    function confirmOrder() {
-        tickets.unshift({ id: 'TKT-'+Date.now(), ...temp });
-        localStorage.setItem('tickets', JSON.stringify(tickets));
-        renderTickets();
-        alert('訂票成功！');
+    function paySuccess() {
+        show('ticketPage');
+        let code = Math.floor(1000+Math.random()*9000);
+        document.getElementById('qrCode').innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?data=${code}"><h3>驗證碼: ${code}</h3>`;
     }
-
-    function renderTickets() {
-        const kw = document.getElementById('search').value;
-        const display = document.getElementById('ticketDisplay');
-        const list = tickets.filter(t => t.id.includes(kw));
-        display.innerHTML = list.map(t => `
-            <div class="ticket-item">
-                <strong>${t.id}</strong><br>${t.name} | ${t.time} | $${t.price}
-                <button onclick="del('${t.id}')" style="background:#e74c3c">退票</button>
-            </div>`).join('');
-    }
-
-    function del(id) {
-        tickets = tickets.filter(t => t.id !== id);
-        localStorage.setItem('tickets', JSON.stringify(tickets));
-        renderTickets();
-    }
-
-    init();
 </script>
 </body>
 </html>
