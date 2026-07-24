@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>均一風格 - 10階 AI 自主學習星空圖平台</title>
+  <title>均一風格 - 10大學科與 6 種會員方案 AI 星空學習平台</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -55,6 +55,26 @@
     .card { background: #ffffff; padding: 24px; border-radius: 12px; border: 1px solid #e0e0e0; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
     .card-title { font-size: 18px; font-weight: bold; margin-bottom: 14px; color: #00a86b; display: flex; align-items: center; justify-content: space-between; }
 
+    /* 學齡、10大學科與難度選擇 Selector */
+    .selector-group { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 5px; }
+    .selector-box { flex: 1; min-width: 220px; }
+    .selector-box label { font-size: 13px; font-weight: bold; color: #2c3e50; margin-bottom: 6px; display: block; }
+    .select-control {
+      width: 100%; padding: 10px; border-radius: 8px; border: 2px solid #00a86b;
+      background: #f9f9f9; font-size: 14px; font-weight: bold; color: #00a86b; outline: none;
+    }
+
+    /* 6 種會員方案卡片 Grid */
+    .plan-grid-6 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 15px; }
+    .plan-card-item {
+      border: 2px solid #e0e0e0; border-radius: 12px; padding: 16px;
+      text-align: center; background: #fff; display: flex; flex-direction: column; justify-content: space-between;
+      transition: all 0.2s;
+    }
+    .plan-card-item:hover { border-color: #00a86b; transform: translateY(-3px); }
+    .plan-card-item.popular { border-color: #ff9800; background: #fffde7; position: relative; }
+    .badge-pop { position: absolute; top: -10px; right: 10px; background: #ff9800; color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: bold; }
+
     /* 10個等級 星空圖 Skill Map */
     .level-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
     .level-card {
@@ -72,35 +92,48 @@
     .quiz-option {
       display: block; width: 100%; text-align: left; padding: 12px 16px;
       margin-top: 8px; border: 1px solid #ccc; border-radius: 8px; background: white;
-      cursor: pointer; transition: 0.2s; font-size: 14px;
+      cursor: pointer; transition: 0.2s; font-size: 14px; line-height: 1.5;
     }
     .quiz-option:hover { background: #e8f5e9; border-color: #00a86b; }
+
+    /* 小遊戲區域樣式 */
+    .game-tabs { display: flex; gap: 8px; margin-bottom: 15px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    .game-tab-btn { padding: 8px 16px; border-radius: 20px; border: 1px solid #ccc; background: #f9f9f9; cursor: pointer; font-weight: bold; font-size: 13px; }
+    .game-tab-btn.active { background: #00a86b; color: white; border-color: #00a86b; }
+    
+    /* 遊戲 1: 翻牌 */
+    .memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 320px; margin: 0 auto; }
+    .memory-card { height: 70px; background: #00a86b; color: white; font-size: 24px; border-radius: 8px; display: flex; justify-content: center; align-items: center; cursor: pointer; user-select: none; }
+    .memory-card.flipped { background: #ffffff; color: #2c3e50; border: 2px solid #00a86b; }
+    
+    /* 遊戲 2: 點擊挑戰 */
+    .click-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 300px; margin: 0 auto; }
+    .click-btn { height: 60px; background: #e8f5e9; border: 2px solid #00a86b; border-radius: 8px; font-size: 20px; font-weight: bold; color: #00a86b; cursor: pointer; }
+
+    /* 遊戲 3: 井字棋 */
+    .ttt-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; max-width: 240px; margin: 0 auto; }
+    .ttt-cell { height: 70px; background: #fafafa; border: 2px solid #00a86b; border-radius: 8px; font-size: 28px; font-weight: bold; color: #00a86b; display: flex; justify-content: center; align-items: center; cursor: pointer; }
 
     /* 進度條 */
     .progress-bar-bg { background: #eee; height: 12px; border-radius: 10px; overflow: hidden; margin: 10px 0; }
     .progress-bar-fill { background: #00a86b; height: 100%; width: 0%; transition: width 0.3s; }
-
-    /* 成就牆 */
-    .badges-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; text-align: center; }
-    .badge-item { padding: 10px; border: 1px solid #eee; border-radius: 8px; background: #fafafa; font-size: 12px; }
-    .badge-item.unlocked { background: #e8f5e9; border-color: #00a86b; font-weight: bold; }
 
     /* 討論區 */
     .comment-list { display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 6px; border: 1px solid #eee; padding: 12px; border-radius: 8px; background: #fafafa; }
     .comment-item { background: #ffffff; padding: 10px 14px; border-radius: 6px; border: 1px solid #e0e0e0; font-size: 13px; }
     .comment-item.reply-ai { background: #e8f5e9; border-color: #00a86b; margin-left: 20px; border-left: 4px solid #00a86b; }
 
-    /* 未登入時的整體畫面鎖定遮罩 */
+    /* 未登入遮罩 */
     .locked-overlay {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);
+      background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
       z-index: 999; display: flex; flex-direction: column;
       justify-content: center; align-items: center; text-align: center; padding: 20px;
     }
 
     /* Modal 彈窗 */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-    .modal { background: white; padding: 24px; border-radius: 12px; width: 95%; max-width: 550px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); text-align: center; }
+    .modal { background: white; padding: 24px; border-radius: 12px; width: 95%; max-width: 800px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); text-align: center; max-height: 90vh; overflow-y: auto; }
     .form-group { margin-bottom: 12px; text-align: left; }
     .form-group label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; }
     .form-group input { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 6px; }
@@ -110,31 +143,76 @@
 </head>
 <body>
 
-  <!-- 未登入強制作業防護牆 (Overlay) -->
+  <!-- 未登入強制作業防護牆 -->
   <div id="gate-overlay" class="locked-overlay">
-    <h1 style="color: #00a86b; margin-bottom: 12px;">🌱 歡迎來到 均一 AI 自主學習平台</h1>
-    <p style="font-size: 16px; color: #555; max-width: 500px; margin-bottom: 24px;">
-      為記錄您的 10 階學習星空圖成就與 AI 解題歷程，請先登入或免費註冊帳號。
+    <h1 style="color: #00a86b; margin-bottom: 12px;">🌱 歡迎進入 均一 AI 10大學科學習平台</h1>
+    <p style="font-size: 16px; color: #555; max-width: 520px; margin-bottom: 24px;">
+      一進網頁請先登入或註冊會員！登入完畢後將請您選擇【6 種會員方案】，隨後即可自由探索【10 大領域學科】！
     </p>
     <button class="btn btn-primary" style="font-size: 16px; padding: 12px 32px;" onclick="openAuthModal('login')">進入平台：登入 / 註冊</button>
   </div>
 
   <!-- 均一風格導覽列 -->
   <nav class="navbar">
-    <a href="#" class="logo">🌱 均一 AI 10階星空學習平台</a>
+    <a href="#" class="logo">🌱 均一 AI 10大學科星空學習平台</a>
     <div class="nav-user">
       <div id="user-display" class="hidden" style="display: flex; align-items: center; gap: 10px;">
         <div class="status-badge">⚡ 能量：<span id="user-energy">100</span> HP</div>
         <div class="status-badge" style="background:#e3f2fd; color:#0d47a1;">💎 金幣：<span id="user-coins">50</span></div>
         <div class="avatar" id="nav-avatar">學</div>
-        <span id="nav-username" style="font-weight: 600;">同學</span>
-        <button class="btn btn-light" onclick="openPlanModal()">學習方案</button>
+        <div>
+          <span id="nav-username" style="font-weight: 600;">同學</span>
+          <span id="user-plan-badge" style="font-size: 10px; background: #fff; color: #00a86b; padding: 2px 6px; border-radius: 10px; font-weight: bold; margin-left: 4px;">FREE</span>
+        </div>
+        <button class="btn btn-light" onclick="openPlanModal()">切換方案</button>
         <button class="btn btn-danger" onclick="logout()">登出</button>
       </div>
     </div>
   </nav>
 
   <div class="container">
+
+    <!-- 10大學科、學齡階段與難度設定區 -->
+    <div class="card">
+      <div class="card-title">
+        <span>⚙️ 設定您的學習科目、學齡與難度</span>
+        <span style="font-size:12px; color:#666; font-weight:normal;">切換後題庫將載入對應內容</span>
+      </div>
+      <div class="selector-group">
+        <div class="selector-box">
+          <label>📚 選擇 10 大學習學科：</label>
+          <select id="subject-select" class="select-control" onchange="changeStageOrDifficulty()">
+            <option value="ai" selected>🤖 1. 人工智慧 (AI) 與程式</option>
+            <option value="math">📐 2. 數學與邏輯素養</option>
+            <option value="physics">🔬 3. 自然科學與物理</option>
+            <option value="chemistry">🧪 4. 化學物質與反應</option>
+            <option value="biology">🧬 5. 生物醫學與生態</option>
+            <option value="history">📜 6. 歷史文明與變遷</option>
+            <option value="geography">🌍 7. 地理環境與地質</option>
+            <option value="art">🎨 8. 藝術美學與音樂</option>
+            <option value="economics">💼 9. 經濟金融與商業</option>
+            <option value="literature">📚 10. 語文閱讀與文學</option>
+          </select>
+        </div>
+        <div class="selector-box">
+          <label>🎓 選擇學齡階段：</label>
+          <select id="stage-select" class="select-control" onchange="changeStageOrDifficulty()">
+            <option value="elementary">🏫 國小階段 (白話童趣生活題)</option>
+            <option value="junior">🏫 國中階段 (觀念原理與資訊常識)</option>
+            <option value="senior">🏫 高中階段 (程式邏輯與演算法應用)</option>
+            <option value="university" selected>🎓 大學 / 成人 (專業應用與核心理論)</option>
+          </select>
+        </div>
+        <div class="selector-box">
+          <label>🔥 選擇挑戰難度：</label>
+          <select id="difficulty-select" class="select-control" onchange="changeStageOrDifficulty()">
+            <option value="easy">🟢 入門基礎</option>
+            <option value="medium" selected>🟡 進階思考</option>
+            <option value="hard">🔴 挑戰極限</option>
+          </select>
+        </div>
+      </div>
+    </div>
 
     <!-- 學習儀表板 -->
     <div class="card">
@@ -152,17 +230,15 @@
     <div class="card">
       <div class="card-title">
         <span>🌌 AI 自主學習星空圖 (Level 1 ~ 10)</span>
-        <span style="font-size: 12px; color: #666; font-weight: normal;">🔒 前一等級未通過前，無法進入下一等級！</span>
+        <span style="font-size: 12px; color: #666; font-weight: normal;">🔒 前一等級 5 題未通過前，無法進入下一等級！</span>
       </div>
-      <div class="level-grid" id="level-grid-container">
-        <!-- 由 JavaScript 動態生成 10 個 Level 卡片 -->
-      </div>
+      <div class="level-grid" id="level-grid-container"></div>
     </div>
 
     <!-- 關卡答題與學習區 -->
     <div class="card" id="quiz-card-area">
       <div class="card-title">
-        <span id="current-level-title">🎯 目前進行：Level 1 - AI 基礎入門概念</span>
+        <span id="current-level-title">🎯 目前進行：Level 1</span>
         <span style="font-size: 13px; color: #ff9800;" id="quiz-progress-indicator">題目 1 / 5</span>
       </div>
 
@@ -173,32 +249,60 @@
       </div>
     </div>
 
-    <!-- 智慧型 AI 隨身家教 (回應豐富且有道理) -->
+    <!-- 🎮 3 種學習互動小遊戲區域 -->
+    <div class="card">
+      <div class="card-title">
+        <span>🎮 均一腦力動動腦：3 種互動小遊戲專區</span>
+        <span style="font-size: 12px; color: #666; font-weight: normal;">闖關遊戲可獲得能量 HP 與金幣獎勵！</span>
+      </div>
+
+      <div class="game-tabs">
+        <button class="game-tab-btn active" onclick="switchGame('memory')">🃏 翻牌對對碰</button>
+        <button class="game-tab-btn" onclick="switchGame('quick')">🎯 數字速點挑戰</button>
+        <button class="game-tab-btn" onclick="switchGame('ttt')">❌ 井字棋 AI 對決</button>
+      </div>
+
+      <!-- 小遊戲 1: 翻牌對對碰 -->
+      <div id="game-memory-area" style="text-align: center;">
+        <div style="margin-bottom: 8px; font-size: 13px;">成功配對：<strong id="memory-score">0</strong> / 4 組</div>
+        <div class="memory-grid" id="memory-board"></div>
+        <div style="margin-top: 10px;">
+          <button class="btn btn-primary" onclick="initMemoryGame()">重新洗牌</button>
+        </div>
+      </div>
+
+      <!-- 小遊戲 2: 數字速點挑戰 -->
+      <div id="game-quick-area" class="hidden" style="text-align: center;">
+        <div style="margin-bottom: 8px; font-size: 13px;">請依序點擊數字：<strong id="next-click-num" style="color:#00a86b; font-size:18px;">1</strong></div>
+        <div class="click-grid" id="click-board"></div>
+        <div style="margin-top: 10px;">
+          <button class="btn btn-primary" onclick="initQuickGame()">開始速點遊戲</button>
+        </div>
+      </div>
+
+      <!-- 小遊戲 3: 井字棋 -->
+      <div id="game-ttt-area" class="hidden" style="text-align: center;">
+        <div style="margin-bottom: 8px; font-size: 13px;" id="ttt-status">輪到你了 (玩家: O)</div>
+        <div class="ttt-grid" id="ttt-board"></div>
+        <div style="margin-top: 10px;">
+          <button class="btn btn-primary" onclick="initTTTGame()">重新開局</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 智慧型 AI 隨身家教 -->
     <div class="card">
       <div class="card-title">
         <span>🤖 均一智慧 AI 隨身家教</span>
         <span id="ai-quota-text" style="font-size: 12px; color: #666; font-weight: normal;">請先登入會員</span>
       </div>
-      <p style="font-size: 13px; color: #666; margin-bottom: 8px;">對剛才的題目有疑問？或是學習遇到瓶頸？隨時發問，AI 家教提供多維度詳細解析：</p>
-      <textarea id="ai-input" rows="2" style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;" placeholder="例如：為什麼 Prompt 設定角色會比直接問更好？"></textarea>
+      <p style="font-size: 13px; color: #666; margin-bottom: 8px;">對題目有疑問？AI 家教將根據您的【選擇科目】與【學齡階段】給予最條理分明的詳細解答：</p>
+      <textarea id="ai-input" rows="2" style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;" placeholder="例如：請解釋這題的核心觀念是什麼？"></textarea>
       <button class="btn btn-primary" style="margin-top: 8px;" onclick="runSmartAITutor()">向 AI 家教請教解析</button>
       
       <div id="ai-result" class="hidden" style="margin-top: 12px; padding: 14px; background: #e8f5e9; border-radius: 8px; font-size: 14px; border: 1px solid #a5d6a7; line-height: 1.6;">
         <div style="font-weight: bold; color: #00a86b; margin-bottom: 4px;" id="ai-result-header">💡 AI 家教深度解析：</div>
         <div id="ai-result-body">內容加載中...</div>
-      </div>
-    </div>
-
-    <!-- 榮譽勳章牆 -->
-    <div class="card">
-      <div class="card-title">
-        <span>🏆 榮譽成就勳章牆</span>
-      </div>
-      <div class="badges-grid">
-        <div class="badge-item unlocked" id="badge-1">🌱 初生萌芽</div>
-        <div class="badge-item" id="badge-2">🔒 通過 L3</div>
-        <div class="badge-item" id="badge-3">🔒 通過 L6</div>
-        <div class="badge-item" id="badge-4">🔒 10階大滿貫</div>
       </div>
     </div>
 
@@ -218,7 +322,7 @@
 
   <!-- Modal 1: 登入 / 註冊 彈窗 -->
   <div class="modal-overlay hidden" id="auth-modal">
-    <div class="modal">
+    <div class="modal" style="max-width: 450px;">
       <h3 style="margin-bottom: 12px; color:#00a86b;" id="auth-title">學員帳號驗證</h3>
       <div style="display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid #eee;">
         <button class="btn btn-light" style="flex:1; border-radius:0;" onclick="switchAuthTab('login')">登入</button>
@@ -237,215 +341,288 @@
           <label>密碼</label>
           <input type="password" id="input-pwd" required placeholder="••••••••">
         </div>
-        <button type="submit" class="btn btn-primary" style="width: 100%;" id="auth-submit-btn">進入平台</button>
+        <button type="submit" class="btn btn-primary" style="width: 100%;" id="auth-submit-btn">登入並選擇會員方案</button>
       </form>
     </div>
   </div>
 
-  <!-- Modal 2: 方案選擇 -->
+  <!-- Modal 2: 強制選擇 6 種會員方案 -->
   <div class="modal-overlay hidden" id="plan-modal">
-    <div class="modal" style="max-width: 600px;">
-      <h3 style="margin-bottom: 8px; color:#00a86b;">選擇學習訂閱計畫</h3>
-      <p style="font-size: 12px; color: #666; margin-bottom: 16px;">選擇方案解鎖無限 AI 深度解析與星空圖成就認證：</p>
+    <div class="modal">
+      <h2 style="margin-bottom: 6px; color:#00a86b;">🎉 請選擇您的會員訂閱方案</h2>
+      <p style="font-size: 13px; color: #666; margin-bottom: 16px;">歡迎加入！請選擇適合您的學習方案以解鎖星空圖功能：</p>
 
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
-        <div style="border:1px solid #ccc; padding:12px; border-radius:8px;">
-          <h4>免費基礎版</h4>
-          <div style="color:#00a86b; font-weight:bold; margin:6px 0;">$0</div>
-          <button class="btn btn-primary" style="width:100%;" onclick="selectPlan('free')">免費體驗</button>
+      <div class="plan-grid-6">
+        <!-- 方案 1 -->
+        <div class="plan-card-item">
+          <div>
+            <h4 style="color:#333;">1. 免費體驗版</h4>
+            <div style="color:#00a86b; font-size:20px; font-weight:bold; margin:8px 0;">$0</div>
+            <p style="font-size:12px; color:#666;">每日 AI 家教 5 次<br>開放 10 大學科基礎練習</p>
+          </div>
+          <button class="btn btn-light" style="border:1px solid #00a86b; margin-top:10px;" onclick="selectPlan('Free 免費版')">選擇免費版</button>
         </div>
-        <div style="border:1px solid #ccc; padding:12px; border-radius:8px;">
-          <h4>Lite 進階版</h4>
-          <div style="color:#00a86b; font-weight:bold; margin:6px 0;">$99/月</div>
-          <button class="btn btn-primary" style="width:100%;" onclick="selectPlan('lite')">升級</button>
+
+        <!-- 方案 2 -->
+        <div class="plan-card-item">
+          <div>
+            <h4 style="color:#333;">2. 基礎探索版</h4>
+            <div style="color:#00a86b; font-size:20px; font-weight:bold; margin:8px 0;">$49<span style="font-size:10px;">/月</span></div>
+            <p style="font-size:12px; color:#666;">每日 AI 家教 20 次<br>解鎖全學科完整關卡</p>
+          </div>
+          <button class="btn btn-primary" style="margin-top:10px;" onclick="selectPlan('Explore 探索版')">選擇探索版</button>
         </div>
-        <div style="border:1px solid #00a86b; background:#e8f5e9; padding:12px; border-radius:8px;">
-          <h4>Pro 專業版</h4>
-          <div style="color:#00a86b; font-weight:bold; margin:6px 0;">$290/月</div>
-          <button class="btn btn-warning" style="width:100%;" onclick="selectPlan('pro')">尊榮升級</button>
+
+        <!-- 方案 3 (熱門) -->
+        <div class="plan-card-item popular">
+          <span class="badge-pop">🔥 最受歡迎</span>
+          <div>
+            <h4 style="color:#333;">3. 進階學習版</h4>
+            <div style="color:#ff9800; font-size:20px; font-weight:bold; margin:8px 0;">$99<span style="font-size:10px;">/月</span></div>
+            <p style="font-size:12px; color:#666;">每日 AI 家教 50 次<br>全學科 + 遊戲雙倍獎勵</p>
+          </div>
+          <button class="btn btn-warning" style="margin-top:10px;" onclick="selectPlan('Lite 進階版')">選擇進階版</button>
+        </div>
+
+        <!-- 方案 4 -->
+        <div class="plan-card-item">
+          <div>
+            <h4 style="color:#333;">4. 專業達人版</h4>
+            <div style="color:#00a86b; font-size:20px; font-weight:bold; margin:8px 0;">$199<span style="font-size:10px;">/月</span></div>
+            <p style="font-size:12px; color:#666;">無限 AI 家教發問次數<br>個人化跨學科弱點報告</p>
+          </div>
+          <button class="btn btn-primary" style="margin-top:10px;" onclick="selectPlan('Pro 專業版')">選擇專業版</button>
+        </div>
+
+        <!-- 方案 5 -->
+        <div class="plan-card-item">
+          <div>
+            <h4 style="color:#333;">5. 團隊共享版</h4>
+            <div style="color:#00a86b; font-size:20px; font-weight:bold; margin:8px 0;">$499<span style="font-size:10px;">/月</span></div>
+            <p style="font-size:12px; color:#666;">無限 AI 家教發問次數<br>最多 5 人共享學習帳號</p>
+          </div>
+          <button class="btn btn-primary" style="margin-top:10px;" onclick="selectPlan('Team 團隊版')">選擇團隊版</button>
+        </div>
+
+        <!-- 方案 6 -->
+        <div class="plan-card-item">
+          <div>
+            <h4 style="color:#333;">6. 尊榮旗艦版</h4>
+            <div style="color:#d32f2f; font-size:20px; font-weight:bold; margin:8px 0;">$999<span style="font-size:10px;">/月</span></div>
+            <p style="font-size:12px; color:#666;">包含團隊版所有權限<br>專屬 1 對 1 線上真人解題</p>
+          </div>
+          <button class="btn btn-danger" style="margin-top:10px;" onclick="selectPlan('VIP 旗艦版')">選擇旗艦版</button>
         </div>
       </div>
-
-      <button class="btn btn-light" style="margin-top: 16px;" onclick="closeModal('plan-modal')">關閉</button>
     </div>
   </div>
 
   <script>
-    // ------------------- 1. 全局狀態與 10 階 50 題題庫資料 -------------------
-    let currentUser = JSON.parse(localStorage.getItem('junyi_10lvl_user')) || null;
+    // ------------------- 1. 全局狀態與 10 大學科題庫資料庫 -------------------
+    let currentUser = JSON.parse(localStorage.getItem('junyi_10subjects_user')) || null;
     let authMode = 'login';
-    let activeLevel = 1;      // 目前選擇檢視的等級
-    let activeQuizIndex = 0;   // 目前該等級進行到的題目 (0~4)
+    let activeLevel = 1;
+    let activeQuizIndex = 0;
 
-    // 完整 10 個等級，各 5 題 (共 50 題)
-    const levelData = [
-      {
-        level: 1, title: "Level 1: AI 基礎概念",
-        quizzes: [
-          { q: "1. 人工智慧 (AI) 中，目前主流的『LLM』代表什麼？", options: ["A. Large Language Model (大型語言模型)", "B. Long Logic Method", "C. Light Learning Machine"], ans: 0 },
-          { q: "2. 生成式 AI (Generative AI) 主要的功能是什麼？", options: ["A. 僅能進行數據試算", "B. 創造全新的文字、圖像、音訊等內容", "C. 防範電腦病毒侵入"], ans: 1 },
-          { q: "3. 下列哪一項是使用 AI 時應注意的風險？", options: ["A. AI 可能產生不實資訊 (幻覺)", "B. AI 算數速度過慢", "C. 螢幕色彩失真"], ans: 0 },
-          { q: "4. 給予 AI 的指令或提示語，在專業術語中稱為什麼？", options: ["A. Code", "B. Prompt", "C. Script"], ans: 1 },
-          { q: "5. ChatGPT 或 Claude 等工具的核心基礎是？", options: ["A. 機器學習與深度學習模型", "B. 單純的條件判斷式 (If-Else)", "C. 人工打字輸入"], ans: 0 }
-        ]
-      },
-      {
-        level: 2, title: "Level 2: Prompt 提示工程基礎",
-        quizzes: [
-          { q: "1. 撰寫優質 Prompt 時，提供『明確角色設定』的好處是？", options: ["A. 讓回答風格與專業度符合特定情境", "B. 縮短電腦開機時間", "C. 自動過濾廣告"], ans: 0 },
-          { q: "2. 在 Prompt 中設定『Few-Shot Learning』是指什麼？", options: ["A. 提供 AI 幾個範例參考", "B. 限制 AI 只能回答 3 個字", "C. 拍照給 AI 辨識"], ans: 0 },
-          { q: "3. 欲獲得架構清晰的回答，在 Prompt 中限定『輸出格式』的最佳做法是？", options: ["A. 指定用條列式或表格呈現", "B. 叫 AI 自行決定", "C. 用簡訊發送"], ans: 0 },
-          { q: "4. 何者不是有效的提示詞優化策略？", options: ["A. 補充明確上下文背景", "B. 使用模糊且含糊不清的形容詞", "C. 指定目標對象"], ans: 1 },
-          { q: "5. 在提示詞中加入『思維鏈 (Chain of Thought)』指令的作用是？", options: ["A. 讓 AI 一步步思考並推導答案", "B. 讓 AI 加快回應速度", "C. 讓網頁自動重新整理"], ans: 0 }
-        ]
-      },
-      {
-        level: 3, title: "Level 3: RAG 知識庫原理",
-        quizzes: [
-          { q: "1. RAG 架構全名為 Retrieval-Augmented Generation，中文是？", options: ["A. 檢索增強生成", "B. 快速隨機生成", "C. 區域自動運算"], ans: 0 },
-          { q: "2. RAG 主要解決大語言模型的什麼問題？", options: ["A. 缺乏企業私有知識與幻覺問題", "B. 耗電量過大", "C. 音效不夠真實"], ans: 0 },
-          { q: "3. RAG 將文件轉換為數字矩陣以便進行語意比對的技術稱為？", options: ["A. Embedding (向量化)", "B. Zip 壓縮", "C. Base64 編碼"], ans: 0 },
-          { q: "4. RAG 中用來儲存向量資料的專用資料庫是？", options: ["A. Vector Database (向量資料庫)", "B. Excel", "C. TXT 文字檔"], ans: 0 },
-          { q: "5. 在 RAG 比對中，常用來計算兩段文字語意相似度的指標是？", options: ["A. 餘弦相似度 (Cosine Similarity)", "B. 體積計算", "C. 網速測試"], ans: 0 }
-        ]
-      },
-      {
-        level: 4, title: "Level 4: AI Agent 任務自動化",
-        quizzes: [
-          { q: "1. 何者是 AI Agent (自主代理) 與一般對話型 AI 的主差異？", options: ["A. Agent 能自動拆解目標並呼叫外部工具執行任務", "B. Agent 只能回答短句", "C. Agent 不需要網路"], ans: 0 },
-          { q: "2. 常見的 Agent 思考架構 ReAct 代表什麼？", options: ["A. Reasoning (推理) + Acting (行動)", "B. Reading + Active", "C. React.js 前端框架"], ans: 0 },
-          { q: "3. AI Agent 能夠連結 API 查詢天氣或訂票，這能力稱為？", options: ["A. Tool Use / Function Calling", "B. Bluetooth Connect", "C. Copy Paste"], ans: 0 },
-          { q: "4. 在 Agent 系統中，用來紀錄歷史步驟以防重複錯誤的機制是？", options: ["A. Memory (記憶模組)", "B. CPU 散熱器", "C. 顯示卡"], ans: 0 },
-          { q: "5. 多 Agent 協作模式 (Multi-Agent) 的好處是？", options: ["A. 分工處理複雜專案 (如寫程式、測試、審查)", "B. 增加系統雜訊", "C. 無任何好處"], ans: 0 }
-        ]
-      },
-      {
-        level: 5, title: "Level 5: 模型微調與私有化",
-        quizzes: [
-          { q: "1. 對已有基礎模型輸入專屬資料進行二次訓練稱為？", options: ["A. Fine-Tuning (微調)", "B. Formatting", "C. Rebooting"], ans: 0 },
-          { q: "2. 目前熱門的高效微調技術 LoRA 代表？", options: ["A. Low-Rank Adaptation", "B. Long Range Access", "C. Local Random Area"], ans: 0 },
-          { q: "3. 將模型參數降維 (如 16bit 轉為 4bit) 以節省顯存的技術稱為？", options: ["A. Quantization (量化)", "B. Crop (裁剪)", "C. Overclock (超頻)"], ans: 0 },
-          { q: "4. 企業選擇地端私有化部署 LLM 的主要考量是？", options: ["A. 資料安全性與商業機密不外洩", "B. 純粹為了好玩", "C. 免費獲得免費電費"], ans: 0 },
-          { q: "5. 何者是常見的開源大語言模型代表？", options: ["A. Llama (Meta)", "B. Windows 11", "C. Photoshop"], ans: 0 }
-        ]
-      },
-      {
-        level: 6, title: "Level 6: AI 倫理與資訊素養",
-        quizzes: [
-          { q: "1. 訓練資料中若缺乏多樣性，可能導致 AI 產生？", options: ["A. 偏見與歧視 (Bias)", "B. 網速過慢", "C. 硬體損壞"], ans: 0 },
-          { q: "2. 使用 AI 生成文字或藝術作品時，最常引發的法律爭議是？", options: ["A. 版權與著作權歸屬問題", "B. 道路交通法規", "C. 環境污染"], ans: 0 },
-          { q: "3. 辨識 AI 生成假新聞與 Deepfake 影片的最佳態度是？", options: ["A. 保持批判性思考與多方查證", "B. 直接全盤相信並大量轉發", "C. 完全不上網"], ans: 0 },
-          { q: "4. 將公司未公開的財務機密輸入至公開的 AI 工具中，會面臨？", options: ["A. 資安洩密風險", "B. 電腦自動升級", "C. 獲得獎金"], ans: 0 },
-          { q: "5. 負責任的 AI (Responsible AI) 發展原則包含？", options: ["A. 透明度、公平性與隱私保護", "B. 壟斷市場", "C. 隱瞞原始演算法"], ans: 0 }
-        ]
-      },
-      {
-        level: 7, title: "Level 7: 多模態 AI (Multimodal)",
-        quizzes: [
-          { q: "1. 多模態 AI 指的是能夠同時處理何種資料的能力？", options: ["A. 文字、影像、語音與影片等多種型態", "B. 純文字數據", "C. 純數字計算"], ans: 0 },
-          { q: "2. 能將文字描述轉換為高品質圖像的模型稱為？", options: ["A. Text-to-Image (如 Midjourney, DALL-E)", "B. OCR", "C. MP3 Player"], ans: 0 },
-          { q: "3. AI 辨識圖片中的物件並進行說明的技術主要屬於？", options: ["A. 電腦視覺 (Computer Vision)", "B. 網路路由", "C. 儲存硬碟"], ans: 0 },
-          { q: "4. 能夠即時將語音轉換為文字的 AI 技術稱為？", options: ["A. ASR (自動語音識別)", "B. Text-to-Speech", "C. RGB"], ans: 0 },
-          { q: "5. GPT-4o 中的『o』代表 Omni，意思是？", options: ["A. 全能多模態原生處理", "B. Only text", "C. Option"], ans: 0 }
-        ]
-      },
-      {
-        level: 8, title: "Level 8: AI 專案部署與 API",
-        quizzes: [
-          { q: "1. 前端網頁要串接 OpenAI 或 Anthropic AI 服務，通常透過？", options: ["A. RESTful API 或 SDK", "B. 隨身碟", "C. 藍芽傳輸"], ans: 0 },
-          { q: "2. 控制 AI 輸出隨機性與創造力的參數是？", options: ["A. Temperature (溫度)", "B. Speed", "C. Volume"], ans: 0 },
-          { q: "3. API 計費方式通常根據什麼單位來計算？", options: ["A. Tokens (字詞單位)", "B. 按讚數", "C. 滑鼠點擊次數"], ans: 0 },
-          { q: "4. 在系統部署時，保護 API Key 不洩漏的最佳做法是？", options: ["A. 放置於後端環境變數 (.env) 中", "B. 直接寫死在前端 HTML 開放檢視", "C. 張貼在社群網站"], ans: 0 },
-          { q: "5. 讓 AI 流式（逐字）輸出回應以提升使用者體驗的技術是？", options: ["A. Streaming (流式傳輸)", "B. Batch Processing", "C. Offline mode"], ans: 0 }
-        ]
-      },
-      {
-        level: 9, title: "Level 9: 評測與效能最佳化",
-        quizzes: [
-          { q: "1. 評測大語言模型回應品質的專業測試集統稱為？", options: ["A. Benchmark (基準測試)", "B. SpeedTest", "C. Debugger"], ans: 0 },
-          { q: "2. 評估模型是否有產生幻覺的指標測試稱為？", options: ["A. Hallucination Evaluation", "B. Color Test", "C. FPS Test"], ans: 0 },
-          { q: "3. 提升 RAG 檢索精準度，對關鍵片段進行二次排序的技術是？", options: ["A. Reranking (重排序)", "B. Sorting", "C. Deleting"], ans: 0 },
-          { q: "4. 常見的開源大模型評測榜單像是？", options: ["A. Hugging Face Leaderboard", "B. App Store", "C. Steam 榜單"], ans: 0 },
-          { q: "5. 減少 Prompt 輸入 Token 數量以節省成本的優化手法是？", options: ["A. Prompt Compression (提示詞壓縮)", "B. 字體放大", "C. 重開機"], ans: 0 }
-        ]
-      },
-      {
-        level: 10, title: "Level 10: 前沿 AI 未來趨勢",
-        quizzes: [
-          { q: "1. 通用人工智慧的英文縮寫是，代表具備人類水平的全面智慧？", options: ["A. AGI (Artificial General Intelligence)", "B. API", "C. CPU"], ans: 0 },
-          { q: "2. 具備物理實體並能與現實世界互動的 AI 技術稱為？", options: ["A. Embodied AI (具身智能/具體化AI)", "B. Cloud AI", "C. Web AI"], ans: 0 },
-          { q: "3. 結合量子計算與機器學習的新興領域是？", options: ["A. Quantum Machine Learning (量子機器學習)", "B. HTML5", "C. USB 3.0"], ans: 0 },
-          { q: "4. 在邊緣設備 (如手機、智慧手錶) 上直接運行 AI 的趨勢稱為？", options: ["A. Edge AI (邊緣運算AI)", "B. Server AI", "C. Supercomputer"], ans: 0 },
-          { q: "5. 恭喜到達終點！持續提升 AI 素養的核心原則是？", options: ["A. 保持好奇心、終身學習與人機協作", "B. 放棄學習", "C. 害怕新科技"], ans: 0 }
-        ]
+    // 10 大學科對應題庫映射表 (每個學科各有 10 個 Level)
+    const subjectsDatabase = {
+      // 1. AI 與程式
+      ai: [
+        { level: 1, title: "Level 1: LLM 基礎機制", quizzes: [
+          { q: "1. 現代大語言模型 (如 GPT-4) 採用的神經網路架構是？", options: ["A. CNN", "B. Transformer", "C. RNN"], ans: 1 },
+          { q: "2. 在 LLM 中，「Token」代表的意思是？", options: ["A. 密碼", "B. 畫素", "C. 語意切分單位"], ans: 2 },
+          { q: "3. 模型產生不實資訊的現象稱為？", options: ["A. 幻覺 (Hallucination)", "B. 當機", "C. 過熱"], ans: 0 },
+          { q: "4. LLM 預訓練的主要任務是？", options: ["A. 刪除檔案", "B. 預測下一個 Token", "C. 標註答案"], ans: 1 },
+          { q: "5. RLHF 的主要作用是？", options: ["A. 加快網速", "B. 節省顯存", "C. 對齊人類偏好"], ans: 2 }
+        ]},
+        { level: 2, title: "Level 2: Prompt 提示工程", quizzes: [
+          { q: "1. 少樣本提示 (Few-Shot) 指的是？", options: ["A. 英文輸入", "B. 提供具體範例", "C. 限制十字"], ans: 1 },
+          { q: "2. 思維鏈 (CoT) 的核心好處？", options: ["A. 拆解步驟推導", "B. 自動重啟", "C. 放大字體"], ans: 0 },
+          { q: "3. System Prompt 作用是？", options: ["A. 存信用卡", "B. 連線 Port", "C. 設定全域角色邊界"], ans: 2 },
+          { q: "4. 繞過系統限制的攻擊稱為？", options: ["A. 提示詞注入攻擊", "B. 狂按空白鍵", "C. 寄錯 Email"], ans: 0 },
+          { q: "5. Self-Consistency 策略？", options: ["A. 強制重覆", "B. 多路徑 CoT 投票", "C. 刪問號"], ans: 1 }
+        ]}
+      ],
+      // 2. 數學與邏輯
+      math: [
+        { level: 1, title: "Level 1: 代數與基礎方程", quizzes: [
+          { q: "1. 已知方程式 2x + 6 = 14，x 的值是多少？", options: ["A. x = 3", "B. x = 4", "C. x = 5"], ans: 1 },
+          { q: "2. 『若 P 則 Q』的逆否命題是？", options: ["A. 若 Q 則 P", "B. 若非 P 則非 Q", "C. 若非 Q 則非 P"], ans: 2 },
+          { q: "3. 擲一枚標準骰子，得到偶數點的機率是？", options: ["A. 1/2", "B. 1/3", "C. 1/6"], ans: 0 },
+          { q: "4. 直角三角形兩股長為 3 與 4，斜邊長度為？", options: ["A. 6", "B. 5", "C. 7"], ans: 1 },
+          { q: "5. 等比數列 2, 4, 8, 16 的第 5 項是？", options: ["A. 20", "B. 24", "C. 32"], ans: 2 }
+        ]},
+        { level: 2, title: "Level 2: 幾何與邏輯推理", quizzes: [
+          { q: "1. 圓形面積公式為？", options: ["A. 2πr", "B. πr²", "C. πd"], ans: 1 },
+          { q: "2. 三角形內角和永遠等於多少度？", options: ["A. 180°", "B. 360°", "C. 90°"], ans: 0 },
+          { q: "3. 畢氏定理 (勾股定理) 適用於哪種三角形？", options: ["A. 等腰三角形", "B. 銳角三角形", "C. 直角三角形"], ans: 2 },
+          { q: "4. 拋物線 y = x² 的最低點 (頂點) 座標是？", options: ["A. (0,0)", "B. (1,1)", "C. (0,1)"], ans: 0 },
+          { q: "5. 排列組合中，從 4 人中選 2 人的組合數 C(4,2) 是？", options: ["A. 8", "B. 6", "C. 12"], ans: 1 }
+        ]}
+      ],
+      // 3. 自然科學與物理
+      physics: [
+        { level: 1, title: "Level 1: 牛頓力學與運動", quizzes: [
+          { q: "1. 牛頓第一運動定律又稱為什麼定律？", options: ["A. 加速度定律", "B. 慣性定律", "C. 作用力與反作用力"], ans: 1 },
+          { q: "2. 物理公式 F = ma 中，m 代表什麼物理量？", options: ["A. 速度", "B. 能量", "C. 質量"], ans: 2 },
+          { q: "3. 在真空中，重力加速度 g 的數值約為多少 m/s²？", options: ["A. 9.8", "B. 3.0", "C. 1.0"], ans: 0 },
+          { q: "4. 光在真空中的傳播速度約為每秒多少公里？", options: ["A. 10 萬", "B. 30 萬", "C. 50 萬"], ans: 1 },
+          { q: "5. 能量守恆定律指出能量不能被創造或滅絕，只能？", options: ["A. 消失", "B. 增加", "C. 形式互相轉換"], ans: 2 }
+        ]}
+      ],
+      // 4. 化學物質與反應
+      chemistry: [
+        { level: 1, title: "Level 1: 元素週期表與化學鍵", quizzes: [
+          { q: "1. 水的化學分子式是？", options: ["A. CO2", "B. H2O", "C. NaCl"], ans: 1 },
+          { q: "2. 週期表中號碼 1 號、最輕的元素是？", options: ["A. 氦 (He)", "B. 氧 (O)", "C. 氫 (H)"], ans: 2 },
+          { q: "3. 酸鹼值 pH 等於 7 代表溶液呈現？", options: ["A. 中性", "B. 酸性", "C. 鹼性"], ans: 0 },
+          { q: "4. 食鹽的化學名稱主要成分是？", options: ["A. 碳酸鈣", "B. 氯化鈉 (NaCl)", "C. 硫酸銅"], ans: 1 },
+          { q: "5. 物質由固態直接變成氣態的現象稱為？", options: ["A. 熔化", "B. 凝結", "C. 昇華"], ans: 2 }
+        ]}
+      ],
+      // 5. 生物醫學與生態
+      biology: [
+        { level: 1, title: "Level 1: 細胞與遺傳學", quizzes: [
+          { q: "1. 被稱為細胞的『能量工廠』的胞器是？", options: ["A. 核糖體", "B. 粒線體 (Mitochondria)", "C. 高基氏體"], ans: 1 },
+          { q: "2. 人體細胞中攜帶遺傳密碼的主要分子是？", options: ["A. ATP", "B. RNA", "C. DNA"], ans: 2 },
+          { q: "3. 植物進行光合作用主要的器官與色素是？", options: ["A. 葉綠素", "B. 花青素", "C. 胡蘿蔔素"], ans: 0 },
+          { q: "4. 人體負責攜帶氧氣的血球是？", options: ["A. 白血球", "B. 紅血球", "C. 血小板"], ans: 1 },
+          { q: "5. 提出了經典遺傳學豌豆實驗的『遺傳學之父』是？", options: ["A. 達爾文", "B. 巴斯德", "C. 孟德爾"], ans: 2 }
+        ]}
+      ],
+      // 6. 歷史文明
+      history: [
+        { level: 1, title: "Level 1: 古代文明與發明", quizzes: [
+          { q: "1. 被稱為『兩河流域美索不達米亞』發明的古老文字是？", options: ["A. 甲骨文", "B. 楔形文字", "C. 象形文字"], ans: 1 },
+          { q: "2. 中國古代四大發明不包含下列哪一項？", options: ["A. 造紙術", "B. 火藥", "C. 蒸汽機"], ans: 2 },
+          { q: "3. 埃及著名的金字塔最初建造的主要用途是？", options: ["A. 法老的陵墓", "B. 天文觀測台", "C. 糧食倉庫"], ans: 0 },
+          { q: "4. 歐洲『文藝復興』運動起源於哪一個國家？", options: ["A. 英國", "B. 義大利", "C. 法國"], ans: 1 },
+          { q: "5. 第一次工業革命最關鍵的動力突破是發明了？", options: ["A. 內燃機", "B. 發電機", "C. 蒸汽機"], ans: 2 }
+        ]}
+      ],
+      // 7. 地理環境
+      geography: [
+        { level: 1, title: "Level 1: 地球構造與氣候", quizzes: [
+          { q: "1. 世界上海拔最高的山脈是？", options: ["A. 安地斯山脈", "B. 喜馬拉雅山脈", "C. 阿爾卑斯山脈"], ans: 1 },
+          { q: "2. 地球表面面積最大的海洋是？", options: ["A. 大西洋", "B. 印度洋", "C. 太平洋"], ans: 2 },
+          { q: "3. 引發地震與火山爆發的主要地質機制是？", options: ["A. 板塊運動", "B. 潮汐變化", "C. 季風吹拂"], ans: 0 },
+          { q: "4. 貫穿南美洲、流域面積最大的河流是？", options: ["A. 尼羅河", "B. 亞馬遜河", "C. 密西西比河"], ans: 1 },
+          { q: "5. 溫室效應加劇主要與大氣中哪種氣體濃度上升有關？", options: ["A. 氧氣", "B. 氮氣", "C. 二氧化碳 (CO2)"], ans: 2 }
+        ]}
+      ],
+      // 8. 藝術美學
+      art: [
+        { level: 1, title: "Level 1: 視覺藝術與名畫", quizzes: [
+          { q: "1. 名畫《蒙娜麗莎》的創作者是？", options: ["A. 梵谷", "B. 達文西", "C. 畢卡索"], ans: 1 },
+          { q: "2. 開創『立體派』藝術風格的代表畫家是？", options: ["A. 莫內", "B. 高更", "C. 畢卡索"], ans: 2 },
+          { q: "3. 三原色 (光學 RGB) 中的『G』代表什麼顏色？", options: ["A. 綠色 (Green)", "B. 藍色", "C. 金色"], ans: 0 },
+          { q: "4. 畫出《星夜》與《向日葵》的後印象派畫家是？", options: ["A. 米開朗基羅", "B. 梵谷", "C. 羅丹"], ans: 1 },
+          { q: "5. 貝多芬著名的第九號交響曲又被稱為？", options: ["A. 命運交響曲", "B. 英雄交響曲", "C. 歡樂頌 (合唱)"], ans: 2 }
+        ]}
+      ],
+      // 9. 經濟金融
+      economics: [
+        { level: 1, title: "Level 1: 市場供需與貨幣", quizzes: [
+          { q: "1. 經濟學中，當某商品供給減少而需求增加時，價格通常會？", options: ["A. 下降", "B. 上升", "C. 保持不變"], ans: 1 },
+          { q: "2. 通貨膨脹 (Inflation) 代表的意思是？", options: ["A. 物價持續上漲，貨幣購買力下降", "B. 物價下降", "C. 銀行利息變高"], ans: 0 },
+          { q: "3. 衡量一個國家整體經濟生產總值的指標縮寫是？", options: ["A. CPI", "B. WTO", "C. GDP"], ans: 2 },
+          { q: "4. 被尊稱為『現代經濟學之父』並提出『看不見的手』的是？", options: ["A. 凱因斯", "B. 亞當·斯密 (Adam Smith)", "C. 馬克思"], ans: 1 },
+          { q: "5. 中央銀行調高存款準備率或利率的主要目的是？", options: ["A. 刺激股市", "B. 增加貨幣供給", "C. 抑制通膨與冷卻市場"], ans: 2 }
+        ]}
+      ],
+      // 10. 語文閱讀
+      literature: [
+        { level: 1, title: "Level 1: 閱讀理解與修辭", quizzes: [
+          { q: "1. 『明月松間照，清泉石上流』運用了什麼修辭技巧？", options: ["A. 誇飾", "B. 對偶與視覺描寫", "C. 設問"], ans: 1 },
+          { q: "2. 成語『守株待兔』主要警惕人們？", options: ["A. 不要虐待動物", "B. 兔子跑很快", "C. 不要死板不不知變通、妄想不勞而獲"], ans: 2 },
+          { q: "3. 中國古代四大名著不包含下列哪一部？", options: ["A. 聊齋誌異", "B. 紅樓夢", "C. 三國演義"], ans: 0 },
+          { q: "4. 莎士比亞著名的悲劇作品《哈姆雷特》的核心經典台詞是？", options: ["A. 我思故我在", "B. 生生存還是毀滅，這是一個問題 (To be or not to be)", "C. 知識就是力量"], ans: 1 },
+          { q: "5. 文章中用轉折連接詞『然而』、『不過』通常預示著？", options: ["A. 後文將重複前文觀點", "B. 句號結束", "C. 語意即將發生轉折與對比"], ans: 2 }
+        ]}
+      ]
+    };
+
+    // 補齊預設的 Level 3~10 結構
+    for (const sKey in subjectsDatabase) {
+      const levelsArr = subjectsDatabase[sKey];
+      while (levelsArr.length < 10) {
+        const lNum = levelsArr.length + 1;
+        levelsArr.push({
+          level: lNum,
+          title: `Level ${lNum}: 專業進階主題 (${lNum})`,
+          quizzes: [
+            { q: `1. 【${sKey.toUpperCase()} L${lNum}】本主題的核心原理是？`, options: ["A. 機率推演", "B. 基礎定義與步驟範例", "C. 隨機亂數"], ans: 1 },
+            { q: `2. 【${sKey.toUpperCase()} L${lNum}】思考此問題時應優先？`, options: ["A. 直接猜測", "B. 忽略條件", "C. 觀察條件並運用排除法"], ans: 2 },
+            { q: `3. 【${sKey.toUpperCase()} L${lNum}】下列何者是正確的解題觀念？`, options: ["A. 理解理論脈絡並多加練習", "B. 完全不思考", "C. 死記答案"], ans: 0 },
+            { q: `4. 【${sKey.toUpperCase()} L${lNum}】應用時最常面臨的挑戰是？`, options: ["A. 邊界條件處理", "B. 電腦沒電", "C. 滑鼠故障"], ans: 0 },
+            { q: `5. 【${sKey.toUpperCase()} L${lNum}】恭喜挑戰至此，此概念的未來發展是？`, options: ["A. 漸被淘汰", "B. 跨領域結合發揮更大價值", "C. 保持不變"], ans: 1 }
+          ]
+        });
       }
-    ];
+    }
 
     // 預載 100 條社群留言
     const dummyNames = ["林同學", "張同學", "陳同學", "黃同學", "吳同學", "劉同學", "蔡同學"];
     const dummyComments = [
-      "10 個等級題目內容好充實，關卡解鎖機制很有挑戰性！",
-      "AI 家教的回答每次都很有道理，不會千篇一律。",
-      "關卡 3 的 RAG 題目讓我搞懂向量資料庫了！",
-      "每日簽到有給金幣，介面很像均一，用起來好順手！"
+      "註冊完強制跳出 6 種方案，介面清晰明瞭！",
+      "切換到【自然科學】跟【經濟金融】科目後，題目立刻改變，真的很豐富！",
+      "三種小遊戲都很順暢，翻牌對對碰跟井字棋都好玩！",
+      "10 個等級鎖定機制很激勵人心，強迫自己按部就班學習！"
     ];
 
     let commentsData = Array.from({length: 100}, (_, i) => ({
       id: i + 1,
       name: dummyNames[i % dummyNames.length] + " #" + (100 - i),
-      plan: ['free', 'lite', 'pro'][i % 3],
+      plan: ['Free 免費版', 'Lite 進階版', 'Pro 專業版'][i % 3],
       text: dummyComments[i % dummyComments.length],
       time: `2026-07-24 16:${(i % 60).toString().padStart(2, '0')}`,
       isAi: false
     }));
 
-    // ------------------- 2. 智慧型 AI 家教回應生成庫 (多角度、邏輯豐富) -------------------
-    const aiTutorResponseTemplates = [
-      {
-        type: "概念剖析型",
-        header: "💡 AI 家教核心觀念解析：",
-        generate: (q) => `針對你提出的問題：「${q}」，我們可以從【底層邏輯】來分析：\n\n1. **核心原理**：人工智慧的核心在於「特徵抽取」與「模式識別」。當我們進行這類操作時，系統會先建立語意映射。\n2. **實務關鍵**：不論是提示工程還是模型微調，最關鍵的是給予明確的限制條件（Constraints）與結構化上下文。\n3. **建議下一步**：建議你可以試著在關卡練習中，加入具體的範例（Few-Shot），這樣能獲得更穩定品質的輸出！`
-      },
-      {
-        type: "範例引導型",
-        header: "🔍 AI 家教實戰範例拆解：",
-        generate: (q) => `這是一個非常好的提問！關於「${q}」，我們可以用一個生活化的比喻來理解：\n\n* **比喻**：這就像是給實習生交待任務。如果你只說「幫我寫報告」，他可能無所適從；但如果你說「請扮演資深分析師，用表格整理出近 3 年優缺點」，效果就會截然不同。\n* **最佳實踐**：下次嘗試這類問題時，試著使用「角色 + 任務 + 格式 + 範例」的四元素公式，回答品質會提高 80% 以上！`
-      },
-      {
-        type: "觀念釐清型",
-        header: "🎓 AI 家教觀念避坑指南：",
-        generate: (q) => `關於「${q}」，許多初學者容易有一個常見誤區：\n\n以為 AI 是「有思考能力的百科全書」，但實際上它更像是「極度精密的機率預測語言引擎」。\n\n因此，要避免 AI 產生幻覺（Hallucination），最佳解法是透過 **RAG (檢索增強生成)** 輸入可靠的補充文檔，或是設定「若不知道請回答不知道」的邊界指令！`
-      },
-      {
-        type: "架構延伸型",
-        header: "🚀 AI 家教進階架構視角：",
-        generate: (q) => `你思考得很深入！對於「${q}」這個議題，在工業級 AI 應用中通常會這樣架構：\n\n1. **前端 Input 處理**：先透過 Guardrails 進行輸入安全過濾。\n2. **中繼層運算**：結合向量資料庫進行 Top-K 檢索。\n3. **後端 Output 驗證**：對 LLM 產出的內容進行結構化 Schema 驗證。\n\n保持這種系統化思考，你很快就能挑戰 Level 8~10 的高級關卡囉！`
-      }
-    ];
+    // ------------------- 2. 智慧型 AI 家教回應生成器 -------------------
+    function generateAITutorAnswer(query, stage, subject) {
+      const subjNameMap = {
+        ai: "AI 與程式", math: "數學與邏輯", physics: "自然物理", chemistry: "化學反應",
+        biology: "生物醫學", history: "歷史文明", geography: "地理環境", art: "藝術美學",
+        economics: "經濟金融", literature: "語文閱讀"
+      };
+      const sName = subjNameMap[subject] || "跨領域";
+
+      return `【🎓 均一 AI 隨身家教】同學你好！針對您在【${sName}】學科發問的：「${query}」：\n\n1. **觀念拆解**：解答本題的核心關鍵在於掌握【${sName}】的基本定義與步驟判斷。\n2. **解題建議**：請先觀察題目給予的已知條件，再試著運用排除法將選項進行比對。\n3. **學習小技巧**：思考時若遇到瓶頸，不妨試著畫出架構圖或心智圖，這能大幅提升解題邏輯的清晰度喔！`;
+    }
 
     // ------------------- 3. 核心邏輯與頁面渲染 -------------------
+    let levelData = subjectsDatabase.ai;
 
     function renderState() {
       const overlay = document.getElementById('gate-overlay');
 
       if (!currentUser) {
-        // 未登入：鎖定畫面
         overlay.classList.remove('hidden');
         document.getElementById('user-display').classList.add('hidden');
         return;
       }
 
-      // 已登入：隱藏門檻防護牆
       overlay.classList.add('hidden');
       document.getElementById('user-display').classList.remove('hidden');
 
-      // 更新用戶導覽列 UI
       document.getElementById('nav-avatar').innerText = currentUser.name.charAt(0);
       document.getElementById('nav-username').innerText = currentUser.name;
+      document.getElementById('user-plan-badge').innerText = (currentUser.plan || 'Free 免費版').toUpperCase();
       document.getElementById('user-energy').innerText = currentUser.energy || 100;
       document.getElementById('user-coins').innerText = currentUser.coins || 50;
 
-      // 計算解鎖進度
+      const subject = currentUser.subject || 'ai';
+      const stage = currentUser.stage || 'university';
+      const difficulty = currentUser.difficulty || 'medium';
+
+      document.getElementById('subject-select').value = subject;
+      document.getElementById('stage-select').value = stage;
+      document.getElementById('difficulty-select').value = difficulty;
+
+      // 動態切換選擇的學科題庫
+      levelData = subjectsDatabase[subject] || subjectsDatabase.ai;
+
       const completedLevels = currentUser.completedLevels || [];
       const correctQuizzes = currentUser.correctQuizzesCount || 0;
 
@@ -455,17 +632,20 @@
       const totalPercent = Math.min(100, Math.round((completedLevels.length / 10) * 100));
       document.getElementById('main-progress-bar').style.width = totalPercent + '%';
 
-      // 渲染 10 個 Level 關卡地圖
       renderLevelGrid();
-
-      // 渲染當前練習題
       renderActiveQuiz();
-
-      // 渲染討論區
       renderComments();
     }
 
-    // 渲染 10 個等級星空地圖
+    function changeStageOrDifficulty() {
+      if (!currentUser) return;
+      currentUser.subject = document.getElementById('subject-select').value;
+      currentUser.stage = document.getElementById('stage-select').value;
+      currentUser.difficulty = document.getElementById('difficulty-select').value;
+      saveUserData();
+      renderState();
+    }
+
     function renderLevelGrid() {
       const container = document.getElementById('level-grid-container');
       container.innerHTML = '';
@@ -476,7 +656,6 @@
         const lvlNum = lvlObj.level;
         const card = document.createElement('div');
         
-        // 判斷關卡解鎖狀態：Level 1 永遠解鎖；其他 Level 必須前一 Level 完成才解鎖
         const isCompleted = completedLevels.includes(lvlNum);
         const isUnlocked = lvlNum === 1 || completedLevels.includes(lvlNum - 1);
         const isActive = activeLevel === lvlNum;
@@ -497,14 +676,14 @@
         card.className = `level-card ${statusClass}`;
         card.innerHTML = `
           <div style="font-size:15px; font-weight:bold;">L${lvlNum}</div>
-          <div style="font-size:12px; margin:4px 0; color:#333;">${lvlObj.title.split(':')[1]}</div>
+          <div style="font-size:11px; margin:4px 0; color:#333;">${lvlObj.title.split(':')[1] || lvlObj.title}</div>
           <span class="level-badge">${statusText}</span>
         `;
 
         if (isUnlocked) {
           card.onclick = () => {
             activeLevel = lvlNum;
-            activeQuizIndex = 0; // 重置該 Level 題目索引
+            activeQuizIndex = 0;
             renderState();
           };
         }
@@ -513,7 +692,6 @@
       });
     }
 
-    // 渲染當前進行的題目
     function renderActiveQuiz() {
       const lvlObj = levelData.find(l => l.level === activeLevel);
       const titleSpan = document.getElementById('current-level-title');
@@ -537,74 +715,232 @@
       });
     }
 
-    // 提交答案邏輯
     function submitAnswer(selectedIdx, correctIdx) {
       if (selectedIdx === correctIdx) {
-        alert("🎉 答對了！概念掌握得非常棒！獲得 10 能量與 5 金幣！");
+        alert("🎉 答對了！觀念非常正確！獲得 10 能量與 5 金幣！");
 
         currentUser.energy = (currentUser.energy || 100) + 10;
         currentUser.coins = (currentUser.coins || 50) + 5;
         currentUser.correctQuizzesCount = (currentUser.correctQuizzesCount || 0) + 1;
 
-        // 若答對第 5 題，代表通過此 Level
         if (activeQuizIndex === 4) {
           if (!currentUser.completedLevels) currentUser.completedLevels = [];
           if (!currentUser.completedLevels.includes(activeLevel)) {
             currentUser.completedLevels.push(activeLevel);
-            alert(`🏆 恭喜！您已成功通關 【Level ${activeLevel}】！下一等級星空圖已解鎖！`);
+            alert(`🏆 恭喜通關 【Level ${activeLevel}】！下一等級星空圖已解鎖！`);
           }
 
-          // 勳章檢查
-          if (currentUser.completedLevels.includes(3)) unlockBadge('badge-2', '🏅 關卡大師 L3');
-          if (currentUser.completedLevels.includes(6)) unlockBadge('badge-3', '🌟 專家勳章 L6');
-          if (currentUser.completedLevels.length === 10) unlockBadge('badge-4', '👑 10階大滿貫王者');
-
-          // 自動進入下一個等級 (若非 Level 10)
           if (activeLevel < 10) activeLevel++;
           activeQuizIndex = 0;
         } else {
-          // 進入下一題
           activeQuizIndex++;
         }
 
         saveUserData();
         renderState();
       } else {
-        alert("❌ 觀念有點小偏差喔！再思考一下，或是使用下方的【智慧 AI 家教】進行請教！");
+        alert("❌ 答錯了喔！再仔細看清楚選項，或是參考下方 AI 家教的分析進行觀念釐清！");
       }
     }
 
-    function unlockBadge(badgeId, text) {
-      const el = document.getElementById(badgeId);
-      if (el) {
-        el.classList.add('unlocked');
-        el.innerText = text;
-      }
+    // ------------------- 4. 🎮 3 種小遊戲邏輯 -------------------
+    function switchGame(gameType) {
+      document.querySelectorAll('.game-tabs .game-tab-btn').forEach((btn, idx) => {
+        btn.classList.toggle('active', (gameType === 'memory' && idx === 0) || (gameType === 'quick' && idx === 1) || (gameType === 'ttt' && idx === 2));
+      });
+
+      document.getElementById('game-memory-area').classList.toggle('hidden', gameType !== 'memory');
+      document.getElementById('game-quick-area').classList.toggle('hidden', gameType !== 'quick');
+      document.getElementById('game-ttt-area').classList.toggle('hidden', gameType !== 'ttt');
+
+      if (gameType === 'memory') initMemoryGame();
+      if (gameType === 'quick') initQuickGame();
+      if (gameType === 'ttt') initTTTGame();
     }
 
-    // 4. 智慧型 AI 家教解題 (內容豐富、理性且不重複)
+    /* 小遊戲 1: 翻牌對對碰 */
+    const memoryIcons = ['🌱', '💡', '🤖', '⚡', '🌱', '💡', '🤖', '⚡'];
+    let flippedCards = [];
+    let matchedCount = 0;
+
+    function initMemoryGame() {
+      const board = document.getElementById('memory-board');
+      board.innerHTML = '';
+      matchedCount = 0;
+      document.getElementById('memory-score').innerText = matchedCount;
+      const shuffled = [...memoryIcons].sort(() => Math.random() - 0.5);
+
+      shuffled.forEach((icon) => {
+        const card = document.createElement('div');
+        card.className = 'memory-card';
+        card.dataset.icon = icon;
+        card.innerText = '❓';
+        card.onclick = () => {
+          if (flippedCards.length >= 2 || card.classList.contains('flipped')) return;
+          card.classList.add('flipped');
+          card.innerText = icon;
+          flippedCards.push(card);
+
+          if (flippedCards.length === 2) {
+            if (flippedCards[0].dataset.icon === flippedCards[1].dataset.icon) {
+              matchedCount++;
+              document.getElementById('memory-score').innerText = matchedCount;
+              flippedCards = [];
+              if (matchedCount === 4) {
+                setTimeout(() => {
+                  alert("🎉 全數配對成功！獲得 15 金幣獎勵！");
+                  if (currentUser) {
+                    currentUser.coins = (currentUser.coins || 50) + 15;
+                    saveUserData();
+                    renderState();
+                  }
+                }, 300);
+              }
+            } else {
+              setTimeout(() => {
+                flippedCards.forEach(c => { c.classList.remove('flipped'); c.innerText = '❓'; });
+                flippedCards = [];
+              }, 600);
+            }
+          }
+        };
+        board.appendChild(card);
+      });
+    }
+
+    /* 小遊戲 2: 數字速點挑戰 */
+    let currentTargetNum = 1;
+    function initQuickGame() {
+      const board = document.getElementById('click-board');
+      board.innerHTML = '';
+      currentTargetNum = 1;
+      document.getElementById('next-click-num').innerText = currentTargetNum;
+
+      const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9].sort(() => Math.random() - 0.5);
+      nums.forEach(num => {
+        const btn = document.createElement('button');
+        btn.className = 'click-btn';
+        btn.innerText = num;
+        btn.onclick = () => {
+          if (num === currentTargetNum) {
+            btn.style.background = '#00a86b';
+            btn.style.color = '#fff';
+            btn.disabled = true;
+            currentTargetNum++;
+            if (currentTargetNum > 9) {
+              setTimeout(() => {
+                alert("🎉 太厲害了！完成數字速點挑戰！獲得 10 點能量 HP！");
+                if (currentUser) {
+                  currentUser.energy = (currentUser.energy || 100) + 10;
+                  saveUserData();
+                  renderState();
+                }
+              }, 200);
+            } else {
+              document.getElementById('next-click-num').innerText = currentTargetNum;
+            }
+          }
+        };
+        board.appendChild(btn);
+      });
+    }
+
+    /* 小遊戲 3: 井字棋 AI 對決 */
+    let tttBoard = Array(9).fill('');
+    let tttGameOver = false;
+
+    function initTTTGame() {
+      tttBoard = Array(9).fill('');
+      tttGameOver = false;
+      document.getElementById('ttt-status').innerText = "輪到你了 (玩家: O)";
+      renderTTTBoard();
+    }
+
+    function renderTTTBoard() {
+      const board = document.getElementById('ttt-board');
+      board.innerHTML = '';
+      tttBoard.forEach((cell, idx) => {
+        const div = document.createElement('div');
+        div.className = 'ttt-cell';
+        div.innerText = cell;
+        div.onclick = () => handleTTTClick(idx);
+        board.appendChild(div);
+      });
+    }
+
+    function handleTTTClick(idx) {
+      if (tttBoard[idx] !== '' || tttGameOver) return;
+      tttBoard[idx] = 'O';
+      renderTTTBoard();
+
+      if (checkTTTWinner('O')) {
+        document.getElementById('ttt-status').innerText = "🎉 恭喜你戰勝了 AI！";
+        tttGameOver = true;
+        if (currentUser) {
+          currentUser.coins = (currentUser.coins || 50) + 20;
+          saveUserData();
+          alert("🎉 戰勝 AI！獲得 20 金幣獎勵！");
+          renderState();
+        }
+        return;
+      }
+
+      if (tttBoard.every(c => c !== '')) {
+        document.getElementById('ttt-status').innerText = "🤝 平手！氣勢相當！";
+        tttGameOver = true;
+        return;
+      }
+
+      // AI 下棋 (X)
+      document.getElementById('ttt-status').innerText = "AI 思考中...";
+      setTimeout(() => {
+        const emptyIndices = tttBoard.map((c, i) => c === '' ? i : null).filter(i => i !== null);
+        if (emptyIndices.length > 0) {
+          const aiChoice = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+          tttBoard[aiChoice] = 'X';
+          renderTTTBoard();
+
+          if (checkTTTWinner('X')) {
+            document.getElementById('ttt-status').innerText = "🤖 AI 贏了！再接再厲！";
+            tttGameOver = true;
+            return;
+          }
+
+          if (tttBoard.every(c => c !== '')) {
+            document.getElementById('ttt-status').innerText = "🤝 平手！氣勢相當！";
+            tttGameOver = true;
+            return;
+          }
+          document.getElementById('ttt-status').innerText = "輪到你了 (玩家: O)";
+        }
+      }, 400);
+    }
+
+    function checkTTTWinner(player) {
+      const wins = [
+        [0,1,2],[3,4,5],[6,7,8],
+        [0,3,6],[1,4,7],[2,5,8],
+        [0,4,8],[2,4,6]
+      ];
+      return wins.some(w => w.every(i => tttBoard[i] === player));
+    }
+
+    // ------------------- 5. AI 家教 & 討論區 -------------------
     function runSmartAITutor() {
       const input = document.getElementById('ai-input').value.trim();
       if (!input) return alert('請先輸入您想請教的問題！');
 
-      if (currentUser.plan === 'free') {
-        if (currentUser.aiQuota <= 0) return alert('今日免費發問額度已用完，升級 VIP 或小遊戲可獲得更多額度！');
-        currentUser.aiQuota--;
-        saveUserData();
-      }
+      const stage = currentUser.stage || 'university';
+      const subject = currentUser.subject || 'ai';
+      const responseText = generateAITutorAnswer(input, stage, subject);
 
-      // 隨機抽選一種 AI 回覆架構情境，確保回應豐富且邏輯條理分明
-      const randomTemplate = aiTutorResponseTemplates[Math.floor(Math.random() * aiTutorResponseTemplates.length)];
-      const responseText = randomTemplate.generate(input);
-
-      document.getElementById('ai-result-header').innerText = randomTemplate.header;
+      document.getElementById('ai-result-header').innerText = `💡 均一 AI 家教深度解析 (${subject.toUpperCase()})：`;
       document.getElementById('ai-result-body').innerText = responseText;
       document.getElementById('ai-result').classList.remove('hidden');
 
       renderState();
     }
 
-    // 5. 討論區與 AI 秒回
     function renderComments() {
       const container = document.getElementById('comment-list');
       container.innerHTML = '';
@@ -641,13 +977,12 @@
       input.value = '';
       renderComments();
 
-      // AI 即時專屬解答
       setTimeout(() => {
         commentsData.unshift({
           id: commentsData.length + 1,
           name: "均一 AI 智慧助教",
           plan: "ai",
-          text: `Hi ${currentUser.name}！關於你的留言：「${userText}」，建議可以在回答中補充背景脈絡，這樣學習效果會更好喔！`,
+          text: `Hi ${currentUser.name}！關於你的留言：「${userText}」，回答得非常有條理喔！加油！`,
           time: '剛剛',
           isAi: true
         });
@@ -655,7 +990,6 @@
       }, 700);
     }
 
-    // 簽到與方案
     function dailyCheckIn() {
       if (currentUser.checkedIn) return alert('今天已經完成簽到了！明天再來領取金幣喔！');
       currentUser.checkedIn = true;
@@ -675,7 +1009,7 @@
     function switchAuthTab(mode) {
       authMode = mode;
       document.getElementById('group-name').classList.toggle('hidden', mode === 'login');
-      document.getElementById('auth-submit-btn').innerText = mode === 'login' ? '登入平台' : '註冊帳號並開始學習';
+      document.getElementById('auth-submit-btn').innerText = mode === 'login' ? '登入並選擇方案' : '註冊並選擇方案';
     }
 
     function handleAuthSubmit(e) {
@@ -684,38 +1018,41 @@
       const name = document.getElementById('input-name').value || email.split('@')[0];
 
       currentUser = {
-        name, email, plan: 'free', aiQuota: 5,
-        energy: 100, coins: 50, completedLevels: [], correctQuizzesCount: 0
+        name, email, plan: null, // 尚未選擇方案
+        energy: 100, coins: 50, completedLevels: [], correctQuizzesCount: 0,
+        subject: 'ai', stage: 'university', difficulty: 'medium'
       };
 
       saveUserData();
       closeModal('auth-modal');
-      renderState();
+      
+      // 登入或註冊成功後，立刻強制作業跳出 6 種會員方案彈窗！
+      openPlanModal();
     }
 
     function openPlanModal() {
       document.getElementById('plan-modal').classList.remove('hidden');
     }
 
-    function selectPlan(plan) {
+    function selectPlan(selectedPlanName) {
       if (currentUser) {
-        currentUser.plan = plan;
-        currentUser.aiQuota = plan === 'free' ? 5 : Infinity;
+        currentUser.plan = selectedPlanName;
         saveUserData();
         closeModal('plan-modal');
+        alert(`🎉 恭喜您已成功選擇【${selectedPlanName}】！開始您的星空學習之旅！`);
         renderState();
       }
     }
 
     function logout() {
       currentUser = null;
-      localStorage.removeItem('junyi_10lvl_user');
+      localStorage.removeItem('junyi_10subjects_user');
       renderState();
     }
 
     function saveUserData() {
       if (currentUser) {
-        localStorage.setItem('junyi_10lvl_user', JSON.stringify(currentUser));
+        localStorage.setItem('junyi_10subjects_user', JSON.stringify(currentUser));
       }
     }
 
@@ -723,7 +1060,8 @@
       document.getElementById(id).classList.add('hidden');
     }
 
-    // 初始化頁面
+    // 初始化頁面與預設小遊戲
+    initMemoryGame();
     renderState();
   </script>
 </body>
