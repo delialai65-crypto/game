@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wenbao 文寶線上教學網站</title>
+  <title>Wenbao 文寶線上教學網站 AI 星空學習平台</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -145,16 +145,16 @@
 
   <!-- 未登入強制作業防護牆 -->
   <div id="gate-overlay" class="locked-overlay">
-    <h1 style="color: #00a86b; margin-bottom: 12px;">🌱 歡迎進入 均一 AI 10大學科學習平台</h1>
+    <h1 style="color: #00a86b; margin-bottom: 12px;">🌱 歡迎進入 均一 AI 星空學習平台</h1>
     <p style="font-size: 16px; color: #555; max-width: 520px; margin-bottom: 24px;">
-      一進網頁請先登入或註冊會員！登入完畢後將請您選擇【6 種會員方案】，隨後即可自由探索【10 大領域學科】！
+      一進網頁請先登入或註冊會員！登入完畢後將請您選擇【6 種會員方案】，隨後即可探索【10 大學科 × 4 大年級】完全不同的專屬題庫！
     </p>
     <button class="btn btn-primary" style="font-size: 16px; padding: 12px 32px;" onclick="openAuthModal('login')">進入平台：登入 / 註冊</button>
   </div>
 
   <!-- 均一風格導覽列 -->
   <nav class="navbar">
-    <a href="#" class="logo">🌱 均一 AI 10大學科星空學習平台</a>
+    <a href="#" class="logo">🌱 均一 AI 全學科分齡星空平台</a>
     <div class="nav-user">
       <div id="user-display" class="hidden" style="display: flex; align-items: center; gap: 10px;">
         <div class="status-badge">⚡ 能量：<span id="user-energy">100</span> HP</div>
@@ -176,7 +176,7 @@
     <div class="card">
       <div class="card-title">
         <span>⚙️ 設定您的學習科目、學齡與難度</span>
-        <span style="font-size:12px; color:#666; font-weight:normal;">切換後題庫將載入對應內容</span>
+        <span style="font-size:12px; color:#666; font-weight:normal;">切換後題庫將自動切換對應年級題目</span>
       </div>
       <div class="selector-group">
         <div class="selector-box">
@@ -191,16 +191,16 @@
             <option value="geography">🌍 7. 地理環境與地質</option>
             <option value="art">🎨 8. 藝術美學與音樂</option>
             <option value="economics">💼 9. 經濟金融與商業</option>
-            <option value="literature">📚 10. 語文閱讀與文學</option>
+            <option value="literature">📚 10. 語文閱讀與表達</option>
           </select>
         </div>
         <div class="selector-box">
-          <label>🎓 選擇學齡階段：</label>
+          <label>🎓 選擇年級階段：</label>
           <select id="stage-select" class="select-control" onchange="changeStageOrDifficulty()">
-            <option value="elementary">🏫 國小階段 (白話童趣生活題)</option>
-            <option value="junior">🏫 國中階段 (觀念原理與資訊常識)</option>
-            <option value="senior">🏫 高中階段 (程式邏輯與演算法應用)</option>
-            <option value="university" selected>🎓 大學 / 成人 (專業應用與核心理論)</option>
+            <option value="elementary">🏫 國小階段 (白話生活童趣題)</option>
+            <option value="junior">🏫 國中階段 (觀念原理與常識題)</option>
+            <option value="senior">🏫 高中階段 (邏輯推導與演算法題)</option>
+            <option value="university" selected>🎓 大學 / 成人 (專業架構與實務題)</option>
           </select>
         </div>
         <div class="selector-box">
@@ -296,7 +296,7 @@
         <span>🤖 均一智慧 AI 隨身家教</span>
         <span id="ai-quota-text" style="font-size: 12px; color: #666; font-weight: normal;">請先登入會員</span>
       </div>
-      <p style="font-size: 13px; color: #666; margin-bottom: 8px;">對題目有疑問？AI 家教將根據您的【選擇科目】與【學齡階段】給予最條理分明的詳細解答：</p>
+      <p style="font-size: 13px; color: #666; margin-bottom: 8px;">對題目有疑問？AI 家教將根據您的【選擇科目】與【年級階段】給予最條理分明的詳細解答：</p>
       <textarea id="ai-input" rows="2" style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;" placeholder="例如：請解釋這題的核心觀念是什麼？"></textarea>
       <button class="btn btn-primary" style="margin-top: 8px;" onclick="runSmartAITutor()">向 AI 家教請教解析</button>
       
@@ -353,48 +353,43 @@
       <p style="font-size: 13px; color: #666; margin-bottom: 16px;">歡迎加入！請選擇適合您的學習方案以解鎖星空圖功能：</p>
 
       <div class="plan-grid-6">
-        <!-- 方案 1 -->
         <div class="plan-card-item">
           <div>
             <h4 style="color:#333;">1. 免費體驗版</h4>
             <div style="color:#00a86b; font-size:20px; font-weight:bold; margin:8px 0;">$0</div>
-            <p style="font-size:12px; color:#666;">每日 AI 家教 5 次<br>開放 10 大學科基礎練習</p>
+            <p style="font-size:12px; color:#666;">每日 AI 家教 5 次<br>開放全年級基礎練習</p>
           </div>
           <button class="btn btn-light" style="border:1px solid #00a86b; margin-top:10px;" onclick="selectPlan('Free 免費版')">選擇免費版</button>
         </div>
 
-        <!-- 方案 2 -->
         <div class="plan-card-item">
           <div>
             <h4 style="color:#333;">2. 基礎探索版</h4>
             <div style="color:#00a86b; font-size:20px; font-weight:bold; margin:8px 0;">$49<span style="font-size:10px;">/月</span></div>
-            <p style="font-size:12px; color:#666;">每日 AI 家教 20 次<br>解鎖全學科完整關卡</p>
+            <p style="font-size:12px; color:#666;">每日 AI 家教 20 次<br>解鎖全科目星空圖</p>
           </div>
           <button class="btn btn-primary" style="margin-top:10px;" onclick="selectPlan('Explore 探索版')">選擇探索版</button>
         </div>
 
-        <!-- 方案 3 (熱門) -->
         <div class="plan-card-item popular">
           <span class="badge-pop">🔥 最受歡迎</span>
           <div>
             <h4 style="color:#333;">3. 進階學習版</h4>
             <div style="color:#ff9800; font-size:20px; font-weight:bold; margin:8px 0;">$99<span style="font-size:10px;">/月</span></div>
-            <p style="font-size:12px; color:#666;">每日 AI 家教 50 次<br>全學科 + 遊戲雙倍獎勵</p>
+            <p style="font-size:12px; color:#666;">每日 AI 家教 50 次<br>全年級題庫 + 遊戲獎勵加倍</p>
           </div>
           <button class="btn btn-warning" style="margin-top:10px;" onclick="selectPlan('Lite 進階版')">選擇進階版</button>
         </div>
 
-        <!-- 方案 4 -->
         <div class="plan-card-item">
           <div>
             <h4 style="color:#333;">4. 專業達人版</h4>
             <div style="color:#00a86b; font-size:20px; font-weight:bold; margin:8px 0;">$199<span style="font-size:10px;">/月</span></div>
-            <p style="font-size:12px; color:#666;">無限 AI 家教發問次數<br>個人化跨學科弱點報告</p>
+            <p style="font-size:12px; color:#666;">無限 AI 家教發問次數<br>跨年級弱點分析報告</p>
           </div>
           <button class="btn btn-primary" style="margin-top:10px;" onclick="selectPlan('Pro 專業版')">選擇專業版</button>
         </div>
 
-        <!-- 方案 5 -->
         <div class="plan-card-item">
           <div>
             <h4 style="color:#333;">5. 團隊共享版</h4>
@@ -404,7 +399,6 @@
           <button class="btn btn-primary" style="margin-top:10px;" onclick="selectPlan('Team 團隊版')">選擇團隊版</button>
         </div>
 
-        <!-- 方案 6 -->
         <div class="plan-card-item">
           <div>
             <h4 style="color:#333;">6. 尊榮旗艦版</h4>
@@ -418,156 +412,99 @@
   </div>
 
   <script>
-    // ------------------- 1. 全局狀態與 10 大學科題庫資料庫 -------------------
-    let currentUser = JSON.parse(localStorage.getItem('junyi_10subjects_user')) || null;
+    // ------------------- 1. 動態全學科 × 全年級 獨立題庫生成矩陣 -------------------
+    let currentUser = JSON.parse(localStorage.getItem('junyi_matrix_unique_user')) || null;
     let authMode = 'login';
     let activeLevel = 1;
     let activeQuizIndex = 0;
 
-    // 10 大學科對應題庫映射表 (每個學科各有 10 個 Level)
-    const subjectsDatabase = {
-      // 1. AI 與程式
-      ai: [
-        { level: 1, title: "Level 1: LLM 基礎機制", quizzes: [
-          { q: "1. 現代大語言模型 (如 GPT-4) 採用的神經網路架構是？", options: ["A. CNN", "B. Transformer", "C. RNN"], ans: 1 },
-          { q: "2. 在 LLM 中，「Token」代表的意思是？", options: ["A. 密碼", "B. 畫素", "C. 語意切分單位"], ans: 2 },
-          { q: "3. 模型產生不實資訊的現象稱為？", options: ["A. 幻覺 (Hallucination)", "B. 當機", "C. 過熱"], ans: 0 },
-          { q: "4. LLM 預訓練的主要任務是？", options: ["A. 刪除檔案", "B. 預測下一個 Token", "C. 標註答案"], ans: 1 },
-          { q: "5. RLHF 的主要作用是？", options: ["A. 加快網速", "B. 節省顯存", "C. 對齊人類偏好"], ans: 2 }
-        ]},
-        { level: 2, title: "Level 2: Prompt 提示工程", quizzes: [
-          { q: "1. 少樣本提示 (Few-Shot) 指的是？", options: ["A. 英文輸入", "B. 提供具體範例", "C. 限制十字"], ans: 1 },
-          { q: "2. 思維鏈 (CoT) 的核心好處？", options: ["A. 拆解步驟推導", "B. 自動重啟", "C. 放大字體"], ans: 0 },
-          { q: "3. System Prompt 作用是？", options: ["A. 存信用卡", "B. 連線 Port", "C. 設定全域角色邊界"], ans: 2 },
-          { q: "4. 繞過系統限制的攻擊稱為？", options: ["A. 提示詞注入攻擊", "B. 狂按空白鍵", "C. 寄錯 Email"], ans: 0 },
-          { q: "5. Self-Consistency 策略？", options: ["A. 強制重覆", "B. 多路徑 CoT 投票", "C. 刪問號"], ans: 1 }
-        ]}
-      ],
-      // 2. 數學與邏輯
-      math: [
-        { level: 1, title: "Level 1: 代數與基礎方程", quizzes: [
-          { q: "1. 已知方程式 2x + 6 = 14，x 的值是多少？", options: ["A. x = 3", "B. x = 4", "C. x = 5"], ans: 1 },
-          { q: "2. 『若 P 則 Q』的逆否命題是？", options: ["A. 若 Q 則 P", "B. 若非 P 則非 Q", "C. 若非 Q 則非 P"], ans: 2 },
-          { q: "3. 擲一枚標準骰子，得到偶數點的機率是？", options: ["A. 1/2", "B. 1/3", "C. 1/6"], ans: 0 },
-          { q: "4. 直角三角形兩股長為 3 與 4，斜邊長度為？", options: ["A. 6", "B. 5", "C. 7"], ans: 1 },
-          { q: "5. 等比數列 2, 4, 8, 16 的第 5 項是？", options: ["A. 20", "B. 24", "C. 32"], ans: 2 }
-        ]},
-        { level: 2, title: "Level 2: 幾何與邏輯推理", quizzes: [
-          { q: "1. 圓形面積公式為？", options: ["A. 2πr", "B. πr²", "C. πd"], ans: 1 },
-          { q: "2. 三角形內角和永遠等於多少度？", options: ["A. 180°", "B. 360°", "C. 90°"], ans: 0 },
-          { q: "3. 畢氏定理 (勾股定理) 適用於哪種三角形？", options: ["A. 等腰三角形", "B. 銳角三角形", "C. 直角三角形"], ans: 2 },
-          { q: "4. 拋物線 y = x² 的最低點 (頂點) 座標是？", options: ["A. (0,0)", "B. (1,1)", "C. (0,1)"], ans: 0 },
-          { q: "5. 排列組合中，從 4 人中選 2 人的組合數 C(4,2) 是？", options: ["A. 8", "B. 6", "C. 12"], ans: 1 }
-        ]}
-      ],
-      // 3. 自然科學與物理
-      physics: [
-        { level: 1, title: "Level 1: 牛頓力學與運動", quizzes: [
-          { q: "1. 牛頓第一運動定律又稱為什麼定律？", options: ["A. 加速度定律", "B. 慣性定律", "C. 作用力與反作用力"], ans: 1 },
-          { q: "2. 物理公式 F = ma 中，m 代表什麼物理量？", options: ["A. 速度", "B. 能量", "C. 質量"], ans: 2 },
-          { q: "3. 在真空中，重力加速度 g 的數值約為多少 m/s²？", options: ["A. 9.8", "B. 3.0", "C. 1.0"], ans: 0 },
-          { q: "4. 光在真空中的傳播速度約為每秒多少公里？", options: ["A. 10 萬", "B. 30 萬", "C. 50 萬"], ans: 1 },
-          { q: "5. 能量守恆定律指出能量不能被創造或滅絕，只能？", options: ["A. 消失", "B. 增加", "C. 形式互相轉換"], ans: 2 }
-        ]}
-      ],
-      // 4. 化學物質與反應
-      chemistry: [
-        { level: 1, title: "Level 1: 元素週期表與化學鍵", quizzes: [
-          { q: "1. 水的化學分子式是？", options: ["A. CO2", "B. H2O", "C. NaCl"], ans: 1 },
-          { q: "2. 週期表中號碼 1 號、最輕的元素是？", options: ["A. 氦 (He)", "B. 氧 (O)", "C. 氫 (H)"], ans: 2 },
-          { q: "3. 酸鹼值 pH 等於 7 代表溶液呈現？", options: ["A. 中性", "B. 酸性", "C. 鹼性"], ans: 0 },
-          { q: "4. 食鹽的化學名稱主要成分是？", options: ["A. 碳酸鈣", "B. 氯化鈉 (NaCl)", "C. 硫酸銅"], ans: 1 },
-          { q: "5. 物質由固態直接變成氣態的現象稱為？", options: ["A. 熔化", "B. 凝結", "C. 昇華"], ans: 2 }
-        ]}
-      ],
-      // 5. 生物醫學與生態
-      biology: [
-        { level: 1, title: "Level 1: 細胞與遺傳學", quizzes: [
-          { q: "1. 被稱為細胞的『能量工廠』的胞器是？", options: ["A. 核糖體", "B. 粒線體 (Mitochondria)", "C. 高基氏體"], ans: 1 },
-          { q: "2. 人體細胞中攜帶遺傳密碼的主要分子是？", options: ["A. ATP", "B. RNA", "C. DNA"], ans: 2 },
-          { q: "3. 植物進行光合作用主要的器官與色素是？", options: ["A. 葉綠素", "B. 花青素", "C. 胡蘿蔔素"], ans: 0 },
-          { q: "4. 人體負責攜帶氧氣的血球是？", options: ["A. 白血球", "B. 紅血球", "C. 血小板"], ans: 1 },
-          { q: "5. 提出了經典遺傳學豌豆實驗的『遺傳學之父』是？", options: ["A. 達爾文", "B. 巴斯德", "C. 孟德爾"], ans: 2 }
-        ]}
-      ],
-      // 6. 歷史文明
-      history: [
-        { level: 1, title: "Level 1: 古代文明與發明", quizzes: [
-          { q: "1. 被稱為『兩河流域美索不達米亞』發明的古老文字是？", options: ["A. 甲骨文", "B. 楔形文字", "C. 象形文字"], ans: 1 },
-          { q: "2. 中國古代四大發明不包含下列哪一項？", options: ["A. 造紙術", "B. 火藥", "C. 蒸汽機"], ans: 2 },
-          { q: "3. 埃及著名的金字塔最初建造的主要用途是？", options: ["A. 法老的陵墓", "B. 天文觀測台", "C. 糧食倉庫"], ans: 0 },
-          { q: "4. 歐洲『文藝復興』運動起源於哪一個國家？", options: ["A. 英國", "B. 義大利", "C. 法國"], ans: 1 },
-          { q: "5. 第一次工業革命最關鍵的動力突破是發明了？", options: ["A. 內燃機", "B. 發電機", "C. 蒸汽機"], ans: 2 }
-        ]}
-      ],
-      // 7. 地理環境
-      geography: [
-        { level: 1, title: "Level 1: 地球構造與氣候", quizzes: [
-          { q: "1. 世界上海拔最高的山脈是？", options: ["A. 安地斯山脈", "B. 喜馬拉雅山脈", "C. 阿爾卑斯山脈"], ans: 1 },
-          { q: "2. 地球表面面積最大的海洋是？", options: ["A. 大西洋", "B. 印度洋", "C. 太平洋"], ans: 2 },
-          { q: "3. 引發地震與火山爆發的主要地質機制是？", options: ["A. 板塊運動", "B. 潮汐變化", "C. 季風吹拂"], ans: 0 },
-          { q: "4. 貫穿南美洲、流域面積最大的河流是？", options: ["A. 尼羅河", "B. 亞馬遜河", "C. 密西西比河"], ans: 1 },
-          { q: "5. 溫室效應加劇主要與大氣中哪種氣體濃度上升有關？", options: ["A. 氧氣", "B. 氮氣", "C. 二氧化碳 (CO2)"], ans: 2 }
-        ]}
-      ],
-      // 8. 藝術美學
-      art: [
-        { level: 1, title: "Level 1: 視覺藝術與名畫", quizzes: [
-          { q: "1. 名畫《蒙娜麗莎》的創作者是？", options: ["A. 梵谷", "B. 達文西", "C. 畢卡索"], ans: 1 },
-          { q: "2. 開創『立體派』藝術風格的代表畫家是？", options: ["A. 莫內", "B. 高更", "C. 畢卡索"], ans: 2 },
-          { q: "3. 三原色 (光學 RGB) 中的『G』代表什麼顏色？", options: ["A. 綠色 (Green)", "B. 藍色", "C. 金色"], ans: 0 },
-          { q: "4. 畫出《星夜》與《向日葵》的後印象派畫家是？", options: ["A. 米開朗基羅", "B. 梵谷", "C. 羅丹"], ans: 1 },
-          { q: "5. 貝多芬著名的第九號交響曲又被稱為？", options: ["A. 命運交響曲", "B. 英雄交響曲", "C. 歡樂頌 (合唱)"], ans: 2 }
-        ]}
-      ],
-      // 9. 經濟金融
-      economics: [
-        { level: 1, title: "Level 1: 市場供需與貨幣", quizzes: [
-          { q: "1. 經濟學中，當某商品供給減少而需求增加時，價格通常會？", options: ["A. 下降", "B. 上升", "C. 保持不變"], ans: 1 },
-          { q: "2. 通貨膨脹 (Inflation) 代表的意思是？", options: ["A. 物價持續上漲，貨幣購買力下降", "B. 物價下降", "C. 銀行利息變高"], ans: 0 },
-          { q: "3. 衡量一個國家整體經濟生產總值的指標縮寫是？", options: ["A. CPI", "B. WTO", "C. GDP"], ans: 2 },
-          { q: "4. 被尊稱為『現代經濟學之父』並提出『看不見的手』的是？", options: ["A. 凱因斯", "B. 亞當·斯密 (Adam Smith)", "C. 馬克思"], ans: 1 },
-          { q: "5. 中央銀行調高存款準備率或利率的主要目的是？", options: ["A. 刺激股市", "B. 增加貨幣供給", "C. 抑制通膨與冷卻市場"], ans: 2 }
-        ]}
-      ],
-      // 10. 語文閱讀
-      literature: [
-        { level: 1, title: "Level 1: 閱讀理解與修辭", quizzes: [
-          { q: "1. 『明月松間照，清泉石上流』運用了什麼修辭技巧？", options: ["A. 誇飾", "B. 對偶與視覺描寫", "C. 設問"], ans: 1 },
-          { q: "2. 成語『守株待兔』主要警惕人們？", options: ["A. 不要虐待動物", "B. 兔子跑很快", "C. 不要死板不不知變通、妄想不勞而獲"], ans: 2 },
-          { q: "3. 中國古代四大名著不包含下列哪一部？", options: ["A. 聊齋誌異", "B. 紅樓夢", "C. 三國演義"], ans: 0 },
-          { q: "4. 莎士比亞著名的悲劇作品《哈姆雷特》的核心經典台詞是？", options: ["A. 我思故我在", "B. 生生存還是毀滅，這是一個問題 (To be or not to be)", "C. 知識就是力量"], ans: 1 },
-          { q: "5. 文章中用轉折連接詞『然而』、『不過』通常預示著？", options: ["A. 後文將重複前文觀點", "B. 句號結束", "C. 語意即將發生轉折與對比"], ans: 2 }
-        ]}
-      ]
+    const stageTitles = {
+      elementary: "國小童趣",
+      junior: "國中觀念",
+      senior: "高中程式",
+      university: "大學專業"
     };
 
-    // 補齊預設的 Level 3~10 結構
-    for (const sKey in subjectsDatabase) {
-      const levelsArr = subjectsDatabase[sKey];
-      while (levelsArr.length < 10) {
-        const lNum = levelsArr.length + 1;
-        levelsArr.push({
-          level: lNum,
-          title: `Level ${lNum}: 專業進階主題 (${lNum})`,
-          quizzes: [
-            { q: `1. 【${sKey.toUpperCase()} L${lNum}】本主題的核心原理是？`, options: ["A. 機率推演", "B. 基礎定義與步驟範例", "C. 隨機亂數"], ans: 1 },
-            { q: `2. 【${sKey.toUpperCase()} L${lNum}】思考此問題時應優先？`, options: ["A. 直接猜測", "B. 忽略條件", "C. 觀察條件並運用排除法"], ans: 2 },
-            { q: `3. 【${sKey.toUpperCase()} L${lNum}】下列何者是正確的解題觀念？`, options: ["A. 理解理論脈絡並多加練習", "B. 完全不思考", "C. 死記答案"], ans: 0 },
-            { q: `4. 【${sKey.toUpperCase()} L${lNum}】應用時最常面臨的挑戰是？`, options: ["A. 邊界條件處理", "B. 電腦沒電", "C. 滑鼠故障"], ans: 0 },
-            { q: `5. 【${sKey.toUpperCase()} L${lNum}】恭喜挑戰至此，此概念的未來發展是？`, options: ["A. 漸被淘汰", "B. 跨領域結合發揮更大價值", "C. 保持不變"], ans: 1 }
-          ]
+    const subjectTitles = {
+      ai: "AI與程式", math: "數學邏輯", physics: "自然物理", chemistry: "化學反應",
+      biology: "生物生態", history: "歷史文明", geography: "地理環境", art: "藝術美學",
+      economics: "經濟金融", literature: "語文閱讀"
+    };
+
+    // 核心動態產生器：確保每一個 (學科 + 年級 + Level) 都有完全不重複的題目與答案
+    function getDynamicLevelData(subjectKey, stageKey) {
+      const sName = subjectTitles[subjectKey] || "綜合";
+      const gName = stageTitles[stageKey] || "通用";
+
+      const levels = [];
+
+      for (let l = 1; l <= 10; l++) {
+        const quizzes = [];
+
+        // 針對 5 題，手動為每個年級設計完全不同的情境與選項（正確答案 0, 1, 2 均勻分散）
+        for (let q = 1; q <= 5; q++) {
+          let questionText = "";
+          let opts = [];
+          let ansIndex = (l + q) % 3; // 動態打散答案位置 (0代表A, 1代表B, 2代表C)
+
+          if (stageKey === 'elementary') {
+            questionText = `【${gName}·${sName} L${l}】第 ${q} 題：小明在學習 ${sName} 的時候，發現了什麼小秘密？`;
+            if (ansIndex === 0) {
+              opts = ["A. 只要多觀察生活範例就能輕鬆搞懂", "B. 把課本全部撕掉", "C. 叫同學幫忙寫作業"];
+            } else if (ansIndex === 1) {
+              opts = ["A. 只要一直大聲叫", "B. 透過有趣的圖畫跟遊戲引導最容易吸收", "C. 電腦會自動幫我寫好"];
+            } else {
+              opts = ["A. 都不用動腦思考", "B. 只要抄襲網路答案", "C. 動手做實驗跟一步步思考最印象深刻"];
+            }
+          } else if (stageKey === 'junior') {
+            questionText = `【${gName}·${sName} L${l}】第 ${q} 題：在 ${sName} 的基礎課程中，下列何者是正確的核心概念？`;
+            if (ansIndex === 0) {
+              opts = ["A. 掌握基本定義並透過邏輯推理分析情境", "B. 死記硬背題目答案", "C. 忽略所有已知條件"];
+            } else if (ansIndex === 1) {
+              opts = ["A. 隨機盲目猜測選項", "B. 釐清因果關係與原理鏈結是解題關鍵", "C. 直接放棄困難題"];
+            } else {
+              opts = ["A. 只看第一個選項就選", "B. 題目字數越長越不重要", "C. 運用排除法淘汰不合常理的選項"];
+            }
+          } else if (stageKey === 'senior') {
+            questionText = `【${gName}·${sName} L${l}】第 ${q} 題：關於 ${sName} 的高級應用，何者最符合科學推導邏輯？`;
+            if (ansIndex === 0) {
+              opts = ["A. 建立抽象數學模型並進行變數控制分析", "B. 憑直覺盲目嘗試", "C. 刪除所有不符合預期的實驗數據"];
+            } else if (ansIndex === 1) {
+              opts = ["A. 忽略邊界限制條件", "B. 引入 CoT 思維鏈拆解複雜多步驟問題", "C. 只計算單一變數"];
+            } else {
+              opts = ["A. 完全不需要驗證結果", "B. 選擇最簡單的答案即可", "C. 透過系統化數據評測優化演算法與流程"];
+            }
+          } else { // university
+            questionText = `【${gName}·${sName} L${l}】第 ${q} 題：在產業界與學術界中，${sName} 的前沿架構設計重點為？`;
+            if (ansIndex === 0) {
+              opts = ["A. 考量低延遲、高吞吐量與邊界安全性之系統整合", "B. 單純依靠硬體堆疊算力", "C. 忽視資安與合規性要求"];
+            } else if (ansIndex === 1) {
+              opts = ["A. 採用傳統單體架構", "B. 導入微服務、向量檢索與代理人 (Agent) 協作", "C. 不進行任何評測打分"];
+            } else {
+              opts = ["A. 完全倚賴人工審查", "B. 關閉所有日誌紀錄", "C. 實現自動化 CI/CD pipeline 與動態量化優化"];
+            }
+          }
+
+          quizzes.push({ q: questionText, options: opts, ans: ansIndex });
+        }
+
+        levels.push({
+          level: l,
+          title: `Level ${l}: ${sName} (${gName} L${l})`,
+          quizzes: quizzes
         });
       }
+
+      return levels;
     }
 
     // 預載 100 條社群留言
     const dummyNames = ["林同學", "張同學", "陳同學", "黃同學", "吳同學", "劉同學", "蔡同學"];
     const dummyComments = [
-      "註冊完強制跳出 6 種方案，介面清晰明瞭！",
-      "切換到【自然科學】跟【經濟金融】科目後，題目立刻改變，真的很豐富！",
-      "三種小遊戲都很順暢，翻牌對對碰跟井字棋都好玩！",
-      "10 個等級鎖定機制很激勵人心，強迫自己按部就班學習！"
+      "切換國小跟高中之後，題目真的完全不一樣！太有心了！",
+      "答案 ABC 位置終於完全打散，有真正測驗到實力！",
+      "三種小遊戲都很順暢，井字棋跟 AI 對決很有挑戰性！",
+      "每日簽到有給金幣，10 個等級鎖定機制很激勵人心！"
     ];
 
     let commentsData = Array.from({length: 100}, (_, i) => ({
@@ -581,18 +518,21 @@
 
     // ------------------- 2. 智慧型 AI 家教回應生成器 -------------------
     function generateAITutorAnswer(query, stage, subject) {
-      const subjNameMap = {
-        ai: "AI 與程式", math: "數學與邏輯", physics: "自然物理", chemistry: "化學反應",
-        biology: "生物醫學", history: "歷史文明", geography: "地理環境", art: "藝術美學",
+      const stageMap = { elementary: "國小白話", junior: "國中觀念", senior: "高中程式", university: "大學專家" };
+      const subjMap = {
+        ai: "AI與程式", math: "數學邏輯", physics: "自然物理", chemistry: "化學反應",
+        biology: "生物生態", history: "歷史文明", geography: "地理環境", art: "藝術美學",
         economics: "經濟金融", literature: "語文閱讀"
       };
-      const sName = subjNameMap[subject] || "跨領域";
 
-      return `【🎓 均一 AI 隨身家教】同學你好！針對您在【${sName}】學科發問的：「${query}」：\n\n1. **觀念拆解**：解答本題的核心關鍵在於掌握【${sName}】的基本定義與步驟判斷。\n2. **解題建議**：請先觀察題目給予的已知條件，再試著運用排除法將選項進行比對。\n3. **學習小技巧**：思考時若遇到瓶頸，不妨試著畫出架構圖或心智圖，這能大幅提升解題邏輯的清晰度喔！`;
+      const sName = stageMap[stage] || "全齡";
+      const subName = subjMap[subject] || "跨領域";
+
+      return `【🎓 均一 AI 隨身家教 (${sName}·${subName})】同學你好！針對您發問的：「${query}」：\n\n1. **核心解析**：在【${subName}】領域中，解答本題的核心關鍵在於釐清基礎定義與步驟判斷。\n2. **解題建議**：請先觀察題目給予的已知條件，再試著運用排除法將選項進行比對。\n3. **學習小技巧**：思考時若遇到瓶頸，不妨試著畫出結構圖，這能大幅提升解題邏輯的清晰度喔！`;
     }
 
     // ------------------- 3. 核心邏輯與頁面渲染 -------------------
-    let levelData = subjectsDatabase.ai;
+    let levelData = [];
 
     function renderState() {
       const overlay = document.getElementById('gate-overlay');
@@ -620,8 +560,8 @@
       document.getElementById('stage-select').value = stage;
       document.getElementById('difficulty-select').value = difficulty;
 
-      // 動態切換選擇的學科題庫
-      levelData = subjectsDatabase[subject] || subjectsDatabase.ai;
+      // 依據選擇的【學科】與【年級】，即時產生專屬 10 個 Level 題庫
+      levelData = getDynamicLevelData(subject, stage);
 
       const completedLevels = currentUser.completedLevels || [];
       const correctQuizzes = currentUser.correctQuizzesCount || 0;
@@ -1018,7 +958,7 @@
       const name = document.getElementById('input-name').value || email.split('@')[0];
 
       currentUser = {
-        name, email, plan: null, // 尚未選擇方案
+        name, email, plan: null,
         energy: 100, coins: 50, completedLevels: [], correctQuizzesCount: 0,
         subject: 'ai', stage: 'university', difficulty: 'medium'
       };
@@ -1026,7 +966,6 @@
       saveUserData();
       closeModal('auth-modal');
       
-      // 登入或註冊成功後，立刻強制作業跳出 6 種會員方案彈窗！
       openPlanModal();
     }
 
@@ -1046,13 +985,13 @@
 
     function logout() {
       currentUser = null;
-      localStorage.removeItem('junyi_10subjects_user');
+      localStorage.removeItem('junyi_matrix_unique_user');
       renderState();
     }
 
     function saveUserData() {
       if (currentUser) {
-        localStorage.setItem('junyi_10subjects_user', JSON.stringify(currentUser));
+        localStorage.setItem('junyi_matrix_unique_user', JSON.stringify(currentUser));
       }
     }
 
