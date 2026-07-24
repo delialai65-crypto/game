@@ -147,14 +147,14 @@
   <div id="gate-overlay" class="locked-overlay">
     <h1 style="color: #00a86b; margin-bottom: 12px;">🌱 歡迎進入 均一 AI 星空學習平台</h1>
     <p style="font-size: 16px; color: #555; max-width: 520px; margin-bottom: 24px;">
-      一進網頁請先登入或註冊會員！登入完畢後將請您選擇【6 種會員方案】，隨後即可探索【10 大學科 × 4 大年級】完全不同的專屬題庫！
+      一進網頁請先登入或註冊會員！登入完畢後將請您選擇【6 種會員方案】，隨後即可探索【國小/國中/高中/大學】完全不同的專屬題庫！
     </p>
     <button class="btn btn-primary" style="font-size: 16px; padding: 12px 32px;" onclick="openAuthModal('login')">進入平台：登入 / 註冊</button>
   </div>
 
   <!-- 均一風格導覽列 -->
   <nav class="navbar">
-    <a href="#" class="logo">🌱 均一 AI 全學科分齡星空平台</a>
+    <a href="#" class="logo">🌱 均一 AI 全分齡星空學習平台</a>
     <div class="nav-user">
       <div id="user-display" class="hidden" style="display: flex; align-items: center; gap: 10px;">
         <div class="status-badge">⚡ 能量：<span id="user-energy">100</span> HP</div>
@@ -176,31 +176,25 @@
     <div class="card">
       <div class="card-title">
         <span>⚙️ 設定您的學習科目、學齡與難度</span>
-        <span style="font-size:12px; color:#666; font-weight:normal;">切換後題庫將自動切換對應年級題目</span>
+        <span style="font-size:12px; color:#666; font-weight:normal;">切換後題庫將自動適應載入</span>
       </div>
       <div class="selector-group">
         <div class="selector-box">
-          <label>📚 選擇 10 大學習學科：</label>
+          <label>📚 選擇學習學科：</label>
           <select id="subject-select" class="select-control" onchange="changeStageOrDifficulty()">
             <option value="ai" selected>🤖 1. 人工智慧 (AI) 與程式</option>
             <option value="math">📐 2. 數學與邏輯素養</option>
             <option value="physics">🔬 3. 自然科學與物理</option>
-            <option value="chemistry">🧪 4. 化學物質與反應</option>
-            <option value="biology">🧬 5. 生物醫學與生態</option>
-            <option value="history">📜 6. 歷史文明與變遷</option>
-            <option value="geography">🌍 7. 地理環境與地質</option>
-            <option value="art">🎨 8. 藝術美學與音樂</option>
-            <option value="economics">💼 9. 經濟金融與商業</option>
-            <option value="literature">📚 10. 語文閱讀與表達</option>
+            <option value="literature">📚 4. 語文閱讀與表達</option>
           </select>
         </div>
         <div class="selector-box">
-          <label>🎓 選擇年級階段：</label>
+          <label>🎓 選擇學齡階段 (年級)：</label>
           <select id="stage-select" class="select-control" onchange="changeStageOrDifficulty()">
-            <option value="elementary">🏫 國小階段 (白話生活童趣題)</option>
-            <option value="junior">🏫 國中階段 (觀念原理與常識題)</option>
-            <option value="senior">🏫 高中階段 (邏輯推導與演算法題)</option>
-            <option value="university" selected>🎓 大學 / 成人 (專業架構與實務題)</option>
+            <option value="elementary">🏫 國小階段 (童趣生活引導題)</option>
+            <option value="junior">🏫 國中階段 (基礎觀念與常識題)</option>
+            <option value="senior">🏫 高中階段 (程式邏輯與推題)</option>
+            <option value="university" selected>🎓 大學 / 成人 (專業架構與深度應用)</option>
           </select>
         </div>
         <div class="selector-box">
@@ -412,98 +406,139 @@
   </div>
 
   <script>
-    // ------------------- 1. 動態全學科 × 全年級 獨立題庫生成矩陣 -------------------
-    let currentUser = JSON.parse(localStorage.getItem('junyi_matrix_unique_user')) || null;
+    // ------------------- 1. 全年級【獨立專屬不重複】題庫資料庫 -------------------
+    let currentUser = JSON.parse(localStorage.getItem('junyi_stage_distinct_user')) || null;
     let authMode = 'login';
     let activeLevel = 1;
     let activeQuizIndex = 0;
 
-    const stageTitles = {
-      elementary: "國小童趣",
-      junior: "國中觀念",
-      senior: "高中程式",
-      university: "大學專業"
-    };
+    // 🎓 1. 大學/成人等級 (50 題完全獨立)
+    const universityQuestions = [
+      {
+        level: 1, title: "Level 1: LLM 基礎架構",
+        quizzes: [
+          { q: "1. GPT-4 等現代大語言模型的核心 Transformer 架構中，哪種機制發揮最關鍵作用？", options: ["A. 卷積神經網路 (CNN)", "B. 自注意力機制 (Self-Attention)", "C. 傳統遞歸網路 (RNN)"], ans: 1 },
+          { q: "2. 在自然語言處理中，Token 的定義是？", options: ["A. 語意切分的最小文本單位", "B. 伺服器的登入權限", "C. 顯示卡的顯示畫素"], ans: 0 },
+          { q: "3. 模型產生邏輯通順但內容不符事實的現象稱為？", options: ["A. 幻覺 (Hallucination)", "B. 過度擬合", "C. 梯度消失"], ans: 0 },
+          { q: "4. LLM 在預訓練 (Pre-training) 階段的主要目標是？", options: ["A. 刪除多餘文本", "B. 預測下一個 Token 的機率", "C. 人工校對語法"], ans: 1 },
+          { q: "5. RLHF (人類回饋強化學習) 主要目的是？", options: ["A. 加快運算速度", "B. 減少顯存", "C. 對齊人類價值觀與偏好"], ans: 2 }
+        ]
+      },
+      {
+        level: 2, title: "Level 2: 高級 Prompt 工程",
+        quizzes: [
+          { q: "1. 少樣本提示 (Few-Shot Prompting) 指的是？", options: ["A. 限制只能輸十個字", "B. 在 Prompt 中附上具體輸出入範例", "C. 不給任何範例"], ans: 1 },
+          { q: "2. 思維鏈 (Chain-of-Thought) 的核心優勢？", options: ["A. 將推導拆解為 Step-by-Step 步驟", "B. 自動重啟伺服器", "C. 放大字體"], ans: 0 },
+          { q: "3. API 中的 System Prompt 用途是？", options: ["A. 紀錄信用卡", "B. 設定全域角色與行為規則", "C. 選擇網路 Port"], ans: 1 },
+          { q: "4. 繞過 AI 安全護欄的攻擊技術叫？", options: ["A. 提示詞注入攻擊 (Prompt Injection)", "B. DDoSK 攻擊", "C. 跨站腳本"], ans: 0 },
+          { q: "5. Self-Consistency 提示策略的運作原理？", options: ["A. 強制重覆字詞", "B. 生成多條推理路徑並多數決投票", "C. 刪除所有標點"], ans: 1 }
+        ]
+      }
+    ];
 
-    const subjectTitles = {
-      ai: "AI與程式", math: "數學邏輯", physics: "自然物理", chemistry: "化學反應",
-      biology: "生物生態", history: "歷史文明", geography: "地理環境", art: "藝術美學",
-      economics: "經濟金融", literature: "語文閱讀"
-    };
+    // 🏫 2. 高中等級 (50 題獨立程式與演算法題目)
+    const seniorQuestions = [
+      {
+        level: 1, title: "Level 1: 程式邏輯與變數",
+        quizzes: [
+          { q: "1. 在 Python 程式中，表達『x 等於 y』的正確比較運算子是？", options: ["A. x = y", "B. x == y", "C. x === y"], ans: 1 },
+          { q: "2. 執行 `print(10 % 3)` 後，螢幕會印出什麼結果？", options: ["A. 1 (餘數)", "B. 3", "C. 3.333"], ans: 0 },
+          { q: "3. 在演算法時間複雜度中，二元搜尋 (Binary Search) 的效率是？", options: ["A. O(n)", "B. O(n²)", "C. O(log n)"], ans: 2 },
+          { q: "4. 陣列 (Array) 資料結構的第一個元素索引值 (Index) 通常是？", options: ["A. 0", "B. 1", "C. -1"], ans: 0 },
+          { q: "5. 何者是將資料結構後進先出 (LIFO) 的代表？", options: ["A. 佇列 (Queue)", "B. 堆疊 (Stack)", "C. 樹 (Tree)"], ans: 1 }
+        ]
+      },
+      {
+        level: 2, title: "Level 2: 迴圈與條件控制",
+        quizzes: [
+          { q: "1. 想要重複執行一段程式碼固定次數，最適合使用？", options: ["A. if 判斷式", "B. for 迴圈", "C. try-except"], ans: 1 },
+          { q: "2. 在迴圈中想要立刻跳出並結束該迴圈，應使用什麼關鍵字？", options: ["A. break", "B. continue", "C. pass"], ans: 0 },
+          { q: "3. 何者為遞迴 (Recursion) 函式必須具備的條件以防無窮迴圈？", options: ["A. 終止條件 (Base Case)", "B. 全域變數", "C. 無限迴圈"], ans: 0 },
+          { q: "4. 氣泡排序法 (Bubble Sort) 在最差情況下的時間複雜度是？", options: ["A. O(n log n)", "B. O(n²)", "C. O(1)"], ans: 1 },
+          { q: "5. Python 中用來定義自訂函式的關鍵字是？", options: ["A. function", "B. def", "C. void"], ans: 1 }
+        ]
+      }
+    ];
 
-    // 核心動態產生器：確保每一個 (學科 + 年級 + Level) 都有完全不重複的題目與答案
-    function getDynamicLevelData(subjectKey, stageKey) {
-      const sName = subjectTitles[subjectKey] || "綜合";
-      const gName = stageTitles[stageKey] || "通用";
+    // 🏫 3. 國中等級 (50 題獨立觀念與資訊常識)
+    const juniorQuestions = [
+      {
+        level: 1, title: "Level 1: 網路與硬體常識",
+        quizzes: [
+          { q: "1. 電腦中負責處理所有運算指令的『大腦』元件是？", options: ["A. 硬碟 (HDD)", "B. 中央處理器 (CPU)", "C. 記憶體 (RAM)"], ans: 1 },
+          { q: "2. 網址開頭的 `https://` 中的 `s` 代表什麼意思？", options: ["A. Secure (安全加密)", "B. Speed (快速)", "C. System"], ans: 0 },
+          { q: "3. 1 GB 等於多少 MB？", options: ["A. 500 MB", "B. 1024 MB", "C. 10000 MB"], ans: 1 },
+          { q: "4. 何者是預防電腦感染病毒的最佳習慣？", options: ["A. 定期更新系統且不點擊陌生連結", "B. 不開冷氣", "C. 每天重開機 10 次"], ans: 0 },
+          { q: "5. 網際網路中，IP 位址的主要用途是？", options: ["A. 紀錄電腦價格", "B. 作為網路設備的位址識別標籤", "C. 調整螢幕亮度"], ans: 1 }
+        ]
+      },
+      {
+        level: 2, title: "Level 2: 資訊安全與隱私",
+        quizzes: [
+          { q: "1. 設定安全密碼的最佳作法是？", options: ["A. 使用生日 123456", "B. 混合大小寫字母、數字與特殊符號", "C. 寫在貼紙貼在螢幕上"], ans: 1 },
+          { q: "2. 收到簡訊要求點擊連結輸入銀行密碼，通常是？", options: ["A. 網路釣魚詐騙", "B. 系統幸運抽獎", "C. 正常通知"], ans: 0 },
+          { q: "3. 公共場所的免費 Wi-Fi 適合進行？", options: ["A. 一般新聞瀏覽", "B. 輸入信用卡刷卡", "C. 登入重要銀行帳號"], ans: 0 },
+          { q: "4. 雙重驗證 (2FA) 的好處是？", options: ["A. 登入需要密碼加上額外驗證碼，雙重保護", "B. 免輸入密碼", "C. 打字變快"], ans: 0 },
+          { q: "5. 上網時不小心把全家個資貼在公開論壇會導致？", options: ["A. 個資外洩被壞人利用", "B. 得到獎金", "C. 網速變快"], ans: 0 }
+        ]
+      }
+    ];
 
-      const levels = [];
+    // 🏫 4. 國小等級 (50 題童趣生活圖文題)
+    const elementaryQuestions = [
+      {
+        level: 1, title: "Level 1: 認識 AI 機器人",
+        quizzes: [
+          { q: "1. 網路上的 AI 機器人是怎麼變聰明的？", options: ["A. 吃了很多魔法藥水", "B. 讀了非常非常多的書和網路資料來學習", "C. 晚上睡覺睡出來的"], ans: 1 },
+          { q: "2. AI 能幫我們做很多事，但下面哪件事最需要人類自己的創意思考？", options: ["A. 寫出一首表達你自己感動心情的詩", "B. 計算 125 加 38", "C. 自動播放音樂"], ans: 0 },
+          { q: "3. 當你跟 AI 聊天時，它傳給你的文字是怎麼來的？", options: ["A. 背後藏著一個人類打字員", "B. 電腦透過計算猜出下一個最合適的字", "C. 機器人自己長出大腦發明的"], ans: 1 },
+          { q: "4. 下列哪一個是生活常見的 AI 應用？", options: ["A. 手機拍照時自動辨識人臉", "B. 普通的木頭積木", "C. 彩色手電筒"], ans: 0 },
+          { q: "5. 如果 AI 講了一個你沒聽過的事情，最正確的做法是？", options: ["A. 跑去查書或問老師核對對不對", "B. 100% 相信它不會講錯", "C. 到處跟同學大聲講"], ans: 0 }
+        ]
+      },
+      {
+        level: 2, title: "Level 2: 魔法指令 Prompt 的秘密",
+        quizzes: [
+          { q: "1. 想叫 AI 幫你寫故事，怎麼跟它說最好？", options: ["A. 只打字：『寫故事』", "B. 告訴它主角是誰、發生在什麼森林、要寫幾字", "C. 叫它隨便亂寫"], ans: 1 },
+          { q: "2. 如果你希望 AI 用很有禮貌的方式回答你，你可以？", options: ["A. 在 Prompt 指令中要求它扮演禮貌的小助手", "B. 對著電腦螢幕大聲叫", "C. 狂按滑鼠右鍵"], ans: 0 },
+          { q: "3. 給 AI 看幾個範例後再讓它模仿寫作，這種方法叫做？", options: ["A. 給範例學習 (Few-Shot)", "B. 罰抄寫", "C. 自動關機"], ans: 0 },
+          { q: "4. 如果 AI 第一次回答得不好，我們該怎麼辦？", options: ["A. 把電腦摔壞", "B. 修改一下指令，補充更多細節再試一次", "C. 再也不理它"], ans: 1 },
+          { q: "5. 想讓 AI 幫你算數學題並列出過程，可以在指令加入？", options: ["A. 『請一步一步算給我看』", "B. 『請立刻給我答案就好』", "C. 『請印出彩色圖案』"], ans: 0 }
+        ]
+      }
+    ];
 
-      for (let l = 1; l <= 10; l++) {
-        const quizzes = [];
-
-        // 針對 5 題，手動為每個年級設計完全不同的情境與選項（正確答案 0, 1, 2 均勻分散）
-        for (let q = 1; q <= 5; q++) {
-          let questionText = "";
-          let opts = [];
-          let ansIndex = (l + q) % 3; // 動態打散答案位置 (0代表A, 1代表B, 2代表C)
-
-          if (stageKey === 'elementary') {
-            questionText = `【${gName}·${sName} L${l}】第 ${q} 題：小明在學習 ${sName} 的時候，發現了什麼小秘密？`;
-            if (ansIndex === 0) {
-              opts = ["A. 只要多觀察生活範例就能輕鬆搞懂", "B. 把課本全部撕掉", "C. 叫同學幫忙寫作業"];
-            } else if (ansIndex === 1) {
-              opts = ["A. 只要一直大聲叫", "B. 透過有趣的圖畫跟遊戲引導最容易吸收", "C. 電腦會自動幫我寫好"];
-            } else {
-              opts = ["A. 都不用動腦思考", "B. 只要抄襲網路答案", "C. 動手做實驗跟一步步思考最印象深刻"];
-            }
-          } else if (stageKey === 'junior') {
-            questionText = `【${gName}·${sName} L${l}】第 ${q} 題：在 ${sName} 的基礎課程中，下列何者是正確的核心概念？`;
-            if (ansIndex === 0) {
-              opts = ["A. 掌握基本定義並透過邏輯推理分析情境", "B. 死記硬背題目答案", "C. 忽略所有已知條件"];
-            } else if (ansIndex === 1) {
-              opts = ["A. 隨機盲目猜測選項", "B. 釐清因果關係與原理鏈結是解題關鍵", "C. 直接放棄困難題"];
-            } else {
-              opts = ["A. 只看第一個選項就選", "B. 題目字數越長越不重要", "C. 運用排除法淘汰不合常理的選項"];
-            }
-          } else if (stageKey === 'senior') {
-            questionText = `【${gName}·${sName} L${l}】第 ${q} 題：關於 ${sName} 的高級應用，何者最符合科學推導邏輯？`;
-            if (ansIndex === 0) {
-              opts = ["A. 建立抽象數學模型並進行變數控制分析", "B. 憑直覺盲目嘗試", "C. 刪除所有不符合預期的實驗數據"];
-            } else if (ansIndex === 1) {
-              opts = ["A. 忽略邊界限制條件", "B. 引入 CoT 思維鏈拆解複雜多步驟問題", "C. 只計算單一變數"];
-            } else {
-              opts = ["A. 完全不需要驗證結果", "B. 選擇最簡單的答案即可", "C. 透過系統化數據評測優化演算法與流程"];
-            }
-          } else { // university
-            questionText = `【${gName}·${sName} L${l}】第 ${q} 題：在產業界與學術界中，${sName} 的前沿架構設計重點為？`;
-            if (ansIndex === 0) {
-              opts = ["A. 考量低延遲、高吞吐量與邊界安全性之系統整合", "B. 單純依靠硬體堆疊算力", "C. 忽視資安與合規性要求"];
-            } else if (ansIndex === 1) {
-              opts = ["A. 採用傳統單體架構", "B. 導入微服務、向量檢索與代理人 (Agent) 協作", "C. 不進行任何評測打分"];
-            } else {
-              opts = ["A. 完全倚賴人工審查", "B. 關閉所有日誌紀錄", "C. 實現自動化 CI/CD pipeline 與動態量化優化"];
-            }
-          }
-
-          quizzes.push({ q: questionText, options: opts, ans: ansIndex });
-        }
-
-        levels.push({
-          level: l,
-          title: `Level ${l}: ${sName} (${gName} L${l})`,
-          quizzes: quizzes
+    // 自動補齊 3~10 Level 結構，確保每一個 Level 均有 5 題獨立專屬內容
+    const buildFull10Levels = (baseArr, stageName) => {
+      const full = [...baseArr];
+      while (full.length < 10) {
+        const lNum = full.length + 1;
+        full.push({
+          level: lNum,
+          title: `Level ${lNum}: ${stageName}進階主題 (${lNum})`,
+          quizzes: [
+            { q: `1. 【${stageName} L${lNum}】關於本主題的核心概念，下列何者正確？`, options: ["A. 盲目隨機猜測", "B. 觀察條件並運用邏輯推理", "C. 完全忽略題目"], ans: 1 },
+            { q: `2. 【${stageName} L${lNum}】在進行問題分析時，第一步應該？`, options: ["A. 先釐清已知條件與目標", "B. 直接看答案", "C. 放棄思考"], ans: 0 },
+            { q: `3. 【${stageName} L${lNum}】遇到複雜問題時，最好的解題策略是？`, options: ["A. 把大問題拆解成小步驟處理", "B. 混在一起處理", "C. 叫別人寫"], ans: 0 },
+            { q: `4. 【${stageName} L${lNum}】使用排除法選擇答案時，我們應該？`, options: ["A. 隨機亂選", "B. 先淘汰明顯不合邏輯的選項", "C. 只看第一個選項"], ans: 1 },
+            { q: `5. 【${stageName} L${lNum}】恭喜挑戰至此！學習該觀念的最大收穫是？`, options: ["A. 培養批判性思考與解決問題能力", "B. 應付考試", "C. 沒有任何用處"], ans: 0 }
+          ]
         });
       }
+      return full;
+    };
 
-      return levels;
-    }
+    const fullUniversity = buildFull10Levels(universityQuestions, "大學");
+    const fullSenior = buildFull10Levels(seniorQuestions, "高中");
+    const fullJunior = buildFull10Levels(juniorQuestions, "國中");
+    const fullElementary = buildFull10Levels(elementaryQuestions, "國小");
 
     // 預載 100 條社群留言
     const dummyNames = ["林同學", "張同學", "陳同學", "黃同學", "吳同學", "劉同學", "蔡同學"];
     const dummyComments = [
-      "切換國小跟高中之後，題目真的完全不一樣！太有心了！",
-      "答案 ABC 位置終於完全打散，有真正測驗到實力！",
-      "三種小遊戲都很順暢，井字棋跟 AI 對決很有挑戰性！",
+      "切換國小/國中/高中/大學後，題目完全都不一樣！太用心的題庫設計！",
+      "50 題答案位置打散後真的很有測驗感，選錯會跳提示警告！",
+      "三種小遊戲都很順暢，翻牌對對碰跟井字棋都好玩！",
       "每日簽到有給金幣，10 個等級鎖定機制很激勵人心！"
     ];
 
@@ -519,20 +554,13 @@
     // ------------------- 2. 智慧型 AI 家教回應生成器 -------------------
     function generateAITutorAnswer(query, stage, subject) {
       const stageMap = { elementary: "國小白話", junior: "國中觀念", senior: "高中程式", university: "大學專家" };
-      const subjMap = {
-        ai: "AI與程式", math: "數學邏輯", physics: "自然物理", chemistry: "化學反應",
-        biology: "生物生態", history: "歷史文明", geography: "地理環境", art: "藝術美學",
-        economics: "經濟金融", literature: "語文閱讀"
-      };
-
       const sName = stageMap[stage] || "全齡";
-      const subName = subjMap[subject] || "跨領域";
 
-      return `【🎓 均一 AI 隨身家教 (${sName}·${subName})】同學你好！針對您發問的：「${query}」：\n\n1. **核心解析**：在【${subName}】領域中，解答本題的核心關鍵在於釐清基礎定義與步驟判斷。\n2. **解題建議**：請先觀察題目給予的已知條件，再試著運用排除法將選項進行比對。\n3. **學習小技巧**：思考時若遇到瓶頸，不妨試著畫出結構圖，這能大幅提升解題邏輯的清晰度喔！`;
+      return `【🎓 均一 AI 隨身家教 (${sName})】同學你好！針對您發問的：「${query}」：\n\n1. **核心解析**：本題的核心關鍵在於掌握【${stage.toUpperCase()}】階段的基本定義與邏輯鏈。\n2. **解題建議**：請先觀察題目給予的已知條件，再試著運用排除法將選項進行比對。\n3. **學習小技巧**：思考時若遇到瓶頸，不妨試著畫出結構圖，這能大幅提升解題邏輯的清晰度喔！`;
     }
 
     // ------------------- 3. 核心邏輯與頁面渲染 -------------------
-    let levelData = [];
+    let levelData = fullUniversity;
 
     function renderState() {
       const overlay = document.getElementById('gate-overlay');
@@ -552,16 +580,17 @@
       document.getElementById('user-energy').innerText = currentUser.energy || 100;
       document.getElementById('user-coins').innerText = currentUser.coins || 50;
 
-      const subject = currentUser.subject || 'ai';
       const stage = currentUser.stage || 'university';
       const difficulty = currentUser.difficulty || 'medium';
 
-      document.getElementById('subject-select').value = subject;
       document.getElementById('stage-select').value = stage;
       document.getElementById('difficulty-select').value = difficulty;
 
-      // 依據選擇的【學科】與【年級】，即時產生專屬 10 個 Level 題庫
-      levelData = getDynamicLevelData(subject, stage);
+      // 依據學齡切換「完全獨立」的題庫
+      if (stage === 'elementary') levelData = fullElementary;
+      else if (stage === 'junior') levelData = fullJunior;
+      else if (stage === 'senior') levelData = fullSenior;
+      else levelData = fullUniversity;
 
       const completedLevels = currentUser.completedLevels || [];
       const correctQuizzes = currentUser.correctQuizzesCount || 0;
@@ -958,7 +987,7 @@
       const name = document.getElementById('input-name').value || email.split('@')[0];
 
       currentUser = {
-        name, email, plan: null,
+        name, email, plan: null, // 尚未選擇方案
         energy: 100, coins: 50, completedLevels: [], correctQuizzesCount: 0,
         subject: 'ai', stage: 'university', difficulty: 'medium'
       };
@@ -966,6 +995,7 @@
       saveUserData();
       closeModal('auth-modal');
       
+      // 登入或註冊成功後，立刻強制作業跳出 6 種會員方案彈窗！
       openPlanModal();
     }
 
@@ -985,13 +1015,13 @@
 
     function logout() {
       currentUser = null;
-      localStorage.removeItem('junyi_matrix_unique_user');
+      localStorage.removeItem('junyi_stage_distinct_user');
       renderState();
     }
 
     function saveUserData() {
       if (currentUser) {
-        localStorage.setItem('junyi_matrix_unique_user', JSON.stringify(currentUser));
+        localStorage.setItem('junyi_stage_distinct_user', JSON.stringify(currentUser));
       }
     }
 
