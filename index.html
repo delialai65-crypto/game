@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wembow jst 文寶線上教育平台 </title>
+  <title>Wembow線上教育平台 - 完全獨立講義、年齡難度、階段解鎖與社群邀請修復版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -53,6 +53,8 @@
     .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(16,185,129,0.6); }
     .btn-warning { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; box-shadow: 0 4px 15px rgba(245,158,11,0.4); }
     .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; box-shadow: 0 4px 15px rgba(239,68,68,0.4); }
+    .btn-fb { background: #1877f2; color: white; box-shadow: 0 4px 15px rgba(24,119,242,0.4); }
+    .btn-messenger { background: #0084ff; color: white; box-shadow: 0 4px 15px rgba(0,132,255,0.4); }
 
     /* 登入首頁 (Gate Overlay) */
     .locked-overlay {
@@ -72,7 +74,7 @@
     .info-section { background: rgba(9, 13, 22, 0.9); border: 1px solid rgba(251,191,36,0.3); padding: 24px; border-radius: 18px; margin-bottom: 22px; text-align: left; font-size: 13px; line-height: 1.9; color: #cbd5e1; }
     .info-section h3 { color: #fbbf24; margin-bottom: 10px; font-size: 16px; font-weight: 800; border-bottom: 1px solid rgba(251,191,36,0.2); padding-bottom: 6px; }
     .name-badge-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
-    .name-tag { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.35); padding: 4px 10px; border-radius: 12px; font-size: 11px; font-family: monospace; }
+    .name-tag { background: rgba(251,191,36,0.12); color: #fbbf24; border: 1px solid rgba(251,191,36,0.35); padding: 4px 10px; border-radius: 12px; font-size: 11px; }
 
     /* Layout 容器 */
     .container { max-width: 1100px; margin: 32px auto; padding: 0 16px; display: flex; flex-direction: column; gap: 30px; }
@@ -109,6 +111,16 @@
     }
     .quiz-option:hover { background: rgba(16,185,129,0.25); border-color: #34d399; }
 
+    /* 社群與新聞系統樣式 */
+    .community-tabs { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+    .community-tab-btn { padding: 8px 16px; border-radius: 16px; border: 1px solid rgba(251,191,36,0.3); background: rgba(9,13,22,0.8); color: #fbbf24; cursor: pointer; font-weight: bold; font-size: 12px; }
+    .community-tab-btn.active { background: #fbbf24; color: #090d16; }
+    
+    .community-post-box { background: rgba(9, 13, 22, 0.85); border: 1px solid rgba(255,255,255,0.1); padding: 18px; border-radius: 14px; margin-bottom: 12px; }
+    .community-post-header { display: flex; justify-content: space-between; font-size: 12px; color: #94a3b8; margin-bottom: 8px; }
+    
+    .news-item-box { background: rgba(9, 13, 22, 0.85); border: 1px solid rgba(59,130,246,0.3); padding: 18px; border-radius: 14px; margin-bottom: 12px; }
+
     /* 10 種會員方案卡片 Grid */
     .plan-grid-10 { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-top: 18px; }
     .plan-card-item {
@@ -143,15 +155,6 @@
     .memory-card { height: 65px; background: #059669; color: white; font-size: 22px; border-radius: 8px; display: flex; justify-content: center; align-items: center; cursor: pointer; user-select: none; }
     .memory-card.flipped { background: #111827; color: #f8fafc; border: 2px solid #fbbf24; }
 
-    /* 學員討論區 */
-    .comment-list { display: flex; flex-direction: column; gap: 10px; max-height: 400px; overflow-y: auto; padding-right: 8px; border: 1px solid rgba(255,255,255,0.08); padding: 16px; border-radius: 12px; background: rgba(9, 13, 22, 0.6); }
-    .comment-item { background: rgba(17, 24, 39, 0.9); padding: 14px 18px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); font-size: 13px; color: #cbd5e1; }
-
-    /* 15項個人資料 Grid */
-    .profile-grid-15 { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; text-align: left; font-size: 13px; background: rgba(9, 13, 22, 0.7); padding: 20px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); margin-bottom: 18px; }
-    .profile-item-box { background: rgba(17, 24, 39, 0.95); padding: 12px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); color: #e2e8f0; }
-    .profile-item-box span { color: #fbbf24; font-weight: bold; font-family: monospace; }
-
     /* Modal */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: flex; justify-content: center; align-items: center; z-index: 100000; }
     .modal { background: #111827; color: #f8fafc; padding: 32px; border-radius: 20px; width: 95%; max-width: 680px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); text-align: center; max-height: 90vh; overflow-y: auto; border: 1px solid rgba(251,191,36,0.3); }
@@ -177,49 +180,49 @@
         <!-- 開發公司與開發原因 -->
         <div class="info-section">
           <h3>🏢 開發公司與創立初心（開發原因）</h3>
-          <p><strong>開發公司：</strong> ApexNova Global EdTech Solutions Ltd. (Wembow Core Research Division)</p>
+          <p><strong>開發公司：</strong> 華瀚國際教育科技股份有限公司 (Wembow Core Research Division)</p>
           <p style="margin-top: 8px;"><strong>💡 開發原因與願景：</strong><br>
-          在當今資訊爆炸的時代，優質的教育資源往往受到地域與經濟條件的嚴格限制。Wembow 團隊的創辦人們深感「知識平權」的重要性，因此集結了來自全球的頂尖學者與工程師，耗時數年打造了這座能夠因材施教、結合嚴密資安防護與遊戲化獎勵機制的次世代教育平台。我們的目標是讓每一位渴望知識的學員，都能夠以最有效率且具樂趣的方式，掌握跨領域的頂尖學術素養。</p>
+          在當今資訊爆炸的時代，優質的教育資源往往受到地域與經濟條件的嚴格限制。Wembow 團隊的創辦人們深感「知識平權」的重要性，因此集結了來自國內外的頂尖學者與工程師，耗時數年打造了這座能夠因材施教、結合嚴密資安防護與遊戲化獎勵機制的次世代教育平台。我們的目標是讓每一位渴望知識的學員，都能夠以最有效率且具樂趣的方式，掌握跨領域的頂尖學術素養。</p>
         </div>
 
         <!-- 網頁的福利與好處 -->
         <div class="info-section">
           <h3>🌟 Wembow 線上教育平台的 10 大核心福利與好處</h3>
           <ul style="padding-left: 20px;">
-            <li><strong>1. 10 大學科 1000 字深度講義暢讀</strong>：涵蓋 AI 程式、數學邏輯、自然物理、經濟金融等全方位學術領域，每篇講義字數超過 1000 字，且每個科目、每個年齡階段與難度皆完全不同。</li>
+            <li><strong>1. 10 大學科 1000 字深度講義暢讀</strong>：涵蓋 AI 程式, 數學邏輯, 自然物理等全方位學術領域，每篇講義字數超過 1000 字。</li>
             <li><strong>2. 多維度學齡與難度適應</strong>：從國小白話啟蒙到研究所前沿研究，全面量身打造。</li>
-            <li><strong>3. 10 階段闖關與權限控制</strong>：每個學科含 10 個闖關階段。免費版僅能體驗第 1、2 階段，點擊第 3~10 階段系統會自動詢問您是否要購買付費方案。</li>
-            <li><strong>4. 答錯重答機制</strong>：答錯時不會跳過，必須重新思考並答對當前題目才能進入下一階段。</li>
+            <li><strong>3. 10 階段闖關與付費解鎖</strong>：每個學科含 10 個闖關階段。免費版僅能體驗第 1、2 階段（第 3~10 階段需解鎖）。</li>
+            <li><strong>4. 付費專屬功能（社群與新聞系統）</strong>：免費版僅能使用 2 個預設免費社群且只能閱讀 5 則新聞。升級付費方案後即可**自行創建社群**（支援真正的 Facebook 與 Messenger 分享邀請機制，支援百人熱烈回應）並解鎖**無限制新聞系統與發布權限**！</li>
             <li><strong>5. 獨家防盜用 4 位數驗證信箱</strong>：每次登入皆享有由 1 到 10 隨機組成的安全代碼防護，保障個人資產。</li>
-            <li><strong>6. 彈性靈活的 5 種級距商店</strong>：50、100、150、500、1000 級距隨心選購，學習資源不間斷。</li>
+            <li><strong>6. 彈性靈活的 5 種級距商店</strong>：50, 100, 150, 500, 1000 級距隨心選購，學習資源不間斷。</li>
             <li><strong>7. 5 種超值特惠套餐福利</strong>：內含雙倍經驗值、防洗分護盾、VIP 閃亮頭銜與利息回饋等專屬好康。</li>
             <li><strong>8. 15 種安全流暢的付款管道</strong>：支援信用卡、LINE Pay、Apple Pay、加密貨幣等多元支付。</li>
-            <li><strong>9. 活躍的 100 人學員社群討論區</strong>：與全球優秀同儕即時交流心得、互相啟發切磋。</li>
+            <li><strong>9. 答錯重答機制</strong>：答錯時不會跳過，必須重新思考並答對當前題目才能進入下一階段。</li>
             <li><strong>10. 15 項個人會員資歷檔案</strong>：完整追蹤您的學習成長曲線與通關成就。</li>
           </ul>
         </div>
 
-        <!-- 25個開發人員 (英文名字) -->
+        <!-- 25個開發人員 (中文名字) -->
         <div class="info-section">
           <h3>👨‍💻 25 位核心開發人員 (Core Developers)</h3>
           <div class="name-badge-list">
-            <span class="name-tag">Alexander Wright</span><span class="name-tag">Benjamin Hayes</span><span class="name-tag">Christopher Vance</span><span class="name-tag">Dominic Sterling</span><span class="name-tag">Ethan Cole</span><span class="name-tag">Felix Brooks</span><span class="name-tag">Gabriel Thorne</span><span class="name-tag">Harrison Reed</span><span class="name-tag">Ian Montgomery</span><span class="name-tag">Julian Frost</span><span class="name-tag">Kian Sinclair</span><span class="name-tag">Liam Gallagher</span><span class="name-tag">Nathaniel Cross</span><span class="name-tag">Oliver Knight</span><span class="name-tag">Patrick O'Connor</span><span class="name-tag">Quentin Mercer</span><span class="name-tag">Richard Sterling</span><span class="name-tag">Samuel Whitaker</span><span class="name-tag">Tristan Drake</span><span class="name-tag">Victor Harrington</span><span class="name-tag">Wesley Bennett</span><span class="name-tag">Xavier Brooks</span><span class="name-tag">Zachary Taylor</span><span class="name-tag">Brandon Miller</span><span class="name-tag">Jonathan Davis</span>
+            <span class="name-tag">王建宏</span><span class="name-tag">李志豪</span><span class="name-tag">張雅婷</span><span class="name-tag">陳冠宇</span><span class="name-tag">林怡君</span><span class="name-tag">黃柏翰</span><span class="name-tag">劉淑芬</span><span class="name-tag">蔡家偉</span><span class="name-tag">楊靜宜</span><span class="name-tag">吳宗憲</span><span class="name-tag">許雅雯</span><span class="name-tag">鄭宇翔</span><span class="name-tag">謝宜霖</span><span class="name-tag">郭冠廷</span><span class="name-tag">洪佩珊</span><span class="name-tag">曾偉倫</span><span class="name-tag">廖婉婷</span><span class="name-tag">賴柏儒</span><span class="name-tag">周佳穎</span><span class="name-tag">徐志偉</span><span class="name-tag">羅淑君</span><span class="name-tag">高偉翔</span><span class="name-tag">彭郁婷</span><span class="name-tag">江家豪</span><span class="name-tag">方詩婷</span>
           </div>
         </div>
 
-        <!-- 15個技術人員 (英文名字) -->
+        <!-- 15個技術人員 (中文名字) -->
         <div class="info-section">
           <h3>⚙️ 15 位頂尖技術人員 (Technical Engineers)</h3>
           <div class="name-badge-list">
-            <span class="name-tag">Lucas Vance</span><span class="name-tag">Mason Rourke</span><span class="name-tag">Nolan Pierce</span><span class="name-tag">Owen Bradley</span><span class="name-tag">Parker Shaw</span><span class="name-tag">Ryan Keller</span><span class="name-tag">Spencer Reid</span><span class="name-tag">Tyler Morgan</span><span class="name-tag">Vincent Chase</span><span class="name-tag">Wyatt Jenkins</span><span class="name-tag">Adrian Fletcher</span><span class="name-tag">Caleb Sinclair</span><span class="name-tag">Damian Wright</span><span class="name-tag">Elijah Cooper</span><span class="name-tag">Gideon Reed</span>
+            <span class="name-tag">陳彥廷</span><span class="name-tag">林佳蓉</span><span class="name-tag">張凱翔</span><span class="name-tag">王郁涵</span><span class="name-tag">李宗翰</span><span class="name-tag">黃詩涵</span><span class="name-tag">吳致遠</span><span class="name-tag">蔡欣妤</span><span class="name-tag">劉冠廷</span><span class="name-tag">楊雅琪</span><span class="name-tag">許哲維</span><span class="name-tag">鄭美玲</span><span class="name-tag">謝家豪</span><span class="name-tag">郭靜如</span><span class="name-tag">洪偉翔</span>
           </div>
         </div>
 
-        <!-- 25個贊助商 (英文名字) -->
+        <!-- 25個贊助商 (中文名字) -->
         <div class="info-section">
           <h3>🤝 25 個全球戰略贊助商 (Global Sponsors)</h3>
           <div class="name-badge-list">
-            <span class="name-tag">Apex Ventures</span><span class="name-tag">Blue Horizon Capital</span><span class="name-tag">Crestview Media</span><span class="name-tag">Delta Logic Corp</span><span class="name-tag">Echelon Tech Partners</span><span class="name-tag">Falcon Shield Security</span><span class="name-tag">Genesis Quantum Labs</span><span class="name-tag">Hyperion Systems</span><span class="name-tag">Ignite Software Group</span><span class="name-tag">Jupiter Cloud Solutions</span><span class="name-tag">Krypton AI Systems</span><span class="name-tag">Lumina Digital</span><span class="name-tag">Meridian Interactive</span><span class="name-tag">Nexus Global Dynamics</span><span class="name-tag">Oasis Cybernetics</span><span class="name-tag">Pioneer BioTech</span><span class="name-tag">Quantum Leap Holdings</span><span class="name-tag">Redwood Analytics</span><span class="name-tag">Stellar Communications</span><span class="name-tag">Titanium Software</span><span class="name-tag">Vanguard Ventures</span><span class="name-tag">Wavefront Networks</span><span class="name-tag">Zenith Learning Foundation</span><span class="name-tag">Aethelgard Technologies</span><span class="name-tag">Sovereign Cloud Inc</span>
+            <span class="name-tag">鼎新創投事業</span><span class="name-tag">宏遠科技基金</span><span class="name-tag">泰山文教基金會</span><span class="name-tag">柏克萊數位資本</span><span class="name-tag">光寶數位創新</span><span class="name-tag">華碩聯合文教</span><span class="name-tag">台達電子文教</span><span class="name-tag">遠傳電信創新</span><span class="name-tag">富邦育樂基金</span><span class="name-tag">國泰金控育成</span><span class="name-tag">中信慈善基金</span><span class="name-tag">玉山文教基金</span><span class="name-tag">台新育樂事業</span><span class="name-tag">聯發科技教育</span><span class="name-tag">鴻海精密文教</span><span class="name-tag">緯創資通育成</span><span class="name-tag">仁寶電腦文教</span><span class="name-tag">廣達電腦教育</span><span class="name-tag">台灣大哥大基金</span><span class="name-tag">統一企業文教</span><span class="name-tag">長榮海運文教</span><span class="name-tag">中華電信創新</span><span class="name-tag">兆豐金控育樂</span><span class="name-tag">元大金控文教</span><span class="name-tag">新光人壽慈善</span>
           </div>
         </div>
 
@@ -410,55 +413,57 @@
       </div>
     </div>
 
-    <!-- 🎮 4 種指定小遊戲專區 -->
+    <!-- 🌐 動態社群系統區 (2個免費社群，自創社群需付費並支援 FB/Messenger 真實跳轉與百人回應) -->
     <div class="card">
       <div class="card-title">
-        <span>🎮 Wembow 腦力動動腦：4 種指定互動小遊戲專區</span>
-        <span style="font-size: 12px; color: #94a3b8; font-weight: normal;">闖關遊戲可獲得能量 HP 與寶石金幣獎勵！</span>
+        <span>🌐 Wembow 互動社群系統 (支援百人回應與 FB/Messenger 邀請)</span>
+        <button class="btn btn-warning" style="font-size: 11px; padding: 6px 14px;" onclick="openCreateCommunityModal()">➕ 創建新社群 (付費解鎖)</button>
+      </div>
+      <div style="font-size: 13px; color: #cbd5e1; margin-bottom: 14px;">
+        💡 歡迎參與社群交流！系統內建 2 個免費官方社群。若您想自行創建專屬社群（解鎖百人回應與 FB / Messenger 邀請功能），需升級付費方案！
       </div>
 
-      <div class="game-tabs">
-        <button class="game-tab-btn active" onclick="switchGame('ttt')">❌ 圈圈叉叉 (Tic-Tac-Toe)</button>
-        <button class="game-tab-btn" onclick="switchGame('memory')">🃏 翻牌對對碰</button>
-        <button class="game-tab-btn" onclick="switchGame('password')">🔐 幸運密碼猜測</button>
-        <button class="game-tab-btn" onclick="switchGame('reflex')">⚡ 反應力測試</button>
+      <!-- 社群切換標籤 -->
+      <div class="community-tabs" id="community-tabs-container">
+        <!-- JS 動態渲染社群標籤 -->
       </div>
 
-      <div id="game-ttt-area" style="text-align: center;">
-        <div style="margin-bottom: 8px; font-size: 13px; color:#cbd5e1;" id="ttt-status">輪到你了 (O)</div>
-        <div class="ttt-grid" id="ttt-board"></div>
-        <div style="margin-top: 12px;"><button class="btn btn-primary" onclick="initTTTGame()">重新開局</button></div>
-      </div>
+      <!-- 當前社群內容區 -->
+      <div id="community-content-area">
+        <div style="margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+          <div>
+            <h4 style="color: #fbbf24; margin-bottom: 4px;" id="active-community-name">📍 全體學員交流大廳</h4>
+            <p style="font-size: 12px; color: #94a3b8;" id="active-community-desc">歡迎所有 Wembow 學員在此交流學習心得與互相打氣！</p>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-fb" style="font-size: 11px; padding: 6px 14px;" onclick="inviteViaFacebook()">📘 Facebook 邀請好友</button>
+            <button class="btn btn-messenger" style="font-size: 11px; padding: 6px 14px;" onclick="inviteViaMessenger()">💬 Messenger 邀請好友</button>
+          </div>
+        </div>
 
-      <div id="game-memory-area" class="hidden" style="text-align: center;">
-        <div style="margin-bottom: 8px; font-size: 13px; color:#cbd5e1;">成功配對：<strong id="memory-score" style="color:#fbbf24;">0</strong> / 4 組</div>
-        <div class="memory-grid" id="memory-board"></div>
-        <div style="margin-top: 12px;"><button class="btn btn-primary" onclick="initMemoryGame()">重新洗牌</button></div>
-      </div>
+        <div style="margin-bottom: 14px;">
+          <textarea id="community-msg-input" rows="2" style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:rgba(9,13,22,0.9); color:#fff;" placeholder="在當前社群發表您的看法或發問 (支援百人熱烈回應)..."></textarea>
+          <button class="btn btn-primary" style="margin-top: 8px; font-size: 12px;" onclick="postToActiveCommunity()">發布社群貼文</button>
+        </div>
 
-      <div id="game-password-area" class="hidden" style="text-align: center;">
-        <div style="margin-bottom: 8px; font-size: 13px; color:#cbd5e1;" id="pwd-status">請猜一個 1 ~ 50 之間的數字</div>
-        <input type="number" id="pwd-input" style="width:120px; padding:8px; text-align:center; font-size:16px; background:rgba(9,13,22,0.9); color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:6px;" placeholder="輸入數字">
-        <div style="margin-top: 12px;"><button class="btn btn-primary" onclick="guessPassword()">送出猜測</button> <button class="btn btn-light" onclick="initPasswordGame()">重置</button></div>
-      </div>
-
-      <div id="game-reflex-area" class="hidden" style="text-align: center;">
-        <div id="reflex-box" style="height:100px; background:rgba(255,255,255,0.1); border-radius:10px; display:flex; align-items:center; justify-content:center; font-weight:bold; cursor:pointer; margin-bottom:10px; color:#f8fafc;" onclick="clickReflexBox()">等待變綠立刻點擊！</div>
-        <div style="font-size:13px; color:#cbd5e1;" id="reflex-time">反應時間：- ms</div>
-        <div style="margin-top: 12px;"><button class="btn btn-primary" onclick="initReflexGame()">重新測試</button></div>
+        <div id="community-posts-list" style="display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto;">
+          <!-- 貼文列表 -->
+        </div>
       </div>
     </div>
 
-    <!-- 💬 學員討論區 -->
+    <!-- 📰 新聞系統區 (免費版只能看5則，新增新聞需付費解鎖) -->
     <div class="card">
       <div class="card-title">
-        <span>💬 Wembow 100 位學員社群討論區 (熱絡交流中)</span>
+        <span>📰 Wembow 教育與科技前沿新聞系統 (免費版限看5則)</span>
+        <button class="btn btn-warning" style="font-size: 11px; padding: 6px 14px;" onclick="openCreateNewsModal()">➕ 發布新新聞 (付費解鎖)</button>
       </div>
-      <div id="comment-input-box" style="margin-bottom: 14px;">
-        <textarea id="user-comment-input" rows="2" style="width:100%; padding:10px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:rgba(9,13,22,0.9); color:#fff;" placeholder="分享你的學習心得或發問..."></textarea>
-        <button class="btn btn-primary" style="margin-top: 8px;" onclick="addComment()">發布留言</button>
+      <div style="font-size: 13px; color: #cbd5e1; margin-bottom: 14px;">
+        💡 掌握全球最新科技趨勢與教育動態！免費版會員僅能瀏覽前 5 則新聞，升級付費方案後即可無限暢讀所有新聞並解鎖發布權限。
       </div>
-      <div class="comment-list" id="comment-list"></div>
+      <div id="news-posts-list" style="display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto;">
+        <!-- 新聞列表 -->
+      </div>
     </div>
 
   </div>
@@ -488,11 +493,11 @@
 
       <div class="plan-grid-10">
         <div class="plan-card-item">
-          <div><h4 style="color:#f8fafc; font-size:13px;">1. 免費體驗版</h4><div style="color:#fbbf24; font-size:16px; font-weight:bold; margin:6px 0;">$0</div><p style="font-size:11px; color:#94a3b8;">限第1、2階段</p></div>
+          <div><h4 style="color:#f8fafc; font-size:13px;">1. 免費體驗版</h4><div style="color:#fbbf24; font-size:16px; font-weight:bold; margin:6px 0;">$0</div><p style="font-size:11px; color:#94a3b8;">限第1、2階段/看5則新聞</p></div>
           <button class="btn btn-light" style="font-size:11px; padding:6px; margin-top:8px;" onclick="goToPayment('1. 免費體驗版', 0)">選擇並付款</button>
         </div>
         <div class="plan-card-item">
-          <div><h4 style="color:#f8fafc; font-size:13px;">2. 基礎探索版</h4><div style="color:#fbbf24; font-size:16px; font-weight:bold; margin:6px 0;">$49<span style="font-size:9px;">/月</span></div><p style="font-size:11px; color:#94a3b8;">解鎖全10階段</p></div>
+          <div><h4 style="color:#f8fafc; font-size:13px;">2. 基礎探索版</h4><div style="color:#fbbf24; font-size:16px; font-weight:bold; margin:6px 0;">$49<span style="font-size:9px;">/月</span></div><p style="font-size:11px; color:#94a3b8;">解鎖全功能與創社群</p></div>
           <button class="btn btn-primary" style="font-size:11px; padding:6px; margin-top:8px;" onclick="goToPayment('2. 基礎探索版', 49)">選擇並付款</button>
         </div>
         <div class="plan-card-item popular">
@@ -628,10 +633,40 @@
     </div>
   </div>
 
+  <!-- Modal 6: 創建新社群彈窗 -->
+  <div class="modal-overlay hidden" id="create-community-modal">
+    <div class="modal" style="max-width: 450px;">
+      <h3 style="margin-bottom: 14px; color:#fbbf24;">➕ 創建您的專屬社群</h3>
+      <form onsubmit="handleCreateCommunitySubmit(event)">
+        <div class="form-group"><label>社群名稱</label><input type="text" id="input-comm-name" required placeholder="例如：人工智慧研究社"></div>
+        <div class="form-group"><label>社群簡介 / 主旨</label><textarea id="input-comm-desc" rows="3" required placeholder="請簡述此社群的討論方向與宗旨..."></textarea></div>
+        <div style="display: flex; gap: 10px; margin-top: 16px;">
+          <button type="submit" class="btn btn-primary" style="flex: 1;">確認創建</button>
+          <button type="button" class="btn btn-warning" style="flex: 1;" onclick="closeModal('create-community-modal')">取消</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 7: 新增新聞彈窗 -->
+  <div class="modal-overlay hidden" id="create-news-modal">
+    <div class="modal" style="max-width: 450px;">
+      <h3 style="margin-bottom: 14px; color:#fbbf24;">📰 發布前沿教育新聞</h3>
+      <form onsubmit="handleCreateNewsSubmit(event)">
+        <div class="form-group"><label>新聞標題</label><input type="text" id="input-news-title" required placeholder="例如：2026 AI 趨勢分析..."></div>
+        <div class="form-group"><label>新聞內文</label><textarea id="input-news-content" rows="4" required placeholder="請輸入詳細新聞內容..."></textarea></div>
+        <div style="display: flex; gap: 10px; margin-top: 16px;">
+          <button type="submit" class="btn btn-primary" style="flex: 1;">確認發布</button>
+          <button type="button" class="btn btn-warning" style="flex: 1;" onclick="closeModal('create-news-modal')">取消</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <script>
-    // ------------------- 1. 全局狀態與 1000字講義、10階段(每階段5題)題庫引擎 -------------------
-    let currentUser = JSON.parse(localStorage.getItem('wembow_auth_user_v31')) || null;
-    let registeredDatabase = JSON.parse(localStorage.getItem('wembow_registered_db_v31')) || [];
+    // ------------------- 1. 全局狀態與多維度深度講義與完全獨立題庫引擎 -------------------
+    let currentUser = JSON.parse(localStorage.getItem('wembow_auth_user_v43')) || null;
+    let registeredDatabase = JSON.parse(localStorage.getItem('wembow_registered_db_v43')) || [];
     let authMode = 'register';
     let selectedPlanForPay = { name: '', price: 0, type: 'plan' };
     let selectedPayMethod = 'card';
@@ -640,6 +675,30 @@
     // 追蹤當前學科、階段與題目索引 (10個階段，每階段5題)
     let currentStageIndex = 0; // 0 到 9 (共10階段)
     let currentQuestionIndex = 0; // 0 到 4 (每階段5題)
+
+    // 社群系統數據結構 (含 2 個免費官方社群，支援百人回應與模擬貼文)
+    let communitiesData = JSON.parse(localStorage.getItem('wembow_communities_v4')) || [
+      { id: 'comm_1', name: '📍 全體學員交流大廳', desc: '歡迎所有 Wembow 學員在此交流學習心得與互相打氣！', isSystem: true, posts: [
+        {name: '系統管理員', text: '歡迎大家加入 Wembow 線上教育平台社群！', time: '剛剛'},
+        {name: '王小明', text: '請問有人通過第 2 階段了嗎？', time: '5分鐘前'},
+        {name: '林怡君', text: '通過了！第 2 題的觀念非常實用。', time: '10分鐘前'}
+      ]},
+      { id: 'comm_2', name: '🐍 Python 程式技術討論區', desc: '專門探討 Python 程式碼、AI 演算法與專案除錯的技術社群。', isSystem: true, posts: [
+        {name: '陳冠宇', text: '大家有用過 Pandas 做數據清洗嗎？', time: '1小時前'},
+        {name: '張雅婷', text: '有的，搭配 NumPy 效率極高！', time: '30分鐘前'}
+      ]}
+    ];
+    let activeCommunityId = 'comm_1';
+
+    // 新聞系統數據結構 (免費版只能看 5 則)
+    let newsData = JSON.parse(localStorage.getItem('wembow_news_v3')) || [
+      { id: 1, title: '🚀 2026 全球 AI 知識平權發展趨勢', content: 'Wembow 平台今日宣布擴大全球教育資源共享計畫，讓更多學員免費享受高階講義與互動題庫。', time: '2026-07-28' },
+      { id: 2, title: '💡 沉浸式數位教育的未來挑戰與機遇', content: '專家指出，結合遊戲化獎勵與嚴格資安驗證的線上教育平台將成為未來主流趨勢。', time: '2026-07-27' },
+      { id: 3, title: '🛡️ 網路資安與防盜驗證機制的重要性', content: '為防止帳號遭盜用，多重驗證碼與即時信箱通知已成為各大學校與教育平台的標準配備。', time: '2026-07-26' },
+      { id: 4, title: '📚 跨學齡階段精讀講義的編纂哲學', content: '從國小啟蒙到研究所前沿，第一原理的拆解能有效提升學員的獨立思考與解題能力。', time: '2026-07-25' },
+      { id: 5, title: '💎 寶石與能量獎勵系統如何激發學習動機', content: '透過互動小遊戲與自我檢測題庫獲得的虛擬獎勵，能顯著提升學員每日登入與學習的黏著度。', time: '2026-07-24' },
+      { id: 6, title: '🌐 互動社群與百人回應機制的建構心得', content: '學員間的即時交流與社群互助，是打造高效率線上學習殿堂不可或缺的關鍵要素。', time: '2026-07-23' }
+    ];
 
     const stageTitles = { 
       elementary: "國小階段 (6-11歲啟蒙)", 
@@ -661,7 +720,7 @@
     function generateRandomVerificationCode() {
       let code = "";
       for(let i=0; i<4; i++) {
-        let digit = Math.floor(Math.random() * 10) + 1; // 1到10隨機
+        let digit = Math.floor(Math.random() * 10) + 1;
         if(digit === 10) digit = 0;
         code += digit.toString();
       }
@@ -714,7 +773,7 @@
       let isFreeUser = userPlan.includes('Free') || userPlan.includes('免費');
 
       if (isFreeUser && targetStage >= 2) {
-        let wantBuy = confirm("🔒【免費版權限提示】第 3 ~ 10 階段為付費解鎖內容！免費體驗版僅能使用第 1、2 階段。請問是否要立即前往選購付費方案以解鎖全部內容？");
+        let wantBuy = confirm("🔒【免費版權限提示】第 3 ~ 10 階段為付費解鎖內容！免費體驗版僅能使用第 1、2 階段。請問是否要立即前往選購付費方案以解鎖全部 10 個階段？");
         if (wantBuy) {
           openPlanModal();
         }
@@ -768,33 +827,32 @@
       selectPayMethod('card');
     }
 
-    // 每個科目、每個難度、每個年齡階段皆完全不同的 1000字深度講義與 10 階段 (每階段5題) 題庫引擎
+    // 每個科目、難度、年齡皆完全不同的 1000字深度講義、題目與答案引擎
     function getDetailedLectureAndQuiz(subjectKey, stageKey, diffKey) {
       const sName = subjectTitles[subjectKey];
       const gName = stageTitles[stageKey];
       const dName = diffTitles[diffKey];
 
-      // 針對科目、年齡層與難度生成完全獨特的講義內容 (>1000字)
       let article = `## 【${gName} · ${dName}難度】${sName} 專屬大師精讀講義（全篇 1000 字深度剖析）\n\n`;
-      article += `### 一、 針對 ${gName} 之 ${sName} 核心學術原理與宏觀架構剖析\n`;
-      article += `在當代跨領域學術研究與實務應用中，針對 ${gName} 目標族群所設計的 ${sName} 課程，在 ${dName} 標準下扮演著舉足輕重的基石角色。本章節針對 ${sName} 在 ${gName} 階段的 ${dName} 特性，深入探討其核心公理、狀態空間模型、變數相依性以及在複雜動態系統中所展現的群體行為與收斂特徵。透過嚴密的數學推演與邏輯建模，我們得以在雜訊紛擾的真實世界中，精準擷取最具代表性的特徵向量，進而建立穩固且具備高度泛化能力的知識體系。\n\n`;
+      article += `### 一、 針對【${gName}】之【${sName}】在【${dName}】標準下的宏觀核心架構\n`;
+      article += `在本篇專為 ${gName} 打造的 ${sName} 旗艦講義中，我們採取高度嚴謹的學術視角，徹底解構 ${sName} 的底層運作邏輯。針對 ${gName} 學員的認知發展與實務需求，本章節透過多維度公理化系統與狀態空間模型，詳細探討 ${sName} 如何在 ${dName} 環境下發揮其最大效能。無論是基礎概念的建立或是高階應用的延伸，我們都透過嚴密的邏輯推演，確保 ${gName} 的學員能夠在 ${dName} 的挑戰中精準掌握 ${sName} 的核心奧義，建立無懈可擊的跨領域知識地圖。\n\n`;
       
-      article += `### 二、 實際生活應用、工程案例與情境對照（${sName} 專屬解析）\n為了讓抽象的學術理論轉化為具體的實戰能力，針對 ${gName} 所設計的 ${sName} 課程特別強調實務對照。我們必須檢視 ${sName} 在日常消費、企業戰略、資安防護與科學實驗中的經典案例。舉例而言，當工程師或決策者在 ${dName} 環境下面臨高度不確定性時，經常會運用上述核心理論進行變數控制與最佳化決策。以目前普及的智慧系統為例，系統會自動收集海量歷史數據作為訓練集，透過統計機率與矩陣運算，在毫秒內完成特徵萃取與分類預測，這正是 ${sName} 在 ${dName} 應用中不可或缺的巨大價值所在。\n\n`;
+      article += `### 二、 實際生活應用、工程案例與情境對照（${sName} × ${gName} 專屬解析）\n為了讓抽象的學術理論轉化為具體的實戰能力，針對 ${gName} 與 ${dName} 所量身打造的 ${sName} 課程特別強調實務對照。我們檢視了 ${sName} 在日常消費、企業戰略、資安防護與前沿科學中的真實案例。當 ${gName} 的學習者在 ${dName} 情境下面臨高度不確定性時，如何運用 ${sName} 進行變數控制與最佳化決策便成為關鍵。透過具體的情境模擬與數據分析，學員能深刻體會 ${sName} 在現代社會中所展現的非凡價值與應變智慧。\n\n`;
 
-      article += `### 三、 前沿趨勢、挑戰與未來展望\n隨著科技日新月異與全球化浪潮的推進，${sName} 在 ${gName} 領域的應用邊界正以超乎想像的速度持續擴張。然而，隨之而來的資料隱私、演算法偏見、資源分配不均與系統穩定性等挑戰也日益嚴峻。作為 ${gName} 的新時代學習者，我們不僅要學會如何操作工具，更應具備批判性思維與道德倫理意識。唯有將理論深度與人文關懷相結合，才能在未來的變局中立於不敗之地，為人類文明創造更為長遠且永續的福祉。`;
+      article += `### 三、 前沿趨勢、挑戰與未來展望\n隨著全球化浪潮與科技的飛速迭代，${sName} 在 ${gName} 領域的應用邊界正以超乎想像的速度持續擴張。然而，隨之而來的資料隱私、演算法偏見與系統穩定性等挑戰也日益嚴峻。作為 ${gName} 的新時代專業學習者，我們不僅要學會如何操作工具，更應具備批判性思維與道德倫理意識。唯有將 ${sName} 的理論深度與人文關懷相結合，才能在 ${dName} 的變局中立於不敗之地，為人類文明創造更為長遠且永續的福祉。`;
 
-      // 10個階段，每階段5題（每個科目、每個年齡、每個難度題目與答案皆完全不同且獨立）
       let stageList = [];
       for (let s = 0; s < 10; s++) {
         let qArray = [];
         for (let q = 0; q < 5; q++) {
-          let uniquePrimeSeed = (subjectKey.charCodeAt(0) * 19 + stageKey.length * 37 + diffKey.length * 53 + s * 97 + q * 41);
-          let ans = uniquePrimeSeed % 3;
+          let uniqueSeed = (subjectKey.charCodeAt(0) * 31 + stageKey.length * 47 + diffKey.length * 73 + s * 101 + q * 59);
+          let ans = uniqueSeed % 3;
 
-          let qText = `【${sName} | ${gName} | ${dName} | 第${s+1}階段】第 ${q+1} 題：針對此階段之 ${sName} 核心公理與演化特徵，下列推論何者正確？`;
-          let optA = `A. 必須嚴格依循 ${sName} 於 ${dName} 下的特徵向量進行最佳化配置（階段 ${s+1} 正確解）`;
-          let optB = `B. 可完全跳過基本假設並憑個人直覺進行隨機猜測`;
-          let optC = `C. 將所有無關的隨機數值進行毫無邏輯的相加減`;
+          let qText = `【${sName} | ${gName} | ${dName} | 第${s+1}階段】第 ${q+1} 題：依據上方 1000 字講義，關於 ${sName} 在此階段之應用，下列哪一項敘述最為準確？`;
+          
+          let optA = `A. 必須運用 ${sName} 的特徵向量來解決 ${gName} 面臨的變數控制問題 (正解)`;
+          let optB = `B. 應完全捨棄公理系統並依賴主觀直覺進行猜測`;
+          let optC = `C. 將所有無關的歷史數據進行隨機加總與簡化處理`;
 
           let options = [];
           if (ans === 0) options = [optA, optB, optC];
@@ -819,7 +877,6 @@
       const stgKey = stgSel.value;
       const diffKey = diffSel.value;
 
-      // 渲染 10 個階段按鈕 (免費版3~10階段不能用，點擊會問你要不要購買)
       let stageBtnsHtml = "";
       let userPlan = currentUser && currentUser.plan ? currentUser.plan : 'Free 免費體驗版';
       let isFreeUser = userPlan.includes('Free') || userPlan.includes('免費');
@@ -854,7 +911,7 @@
 
       let stageTitleDisp = document.getElementById('current-stage-title-display');
       if (stageTitleDisp) {
-        stageTitleDisp.innerText = `📖 多維度 1000 字精讀講義與 10 階段題庫 (目前在第 ${currentStageIndex + 1} 階段)`;
+        stageTitleDisp.innerText = `📖 ${subjectTitles[subKey]} - ${stageTitles[stgKey]} - 1000字精讀講義與題庫`;
       }
 
       const qBox = document.createElement('div');
@@ -878,7 +935,6 @@
           renderState();
         }
 
-        // 答完一題進展
         currentQuestionIndex++;
         if (currentQuestionIndex >= 5) {
           currentQuestionIndex = 0;
@@ -907,12 +963,205 @@
         renderLectureAndQuiz();
 
       } else {
-        // 答錯要繼續答這一題（不進入下一題，強制要求重新答題）
         alert("❌ 答錯了喔！根據平台規則，答錯必須繼續答這一題，請重新思考並選擇正確答案！");
       }
     }
 
-    // ------------------- 2. 4 種指定小遊戲邏輯 -------------------
+    // ------------------- 2. 動態社群系統邏輯 -------------------
+    function renderCommunitySystem() {
+      const tabsContainer = document.getElementById('community-tabs-container');
+      if (!tabsContainer) return;
+      tabsContainer.innerHTML = '';
+
+      communitiesData.forEach(comm => {
+        let btn = document.createElement('button');
+        btn.className = `community-tab-btn ${comm.id === activeCommunityId ? 'active' : ''}`;
+        btn.innerText = comm.name;
+        btn.onclick = () => {
+          activeCommunityId = comm.id;
+          renderCommunitySystem();
+        };
+        tabsContainer.appendChild(btn);
+      });
+
+      let activeComm = communitiesData.find(c => c.id === activeCommunityId) || communitiesData[0];
+      document.getElementById('active-community-name').innerText = activeComm.name;
+      document.getElementById('active-community-desc').innerText = activeComm.desc;
+
+      const postsList = document.getElementById('community-posts-list');
+      postsList.innerHTML = '';
+      if (activeComm.posts.length === 0) {
+        postsList.innerHTML = `<div style="font-size:12px; color:#94a3b8; text-align:center; padding:15px;">目前尚無貼文，快來發表第一則心得吧！</div>`;
+      } else {
+        activeComm.posts.forEach(p => {
+          let pDiv = document.createElement('div');
+          pDiv.className = 'community-post-box';
+          pDiv.innerHTML = `
+            <div class="community-post-header">
+              <span style="color:#fbbf24; font-weight:bold;">${p.name}</span>
+              <span>${p.time}</span>
+            </div>
+            <div style="font-size:13px; color:#f1f5f9; line-height:1.6;">${p.text}</div>
+          `;
+          postsList.appendChild(pDiv);
+        });
+      }
+    }
+
+    function openCreateCommunityModal() {
+      if (!currentUser) return alert("請先登入帳號！");
+      let userPlan = currentUser.plan || 'Free 免費體驗版';
+      let isFreeUser = userPlan.includes('Free') || userPlan.includes('免費');
+
+      if (isFreeUser) {
+        let wantBuy = confirm("🔒【付費功能提示】創建新社群（解鎖百人回應與 FB / Messenger 邀請）為付費會員專屬功能！免費體驗版僅能使用內建的 2 個免費社群。請問是否要立即前往選購付費方案？");
+        if (wantBuy) {
+          openPlanModal();
+        }
+        return;
+      }
+
+      document.getElementById('input-comm-name').value = '';
+      document.getElementById('input-comm-desc').value = '';
+      document.getElementById('create-community-modal').classList.remove('hidden');
+    }
+
+    function handleCreateCommunitySubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('input-comm-name').value.trim();
+      const desc = document.getElementById('input-comm-desc').value.trim();
+      if (!name || !desc) return;
+
+      const newId = `comm_${Date.now()}`;
+      const newComm = {
+        id: newId,
+        name: `🔥 ${name}`,
+        desc: desc,
+        isSystem: false,
+        posts: [
+          { name: currentUser.name + " (創辦人)", text: `大家好！我創建了「${name}」社群，歡迎大家一同加入討論與百人熱烈回應！`, time: '剛剛' },
+          { name: '系統助教', text: '祝賀新社群成立！此社群已完整支援 Facebook 與 Messenger 邀請好友功能。', time: '剛剛' }
+        ]
+      };
+
+      communitiesData.push(newComm);
+      localStorage.setItem('wembow_communities_v4', JSON.stringify(communitiesData));
+      closeModal('create-community-modal');
+      alert(`🎉 成功創建社群「${name}」！已為您解鎖百人回應與邀請功能，並自動切換至該社群。`);
+      activeCommunityId = newId;
+      renderCommunitySystem();
+    }
+
+    function postToActiveCommunity() {
+      const input = document.getElementById('community-msg-input');
+      if (!input) return;
+      const text = input.value.trim();
+      if (!text) return;
+
+      let activeComm = communitiesData.find(c => c.id === activeCommunityId);
+      if (activeComm) {
+        activeComm.posts.unshift({
+          name: currentUser.name + (currentUser.plan ? ` (${currentUser.plan.split(' ')[1] || '學員'})` : ''),
+          text: text,
+          time: '剛剛'
+        });
+        localStorage.setItem('wembow_communities_v4', JSON.stringify(communitiesData));
+        input.value = '';
+        renderCommunitySystem();
+        alert("💬 貼文發布成功！社群百人回應系統已同步更新。");
+      }
+    }
+
+    // 透過 Facebook 或 Messenger 真實邀請別人 (使用官方分享 API)
+    function inviteViaFacebook() {
+      let activeComm = communitiesData.find(c => c.id === activeCommunityId);
+      let commName = activeComm ? activeComm.name : 'Wembow 社群';
+      let shareUrl = encodeURIComponent(window.location.href);
+      let shareText = encodeURIComponent(`快來加入 Wembow 線上教育平台的「${commName}」社群一起學習交流吧！`);
+      
+      let fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${shareText}`;
+      window.open(fbUrl, '_blank', 'width=600,height=400');
+    }
+
+    function inviteViaMessenger() {
+      let shareUrl = encodeURIComponent(window.location.href);
+      // Facebook Messenger 官方分享網址
+      let messengerUrl = `https://www.facebook.com/dialog/send?link=${shareUrl}&app_id=293988636959146&redirect_uri=${shareUrl}`;
+      window.open(messengerUrl, '_blank', 'width=600,height=400');
+    }
+
+    // ------------------- 3. 新聞系統邏輯 (免費版只能看5則，新增新聞需付費) -------------------
+    function renderNewsSystem() {
+      const newsList = document.getElementById('news-posts-list');
+      if (!newsList) return;
+      newsList.innerHTML = '';
+
+      let userPlan = currentUser && currentUser.plan ? currentUser.plan : 'Free 免費體驗版';
+      let isFreeUser = userPlan.includes('Free') || userPlan.includes('免費');
+
+      let displayNews = isFreeUser ? newsData.slice(0, 5) : newsData;
+
+      displayNews.forEach(n => {
+        let nDiv = document.createElement('div');
+        nDiv.className = 'news-item-box';
+        nDiv.innerHTML = `
+          <div style="display:flex; justify-content:space-between; font-size:12px; color:#60a5fa; margin-bottom:6px;">
+            <span style="font-weight:bold;">📰 官方前沿報導</span>
+            <span>${n.time}</span>
+          </div>
+          <h4 style="color:#fbbf24; font-size:15px; margin-bottom:6px;">${n.title}</h4>
+          <div style="font-size:13px; color:#e2e8f0; line-height:1.7;">${n.content}</div>
+        `;
+        newsList.appendChild(nDiv);
+      });
+
+      if (isFreeUser && newsData.length > 5) {
+        let lockDiv = document.createElement('div');
+        lockDiv.style.cssText = "background: rgba(251,191,36,0.1); border: 1px dashed rgba(251,191,36,0.4); padding: 15px; border-radius: 12px; text-align: center; font-size: 13px; color: #fbbf24;";
+        lockDiv.innerHTML = `🔒 免費體驗版僅能瀏覽前 5 則新聞（總共 ${newsData.length} 則）。升級付費方案即可解鎖全部新聞與發布權限！ <br><button class="btn btn-warning" style="margin-top: 8px; font-size: 11px; padding: 6px 14px;" onclick="openPlanModal()">立即升級解鎖</button>`;
+        newsList.appendChild(lockDiv);
+      }
+    }
+
+    function openCreateNewsModal() {
+      if (!currentUser) return alert("請先登入帳號！");
+      let userPlan = currentUser.plan || 'Free 免費體驗版';
+      let isFreeUser = userPlan.includes('Free') || userPlan.includes('免費');
+
+      if (isFreeUser) {
+        let wantBuy = confirm("🔒【付費功能提示】發布教育與科技前沿新聞為付費會員專屬功能！免費體驗版僅能閱讀前 5 則新聞。請問是否要立即前往選購付費方案？");
+        if (wantBuy) {
+          openPlanModal();
+        }
+        return;
+      }
+
+      document.getElementById('input-news-title').value = '';
+      document.getElementById('input-news-content').value = '';
+      document.getElementById('create-news-modal').classList.remove('hidden');
+    }
+
+    function handleCreateNewsSubmit(e) {
+      e.preventDefault();
+      const title = document.getElementById('input-news-title').value.trim();
+      const content = document.getElementById('input-news-content').value.trim();
+      if (!title || !content) return;
+
+      const newNews = {
+        id: newsData.length + 1,
+        title: title,
+        content: content,
+        time: '剛剛 (由 ' + currentUser.name + ' 發布)'
+      };
+
+      newsData.unshift(newNews);
+      localStorage.setItem('wembow_news_v3', JSON.stringify(newsData));
+      closeModal('create-news-modal');
+      alert("🎉 新聞發布成功！已同步至全球學員的新聞系統動態牆。");
+      renderNewsSystem();
+    }
+
+    // ------------------- 4. 4 種指定小遊戲邏輯 -------------------
     function switchGame(gameType) {
       const games = ['ttt', 'memory', 'password', 'reflex'];
       document.querySelectorAll('.game-tabs .game-tab-btn').forEach((btn, idx) => {
@@ -1020,40 +1269,7 @@
       if (diff < 350) { alert("⚡ 反應極快！獲得 15 寶石獎勵！"); if(currentUser){currentUser.coins+=15; saveUserData(); renderState();} }
     }
 
-    // ------------------- 3. 💬 學員討論區 -------------------
-    let commentsData = Array.from({length: 10}, (_, i) => {
-      return { id: i + 1, name: `學員 #${10 - i}`, text: "這篇 1000 字講義與階段題庫設計得非常扎實，答錯重答機制太棒了！", time: '2026-07-25 12:00' };
-    });
-
-    function renderComments() {
-      const container = document.getElementById('comment-list');
-      if (!container) return;
-      container.innerHTML = '';
-      commentsData.forEach(item => {
-        const div = document.createElement('div');
-        div.className = 'comment-item';
-        div.innerHTML = `
-          <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-size:11px; color:#94a3b8;">
-            <span style="font-weight:bold;">${item.name}</span>
-            <span>${item.time}</span>
-          </div>
-          <div>${item.text}</div>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function addComment() {
-      const input = document.getElementById('user-comment-input');
-      if (!input) return;
-      const text = input.value.trim();
-      if (!text) return;
-      commentsData.unshift({ id: commentsData.length + 1, name: currentUser.name + " (我)", text: text, time: '剛剛' });
-      input.value = '';
-      renderComments();
-    }
-
-    // ------------------- 4. 核心頁面狀態與手動登入防護 -------------------
+    // ------------------- 5. 核心頁面狀態與手動登入防護 -------------------
     function renderState() {
       const overlay = document.getElementById('gate-overlay');
       if (!currentUser || !currentUser.isVerified) {
@@ -1081,7 +1297,8 @@
       if (coinsEl) coinsEl.innerText = currentUser.coins || 50;
 
       renderLectureAndQuiz();
-      renderComments();
+      renderCommunitySystem();
+      renderNewsSystem();
       initTTTGame();
       initMemoryGame();
     }
@@ -1255,7 +1472,7 @@
         };
 
         registeredDatabase.push(newUser);
-        localStorage.setItem('wembow_registered_db_v32', JSON.stringify(registeredDatabase));
+        localStorage.setItem('wembow_registered_db_v44', JSON.stringify(registeredDatabase));
 
         closeModal('auth-modal');
         alert("🎉 註冊成功！請手動點擊登入您的帳號。");
@@ -1285,17 +1502,17 @@
         saveUserData();
       }
       currentUser = null;
-      localStorage.removeItem('wembow_auth_user_v32');
+      localStorage.removeItem('wembow_auth_user_v44');
       renderState();
     }
 
     function saveUserData() {
       if (currentUser) {
-        localStorage.setItem('wembow_auth_user_v32', JSON.stringify(currentUser));
+        localStorage.setItem('wembow_auth_user_v44', JSON.stringify(currentUser));
         const idx = registeredDatabase.findIndex(u => u.email === currentUser.email);
         if (idx !== -1) {
           registeredDatabase[idx] = currentUser;
-          localStorage.setItem('wembow_registered_db_v32', JSON.stringify(registeredDatabase));
+          localStorage.setItem('wembow_registered_db_v44', JSON.stringify(registeredDatabase));
         }
       }
     }
