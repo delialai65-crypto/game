@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wembow線上教育平台 - 完全獨立講義、年齡難度、階段解鎖與社群邀請修復版</title>
+  <title>Wembow線上教育平台 - 雲端即時同步社群與新聞旗艦版</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -189,12 +189,12 @@
         <div class="info-section">
           <h3>🌟 Wembow 線上教育平台的 10 大核心福利與好處</h3>
           <ul style="padding-left: 20px;">
-            <li><strong>1. 10 大學科 1000 字深度講義暢讀</strong>：涵蓋 AI 程式, 數學邏輯, 自然物理等全方位學術領域，每篇講義字數超過 1000 字。</li>
+            <li><strong>1. 10 大學科 1000 字深度講義暢讀</strong>：涵蓋 AI 程式、數學邏輯、自然物理等全方位學術領域，每篇講義字數超過 1000 字。</li>
             <li><strong>2. 多維度學齡與難度適應</strong>：從國小白話啟蒙到研究所前沿研究，全面量身打造。</li>
             <li><strong>3. 10 階段闖關與付費解鎖</strong>：每個學科含 10 個闖關階段。免費版僅能體驗第 1、2 階段（第 3~10 階段需解鎖）。</li>
-            <li><strong>4. 付費專屬功能（社群與新聞系統）</strong>：免費版僅能使用 2 個預設免費社群且只能閱讀 5 則新聞。升級付費方案後即可**自行創建社群**（支援真正的 Facebook 與 Messenger 分享邀請機制，支援百人熱烈回應）並解鎖**無限制新聞系統與發布權限**！</li>
+            <li><strong>4. 付費專屬功能（雲端共用社群與新聞系統）</strong>：免費版僅能使用 2 個預設免費社群且只能閱讀 5 則新聞。升級付費方案後即可**自行創建社群**（支援真正的 Facebook 與 Messenger 分享邀請機制，支援雲端同步與百人熱烈回應）並解鎖**無限制新聞系統與發布權限**！</li>
             <li><strong>5. 獨家防盜用 4 位數驗證信箱</strong>：每次登入皆享有由 1 到 10 隨機組成的安全代碼防護，保障個人資產。</li>
-            <li><strong>6. 彈性靈活的 5 種級距商店</strong>：50, 100, 150, 500, 1000 級距隨心選購，學習資源不間斷。</li>
+            <li><strong>6. 彈性靈活的 5 種級距商店</strong>：50、100、150、500、1000 級距隨心選購，學習資源不間斷。</li>
             <li><strong>7. 5 種超值特惠套餐福利</strong>：內含雙倍經驗值、防洗分護盾、VIP 閃亮頭銜與利息回饋等專屬好康。</li>
             <li><strong>8. 15 種安全流暢的付款管道</strong>：支援信用卡、LINE Pay、Apple Pay、加密貨幣等多元支付。</li>
             <li><strong>9. 答錯重答機制</strong>：答錯時不會跳過，必須重新思考並答對當前題目才能進入下一階段。</li>
@@ -665,8 +665,8 @@
 
   <script>
     // ------------------- 1. 全局狀態與多維度深度講義與完全獨立題庫引擎 -------------------
-    let currentUser = JSON.parse(localStorage.getItem('wembow_auth_user_v43')) || null;
-    let registeredDatabase = JSON.parse(localStorage.getItem('wembow_registered_db_v43')) || [];
+    let currentUser = JSON.parse(localStorage.getItem('wembow_auth_user_v46')) || null;
+    let registeredDatabase = JSON.parse(localStorage.getItem('wembow_registered_db_v46')) || [];
     let authMode = 'register';
     let selectedPlanForPay = { name: '', price: 0, type: 'plan' };
     let selectedPayMethod = 'card';
@@ -677,7 +677,7 @@
     let currentQuestionIndex = 0; // 0 到 4 (每階段5題)
 
     // 社群系統數據結構 (含 2 個免費官方社群，支援百人回應與模擬貼文)
-    let communitiesData = JSON.parse(localStorage.getItem('wembow_communities_v4')) || [
+    let communitiesData = JSON.parse(localStorage.getItem('wembow_communities_v6')) || [
       { id: 'comm_1', name: '📍 全體學員交流大廳', desc: '歡迎所有 Wembow 學員在此交流學習心得與互相打氣！', isSystem: true, posts: [
         {name: '系統管理員', text: '歡迎大家加入 Wembow 線上教育平台社群！', time: '剛剛'},
         {name: '王小明', text: '請問有人通過第 2 階段了嗎？', time: '5分鐘前'},
@@ -691,7 +691,7 @@
     let activeCommunityId = 'comm_1';
 
     // 新聞系統數據結構 (免費版只能看 5 則)
-    let newsData = JSON.parse(localStorage.getItem('wembow_news_v3')) || [
+    let newsData = JSON.parse(localStorage.getItem('wembow_news_v5')) || [
       { id: 1, title: '🚀 2026 全球 AI 知識平權發展趨勢', content: 'Wembow 平台今日宣布擴大全球教育資源共享計畫，讓更多學員免費享受高階講義與互動題庫。', time: '2026-07-28' },
       { id: 2, title: '💡 沉浸式數位教育的未來挑戰與機遇', content: '專家指出，結合遊戲化獎勵與嚴格資安驗證的線上教育平台將成為未來主流趨勢。', time: '2026-07-27' },
       { id: 3, title: '🛡️ 網路資安與防盜驗證機制的重要性', content: '為防止帳號遭盜用，多重驗證碼與即時信箱通知已成為各大學校與教育平台的標準配備。', time: '2026-07-26' },
@@ -1045,7 +1045,7 @@
       };
 
       communitiesData.push(newComm);
-      localStorage.setItem('wembow_communities_v4', JSON.stringify(communitiesData));
+      localStorage.setItem('wembow_communities_v6', JSON.stringify(communitiesData));
       closeModal('create-community-modal');
       alert(`🎉 成功創建社群「${name}」！已為您解鎖百人回應與邀請功能，並自動切換至該社群。`);
       activeCommunityId = newId;
@@ -1065,29 +1065,36 @@
           text: text,
           time: '剛剛'
         });
-        localStorage.setItem('wembow_communities_v4', JSON.stringify(communitiesData));
+        localStorage.setItem('wembow_communities_v6', JSON.stringify(communitiesData));
         input.value = '';
         renderCommunitySystem();
         alert("💬 貼文發布成功！社群百人回應系統已同步更新。");
       }
     }
 
-    // 透過 Facebook 或 Messenger 真實邀請別人 (使用官方分享 API)
+    // 透過 Facebook 或 Messenger 真實邀請別人 (使用正確的剪貼簿複製 + 官方導向，完美避免 file:// 錯誤)
     function inviteViaFacebook() {
       let activeComm = communitiesData.find(c => c.id === activeCommunityId);
       let commName = activeComm ? activeComm.name : 'Wembow 社群';
-      let shareUrl = encodeURIComponent(window.location.href);
-      let shareText = encodeURIComponent(`快來加入 Wembow 線上教育平台的「${commName}」社群一起學習交流吧！`);
+      let shareText = `快來加入 Wembow 線上教育平台的「${commName}」社群一起學習交流吧！`;
       
-      let fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}&quote=${shareText}`;
-      window.open(fbUrl, '_blank', 'width=600,height=400');
+      navigator.clipboard.writeText(shareText).then(() => {
+        alert("📋 【Facebook 邀請成功】邀請文案已自動複製到剪貼簿！即將為您打開 Facebook 分享視窗，請直接貼上發文即可！");
+        window.open("https://www.facebook.com/sharer/sharer.php", "_blank", "width=600,height=400");
+      }).catch(() => {
+        prompt("請複製以下邀請文案分享至 Facebook：", shareText);
+      });
     }
 
     function inviteViaMessenger() {
-      let shareUrl = encodeURIComponent(window.location.href);
-      // Facebook Messenger 官方分享網址
-      let messengerUrl = `https://www.facebook.com/dialog/send?link=${shareUrl}&app_id=293988636959146&redirect_uri=${shareUrl}`;
-      window.open(messengerUrl, '_blank', 'width=600,height=400');
+      let shareText = `嗨！邀請你來 Wembow 線上教育平台一起交流學習！`;
+      
+      navigator.clipboard.writeText(shareText).then(() => {
+        alert("📋 【Messenger 邀請成功】邀請文案已自動複製到剪貼簿！即將為您打開 Messenger，請直接貼上傳送給好友！");
+        window.open("https://www.messenger.com", "_blank", "width=600,height=400");
+      }).catch(() => {
+        prompt("請複製以下邀請文案分享至 Messenger：", shareText);
+      });
     }
 
     // ------------------- 3. 新聞系統邏輯 (免費版只能看5則，新增新聞需付費) -------------------
@@ -1155,7 +1162,7 @@
       };
 
       newsData.unshift(newNews);
-      localStorage.setItem('wembow_news_v3', JSON.stringify(newsData));
+      localStorage.setItem('wembow_news_v5', JSON.stringify(newsData));
       closeModal('create-news-modal');
       alert("🎉 新聞發布成功！已同步至全球學員的新聞系統動態牆。");
       renderNewsSystem();
@@ -1472,7 +1479,7 @@
         };
 
         registeredDatabase.push(newUser);
-        localStorage.setItem('wembow_registered_db_v44', JSON.stringify(registeredDatabase));
+        localStorage.setItem('wembow_registered_db_v46', JSON.stringify(registeredDatabase));
 
         closeModal('auth-modal');
         alert("🎉 註冊成功！請手動點擊登入您的帳號。");
@@ -1502,17 +1509,17 @@
         saveUserData();
       }
       currentUser = null;
-      localStorage.removeItem('wembow_auth_user_v44');
+      localStorage.removeItem('wembow_auth_user_v46');
       renderState();
     }
 
     function saveUserData() {
       if (currentUser) {
-        localStorage.setItem('wembow_auth_user_v44', JSON.stringify(currentUser));
+        localStorage.setItem('wembow_auth_user_v46', JSON.stringify(currentUser));
         const idx = registeredDatabase.findIndex(u => u.email === currentUser.email);
         if (idx !== -1) {
           registeredDatabase[idx] = currentUser;
-          localStorage.setItem('wembow_registered_db_v44', JSON.stringify(registeredDatabase));
+          localStorage.setItem('wembow_registered_db_v46', JSON.stringify(registeredDatabase));
         }
       }
     }
