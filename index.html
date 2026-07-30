@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>蝦皮風格旗艦商城 - 強制登入與218樣商品終極版</title>
+    <title>酷台線上購物網</title>
     <style>
         :root {
             --primary: #ee4d2d;
@@ -18,6 +18,7 @@
             --warning: #f59e0b;
             --vip-gold: #d97706;
             --shopee-coin: #f6941c;
+            --special-gold: #fbbf24;
         }
 
         * {
@@ -46,7 +47,7 @@
             z-index: 1000;
         }
         .navbar h1 { font-size: 20px; cursor: pointer; }
-        .nav-links { display: flex; gap: 10px; align-items: center; font-size: 12px; }
+        .nav-links { display: flex; gap: 4px; align-items: center; font-size: 11px; }
         .nav-links span { cursor: pointer; font-weight: bold; position: relative; }
 
         .badge-dot {
@@ -55,7 +56,12 @@
             padding: 2px 6px; font-size: 10px; font-weight: bold;
         }
 
-        /* 登入/註冊全螢幕頁面 (強制先登入) */
+        .system-msg {
+            padding: 10px 15px; border-radius: 6px; font-size: 13px; margin-bottom: 15px; display: none; text-align: left; font-weight: bold;
+        }
+        .system-msg.error { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+        .system-msg.success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+
         #authPage {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: var(--bg-color); display: flex;
@@ -74,11 +80,13 @@
             font-weight: bold; cursor: pointer; transition: background 0.3s;
         }
         .btn:hover { background: var(--primary-hover); }
+        .btn:disabled { background: #9ca3af; cursor: not-allowed; }
         .btn-small { padding: 4px 8px; font-size: 11px; width: auto; }
         .btn-danger { background: var(--danger); }
         .btn-success { background: var(--success); }
         .btn-warning { background: var(--warning); color: white; }
         .btn-vip { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; }
+        .btn-special { background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%); color: white; }
 
         .promo-banner {
             background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
@@ -89,24 +97,43 @@
         .promo-banner h2 { font-size: 22px; margin-bottom: 8px; color: #fff; }
         .promo-banner p { font-size: 14px; opacity: 0.9; margin-bottom: 15px; }
 
-        .flash-sale-box {
-            background: #fff5f5; border: 2px solid var(--primary); border-radius: 12px; padding: 20px; margin-bottom: 25px;
-        }
-        .flash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .countdown-timer { background: var(--primary); color: white; padding: 4px 10px; border-radius: 6px; font-weight: bold; font-size: 14px; }
-
         .mall-container { padding: 30px; max-width: 1200px; margin: 0 auto; }
         .mall-header { margin-bottom: 20px; }
+        
+        .search-sort-bar {
+            display: flex; gap: 12px; margin-bottom: 15px; align-items: center; background: white; padding: 15px; border-radius: 8px; border: 1px solid var(--border);
+        }
+        .search-sort-bar input { flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; }
+        .search-sort-bar select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; background: white; }
+
         .category-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 5px; margin-top: 15px; }
         .cat-btn {
             padding: 8px 16px; background: white; border: 1px solid var(--border);
             border-radius: 20px; font-size: 13px; cursor: pointer; white-space: nowrap;
         }
         .cat-btn.active, .cat-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+        .cat-btn.special-tab { background: #fef3c7; color: #b45309; border-color: #f59e0b; font-weight: bold; }
+        .cat-btn.special-tab.active, .cat-btn.special-tab:hover { background: #d97706; color: white; }
 
         .product-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;
         }
+        .product-grid.list-view {
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .product-grid.list-view .product-card {
+            flex-direction: row; height: 120px; align-items: center; justify-content: flex-start;
+        }
+        .product-grid.list-view .product-img {
+            width: 120px; height: 100%; flex-shrink: 0;
+        }
+        .product-grid.list-view .product-info {
+            flex: 1; display: flex; justify-content: space-between; align-items: center; padding: 0 20px;
+        }
+        .product-grid.list-view .product-title {
+            height: auto; font-size: 15px; font-weight: bold;
+        }
+
         .product-card {
             background: white; border-radius: 8px; overflow: hidden;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border);
@@ -114,18 +141,21 @@
             transition: transform 0.2s; position: relative;
         }
         .product-card:hover { transform: translateY(-4px); }
+        .product-card.special-card { border: 2px solid #f59e0b; background: linear-gradient(to bottom, #fffbeb 0%, #ffffff 30%); }
         .product-img {
             width: 100%; height: 140px; background: #ffebe6; color: var(--primary);
             display: flex; align-items: center; justify-content: center; font-weight: bold; text-align: center; padding: 10px;
         }
+        .product-card.special-card .product-img { background: #fef3c7; color: #b45309; }
         .product-info { padding: 12px; }
         .product-title { font-size: 14px; font-weight: 600; margin-bottom: 8px; height: 38px; overflow: hidden; }
         .product-price { color: var(--primary); font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+        .product-card.special-card .product-price { color: #d97706; }
         
         .fav-btn {
             position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.8);
             border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 16px;
-            display: flex; align-items: center; justify-content: center;
+            display: flex; align-items: center; justify-content: center; z-index: 10;
         }
 
         .modal {
@@ -162,10 +192,11 @@
 </head>
 <body>
 
-    <!-- 登入/註冊全螢幕頁面 (強制先登入) -->
+    <!-- 登入/註冊全螢幕頁面 (強制每次重新整理都需登入) -->
     <div id="authPage">
         <div class="auth-card" id="loginCardBox">
-            <h2 style="margin-bottom: 15px;">會員登入</h2>
+            <h2 style="margin-bottom: 15px;">會員登入 (安全驗證)</h2>
+            <div id="loginMsg" class="system-msg"></div>
             <p style="font-size: 12px; color: #666; margin-bottom: 15px;">測試帳號: <b>admin</b> | 密碼: <b>123456</b></p>
             <form id="loginForm">
                 <div class="input-group">
@@ -185,6 +216,7 @@
 
         <div class="auth-card" id="regCardBox" style="display: none;">
             <h2 style="margin-bottom: 15px;">新用戶註冊</h2>
+            <div id="regMsg" class="system-msg"></div>
             <form id="regForm">
                 <div class="input-group">
                     <label>設定帳號</label>
@@ -204,17 +236,20 @@
 
     <!-- 頂部導覽列 -->
     <div id="navbar" class="navbar" style="display: none;">
-        <h1 onclick="showMallSubSection('mallHome')">🛒 蝦皮旗艦商城</h1>
+        <h1 onclick="showMallSubSection('mallHome')">🛒 酷台線上購物網</h1>
         <div class="nav-links">
-            <span>用戶: <b id="navUsername"></b> <span id="vipBadge" style="color: #fef08a; display:none;">👑VIP</span> | 🪙 <b id="userCoins">200</b>蝦幣</span>
+            <span>用戶: <b id="navUsername"></b> | 🪙 <b id="userCoins">200</b> | 💰 <b id="walletBalance">NT$ 5,000</b></span>
             <span onclick="showMallSubSection('mallHome')">首頁</span>
-            <span onclick="showMallSubSection('sellArea')" style="color: #fef08a;">🏷️ 賣商品</span>
+            <span onclick="showMallSubSection('spinWheelArea')" style="color: #fef08a;">🎰 幸運輪盤</span>
+            <span onclick="showMallSubSection('bulletinBoardArea')" style="color: #fde047;">📢 公告欄</span>
+            <span onclick="showMallSubSection('friendsArea')" style="color: #67e8f9;">👥 好友 <span id="friendBadge" class="badge-dot" style="display:none;">0</span></span>
+            <span onclick="showMallSubSection('communityFeedArea')" style="color: #93c5fd;">🌐 社團</span>
+            <span onclick="showMallSubSection('sellArea')">🏷️ 賣衣/物</span>
+            <span onclick="showMallSubSection('sellerAnswerArea')">💬 問答區</span>
+            <span onclick="showMallSubSection('walletTopupArea')">💳 錢包</span>
             <span onclick="showMallSubSection('couponCenterArea')">🎫 領券</span>
-            <span onclick="showMallSubSection('vipArea')">👑 VIP</span>
-            <span onclick="showMallSubSection('friendsArea')">👥 好友 <span id="friendBadge" class="badge-dot" style="display:none;">0</span></span>
+            <span onclick="showMallSubSection('vipArea')">👑 會員</span>
             <span onclick="showMallSubSection('notificationArea')">🔔 通知 <span id="notifBadge" class="badge-dot" style="display:none;">0</span></span>
-            <span onclick="showMallSubSection('walletArea')">🎟️ 背包</span>
-            <span onclick="showMallSubSection('wishlistArea')">❤️ 收藏</span>
             <span onclick="showMallSubSection('ordersArea')">📦 訂單</span>
             <span onclick="showMallSubSection('cartArea')">🛍️ 購物車 (<span id="cartCount">0</span>)</span>
             <span onclick="logout()" style="color: #ffeb3b;">登出</span>
@@ -231,33 +266,46 @@
                 <button class="btn btn-small btn-danger" style="float: right;" onclick="event.stopPropagation(); clearNotification();">知道了</button>
             </div>
 
-            <!-- ⚡ 24H 限時特賣 -->
-            <div class="flash-sale-box">
-                <div class="flash-header">
-                    <h3 style="color: var(--primary); font-size: 18px;">⚡ 24H 限時特賣瘋搶</h3>
-                    <div class="countdown-timer" id="flashTimer">倒數 23:59:59</div>
-                </div>
-                <div class="product-grid" id="flashSaleGrid"></div>
-            </div>
-
             <div class="promo-banner">
                 <div>
-                    <h2>🔥 8.8 超級品牌日・滿額抽與 12 張優惠券放送</h2>
-                    <p>全館 218 款熱門商品完整上架！結帳自動回饋 10% 蝦幣。</p>
-                    <div style="background: #fef08a; color: #1e3a8a; padding: 6px 12px; border-radius: 6px; font-weight: bold; display: inline-block; cursor:pointer;" onclick="showMallSubSection('couponCenterArea')">📥 前往領取 12 張優惠券</div>
+                    <h2>🔥 8.8 超級品牌日・幸運輪盤與專屬優惠</h2>
+                    <p>精選 30 樣全類別商品（含流行服飾）完美上架！參與輪盤抽獎贏取神券與蝦幣。</p>
+                    <div style="background: #fef08a; color: #1e3a8a; padding: 6px 12px; border-radius: 6px; font-weight: bold; display: inline-block; cursor:pointer;" onclick="showMallSubSection('spinWheelArea')">🎰 前往試手氣轉動幸運輪盤</div>
                 </div>
-                <div style="font-size: 50px;">🎁</div>
+                <div style="font-size: 50px;">🎰</div>
+            </div>
+
+            <!-- 🤖 AI 智能推薦「猜你喜歡」區塊 -->
+            <div id="aiRecommendationSection" style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #bbf7d0; display: none;">
+                <h3 style="color: #166534; margin-bottom: 12px; font-size: 16px;">🤖 AI 智能推薦・猜你喜歡</h3>
+                <div id="aiRecList" style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 5px;"></div>
+            </div>
+
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid var(--border);">
+                <h3 style="color: var(--primary); margin-bottom: 12px; font-size: 16px;">🔥 全商城即時銷量排行榜 Top 5</h3>
+                <div id="topSalesList" style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 5px;"></div>
+            </div>
+
+            <div class="search-sort-bar">
+                <input type="text" id="searchInput" placeholder="🔍 搜尋您想要的衣服、商品名稱或關鍵字..." oninput="handleSearchAndSort()">
+                <select id="sortSelect" onchange="handleSearchAndSort()">
+                    <option value="default">預設排序</option>
+                    <option value="priceAsc">價格：由低到高</option>
+                    <option value="priceDesc">價格：由高到低</option>
+                </select>
+                <button class="btn btn-small btn-warning" onclick="toggleViewMode()" id="viewModeBtn" style="white-space: nowrap;">切換為列表模式</button>
             </div>
 
             <div class="mall-header">
-                <h2>熱門精選商品（點擊看優點與寫評論）</h2>
+                <h2>精選 30 樣用品與流行服飾專區</h2>
                 <div class="category-tabs">
-                    <button class="cat-btn active" onclick="filterCategory('全部', event)">全部商品 (218)</button>
+                    <button class="cat-btn active" onclick="filterCategory('全部', event)">全部商品 (30)</button>
+                    <button class="cat-btn special-tab" onclick="filterCategory('✨ 特別商品', event)">✨ 特別商品 (豪華區)</button>
+                    <button class="cat-btn" onclick="filterCategory('👕 流行服飾', event)">👕 流行服飾 (賣衣服)</button>
                     <button class="cat-btn" onclick="filterCategory('🎮 電動遊戲', event)">🎮 電動遊戲</button>
                     <button class="cat-btn" onclick="filterCategory('🧸 玩具模型', event)">🧸 玩具模型</button>
                     <button class="cat-btn" onclick="filterCategory('⚽ 運動用品', event)">⚽ 運動用品</button>
                     <button class="cat-btn" onclick="filterCategory('📱 3C科技', event)">📱 3C科技</button>
-                    <button class="cat-btn" onclick="filterCategory('👕 流行服飾', event)">👕 流行服飾</button>
                     <button class="cat-btn" onclick="filterCategory('🪑 居家生活', event)">🪑 居家生活</button>
                     <button class="cat-btn" onclick="filterCategory('🍫 美食伴手禮', event)">🍫 美食伴手禮</button>
                     <button class="cat-btn" onclick="filterCategory('✨ 美妝保養', event)">✨ 美妝保養</button>
@@ -270,7 +318,142 @@
             <div class="product-grid" id="productGrid"></div>
         </div>
 
-        <!-- 🔔 集中式站內訊息通知中心 -->
+        <!-- 🎰 幸運商城抽獎輪盤專區 (每日限抽一次與說明) -->
+        <div id="spinWheelArea" class="mall-sub-section mall-container" style="display: none;">
+            <h2>🎰 幸運商城抽獎輪盤</h2>
+            <div id="wheelMsg" class="system-msg"></div>
+            <div style="background: white; padding: 30px; border-radius: 12px; text-align: center; max-width: 500px; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <div style="font-size: 60px; margin-bottom: 15px;">🎯</div>
+                <h3 style="margin-bottom: 10px; color: var(--primary);">消耗 20 蝦幣轉動幸運輪盤</h3>
+                <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 20px;">有機率抽中「全館 5 折神券」、「免運券」或 100 點免費蝦幣！</p>
+                <div id="wheelResultBox" style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; color: #b45309; margin-bottom: 20px; display: none;"></div>
+                <button id="spinBtn" class="btn btn-warning" onclick="spinWheel()" style="font-size: 16px;">立即轉動輪盤抽獎 (-20 蝦幣)</button>
+                
+                <!-- 下方明確說明文字 -->
+                <p style="font-size: 12px; color: var(--text-sub); margin-top: 15px; line-height: 1.5;">
+                    ※ <b>活動說明：</b>每個帳號<b>每天限抽獎 1 次</b>，每次消耗 20 點蝦幣。中獎率 100%，快來試試今天的好手氣吧！
+                </p>
+            </div>
+        </div>
+
+        <!-- 📢 公告欄專區 -->
+        <div id="bulletinBoardArea" class="mall-sub-section mall-container" style="display: none;">
+            <h2>📢 商城公告欄 (官方公告與熱門新聞)</h2>
+            <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 20px;">掌握最新商城優惠活動、系統維護通知以及全球熱門流行時尚與科技新聞！</p>
+            
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div style="flex: 1; background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--border); min-width: 300px;">
+                    <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 17px;">📌 商城官方公告</h3>
+                    <div id="officialAnnouncements" style="display: flex; flex-direction: column; gap: 15px;"></div>
+                </div>
+
+                <div style="flex: 1; background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--border); min-width: 300px;">
+                    <h3 style="color: #2563eb; margin-bottom: 15px; font-size: 17px;">📰 熱門流行與產業新聞</h3>
+                    <div id="industryNews" style="display: flex; flex-direction: column; gap: 15px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🌐 蝦皮公開社團 -->
+        <div id="communityFeedArea" class="mall-sub-section mall-container" style="display: none;">
+            <h2>🌐 蝦皮公開社團與好物交流討論區</h2>
+            <div id="communityMsg" class="system-msg"></div>
+            <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 20px;">在這裡所有真實用戶都能發布貼文、留言，還能直接把好友邀請進社團一起交流！</p>
+            
+            <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 25px;">
+                <h4 style="margin-bottom: 10px; font-size: 15px; color: var(--primary);">➕ 邀請好友加入本社團</h4>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <select id="inviteFriendSelect" style="flex: 1; padding: 8px; border: 1px solid var(--border); border-radius: 6px;">
+                        <option value="">-- 請選擇您的已加好友 --</option>
+                    </select>
+                    <button class="btn btn-small btn-success" onclick="inviteFriendToCommunity()">確認邀請加入社團</button>
+                </div>
+
+                <h4 style="margin-bottom: 10px; font-size: 15px; color: var(--primary);">✍️ 發布新的社團貼文</h4>
+                <textarea id="communityPostText" rows="3" placeholder="分享您的穿搭心得、殺價技巧或好物推薦..." style="width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; margin-bottom: 10px;"></textarea>
+                <button class="btn" style="width: auto; padding: 8px 20px;" onclick="submitCommunityPost()">發表公開貼文</button>
+            </div>
+
+            <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--border);">
+                <h4 style="margin-bottom: 15px; font-size: 16px;">📰 社團即時動態牆 (所有人皆可見)</h4>
+                <div id="communityFeedList" style="display: flex; flex-direction: column; gap: 15px;"></div>
+            </div>
+        </div>
+
+        <!-- 👥 好友與聊天專區 -->
+        <div id="friendsArea" class="mall-sub-section mall-container" style="display: none;">
+            <h2>👥 真實用戶好友邀請與即時聊天</h2>
+            <div id="friendMsg" class="system-msg"></div>
+            <div style="background: white; padding: 25px; border-radius: 8px; margin-top: 20px;">
+                <div style="margin-bottom: 25px; background: #f9fafb; padding: 20px; border-radius: 6px; border: 1px solid var(--border);">
+                    <h3 style="margin-bottom: 12px; font-size: 16px;">➕ 搜尋並邀請真實好友</h3>
+                    <div class="input-group">
+                        <label>輸入對方真實註冊的用戶帳號 (例如: admin 或其他帳號)</label>
+                        <input type="text" id="friendInput" placeholder="請輸入好友帳號...">
+                    </div>
+                    <button class="btn btn-success" style="width: auto; padding: 8px 20px;" onclick="sendFriendRequest()">送出好友邀請</button>
+                </div>
+
+                <div style="margin-bottom: 25px;">
+                    <h3>📥 待處理的好友邀請（等待您的同意）</h3>
+                    <table style="margin-top: 10px;">
+                        <thead>
+                            <tr>
+                                <th>邀請人帳號</th>
+                                <th>審核操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendingTableBody"></tbody>
+                    </table>
+                </div>
+
+                <h3>📋 我的真實好友列表</h3>
+                <table style="margin-top: 10px;">
+                    <thead>
+                        <tr>
+                            <th>用戶帳號</th>
+                            <th>狀態</th>
+                            <th>即時聊天互動</th>
+                        </tr>
+                    </thead>
+                    <tbody id="friendTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 💳 虛擬錢包 -->
+        <div id="walletTopupArea" class="mall-sub-section mall-container" style="display: none;">
+            <h2>💳 虛擬錢包與現金餘額儲值</h2>
+            <div id="walletTopupMsg" class="system-msg"></div>
+            <div style="background: white; padding: 30px; border-radius: 12px; margin-top: 20px; max-width: 500px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <div style="background: #fef08a; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                    <h3 style="font-size: 14px; color: #b45309;">目前錢包可用現金餘額</h3>
+                    <p style="font-size: 26px; font-weight: bold; color: #d97706; margin-top: 5px;" id="walletBalanceText">NT$ 5,000</p>
+                </div>
+                <div class="input-group">
+                    <label>選擇儲值金額 (NT$)</label>
+                    <select id="topupAmountSelect" style="padding: 10px; width: 100%; border: 1px solid var(--border); border-radius: 6px;">
+                        <option value="1000">NT$ 1,000</option>
+                        <option value="3000">NT$ 3,000</option>
+                        <option value="5000">NT$ 5,000</option>
+                        <option value="10000">NT$ 10,000</option>
+                        <option value="50000">NT$ 50,000 (豪華大禮包)</option>
+                    </select>
+                </div>
+                <button class="btn btn-warning" onclick="topupWallet()" style="margin-top: 10px;">確認線上模擬儲值</button>
+            </div>
+        </div>
+
+        <!-- 💬 賣家回答區 -->
+        <div id="sellerAnswerArea" class="mall-sub-section mall-container" style="display: none;">
+            <h2>💬 賣家回答區 (買家提問與回覆管理)</h2>
+            <div id="sellerAnswerMsg" class="system-msg"></div>
+            <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--border); margin-top: 20px;">
+                <div id="hubSellerQnAList"></div>
+            </div>
+        </div>
+
+        <!-- 🔔 通知中心 -->
         <div id="notificationArea" class="mall-sub-section mall-container" style="display: none;">
             <h2>🔔 站內訊息通知中心</h2>
             <div style="background: white; padding: 25px; border-radius: 8px; margin-top: 20px;">
@@ -278,70 +461,93 @@
             </div>
         </div>
 
-        <!-- 🏷️ 我要賣商品專區 (置中排版與下方詳細說明) -->
+        <!-- 🏷️ 賣商品/衣服專區 -->
         <div id="sellArea" class="mall-sub-section mall-container" style="display: none; text-align: center;">
-            <h2 style="margin-bottom: 5px;">🏷️ 我要上架販售商品</h2>
-            <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 20px;">輕鬆發布您的商品，與全商城會員一同交流買賣！</p>
+            <h2>🏷️ 我要上架販售商品或流行服飾</h2>
+            <div id="sellMsg" class="system-msg"></div>
             
             <div style="background: white; padding: 30px; border-radius: 12px; margin: 0 auto; max-width: 600px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); text-align: left;">
                 <form id="sellForm" onsubmit="publishProduct(event)">
                     <div class="input-group">
-                        <label>商品名稱</label>
-                        <input type="text" id="sellName" required placeholder="例如: 二手九成新機械鍵盤">
+                        <label>商品/服飾名稱</label>
+                        <input type="text" id="sellName" required placeholder="例如: 韓版寬鬆連帽大學T (賣衣服)">
                     </div>
                     <div class="input-group">
                         <label>商品類別</label>
                         <select id="sellCategory">
+                            <option value="👕 流行服飾">👕 流行服飾 (賣衣服)</option>
                             <option value="🏷️ 用戶自售">🏷️ 用戶自售</option>
                             <option value="🎮 電動遊戲">🎮 電動遊戲</option>
                             <option value="🧸 玩具模型">🧸 玩具模型</option>
                             <option value="⚽ 運動用品">⚽ 運動用品</option>
                             <option value="📱 3C科技">📱 3C科技</option>
-                            <option value="👕 流行服飾">👕 流行服飾</option>
-                            <option value="🪑 居家生活">🪑 居家生活</option>
                         </select>
                     </div>
                     <div class="input-group">
                         <label>販售價格 (NT$)</label>
-                        <input type="number" id="sellPrice" required placeholder="例如: 1200">
+                        <input type="number" id="sellPrice" required placeholder="例如: 690">
+                    </div>
+                    <div class="input-group">
+                        <label>運送天數 (天)</label>
+                        <input type="number" id="sellDays" required value="3" placeholder="例如: 3">
                     </div>
                     <div class="input-group">
                         <label>商品是什麼 (詳細說明)</label>
-                        <textarea id="sellDesc" rows="3" required placeholder="請簡單介紹這件商品的狀況與特色..."></textarea>
+                        <textarea id="sellDesc" rows="3" required placeholder="請簡單介紹衣物材質、版型與尺寸說明..."></textarea>
                     </div>
                     <div class="input-group">
                         <label>商品核心優點</label>
-                        <input type="text" id="sellPros" required placeholder="例如: 軸體無損、極新、原廠盒裝齊全">
+                        <input type="text" id="sellPros" required placeholder="例如: 100%純棉、親膚透氣">
                     </div>
-                    <button type="submit" class="btn">立即上架商品</button>
+                    <div class="input-group">
+                        <label>🏷️ 附贈買家專屬折價券名稱 (選填)</label>
+                        <input type="text" id="sellCoupon" placeholder="例如: 服飾專屬折50元券">
+                    </div>
+                    
+                    <div class="input-group" style="background: #fef3c7; padding: 12px; border-radius: 6px; border: 1px solid #f59e0b; display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="sellIsSpecial" style="width: 18px; height: 18px; cursor: pointer;">
+                        <label for="sellIsSpecial" style="margin: 0; color: #b45309; font-weight: bold; cursor: pointer;">⭐ 勾選以將此服飾設為「特別商品」</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-special">立即上架服飾/商品</button>
                 </form>
             </div>
-
-            <!-- 下方詳細說明與上架規範區塊 -->
-            <div style="max-width: 600px; margin: 25px auto 0 auto; background: #fffbeb; border: 1px solid #fde68a; padding: 20px; border-radius: 8px; text-align: left;">
-                <h4 style="color: #92400e; margin-bottom: 8px; font-size: 15px;">📋 上架販售商品說明與規範：</h4>
-                <ul style="font-size: 13px; color: #78350f; padding-left: 20px; line-height: 1.6;">
-                    <li><b>即時上架</b>：送出表單後，您的商品會立刻置頂顯示在商城首頁與對應類別中，所有註冊會員皆可瀏覽並加入購物車。</li>
-                    <li><b>真實描述</b>：請詳細填寫「商品是什麼」與「核心優點」，誠實說明商品新舊狀況，以確保交易順暢並獲得買家良好評價。</li>
-                    <li><b>價格設定</b>：請填寫合理的台幣 (NT$) 金額，買家下單後系統將自動產生成交歷史訂單。</li>
-                    <li><b>互動與評價</b>：其他用戶購買並收到您上架的商品後，可以給予心心評分與真實評論。</li>
-                </ul>
-            </div>
         </div>
 
-        <!-- 🎫 12張優惠券領取中心 -->
+        <!-- 🎫 領券中心 -->
         <div id="couponCenterArea" class="mall-sub-section mall-container" style="display: none;">
-            <h2>🎫 12 張專屬優惠券領取中心</h2>
-            <div style="margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;" id="couponCenterList"></div>
+            <h2>🎫 優惠券領取與兌換中心</h2>
+            <div id="couponMsg" class="system-msg"></div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid var(--border); max-width: 600px;">
+                <h4 style="color: var(--primary); margin-bottom: 8px; font-size: 15px;">🔑 輸入優惠代碼 / 兌換碼解鎖隱藏券</h4>
+                <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 12px;">提示：本商城設有特殊隱藏優惠碼，需透過專屬管道獲得才能解鎖特別折扣。</p>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="promoCodeInput" placeholder="請輸入優惠代碼..." style="flex: 1; padding: 8px; border: 1px solid var(--border); border-radius: 6px;">
+                    <button class="btn btn-small btn-warning" onclick="redeemPromoCode()">兌換優惠券</button>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;" id="couponCenterList"></div>
         </div>
 
-        <!-- 👑 VIP 會員升級專區 -->
+        <!-- 👑 會員等級 -->
         <div id="vipArea" class="mall-sub-section mall-container" style="display: none;">
-            <h2>👑 VIP 尊榮會員中心</h2>
+            <h2>👑 會員等級與消費成長中心</h2>
+            <div id="vipMsg" class="system-msg"></div>
             <div style="background: white; padding: 30px; border-radius: 12px; margin-top: 20px; max-width: 600px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-                <div id="vipStatusBox" style="margin-bottom: 20px; padding: 15px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;">
-                    <h3 id="vipStatusTitle" style="color: #d97706; margin-bottom: 5px;">⭐ 您目前為：一般會員</h3>
-                    <p id="vipStatusDesc" style="font-size: 13px; color: #92400e;">填寫下方基本資料即可免費解鎖 VIP 會員，享全館免運與專屬 88 折優惠！</p>
+                <div style="margin-bottom: 20px; padding: 15px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;">
+                    <h3 id="memberTierTitle" style="color: #d97706; margin-bottom: 5px;">⭐ 當前等級：銅牌會員</h3>
+                    <p id="memberTierDesc" style="font-size: 13px; color: #92400e; margin-bottom: 10px;">累計消費滿額可解鎖更高會員等級與 15% 蝦幣回饋！</p>
+                    <div style="background: #e5e7eb; border-radius: 10px; height: 16px; width: 100%; overflow: hidden; position: relative;">
+                        <div id="tierProgressBar" style="background: var(--vip-gold); width: 20%; height: 100%; transition: width 0.3s;"></div>
+                    </div>
+                    <p style="font-size: 12px; color: var(--text-sub); margin-top: 5px;">累計消費總額：NT$ <span id="totalSpentText">0</span> / 升級門檻 NT$ <span id="tierGoalText">5,000</span></p>
+                </div>
+
+                <div id="vipStatusBox" style="margin-bottom: 20px; padding: 15px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;">
+                    <h3 id="vipStatusTitle" style="color: #166534; margin-bottom: 5px;">VIP 尊榮特權</h3>
+                    <p style="font-size: 13px; color: #15803d;">填寫下方基本資料即可解鎖專屬特權。</p>
                 </div>
                 
                 <form id="vipForm" onsubmit="applyVip(event)">
@@ -361,52 +567,12 @@
                         <label>出生年月日</label>
                         <input type="date" id="vipBirthday" required>
                     </div>
-                    <button type="submit" class="btn btn-vip">立即填寫資料升級 VIP 會員</button>
+                    <button type="submit" class="btn btn-vip">更新會員基本資料</button>
                 </form>
             </div>
         </div>
 
-        <!-- 好友邀請與聊天專區 -->
-        <div id="friendsArea" class="mall-sub-section mall-container" style="display: none;">
-            <h2>👥 好友邀請與聊天室</h2>
-            <div style="background: white; padding: 25px; border-radius: 8px; margin-top: 20px;">
-                <div style="margin-bottom: 25px; background: #f9fafb; padding: 20px; border-radius: 6px; border: 1px solid var(--border);">
-                    <h3 style="margin-bottom: 12px; font-size: 16px;">➕ 搜尋並送出好友邀請</h3>
-                    <div class="input-group">
-                        <label>輸入對方真實註冊的用戶帳號</label>
-                        <input type="text" id="friendInput" placeholder="例如: admin 或其他帳號">
-                    </div>
-                    <button class="btn btn-success" style="width: auto; padding: 8px 20px;" onclick="sendFriendRequest()">送出好友邀請</button>
-                </div>
-
-                <div style="margin-bottom: 25px;">
-                    <h3>📥 待處理的好友邀請（等待您的同意）</h3>
-                    <table style="margin-top: 10px;">
-                        <thead>
-                            <tr>
-                                <th>邀請人帳號</th>
-                                <th>審核操作</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pendingTableBody"></tbody>
-                    </table>
-                </div>
-
-                <h3>📋 我的好友列表（已同意）</h3>
-                <table style="margin-top: 10px;">
-                    <thead>
-                        <tr>
-                            <th>用戶帳號</th>
-                            <th>狀態</th>
-                            <th>互動聊天</th>
-                        </tr>
-                    </thead>
-                    <tbody id="friendTableBody"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- 🎟️ 我的優惠券背包 -->
+        <!-- 背包 -->
         <div id="walletArea" class="mall-sub-section mall-container" style="display: none;">
             <h2>🎟️ 我的優惠券背包</h2>
             <div style="background: white; padding: 25px; border-radius: 8px; margin-top: 20px;">
@@ -414,7 +580,7 @@
             </div>
         </div>
 
-        <!-- ❤️ 我的收藏清單 -->
+        <!-- 收藏 -->
         <div id="wishlistArea" class="mall-sub-section mall-container" style="display: none;">
             <h2>❤️ 我的商品收藏清單</h2>
             <div style="background: white; padding: 25px; border-radius: 8px; margin-top: 20px;">
@@ -422,25 +588,32 @@
             </div>
         </div>
 
-        <!-- 📦 歷史訂單與物流追蹤 -->
+        <!-- 📦 歷史訂單與運送天數追蹤 -->
         <div id="ordersArea" class="mall-sub-section mall-container" style="display: none;">
-            <h2>📦 歷史訂單與物流狀態追蹤</h2>
+            <h2>📦 歷史訂單與運送天數狀態追蹤</h2>
             <div style="background: white; padding: 25px; border-radius: 8px; margin-top: 20px;" id="ordersContainer"></div>
         </div>
 
         <!-- 購物車與多元結帳專區 -->
         <div id="cartArea" class="mall-sub-section mall-container" style="display: none;">
             <h2>🛍️ 您的購物車與多元結帳</h2>
+            <div id="cartMsg" class="system-msg"></div>
             <div style="background: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
-                <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" checked>
-                    <label for="selectAll" style="font-weight: bold; cursor: pointer;">全選所有商品</label>
+                <div style="margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="selectAll" onclick="toggleSelectAll(this)" checked>
+                        <label for="selectAll" style="font-weight: bold; cursor: pointer;">全選所有商品</label>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-small btn-danger" onclick="deleteSelectedCartItems()">批次刪除勾選</button>
+                        <button class="btn btn-small btn-warning" onclick="clearCart()">一鍵清空購物車</button>
+                    </div>
                 </div>
                 <table>
                     <thead>
                         <tr>
                             <th style="width: 40px;">選取</th>
-                            <th>商品名稱</th>
+                            <th>商品名稱與規格</th>
                             <th>單價</th>
                             <th>數量調整</th>
                             <th>小計</th>
@@ -450,6 +623,10 @@
                     <tbody id="cartTableBody"></tbody>
                 </table>
                 
+                <div id="giftBanner" style="margin-top: 15px; background: #fdf8f6; border: 1px dashed #f97316; padding: 10px; border-radius: 6px; font-size: 13px; color: #c2410c; display: none;">
+                    🎁 <b>恭喜您！</b> 訂單金額已滿 NT$ 2,000，結帳將自動贈送「限量精美滿額贈禮」一份！
+                </div>
+
                 <div style="margin-top: 20px; border-top: 1px solid var(--border); padding-top: 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <label style="font-weight: bold;">使用背包優惠券 / 蝦幣折抵：</label>
@@ -471,11 +648,22 @@
                     <div class="input-group">
                         <label>付款方式</label>
                         <select id="payMethod" onchange="togglePayMethod()">
+                            <option value="wallet">虛擬錢包現金餘額支付 (現有: <span id="payWalletBalance">NT$ 5,000</span>)</option>
                             <option value="credit">信用卡線上刷卡</option>
                             <option value="atm">網路 ATM / 轉帳</option>
                             <option value="cod">超商貨到付款 (指定超商分店)</option>
                             <option value="applepay">Apple Pay / Google Pay</option>
                             <option value="jkh">街口支付 / LINE Pay</option>
+                        </select>
+                    </div>
+
+                    <div id="installmentGroup" class="input-group" style="display: none; background: #fffbeb; padding: 12px; border-radius: 6px; border: 1px solid #fde68a;">
+                        <label style="color: #92400e;">💳 信用卡分期付款方案 (0利率試算)</label>
+                        <select id="installmentSelect" onchange="calculateInstallment()" style="padding: 8px; border: 1px solid var(--border); border-radius: 4px; background: white;">
+                            <option value="1">一次付清 (不分期)</option>
+                            <option value="3">分 3 期零利率 (每期約 NT$ <span id="inst3">0</span>)</option>
+                            <option value="6">分 6 期零利率 (每期約 NT$ <span id="inst6">0</span>)</option>
+                            <option value="12">分 12 期零利率 (每期約 NT$ <span id="inst12">0</span>)</option>
                         </select>
                     </div>
 
@@ -508,14 +696,46 @@
         </div>
     </div>
 
-    <!-- 商品詳細資料與評分評論 Modal -->
+    <!-- 商品詳細資料與 Q&A 問與答 Modal -->
     <div id="productModal" class="modal">
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal()">&times;</span>
-            <div id="modalCategory" style="font-size: 12px; color: var(--primary); font-weight: bold; margin-bottom: 5px;"></div>
+            <div id="modalMsg" class="system-msg"></div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div id="modalCategory" style="font-size: 12px; color: var(--primary); font-weight: bold; margin-bottom: 5px;"></div>
+                <div id="modalSeller" style="font-size: 12px; color: #3b82f6; font-weight: bold; cursor: pointer;" onclick="openSellerProfileModal()">🏪 查看賣家商場</div>
+            </div>
             <h2 id="modalTitle" style="font-size: 18px; margin-bottom: 10px;"></h2>
-            <div id="modalPrice" style="font-size: 20px; font-weight: bold; color: var(--primary); margin-bottom: 15px;"></div>
+            <div id="modalPrice" style="font-size: 20px; font-weight: bold; color: var(--primary); margin-bottom: 10px;"></div>
             
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px 12px; border-radius: 6px; margin-bottom: 15px; font-size: 13px; color: #1e40af; font-weight: bold;">
+                🚚 <b>物流配送資訊：</b> 本商品預計需要 <span id="modalShippingDays" style="color: var(--primary);">3</span> 天送達指定超商門市。
+            </div>
+
+            <div style="background: #fdf8f6; border: 1px solid #fed7aa; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
+                <h4 style="color: #c2410c; margin-bottom: 8px; font-size: 14px;">🎨 選擇商品規格 / 服飾尺寸 (S/M/L/XL)：</h4>
+                <div style="display: flex; gap: 15px;">
+                    <div style="flex: 1;">
+                        <label style="font-size: 12px; font-weight: bold; color: var(--text-sub);">顏色：</label>
+                        <select id="modalColorSelect" style="width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; margin-top: 3px;">
+                            <option value="純淨白 (White)">純淨白 (White)</option>
+                            <option value="復古黑 (Black)">復古黑 (Black)</option>
+                            <option value="燕麥色 (Oatmeal)">燕麥色 (Oatmeal)</option>
+                            <option value="奶茶色 (Milk Tea)">奶茶色 (Milk Tea)</option>
+                        </select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label style="font-size: 12px; font-weight: bold; color: var(--text-sub);">尺寸 (S/M/L/XL)：</label>
+                        <select id="modalSizeSelect" style="width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px; margin-top: 3px;">
+                            <option value="S (小碼)">S (小碼)</option>
+                            <option value="M (標準碼)">M (標準碼)</option>
+                            <option value="L (大碼)">L (大碼)</option>
+                            <option value="XL (特大碼)">XL (特大碼)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
                 <h4 style="color: #166534; margin-bottom: 5px; font-size: 14px;">🌟 商品核心優點：</h4>
                 <p id="modalPros" style="font-size: 13px; color: #15803d; line-height: 1.5;"></p>
@@ -523,9 +743,18 @@
 
             <p id="modalDesc" style="font-size: 14px; color: var(--text-sub); line-height: 1.6; margin-bottom: 20px;"></p>
             
+            <div style="border-top: 1px solid var(--border); padding-top: 15px; margin-bottom: 15px;">
+                <h4 style="font-size: 14px; margin-bottom: 8px; color: #1d4ed8;">❓ 商品問與答 (Q&A)：</h4>
+                <div id="modalQnA" style="max-height: 100px; overflow-y: auto; font-size: 13px; color: #555; background: #eff6ff; padding: 10px; border-radius: 6px; margin-bottom: 10px;"></div>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="userQnAInput" placeholder="詢問賣家關於此商品的問題..." style="flex: 1; padding: 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px;">
+                    <button class="btn btn-small btn-success" onclick="submitProductQnA()">送出提問</button>
+                </div>
+            </div>
+
             <div style="border-top: 1px solid var(--border); padding-top: 15px; margin-bottom: 20px;">
                 <h4 style="font-size: 14px; margin-bottom: 10px;">💬 會員商品真實評論：</h4>
-                <div id="modalReviews" style="max-height: 120px; overflow-y: auto; font-size: 13px; color: #555; background: #f9fafb; padding: 10px; border-radius: 6px; margin-bottom: 15px;"></div>
+                <div id="modalReviews" style="max-height: 100px; overflow-y: auto; font-size: 13px; color: #555; background: #f9fafb; padding: 10px; border-radius: 6px; margin-bottom: 15px;"></div>
                 
                 <div style="background: #fffbeb; border: 1px solid #fde68a; padding: 12px; border-radius: 6px;">
                     <h5 style="margin-bottom: 8px; font-size: 13px; color: #92400e;">✍️ 我要寫評論與評分：</h5>
@@ -547,6 +776,17 @@
         </div>
     </div>
 
+    <!-- 賣家個人商場 Modal -->
+    <div id="sellerModal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <span class="close-btn" onclick="closeSellerModal()">&times;</span>
+            <h2 id="sellerModalName" style="font-size: 18px; color: var(--primary); margin-bottom: 8px;"></h2>
+            <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 15px;">⭐ 賣家綜合評價：<b>4.9 / 5.0 顆星</b> (已完成 128 筆優質交易)</p>
+            <h4 style="font-size: 14px; margin-bottom: 8px;">📦 該賣家上架中的商品：</h4>
+            <div id="sellerProductsList" style="max-height: 250px; overflow-y: auto; font-size: 13px; background: #f9fafb; padding: 10px; border-radius: 6px;"></div>
+        </div>
+    </div>
+
     <!-- 優惠券詳細資料 Modal -->
     <div id="couponModal" class="modal">
         <div class="modal-content" style="max-width: 420px;">
@@ -558,6 +798,24 @@
             </div>
             <p id="couponModalDesc" style="font-size: 13px; color: var(--text-sub); line-height: 1.6; margin-bottom: 20px;"></p>
             <button class="btn" onclick="closeCouponModal()">了解並關閉</button>
+        </div>
+    </div>
+
+    <!-- 📦 物流即時動態 Modal -->
+    <div id="trackingModal" class="modal">
+        <div class="modal-content" style="max-width: 420px;">
+            <span class="close-btn" onclick="closeTrackingModal()">&times;</span>
+            <h2 style="font-size: 18px; color: var(--primary); margin-bottom: 15px;">📦 物流即時動態追蹤</h2>
+            <div style="background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid var(--border); font-size: 13px; line-height: 2;">
+                <p>📦 <b>配送分店：</b> <span id="trackStore"></span></p>
+                <p>⏳ <b>預計送達天數：</b> <span id="trackDays"></span> 天</p>
+                <hr style="margin: 8px 0; border: none; border-top: 1px solid #eee;">
+                <p style="color: var(--success);">🟢 [已送達] 貨物已順利送達指定超商門市</p>
+                <p style="color: #2563eb;">🔵 [派送中] 司機正在前往超商途中</p>
+                <p style="color: #2563eb;">🔵 [運輸中] 快遞已離開物流中心轉運中</p>
+                <p style="color: #6b7280;">⚪ [已出貨] 賣家已包裝並完成出貨登記</p>
+            </div>
+            <button class="btn" style="margin-top: 15px;" onclick="closeTrackingModal()">關閉追蹤</button>
         </div>
     </div>
 
@@ -591,7 +849,7 @@
             </div>
             <div class="chat-messages" id="chatMessages"></div>
             <div style="padding: 6px 12px; background: #eee; font-size: 12px; display: flex; gap: 8px;">
-                <button class="btn btn-small btn-warning" onclick="shareProductInChat('Sony PS5 數位版主機')">分享熱門商品</button>
+                <button class="btn btn-small btn-warning" onclick="shareProductInChat('韓版寬鬆素面純棉大學T')">分享熱門商品</button>
             </div>
             <div class="chat-input-area">
                 <input type="text" id="chatInput" placeholder="傳送訊息..." onkeypress="handleChatKeyPress(event)">
@@ -601,6 +859,15 @@
     </div>
 
     <script>
+        function showSysMsg(elementId, text, type = 'success') {
+            const el = document.getElementById(elementId);
+            if(!el) return;
+            el.textContent = text;
+            el.className = `system-msg ${type}`;
+            el.style.display = 'block';
+            setTimeout(() => { el.style.display = 'none'; }, 3500);
+        }
+
         if (!localStorage.getItem('users')) {
             localStorage.setItem('users', JSON.stringify({ 'admin': '123456', 'user01': '123456' }));
         }
@@ -614,44 +881,45 @@
             { name: '【蝦幣折抵】折抵 100 元', benefit: '直接折抵現金 100 元。', desc: '可用蝦幣兌換。' },
             { name: '【週末狂歡】現折 NT$ 300', benefit: '單筆消費滿 NT$ 3,000 折抵 NT$ 300。', desc: '週末限定使用。' },
             { name: '【新人大禮包】現折 NT$ 100', benefit: '新註冊會員首筆訂單折抵 NT$ 100。', desc: '每位新用戶限用一次。' },
-            { name: '【居家生活】專屬 85 折券', benefit: '居家生活分類商品享 85 折優惠！', desc: '適用於居家生活類商品。' },
-            { name: '【3C科技】現折 NT$ 500', benefit: '購買 3C科技商品滿 NT$ 10,000 折抵 NT$ 500。', desc: '適用於 3C 類商品。' },
-            { name: '【電動遊戲】折抵 NT$ 200', benefit: '購買電動遊戲或主機折抵 NT$ 200。', desc: '適用於電動遊戲類商品。' },
-            { name: '【運動用品】9折優惠券', benefit: '專業運動用品享 9 折優惠。', desc: '適用於運動健身用品。' }
+            { name: '【VIP888】隱藏專屬 8折券', benefit: '憑 VIP888 兌換碼解鎖的全館 8 折頂級優惠！', desc: '輸入兌換碼獲得。' },
+            { name: '【SHOPEE666】滿千折300券', benefit: '憑 SHOPEE666 兌換碼解鎖的滿千折300元！', desc: '輸入兌換碼獲得。' }
         ];
 
-        let products = [];
-        const categories = ['🎮 電動遊戲', '🧸 玩具模型', '⚽ 運動用品', '📱 3C科技', '👕 流行服飾', '🪑 居家生活', '🍫 美食伴手禮', '✨ 美妝保養', '🚴 戶外運動', '🍼 母嬰玩具', '🐱 寵物用品'];
-        const namesPool = ["頂級防摔保護殼", "藍牙無線環繞喇叭", "磁吸快速充電盤", "電競RGB發光鼠墊", "多功能Type-C轉接頭", "純棉防滑運動襪", "文青簡約帆布袋", "韓版休閒百搭棒球帽", "不鏽鋼真空保溫瓶", "LED磁吸護眼閱讀燈"];
-
-        for(let i = 1; i <= 218; i++) {
-            let cat = categories[(i - 1) % categories.length];
-            let name = `旗艦精品・${namesPool[(i - 1) % namesPool.length]} (#${i})`;
-            if(i === 1) name = 'Sony PS5 數位版主機 + 雙手把';
-            if(i === 2) name = 'Nintendo Switch OLED 台灣專用機';
-            if(i === 3) name = '薩爾達傳說 王國之淚';
-            if(i === 4) name = '微軟 Xbox Series X 主機';
-            if(i === 5) name = '萬代 MG 鋼彈 模型組裝玩具';
-
-            let price = (i * 73) % 4500 + 200;
-            if(i === 1) price = 15800;
-            if(i === 2) price = 10480;
-            if(i === 3) price = 1590;
-            if(i === 4) price = 15300;
-
-            products.push({
-                id: i,
-                name: name,
-                price: price,
-                category: cat,
-                desc: `這是專為現代質感生活設計的 ${name}，擁有卓越性能、優異的耐用度與極佳的性價比。`,
-                pros: "品質精良、設計美觀、操作直覺流暢。",
-                reviews: ["user01: ❤️❤️❤️❤️❤️ 質感非常好，出貨迅速！", "admin: ❤️❤️❤️❤️❤️ 旗艦級品質，極力推薦！"]
-            });
-        }
+        let products = [
+            { id: 1, name: "韓版寬鬆素面純棉大學T", price: 590, category: "👕 流行服飾", isSpecial: true, sales: 920, shippingDays: 3, desc: "精選 100% 舒適純棉，落肩寬鬆版型，男女皆可輕鬆駕馭。", pros: "柔軟親膚、百搭不退流行、不易起毛球。", reviews: ["user01: ❤️❤️❤️❤️❤️ 材質超舒服！"], qna: [{ q: "版型偏大嗎？", a: "賣家回覆：微寬鬆版型，按平常尺寸拿即可。" }] },
+            { id: 2, name: "法式復古高腰落地寬褲", price: 680, category: "👕 流行服飾", isSpecial: false, sales: 780, shippingDays: 4, desc: "修飾腿型的神褲，垂墜感極佳，顯瘦又高挑。", pros: "修飾身形、垂墜感好、高腰顯瘦。", reviews: ["admin: ❤️❤️❤️❤️❤️ 穿起來腿超長。"], qna: [{ q: "有彈性嗎？", a: "賣家回覆：後腰頭有做鬆緊帶設計。" }] },
+            { id: 3, name: "日系簡約工裝多口袋外套", price: 1280, category: "👕 流行服飾", isSpecial: true, sales: 540, shippingDays: 5, desc: "硬挺耐磨面料，多口袋實用設計，街頭潮流必備。", pros: "帥氣有型、防風耐磨、口袋超多。", reviews: ["user01: ❤️❤️❤️❤️❤️ 版型超挺！"], qna: [{ q: "會很重嗎？", a: "賣家回覆：採用輕量化硬挺布料，輕便好穿。" }] },
+            { id: 4, name: "百搭修身顯瘦針織衫", price: 490, category: "👕 流行服飾", isSpecial: false, sales: 650, shippingDays: 3, desc: "柔軟親膚針織面料，單穿或內搭都非常好看。", pros: "親膚不刺肌膚、彈性極佳。", reviews: ["admin: ❤️❤️❤️❤️❤️ 質感超出預期。"], qna: [{ q: "可以機洗嗎？", a: "賣家回覆：建議放入洗衣袋機洗或手洗。" }] },
+            { id: 5, name: "復古刷色抽鬚牛仔短褲", price: 550, category: "👕 流行服飾", isSpecial: false, sales: 490, shippingDays: 3, desc: "經典刷色與抽鬚邊緣，夏日清爽舒適。", pros: "經典百搭、夏天必備。", reviews: ["user01: ❤️❤️❤️❤️❤️ 很好搭配衣服。"], qna: [{ q: "尺寸怎麼選？", a: "賣家回覆：請參考賣場尺寸對照表。" }] },
+            { id: 6, name: "Sony PS5 數位版主機", price: 15800, category: "🎮 電動遊戲", isSpecial: true, sales: 850, shippingDays: 2, desc: "次世代光線追蹤、超高速 SSD，給您身臨其境的遊戲震撼。", pros: "讀取極速、次世代畫質。", reviews: ["user01: ❤️❤️❤️❤️❤️ 超爽快！"], qna: [{ q: "全新公司貨嗎？", a: "賣家回覆：是的，原廠保固一年。" }] },
+            { id: 7, name: "Nintendo Switch OLED 台灣專用機", price: 10480, category: "🎮 電動遊戲", isSpecial: true, sales: 720, shippingDays: 2, desc: "7吋 OLED 螢幕色彩更鮮明，隨時隨地享受歡樂。", pros: "螢幕超美。", reviews: ["admin: ❤️❤️❤️❤️❤️ 聚會必備。"], qna: [{ q: "有附手把嗎？", a: "賣家回覆：內含左右手把。" }] },
+            { id: 8, name: "薩爾達傳說 王國之淚", price: 1590, category: "🎮 電動遊戲", isSpecial: false, sales: 940, shippingDays: 2, desc: "探索浩瀚的海拉魯大陸，無限可能與冒險。", pros: "自由度極高。", reviews: ["user01: ❤️❤️❤️❤️❤️ 時間小偷！"], qna: [{ q: "中文版嗎？", a: "賣家回覆：支援繁體中文。" }] },
+            { id: 9, name: "微軟 Xbox Series X 主機", price: 15300, category: "🎮 電動遊戲", isSpecial: false, sales: 510, shippingDays: 3, desc: "效能最強大的家用主機，支援 4K 120fps。", pros: "效能強悍。", reviews: ["admin: ❤️❤️❤️❤️❤️ 搭配 XGP 超划算。"], qna: [{ q: "有現貨嗎？", a: "賣家回覆：有現貨。" }] },
+            { id: 10, name: "萬代 MG 鋼彈 模型", price: 1350, category: "🧸 玩具模型", isSpecial: false, sales: 430, shippingDays: 4, desc: "精細分件與骨架設計，模型迷必收藏。", pros: "組裝手感極佳。", reviews: ["user01: ❤️❤️❤️❤️❤️ 紓壓首選。"], qna: [{ q: "要上色嗎？", a: "賣家回覆：素組就很漂亮。" }] },
+            { id: 11, name: "LEGO 樂高經典賽車", price: 1680, category: "🧸 玩具模型", isSpecial: false, sales: 380, shippingDays: 3, desc: "激發無限創造力與動手能力。", pros: "品質精良。", reviews: ["admin: ❤️❤️❤️❤️❤️ 益智好玩。"], qna: [{ q: "適合幾歲？", a: "賣家回覆：建議 7 歲以上。" }] },
+            { id: 12, name: "碳纖維超輕量羽球拍組", price: 2280, category: "⚽ 運動用品", isSpecial: false, sales: 410, shippingDays: 3, desc: "高磅數耐打、輕量化設計，殺球犀利。", pros: "極輕手感。", reviews: ["user01: ❤️❤️❤️❤️❤️ 殺球超有力。"], qna: [{ q: "有拍袋嗎？", a: "賣家回覆：附原廠拍袋。" }] },
+            { id: 13, name: "10mm 加厚防滑瑜珈墊", price: 680, category: "⚽ 運動用品", isSpecial: false, sales: 610, shippingDays: 3, desc: "高密度 NBR 材質、絕佳防滑避震。", pros: "加厚防震。", reviews: ["admin: ❤️❤️❤️❤️❤️ 膝蓋不痛。"], qna: [{ q: "會不會滑？", a: "賣家回覆：雙面防滑。" }] },
+            { id: 14, name: "Insta360 GO Ultra 相機", price: 14900, category: "📱 3C科技", isSpecial: false, sales: 290, shippingDays: 2, desc: "極致輕巧、超強防手震。", pros: "磁吸快拆。", reviews: ["user01: ❤️❤️❤️❤️❤️ 攜帶超方便。"], qna: [{ q: "防水嗎？", a: "賣家回覆：支援日常防水。" }] },
+            { id: 15, name: "Apple iPhone 17 Pro", price: 36900, category: "📱 3C科技", isSpecial: true, sales: 880, shippingDays: 2, desc: "搭載最新仿生晶片，超強三鏡頭。", pros: "效能怪獸。", reviews: ["admin: ❤️❤️❤️❤️❤️ 拍照頂級。"], qna: [{ q: "容量？", a: "賣家回覆：256GB。" }] },
+            { id: 16, name: "智能無線降噪藍牙耳機", price: 2490, category: "📱 3C科技", isSpecial: false, sales: 640, shippingDays: 2, desc: "主動降噪技術，高音質立體聲。", pros: "降噪強。", reviews: ["user01: ❤️❤️❤️❤️❤️ 通勤必備。"], qna: [{ q: "續航多久？", a: "賣家回覆：30小時續航。" }] },
+            { id: 17, name: "人體工學電腦辦公椅", price: 3500, category: "🪑 居家生活", isSpecial: false, sales: 560, shippingDays: 5, desc: "透氣網布設計，可調節式頭枕。", pros: "久坐不腰痠。", reviews: ["admin: ❤️❤️❤️❤️❤️ 腰痛改善。"], qna: [{ q: "要組裝嗎？", a: "賣家回覆：附工具易組裝。" }] },
+            { id: 18, name: "氣炸鍋 5.5L 大容量", price: 2190, category: "🪑 居家生活", isSpecial: false, sales: 670, shippingDays: 3, desc: "無油健康烹調，觸控面板。", pros: "大容量健康。", reviews: ["user01: ❤️❤️❤️❤️❤️ 炸薯條神器。"], qna: [{ q: "好洗嗎？", a: "賣家回覆：不沾塗層好清洗。" }] },
+            { id: 19, name: "LED 護眼觸控檯燈", price: 650, category: "🪑 居家生活", isSpecial: false, sales: 510, shippingDays: 3, desc: "無藍光危害、多段色溫調整。", pros: "不傷眼。", reviews: ["admin: ❤️❤️❤️❤️❤️ 光線柔和。"], qna: [{ q: "無線嗎？", a: "賣家回覆：可無線使用。" }] },
+            { id: 20, name: "車用無線吸塵器", price: 850, category: "🪑 居家生活", isSpecial: false, sales: 330, shippingDays: 3, desc: "大吸力、無線便攜。", pros: "輕巧強勁。", reviews: ["user01: ❤️❤️❤️❤️❤️ 車內乾淨溜溜。"], qna: [{ q: "濾網可洗嗎？", a: "賣家回覆：可水洗重複用。" }] },
+            { id: 21, name: "黑巧克力流心蛋糕", price: 480, category: "🍫 美食伴手禮", isSpecial: false, sales: 890, shippingDays: 2, desc: "進口可可豆製作，濃郁流心。", pros: "加熱會爆漿。", reviews: ["admin: ❤️❤️❤️❤️❤️ 下午茶首選。"], qna: [{ q: "保存天數？", a: "賣家回覆：冷凍30天。" }] },
+            { id: 22, name: "高山手採烏龍茶葉禮盒", price: 1200, category: "🍫 美食伴手禮", isSpecial: false, sales: 340, shippingDays: 3, desc: "手採一心二葉，香氣清揚。", pros: "茶香持久。", reviews: ["user01: ❤️❤️❤️❤️❤️ 長輩喜歡。"], qna: [{ q: "重量？", a: "賣家回覆：兩罐共一斤。" }] },
+            { id: 23, name: "保濕修護水凝乳霜", price: 890, category: "✨ 美妝保養", isSpecial: false, sales: 490, shippingDays: 3, desc: "深層補水、清爽不黏膩。", pros: "好吸收。", reviews: ["admin: ❤️❤️❤️❤️❤️ 皮膚水嫩。"], qna: [{ q: "敏感肌可用？", a: "賣家回覆：植萃配方適用。" }] },
+            { id: 24, name: "草本植萃修護護手霜", price: 250, category: "✨ 美妝保養", isSpecial: false, sales: 760, shippingDays: 3, desc: "滋潤雙手、淡淡天然花香。", pros: "吸收極快。", reviews: ["user01: ❤️❤️❤️❤️❤️ 手不乾裂。"], qna: [{ q: "會不會油膩嗎？", a: "賣家回覆：清爽不油膩。" }] },
+            { id: 25, name: "輕量登山健行背包", price: 1880, category: "🚴 戶外運動", isSpecial: false, sales: 260, shippingDays: 4, desc: "防撕裂耐磨材質，減壓設計。", pros: "大容量減壓。", reviews: ["admin: ❤️❤️❤️❤️❤️ 肩膀不痛。"], qna: [{ q: "附防雨罩？", a: "賣家回覆：附專用防雨罩。" }] },
+            { id: 26, name: "LED 太陽能露營燈", price: 390, category: "🚴 戶外運動", isSpecial: false, sales: 310, shippingDays: 3, desc: "雙充電模式，超高亮度。", pros: "應急必備。", reviews: ["user01: ❤️❤️❤️❤️❤️ 露營超亮。"], qna: [{ q: "可用多久？", a: "賣家回覆：約6小時。" }] },
+            { id: 27, name: "兒童安撫益智積木組", price: 790, category: "🍼 母嬰玩具", isSpecial: false, sales: 350, shippingDays: 3, desc: "安全無毒材質，激發創造力。", pros: "無毒無味。", reviews: ["admin: ❤️❤️❤️❤️❤️ 小孩愛玩。"], qna: [{ q: "安全認證？", a: "賣家回覆：通過歐盟認證。" }] },
+            { id: 28, name: "多功能兒童學習餐椅", price: 1280, category: "🍼 母嬰玩具", isSpecial: false, sales: 240, shippingDays: 4, desc: "穩固好清理，培養獨立用餐。", pros: "穩固好洗。", reviews: ["user01: ❤️❤️❤️❤️❤️ 好用。"], qna: [{ q: "餐盤可拆？", a: "賣家回覆：雙層可拆。" }] },
+            { id: 29, name: "萌寵保暖豪華寵物窩", price: 680, category: "🐱 寵物用品", isSpecial: false, sales: 530, shippingDays: 4, desc: "柔軟親膚、加厚保暖。", pros: "可機洗。", reviews: ["admin: ❤️❤️❤️❤️❤️ 狗狗超愛。"], qna: [{ q: "會不會掉毛？", a: "賣家回覆：防掉毛材質。" }] },
+            { id: 30, name: "貓咪羽毛逗貓棒超值組", price: 190, category: "🐱 寵物用品", isSpecial: false, sales: 980, shippingDays: 3, desc: "釋放貓皇精力的神器。", pros: "貓咪超愛。", reviews: ["user01: ❤️❤️❤️❤️❤️ 瘋狂玩耍。"], qna: [{ q: "有幾個頭？", a: "賣家回覆：內含5個替換頭。" }] }
+        ];
 
         let savedProducts = JSON.parse(localStorage.getItem(`products_db`));
-        if (savedProducts && savedProducts.length >= 218) {
+        if (savedProducts && savedProducts.length >= 30) {
             products = savedProducts;
         }
 
@@ -663,8 +931,25 @@
         let wishlist = [];
         let orders = [];
         let userCoins = 200;
+        let walletBalance = 5000;
+        let totalSpent = 0;
         let reviewingProductId = null;
         let isVip = false;
+        let isListView = false;
+
+        let communityPosts = JSON.parse(localStorage.getItem('communityPosts_db')) || [
+            { id: 1, author: "admin", text: "大家安安！歡迎來到蝦皮公開社團，快來邀請好友一起交流討論好物吧！", time: "2026-08-01 12:00", comments: [{ author: "user01", text: "版主好！我已經把朋友都拉進來了！" }] }
+        ];
+
+        let officialAnnouncements = [
+            { title: "【公告】8.8 超級品牌日免運馬拉松開跑！", date: "2026-08-01", content: "活動期間全館滿額即享超商免運費，結帳再加碼回饋 10% 蝦幣！" },
+            { title: "【系統通知】伺服器例行維護公告", date: "2026-07-28", content: "為提供更優質的購物體驗，系統將於凌晨 02:00 進行 30 分鐘升級維護。" }
+        ];
+
+        let industryNews = [
+            { title: "2026 夏季流行服飾趨勢解析：工裝與復古寬褲大熱門", date: "2026-07-30", content: "今年夏天復古風潮持續延燒，舒適透氣的純棉與多口袋工裝剪裁成為各大街頭指標。" },
+            { title: "次世代 3C 科技新品連發：極致輕巧與 AI 智慧功能成主流", date: "2026-07-29", content: "隨著全新晶片問世，智慧穿戴與隨身影像設備更加輕量化，滿足現代人的快節奏生活。" }
+        ];
 
         function saveUserData() {
             if(!currentUser) return;
@@ -673,8 +958,11 @@
             localStorage.setItem(`wishlist_${currentUser}`, JSON.stringify(wishlist));
             localStorage.setItem(`orders_${currentUser}`, JSON.stringify(orders));
             localStorage.setItem(`coins_${currentUser}`, userCoins);
+            localStorage.setItem(`wallet_${currentUser}`, walletBalance);
+            localStorage.setItem(`spent_${currentUser}`, totalSpent);
             localStorage.setItem(`vip_${currentUser}`, isVip);
             localStorage.setItem(`products_db`, JSON.stringify(products));
+            localStorage.setItem(`communityPosts_db`, JSON.stringify(communityPosts));
         }
 
         function loadUserData() {
@@ -684,21 +972,14 @@
             wishlist = JSON.parse(localStorage.getItem(`wishlist_${currentUser}`)) || [];
             orders = JSON.parse(localStorage.getItem(`orders_${currentUser}`)) || [];
             userCoins = parseInt(localStorage.getItem(`coins_${currentUser}`)) || 200;
+            walletBalance = parseInt(localStorage.getItem(`wallet_${currentUser}`)) || 5000;
+            totalSpent = parseInt(localStorage.getItem(`spent_${currentUser}`)) || 0;
             isVip = localStorage.getItem(`vip_${currentUser}`) === 'true';
             
             let db = JSON.parse(localStorage.getItem(`products_db`));
             if(db) products = db;
-        }
-
-        function startCountdown() {
-            let totalSeconds = 24 * 3600 - 150;
-            setInterval(() => {
-                let h = Math.floor(totalSeconds / 3600);
-                let m = Math.floor((totalSeconds % 3600) / 60);
-                let s = totalSeconds % 60;
-                document.getElementById('flashTimer').textContent = `倒數 ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-                if(totalSeconds > 0) totalSeconds--;
-            }, 1000);
+            let cp = JSON.parse(localStorage.getItem('communityPosts_db'));
+            if(cp) communityPosts = cp;
         }
 
         function toggleAuthMode(mode) {
@@ -716,14 +997,27 @@
             document.getElementById(sectionId).style.display = 'block';
             if(sectionId === 'mallHome') {
                 renderProducts('全部');
-                renderFlashSale();
+                renderTopSales();
+                renderAiRecommendations();
                 checkNotifications();
+            }
+            if(sectionId === 'spinWheelArea') checkSpinWheelStatus();
+            if(sectionId === 'bulletinBoardArea') renderBulletinBoard();
+            if(sectionId === 'communityFeedArea') {
+                renderCommunityFeed();
+                renderInviteFriendDropdown();
             }
             if(sectionId === 'sellArea') {
                 document.getElementById('sellForm').reset();
             }
+            if(sectionId === 'sellerAnswerArea') {
+                renderSellerQnAManagement();
+            }
+            if(sectionId === 'walletTopupArea') {
+                document.getElementById('walletBalanceText').textContent = `NT$ ${walletBalance.toLocaleString()}`;
+            }
             if(sectionId === 'couponCenterArea') renderCouponCenter();
-            if(sectionId === 'vipArea') renderVipPage();
+            if(sectionId === 'vipArea') renderMemberTier();
             if(sectionId === 'cartArea') {
                 renderCart();
                 togglePayMethod();
@@ -735,46 +1029,325 @@
             if(sectionId === 'notificationArea') renderNotificationsList();
         }
 
-        function filterCategory(category, evt) {
-            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
-            if(evt) evt.target.classList.add('active');
-            renderProducts(category);
+        // 🎰 檢查今日是否已抽過獎
+        function checkSpinWheelStatus() {
+            let todayStr = new Date().toISOString().slice(0, 10);
+            let lastSpinDate = localStorage.getItem(`lastSpin_${currentUser}`);
+            const btn = document.getElementById('spinBtn');
+            const box = document.getElementById('wheelResultBox');
+
+            if (lastSpinDate === todayStr) {
+                btn.disabled = true;
+                btn.textContent = "今天已經抽過獎囉 (明天請再來)";
+                box.textContent = "✨ 您今天已經完成抽獎了，明天再來試試手氣吧！";
+                box.style.display = 'block';
+            } else {
+                btn.disabled = false;
+                btn.textContent = "立即轉動輪盤抽獎 (-20 蝦幣)";
+                box.style.display = 'none';
+            }
         }
 
-        function renderProducts(category) {
-            const grid = document.getElementById('productGrid');
-            grid.innerHTML = '';
-            const filtered = category === '全部' ? products : products.filter(p => p.category === category);
+        // 🎰 幸運輪盤抽獎函數 (每日限一次)
+        function spinWheel() {
+            let todayStr = new Date().toISOString().slice(0, 10);
+            let lastSpinDate = localStorage.getItem(`lastSpin_${currentUser}`);
 
-            filtered.forEach(p => {
-                const isFav = wishlist.includes(p.id);
-                grid.innerHTML += `
-                    <div class="product-card" onclick="openModal(${p.id})">
-                        <button class="fav-btn" onclick="event.stopPropagation(); toggleWishlist(${p.id})">${isFav ? '❤️' : '🤍'}</button>
-                        <div class="product-img">✨ ${p.category}</div>
-                        <div class="product-info">
-                            <div class="product-title">${p.name}</div>
-                            <div class="product-price">NT$ ${p.price.toLocaleString()}</div>
-                            <button class="btn btn-small" onclick="event.stopPropagation(); addToCart(${p.id})">加入購物車</button>
+            if (lastSpinDate === todayStr) {
+                showSysMsg('wheelMsg', '您今天已經抽過獎囉！每個帳號每天限抽 1 次。', 'error');
+                checkSpinWheelStatus();
+                return;
+            }
+
+            if (userCoins < 20) {
+                showSysMsg('wheelMsg', '您的蝦幣不足 20 點，無法轉動輪盤！', 'error');
+                return;
+            }
+
+            userCoins -= 20;
+            document.getElementById('userCoins').textContent = userCoins;
+            localStorage.setItem(`lastSpin_${currentUser}`, todayStr);
+
+            const rewards = [
+                { type: 'coin', val: 100, text: '🎉 恭喜抽中 100 點免費蝦幣！' },
+                { type: 'coupon', val: '【超級品牌日】92折券', text: '🎁 恭喜抽中全館 92 折神券！' },
+                { type: 'coin', val: 50, text: '🎉 恭喜抽中 50 點免費蝦幣！' },
+                { type: 'coupon', val: '【滿千免運】全家超商免運券', text: '🚚 恭喜抽中超商免運券！' }
+            ];
+
+            let chosen = rewards[Math.floor(Math.random() * rewards.length)];
+            if (chosen.type === 'coin') {
+                userCoins += chosen.val;
+                document.getElementById('userCoins').textContent = userCoins;
+            } else {
+                if (!userCoupons.includes(chosen.val)) userCoupons.push(chosen.val);
+            }
+            saveUserData();
+
+            const box = document.getElementById('wheelResultBox');
+            box.textContent = chosen.text;
+            box.style.display = 'block';
+            showSysMsg('wheelMsg', chosen.text, 'success');
+            checkSpinWheelStatus();
+        }
+
+        // 🤖 AI 智能推薦「猜你喜歡」
+        function renderAiRecommendations() {
+            const section = document.getElementById('aiRecommendationSection');
+            const container = document.getElementById('aiRecList');
+            container.innerHTML = '';
+            
+            let recs = [...products].sort(() => 0.5 - Math.random()).slice(0, 4);
+            section.style.display = 'block';
+            recs.forEach(p => {
+                container.innerHTML += `
+                    <div style="min-width: 170px; background: white; border: 1px solid #bbf7d0; padding: 10px; border-radius: 6px; cursor: pointer;" onclick="openModal(${p.id})">
+                        <span style="background: var(--success); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;">AI 推薦</span>
+                        <p style="font-size: 13px; font-weight: 600; margin-top: 5px; height: 36px; overflow: hidden;">${p.name}</p>
+                        <p style="font-size: 14px; color: var(--success); font-weight: bold; margin-top: 4px;">NT$ ${p.price.toLocaleString()}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function renderBulletinBoard() {
+            const annEl = document.getElementById('officialAnnouncements');
+            const newsEl = document.getElementById('industryNews');
+            
+            annEl.innerHTML = officialAnnouncements.map(a => `
+                <div style="background: #fdf8f6; border-left: 4px solid var(--primary); padding: 12px; border-radius: 4px;">
+                    <div style="font-size: 11px; color: var(--text-sub); margin-bottom: 4px;">${a.date}</div>
+                    <h4 style="font-size: 14px; color: var(--primary); margin-bottom: 5px;">${a.title}</h4>
+                    <p style="font-size: 13px; color: #444; line-height: 1.5;">${a.content}</p>
+                </div>
+            `).join('');
+
+            newsEl.innerHTML = industryNews.map(n => `
+                <div style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 12px; border-radius: 4px;">
+                    <div style="font-size: 11px; color: var(--text-sub); margin-bottom: 4px;">${n.date}</div>
+                    <h4 style="font-size: 14px; color: #2563eb; margin-bottom: 5px;">${n.title}</h4>
+                    <p style="font-size: 13px; color: #444; line-height: 1.5;">${n.content}</p>
+                </div>
+            `).join('');
+        }
+
+        function renderInviteFriendDropdown() {
+            const select = document.getElementById('inviteFriendSelect');
+            select.innerHTML = `<option value="">-- 請選擇您的已加好友 --</option>`;
+            let friends = JSON.parse(localStorage.getItem(`friends_${currentUser}`)) || [];
+            friends.forEach(f => {
+                select.innerHTML += `<option value="${f}">${f}</option>`;
+            });
+        }
+
+        function inviteFriendToCommunity() {
+            const friendAcc = document.getElementById('inviteFriendSelect').value;
+            if(!friendAcc) {
+                showSysMsg('communityMsg', '請先選擇要邀請的好友！', 'error');
+                return;
+            }
+            let friendNotifs = JSON.parse(localStorage.getItem(`sysnotifs_${friendAcc}`)) || [];
+            friendNotifs.push(`社團邀請：您的好友 ${currentUser} 邀請您加入「蝦皮公開社團」一起交流好物！`);
+            localStorage.setItem(`sysnotifs_${friendAcc}`, JSON.stringify(friendNotifs));
+
+            communityPosts.push({
+                id: communityPosts.length + 1,
+                author: "系統公告",
+                text: `🎉 熱烈歡迎 ${friendAcc} 在好友 ${currentUser} 的熱情邀請下加入蝦皮公開社團！`,
+                time: new Date().toISOString().slice(0,16).replace('T', ' '),
+                comments: []
+            });
+            saveUserData();
+            showSysMsg('communityMsg', `🎉 已成功向好友 ${friendAcc} 發送社團邀請！`, 'success');
+            renderCommunityFeed();
+        }
+
+        function renderCommunityFeed() {
+            const container = document.getElementById('communityFeedList');
+            container.innerHTML = '';
+            let cp = JSON.parse(localStorage.getItem('communityPosts_db'));
+            if(cp) communityPosts = cp;
+
+            if(communityPosts.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-sub);">目前社團沒有任何貼文，快來發布第一篇吧！</p>`;
+                return;
+            }
+
+            communityPosts.slice().reverse().forEach((post) => {
+                let commentsHtml = '';
+                post.comments.forEach(comm => {
+                    commentsHtml += `<div style="background: #f8fafc; padding: 6px 10px; border-radius: 4px; margin-top: 4px; font-size: 12px;">👤 <b>${comm.author}：</b> ${comm.text}</div>`;
+                });
+
+                container.innerHTML += `
+                    <div style="background: #fff; border: 1px solid var(--border); padding: 18px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.02);">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: var(--text-sub);">
+                            <span>👤 發布人: <b>${post.author}</b></span>
+                            <span>${post.time}</span>
+                        </div>
+                        <p style="font-size: 14px; line-height: 1.6; margin-bottom: 12px; color: var(--text-main);">${post.text}</p>
+                        <div style="border-top: 1px solid #eee; padding-top: 10px; margin-bottom: 10px;">
+                            <h5 style="font-size: 13px; color: var(--text-sub); margin-bottom: 6px;">💬 留言討論區：</h5>
+                            <div style="max-height: 120px; overflow-y: auto;">${commentsHtml || '<div style="font-size: 12px; color: #999;">尚無留言</div>'}</div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="commInput_${post.id}" placeholder="留下您的留言..." style="flex: 1; padding: 6px 10px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px;">
+                            <button class="btn btn-small btn-success" onclick="submitCommunityComment(${post.id})">回覆</button>
                         </div>
                     </div>
                 `;
             });
         }
 
-        function renderFlashSale() {
-            const grid = document.getElementById('flashSaleGrid');
+        function submitCommunityPost() {
+            const txt = document.getElementById('communityPostText').value.trim();
+            if(!txt) {
+                showSysMsg('communityMsg', '請輸入貼文內容！', 'error');
+                return;
+            }
+            let now = new Date();
+            let timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+            
+            communityPosts.push({
+                id: communityPosts.length + 1,
+                author: currentUser,
+                text: txt,
+                time: timeStr,
+                comments: []
+            });
+            saveUserData();
+            document.getElementById('communityPostText').value = '';
+            showSysMsg('communityMsg', '🎉 貼文已成功發布至蝦皮公開社團！', 'success');
+            renderCommunityFeed();
+        }
+
+        function submitCommunityComment(postId) {
+            const input = document.getElementById(`commInput_${postId}`);
+            const txt = input.value.trim();
+            if(!txt) return;
+
+            let post = communityPosts.find(p => p.id === postId);
+            if(post) {
+                post.comments.push({ author: currentUser, text: txt });
+                saveUserData();
+                input.value = '';
+                renderCommunityFeed();
+            }
+        }
+
+        function toggleViewMode() {
+            isListView = !isListView;
+            const btn = document.getElementById('viewModeBtn');
+            const grid = document.getElementById('productGrid');
+            if (isListView) {
+                btn.textContent = "切換為網格模式";
+                grid.classList.add('list-view');
+            } else {
+                btn.textContent = "切換為列表模式";
+                grid.classList.remove('list-view');
+            }
+        }
+
+        function renderTopSales() {
+            const container = document.getElementById('topSalesList');
+            container.innerHTML = '';
+            let sorted = [...products].sort((a, b) => b.sales - a.sales).slice(0, 5);
+            sorted.forEach((p, idx) => {
+                container.innerHTML += `
+                    <div style="min-width: 180px; background: #fff5f5; border: 1px solid #fed7aa; padding: 10px; border-radius: 6px; cursor: pointer;" onclick="openModal(${p.id})">
+                        <span style="background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold;">Top ${idx + 1}</span>
+                        <p style="font-size: 13px; font-weight: 600; margin-top: 5px; height: 36px; overflow: hidden;">${p.name}</p>
+                        <p style="font-size: 12px; color: var(--primary); font-weight: bold; margin-top: 4px;">已售出 ${p.sales} 件</p>
+                    </div>
+                `;
+            });
+        }
+
+        function topupWallet() {
+            const amt = parseInt(document.getElementById('topupAmountSelect').value);
+            walletBalance += amt;
+            saveUserData();
+            document.getElementById('walletBalance').textContent = `NT$ ${walletBalance.toLocaleString()}`;
+            document.getElementById('walletBalanceText').textContent = `NT$ ${walletBalance.toLocaleString()}`;
+            showSysMsg('walletTopupMsg', `🎉 成功儲值 NT$ ${amt.toLocaleString()} 至虛擬錢包！`, 'success');
+        }
+
+        function filterCategory(category, evt) {
+            document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+            if(evt) evt.target.classList.add('active');
+            renderProducts(category);
+        }
+
+        function handleSearchAndSort() {
+            const keyword = document.getElementById('searchInput').value.trim().toLowerCase();
+            const sortType = document.getElementById('sortSelect').value;
+            const activeCatBtn = document.querySelector('.cat-btn.active');
+            const currentCat = activeCatBtn ? activeCatBtn.textContent.split(' ')[0] : '全部';
+
+            let filtered = products.filter(p => {
+                let matchCat = false;
+                if (currentCat === '全部') matchCat = true;
+                else if (currentCat === '✨') matchCat = p.isSpecial;
+                else matchCat = p.category.includes(currentCat);
+
+                const matchKey = p.name.toLowerCase().includes(keyword) || p.category.toLowerCase().includes(keyword) || p.desc.toLowerCase().includes(keyword);
+                return matchCat && matchKey;
+            });
+
+            if (sortType === 'priceAsc') {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (sortType === 'priceDesc') {
+                filtered.sort((a, b) => b.price - a.price);
+            }
+
+            const grid = document.getElementById('productGrid');
             grid.innerHTML = '';
-            const flashItems = products.slice(0, 4);
-            flashItems.forEach(p => {
-                let salePrice = Math.round(p.price * 0.7);
+            if(filtered.length === 0) {
+                grid.innerHTML = `<p style="color: var(--text-sub);">找不到符合條件的商品。</p>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const isFav = wishlist.includes(p.id);
+                const specialClass = p.isSpecial ? 'special-card' : '';
+                const specialBadge = p.isSpecial ? '⭐ 豪華特別商品<br>' : '';
                 grid.innerHTML += `
-                    <div class="product-card" onclick="openModal(${p.id})">
-                        <div class="product-img" style="background: #fee2e2; color: #dc2626;">⚡ 限時 7 折</div>
+                    <div class="product-card ${specialClass}" onclick="openModal(${p.id})">
+                        <button class="fav-btn" onclick="event.stopPropagation(); toggleWishlist(${p.id})">${isFav ? '❤️' : '🤍'}</button>
+                        <div class="product-img">${specialBadge}✨ ${p.category}</div>
                         <div class="product-info">
                             <div class="product-title">${p.name}</div>
-                            <div class="product-price">NT$ ${salePrice.toLocaleString()} <span style="font-size:11px; text-decoration:line-through; color:#999;">${p.price.toLocaleString()}</span></div>
-                            <button class="btn btn-small btn-danger" onclick="event.stopPropagation(); addToCart(${p.id})">搶購</button>
+                            <div class="product-price">NT$ ${p.price.toLocaleString()}</div>
+                            <button class="btn btn-small ${p.isSpecial ? 'btn-special' : ''}" onclick="event.stopPropagation(); openModal(${p.id})">加入購物車</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function renderProducts(category) {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('sortSelect').value = 'default';
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+            
+            let filtered = [];
+            if (category === '全部') filtered = products;
+            else if (category === '✨ 特別商品') filtered = products.filter(p => p.isSpecial);
+            else filtered = products.filter(p => p.category === category);
+
+            filtered.forEach(p => {
+                const isFav = wishlist.includes(p.id);
+                const specialClass = p.isSpecial ? 'special-card' : '';
+                const specialBadge = p.isSpecial ? '⭐ 豪華特別商品<br>' : '';
+                grid.innerHTML += `
+                    <div class="product-card ${specialClass}" onclick="openModal(${p.id})">
+                        <button class="fav-btn" onclick="event.stopPropagation(); toggleWishlist(${p.id})">${isFav ? '❤️' : '🤍'}</button>
+                        <div class="product-img">${specialBadge}✨ ${p.category}</div>
+                        <div class="product-info">
+                            <div class="product-title">${p.name}</div>
+                            <div class="product-price">NT$ ${p.price.toLocaleString()}</div>
+                            <button class="btn btn-small ${p.isSpecial ? 'btn-special' : ''}" onclick="event.stopPropagation(); openModal(${p.id})">加入購物車</button>
                         </div>
                     </div>
                 `;
@@ -786,36 +1359,93 @@
             const name = document.getElementById('sellName').value.trim();
             const category = document.getElementById('sellCategory').value;
             const price = parseInt(document.getElementById('sellPrice').value);
+            const days = parseInt(document.getElementById('sellDays').value) || 3;
             const desc = document.getElementById('sellDesc').value.trim();
             const pros = document.getElementById('sellPros').value.trim();
+            const coupon = document.getElementById('sellCoupon').value.trim();
+            const isSpecial = document.getElementById('sellIsSpecial').checked;
 
-            if(!name || !price || !desc || !pros) { alert('請完整填寫商品資料！'); return; }
+            if(!name || !price || !desc || !pros) { 
+                showSysMsg('sellMsg', '請完整填寫商品/衣服資料！', 'error');
+                return; 
+            }
 
             const newProd = {
                 id: products.length + 1,
                 name: `[${currentUser}自售] ${name}`,
                 price: price,
                 category: category,
+                isSpecial: isSpecial,
+                sales: 1,
+                shippingDays: days,
                 desc: desc,
                 pros: pros,
-                reviews: [`${currentUser}: ❤️❤️❤️❤️❤️ 自己上架的好商品！`]
+                coupon: coupon || '賣家專屬折50元券',
+                reviews: [`${currentUser}: ❤️❤️❤️❤️❤️ 自己上架的好商品！`],
+                qna: [{ q: "請問尺寸還有嗎？", a: `賣家回覆 (${currentUser})：歡迎詢問！` }]
             };
 
             products.unshift(newProd);
             saveUserData();
-            alert('🎉 恭喜您！商品已成功上架至商城首頁！');
-            showMallSubSection('mallHome');
+            showSysMsg('sellMsg', '🎉 恭喜您！商品/衣服已成功上架！', 'success');
+            setTimeout(() => { showMallSubSection('mallHome'); }, 1200);
+        }
+
+        function renderSellerQnAManagement() {
+            const container = document.getElementById('hubSellerQnAList');
+            container.innerHTML = '';
+            
+            let myItems = products.filter(p => p.name.includes(`[${currentUser}自售]`) || currentUser === 'admin');
+            let totalQnAs = [];
+
+            myItems.forEach(item => {
+                if(item.qna) {
+                    item.qna.forEach((qObj, qIdx) => {
+                        totalQnAs.push({ prodId: item.id, prodName: item.name, qIndex: qIdx, q: qObj.q, a: qObj.a });
+                    });
+                }
+            });
+
+            if(totalQnAs.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-sub);">目前沒有任何待回覆的買家提問。</p>`;
+                return;
+            }
+
+            totalQnAs.forEach((item) => {
+                container.innerHTML += `
+                    <div style="background: #f8fafc; border: 1px solid var(--border); padding: 15px; border-radius: 6px; margin-bottom: 12px;">
+                        <p style="font-weight: bold; font-size: 14px; color: var(--primary);">${item.prodName}</p>
+                        <p style="font-size: 13px; margin: 6px 0;">❓ <b>買家問：</b> ${item.q}</p>
+                        <p style="font-size: 13px; color: #1d4ed8; margin-bottom: 8px;">💬 <b>目前解答：</b> ${item.a}</p>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="hubReplyInput_${item.prodId}_${item.qIndex}" placeholder="輸入您的專業解答..." style="flex: 1; padding: 8px; border: 1px solid var(--border); border-radius: 4px; font-size: 13px;">
+                            <button class="btn btn-small btn-success" onclick="replyHubProductQnA(${item.prodId}, ${item.qIndex})">送出回覆</button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function replyHubProductQnA(prodId, qIdx) {
+            const replyText = document.getElementById(`hubReplyInput_${prodId}_${qIdx}`).value.trim();
+            if(!replyText) { 
+                showSysMsg('sellerAnswerMsg', '請輸入回覆內容！', 'error');
+                return; 
+            }
+
+            const targetProd = products.find(p => p.id === prodId);
+            if(targetProd && targetProd.qna && targetProd.qna[qIdx]) {
+                targetProd.qna[qIdx].a = `賣家回覆 (${currentUser})：${replyText}`;
+                saveUserData();
+                renderSellerQnAManagement();
+                showSysMsg('sellerAnswerMsg', '賣家回覆已成功更新！', 'success');
+            }
         }
 
         function toggleWishlist(productId) {
             const idx = wishlist.indexOf(productId);
-            if(idx > -1) {
-                wishlist.splice(idx, 1);
-                alert('已從收藏清單移除');
-            } else {
-                wishlist.push(productId);
-                alert('已加入商品收藏！');
-            }
+            if(idx > -1) { wishlist.splice(idx, 1); } 
+            else { wishlist.push(productId); }
             saveUserData();
             renderProducts('全部');
             if(document.getElementById('wishlistArea').style.display === 'block') renderWishlist();
@@ -832,14 +1462,16 @@
             }
 
             favProducts.forEach(p => {
+                const specialClass = p.isSpecial ? 'special-card' : '';
+                const specialBadge = p.isSpecial ? '⭐ 豪華特別商品<br>' : '';
                 grid.innerHTML += `
-                    <div class="product-card" onclick="openModal(${p.id})">
+                    <div class="product-card ${specialClass}" onclick="openModal(${p.id})">
                         <button class="fav-btn" onclick="event.stopPropagation(); toggleWishlist(${p.id})">❤️</button>
-                        <div class="product-img">✨ ${p.category}</div>
+                        <div class="product-img">${specialBadge}✨ ${p.category}</div>
                         <div class="product-info">
                             <div class="product-title">${p.name}</div>
                             <div class="product-price">NT$ ${p.price.toLocaleString()}</div>
-                            <button class="btn btn-small" onclick="event.stopPropagation(); addToCart(${p.id})">加入購物車</button>
+                            <button class="btn btn-small ${p.isSpecial ? 'btn-special' : ''}" onclick="event.stopPropagation(); openModal(${p.id})">加入購物車</button>
                         </div>
                     </div>
                 `;
@@ -848,19 +1480,104 @@
 
         function openModal(productId) {
             selectedProduct = products.find(p => p.id === productId);
-            document.getElementById('modalCategory').textContent = selectedProduct.category;
+            document.getElementById('modalCategory').textContent = (selectedProduct.isSpecial ? '⭐ 豪華特別商品 | ' : '') + selectedProduct.category;
             document.getElementById('modalTitle').textContent = selectedProduct.name;
             document.getElementById('modalPrice').textContent = `NT$ ${selectedProduct.price.toLocaleString()}`;
             document.getElementById('modalPros').textContent = selectedProduct.pros;
             document.getElementById('modalDesc').textContent = selectedProduct.desc;
+            document.getElementById('modalShippingDays').textContent = selectedProduct.shippingDays || 3;
             
+            let sellerName = "官方直營旗艦店";
+            if(selectedProduct.name.includes('[') && selectedProduct.name.includes('自售]')) {
+                let match = selectedProduct.name.match(/\[(.*?)自售\]/);
+                if(match && match[1]) sellerName = `${match[1]} 的個人商場`;
+            }
+            document.getElementById('modalSeller').textContent = `🏪 賣家: ${sellerName}`;
+
             renderReviewsBox();
+            renderQnABox();
+            
             document.getElementById('modalAddBtn').onclick = () => {
-                addToCart(selectedProduct.id);
-                closeModal();
+                const color = document.getElementById('modalColorSelect').value;
+                const size = document.getElementById('modalSizeSelect').value;
+                
+                const existing = cart.find(item => item.id === selectedProduct.id && item.color === color && item.size === size);
+                if (existing) {
+                    existing.qty++;
+                } else {
+                    cart.push({ ...selectedProduct, qty: 1, selected: true, color: color, size: size });
+                }
+                saveUserData();
+                updateCartCount();
+                showSysMsg('modalMsg', `已將「${selectedProduct.name} (${color} / ${size})」加入購物車！即將返回首頁...`, 'success');
+                setTimeout(() => {
+                    closeModal();
+                    showMallSubSection('mallHome');
+                }, 1200);
             };
             document.getElementById('productModal').classList.add('active');
         }
+
+        function renderQnABox() {
+            const qnaBox = document.getElementById('modalQnA');
+            qnaBox.innerHTML = '';
+            if(!selectedProduct.qna || selectedProduct.qna.length === 0) {
+                qnaBox.innerHTML = `<div>目前尚無提問，歡迎搶頭香發問！</div>`;
+                return;
+            }
+            selectedProduct.qna.forEach(item => {
+                qnaBox.innerHTML += `
+                    <div style="margin-bottom: 6px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 4px;">
+                        <div>❓ <b>訪客問：</b> ${item.q}</div>
+                        <div style="color: #1d4ed8; margin-top: 2px;">💬 ${item.a}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function submitProductQnA() {
+            const qTxt = document.getElementById('userQnAInput').value.trim();
+            if(!qTxt) { 
+                showSysMsg('modalMsg', '請輸入您的提問內容！', 'error');
+                return; 
+            }
+
+            if(!selectedProduct.qna) selectedProduct.qna = [];
+            selectedProduct.qna.push({ q: qTxt, a: `(等待賣家回覆中...)` });
+            document.getElementById('userQnAInput').value = '';
+            saveUserData();
+            renderQnABox();
+            showSysMsg('modalMsg', '提問已送出！賣家可在「賣家回答區」統一查看並回覆。', 'success');
+        }
+
+        function openSellerProfileModal() {
+            let sellerName = "官方直營旗艦店";
+            if(selectedProduct.name.includes('[') && selectedProduct.name.includes('自售]')) {
+                let match = selectedProduct.name.match(/\[(.*?)自售\]/);
+                if(match && match[1]) sellerName = match[1];
+            }
+
+            document.getElementById('sellerModalName').textContent = `🏪 ${sellerName} 的個人商場`;
+            const listContainer = document.getElementById('sellerProductsList');
+            listContainer.innerHTML = '';
+
+            let sellerItems = products.filter(p => p.name.includes(sellerName) || (sellerName === "官方直營旗艦店" && !p.name.includes('自售')));
+            if(sellerItems.length === 0) {
+                listContainer.innerHTML = `<p style="color: var(--text-sub);">該賣場目前沒有其他上架商品。</p>`;
+            } else {
+                sellerItems.slice(0, 10).forEach(item => {
+                    listContainer.innerHTML += `
+                        <div style="padding: 6px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
+                            <span>${item.name}</span>
+                            <b style="color: var(--primary);">NT$ ${item.price.toLocaleString()}</b>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById('sellerModal').classList.add('active');
+        }
+
+        function closeSellerModal() { document.getElementById('sellerModal').classList.remove('active'); }
 
         function renderReviewsBox() {
             const reviewBox = document.getElementById('modalReviews');
@@ -873,26 +1590,19 @@
         function submitUserReview() {
             const rating = document.getElementById('userRating').value;
             const comment = document.getElementById('userComment').value.trim();
-            if(!comment) { alert('請填寫評論內容！'); return; }
+            if(!comment) { 
+                showSysMsg('modalMsg', '請填寫評論內容！', 'error');
+                return; 
+            }
 
             selectedProduct.reviews.unshift(`${currentUser}: ${rating} ${comment}`);
             document.getElementById('userComment').value = '';
             saveUserData();
             renderReviewsBox();
-            alert('感謝您的評論與評分！已成功發布。');
+            showSysMsg('modalMsg', '感謝您的評論與評分！已成功發布。', 'success');
         }
 
         function closeModal() { document.getElementById('productModal').classList.remove('active'); }
-
-        function addToCart(productId) {
-            const product = products.find(p => p.id === productId);
-            const existing = cart.find(item => item.id === productId);
-            if (existing) { existing.qty++; } 
-            else { cart.push({ ...product, qty: 1, selected: true }); }
-            saveUserData();
-            updateCartCount();
-            alert(`已將「${product.name}」加入購物車！`);
-        }
 
         function updateCartCount() {
             const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
@@ -915,25 +1625,53 @@
             });
         }
 
+        function redeemPromoCode() {
+            const code = document.getElementById('promoCodeInput').value.trim().toUpperCase();
+            if (!code) { 
+                showSysMsg('couponMsg', '請輸入優惠代碼！', 'error');
+                return; 
+            }
+
+            let targetCouponName = '';
+            if (code === 'VIP888') targetCouponName = '【VIP888】隱藏專屬 8折券';
+            else if (code === 'SHOPEE666') targetCouponName = '【SHOPEE666】滿千折300券';
+            else { 
+                showSysMsg('couponMsg', '無效的優惠代碼！', 'error');
+                return; 
+            }
+
+            if (!userCoupons.includes(targetCouponName)) {
+                userCoupons.push(targetCouponName);
+                saveUserData();
+                showSysMsg('couponMsg', `🎉 兌換成功！已解鎖「${targetCouponName}」至您的優惠券背包！`, 'success');
+                renderCouponCenter();
+            } else {
+                showSysMsg('couponMsg', '您已經兌換過這張優惠券囉！', 'error');
+            }
+            document.getElementById('promoCodeInput').value = '';
+        }
+
         function claimCoupon(couponName) {
             if(!userCoupons.includes(couponName)) {
                 userCoupons.push(couponName);
                 saveUserData();
-                alert(`🎉 成功領取「${couponName}」至您的優惠券背包！`);
+                showSysMsg('couponMsg', `🎉 成功領取「${couponName}」至您的優惠券背包！`, 'success');
                 renderCouponCenter();
             } else {
-                alert('您已經領過這張優惠券囉！');
+                showSysMsg('couponMsg', '您已經領過這張優惠券囉！', 'error');
             }
         }
 
         function renderWallet() {
             const container = document.getElementById('walletList');
             container.innerHTML = '';
-            if(userCoupons.length === 0) {
-                container.innerHTML = `<p style="color: var(--text-sub);">背包中目前沒有優惠券，快去上方「領券中心」領取吧！</p>`;
+            let allMyCoupons = [...new Set([...userCoupons, ...products.filter(p => p.coupon).map(p => p.coupon)])];
+
+            if(allMyCoupons.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-sub);">背包中目前沒有優惠券。</p>`;
                 return;
             }
-            userCoupons.forEach(coupon => {
+            allMyCoupons.forEach(coupon => {
                 container.innerHTML += `
                     <div style="background: #fef08a; border: 1px solid #fde047; padding: 15px; border-radius: 8px; width: 240px; cursor: pointer;" onclick="openCouponModal('${coupon}')">
                         <b>🎫 ${coupon}</b>
@@ -946,29 +1684,38 @@
         function openCouponModal(couponName) {
             const found = promoCouponsList.find(c => c.name === couponName);
             document.getElementById('couponModalTitle').textContent = couponName;
-            document.getElementById('couponModalBenefit').textContent = found ? found.benefit : '全館專屬折扣優惠。';
-            document.getElementById('couponModalDesc').textContent = found ? found.desc : '每次結帳限用一張。';
+            document.getElementById('couponModalBenefit').textContent = found ? found.benefit : '賣家專屬折價優惠券。';
+            document.getElementById('couponModalDesc').textContent = found ? found.desc : '結帳時可直接選用。';
             document.getElementById('couponModal').classList.add('active');
         }
 
         function closeCouponModal() { document.getElementById('couponModal').classList.remove('active'); }
 
-        function renderVipPage() {
-            const title = document.getElementById('vipStatusTitle');
-            const desc = document.getElementById('vipStatusDesc');
-            const box = document.getElementById('vipStatusBox');
-            const badge = document.getElementById('vipBadge');
+        function renderMemberTier() {
+            let tierName = "銅牌會員";
+            let goal = 5000;
+            let percent = (totalSpent / goal) * 100;
 
-            if(isVip) {
-                title.textContent = '👑 您目前為尊榮 VIP 會員';
-                desc.textContent = '您已成功享有全館免運、專屬 88 折與 VIP 專屬客服禮遇！';
-                box.style.background = '#fef3c7';
-                box.style.borderColor = '#f59e0b';
-                badge.style.display = 'inline';
-            } else {
-                title.textContent = '⭐ 您目前為：一般會員';
-                desc.textContent = '填寫下方基本資料即可免費解鎖 VIP 會員，享全館專屬折扣與特權！';
+            if (totalSpent >= 20000) {
+                tierName = "鑽石會員 (享15%蝦幣回饋)";
+                goal = 20000;
+                percent = 100;
+            } else if (totalSpent >= 10000) {
+                tierName = "金牌會員 (享12%蝦幣回饋)";
+                goal = 20000;
+                percent = (totalSpent / 20000) * 100;
+            } else if (totalSpent >= 5000) {
+                tierName = "銀牌會員 (享10%蝦幣回饋)";
+                goal = 10000;
+                percent = (totalSpent / 10000) * 100;
             }
+
+            if (percent > 100) percent = 100;
+
+            document.getElementById('memberTierTitle').textContent = `⭐ 當前等級：${tierName}`;
+            document.getElementById('totalSpentText').textContent = totalSpent.toLocaleString();
+            document.getElementById('tierGoalText').textContent = goal.toLocaleString();
+            document.getElementById('tierProgressBar').style.width = `${percent}%`;
         }
 
         function applyVip(e) {
@@ -978,13 +1725,15 @@
             const address = document.getElementById('vipAddress').value.trim();
             const birthday = document.getElementById('vipBirthday').value;
 
-            if(!name || !phone || !address || !birthday) { alert('請完整填寫所有基本資料！'); return; }
+            if(!name || !phone || !address || !birthday) { 
+                showSysMsg('vipMsg', '請完整填寫所有基本資料！', 'error');
+                return; 
+            }
 
             isVip = true;
             saveUserData();
-            document.getElementById('vipBadge').style.display = 'inline';
-            renderVipPage();
-            alert('👑 恭喜您！基本資料已成功送出，您已正式升級為 VIP 尊榮會員！');
+            renderMemberTier();
+            showSysMsg('vipMsg', '👑 恭喜您！基本資料已更新，VIP 尊榮特權已全面解鎖！', 'success');
         }
 
         function renderOrders() {
@@ -1004,11 +1753,27 @@
                         </div>
                         <p><b>品項：</b> ${ord.itemsText}</p>
                         <p style="margin-top: 5px;"><b>寄送分店：</b> ${ord.storeBranch}</p>
+                        <p style="margin-top: 5px;"><b>預計運送天數：</b> ${ord.shippingDays || 3} 天</p>
                         <p style="margin-top: 5px;"><b>實付金額：</b> NT$ ${ord.total.toLocaleString()}</p>
-                        ${ord.status === '已送達' ? `<button class="btn btn-small btn-warning" style="margin-top: 10px;" onclick="openReviewModal(${ord.productId})">給商品寫評價</button>` : ''}
+                        <div style="display: flex; gap: 8px; margin-top: 10px;">
+                            <button class="btn btn-small btn-success" onclick="openTrackingModal('${ord.storeBranch}', ${ord.shippingDays || 3})">物流即時動態</button>
+                            ${ord.status === '已送達' ? `<button class="btn btn-small btn-warning" onclick="openReviewModal(${ord.productId})">給商品寫評價</button>` : ''}
+                            <button class="btn btn-small btn-danger" onclick="requestRefund(${ord.id})">申請售後退換貨</button>
+                        </div>
                     </div>
                 `;
             });
+        }
+
+        function openTrackingModal(storeBranch, days) {
+            document.getElementById('trackStore').textContent = storeBranch;
+            document.getElementById('trackDays').textContent = days;
+            document.getElementById('trackingModal').classList.add('active');
+        }
+        function closeTrackingModal() { document.getElementById('trackingModal').classList.remove('active'); }
+
+        function requestRefund(orderId) {
+            alert(`訂單 #${orderId} 已成功向賣家提出「售後退換貨申請」，客服將於 24 小時內審核！`);
         }
 
         function openReviewModal(productId) {
@@ -1035,12 +1800,15 @@
             const u = document.getElementById('regUser').value.trim();
             const p = document.getElementById('regPass').value.trim();
             let users = JSON.parse(localStorage.getItem('users')) || {};
-            if(users[u]) { alert('此帳號已被註冊！'); return; }
+            if(users[u]) { 
+                showSysMsg('regMsg', '此帳號已被註冊！', 'error');
+                return; 
+            }
             users[u] = p;
             localStorage.setItem('users', JSON.stringify(users));
-            alert('註冊成功！請在左側登入。');
+            showSysMsg('regMsg', '註冊成功！請返回登入。', 'success');
             document.getElementById('regForm').reset();
-            toggleAuthMode('log');
+            setTimeout(() => { toggleAuthMode('log'); }, 1200);
         });
 
         document.getElementById('loginForm').addEventListener('submit', (e) => {
@@ -1050,11 +1818,10 @@
             let users = JSON.parse(localStorage.getItem('users')) || {};
             if(users[u] && users[u] === p) {
                 currentUser = u;
-                localStorage.setItem('currentUser', u);
                 loadUserData();
                 initSystem(u);
             } else {
-                alert('帳號或密碼錯誤！');
+                showSysMsg('loginMsg', '帳號或密碼錯誤！', 'error');
             }
         });
 
@@ -1064,8 +1831,8 @@
             document.getElementById('mallAppContainer').style.display = 'block';
             document.getElementById('navUsername').textContent = username;
             document.getElementById('userCoins').textContent = userCoins;
-            if(isVip) document.getElementById('vipBadge').style.display = 'inline';
-            startCountdown();
+            document.getElementById('walletBalance').textContent = `NT$ ${walletBalance.toLocaleString()}`;
+            document.getElementById('payWalletBalance').textContent = `NT$ ${walletBalance.toLocaleString()}`;
             updateCartCount();
             showMallSubSection('mallHome');
         }
@@ -1073,15 +1840,21 @@
         function sendFriendRequest() {
             const input = document.getElementById('friendInput');
             const targetUser = input.value.trim();
-            if(!targetUser || targetUser === currentUser) { alert('請輸入有效帳號！'); return; }
+            if(!targetUser || targetUser === currentUser) { 
+                showSysMsg('friendMsg', '請輸入有效帳號！', 'error');
+                return; 
+            }
             let users = JSON.parse(localStorage.getItem('users')) || {};
-            if(!users[targetUser]) { alert('查無此用戶！'); return; }
+            if(!users[targetUser]) { 
+                showSysMsg('friendMsg', '查無此用戶！', 'error');
+                return; 
+            }
 
             let pending = JSON.parse(localStorage.getItem(`pending_${targetUser}`)) || [];
             if(!pending.includes(currentUser)) pending.push(currentUser);
             localStorage.setItem(`pending_${targetUser}`, JSON.stringify(pending));
             input.value = '';
-            alert('已送出好友邀請！');
+            showSysMsg('friendMsg', '已成功送出好友邀請！', 'success');
         }
 
         function renderFriendsAndPending() {
@@ -1166,6 +1939,10 @@
             let friends = JSON.parse(localStorage.getItem(`friends_${currentUser}`)) || [];
             friends = friends.filter(u => u !== f);
             localStorage.setItem(`friends_${currentUser}`, JSON.stringify(friends));
+
+            let theirFriends = JSON.parse(localStorage.getItem(`friends_${f}`)) || [];
+            theirFriends = theirFriends.filter(u => u !== currentUser);
+            localStorage.setItem(`friends_${f}`, JSON.stringify(theirFriends));
 
             let sysNotifs = JSON.parse(localStorage.getItem(`sysnotifs_${f}`)) || [];
             sysNotifs.push(`好友通知：用戶 ${currentUser} 將您從好友清單中刪除了。`);
@@ -1254,23 +2031,33 @@
             const i1 = document.getElementById('payInput1');
             const l2 = document.getElementById('payLabel2');
             const i2 = document.getElementById('payInput2');
+            const instGroup = document.getElementById('installmentGroup');
 
             if (method === 'credit') {
                 l1.textContent = '持卡人姓名'; i1.placeholder = '請輸入姓名';
                 l2.textContent = '信用卡卡號 (16碼)'; i2.placeholder = '4111 2222 3333 4444'; i2.style.display = 'block';
-            } else if (method === 'atm') {
-                l1.textContent = '匯款人姓名'; i1.placeholder = '請輸入姓名';
-                l2.textContent = '轉帳帳號末五碼'; i2.placeholder = '例如: 52168'; i2.style.display = 'block';
-            } else if (method === 'cod') {
-                l1.textContent = '收件人真實姓名'; i1.placeholder = '請輸入真實姓名';
-                l2.textContent = '聯絡手機號碼'; i2.placeholder = '0912345678'; i2.style.display = 'block';
-            } else if (method === 'applepay') {
-                l1.textContent = 'Apple ID / 綁定手機'; i1.placeholder = 'user@icloud.com 或 0912345678';
-                l2.style.display = 'none';
-            } else if (method === 'jkh') {
-                l1.textContent = '街口/LINE Pay綁定手機'; i1.placeholder = '0912345678';
-                l2.style.display = 'none';
+                instGroup.style.display = 'block';
+                calculateInstallment();
+            } else {
+                instGroup.style.display = 'none';
+                if (method === 'wallet') {
+                    l1.parentElement.style.display = 'none';
+                    l2.parentElement.style.display = 'none';
+                } else {
+                    l1.parentElement.style.display = 'block';
+                    l2.parentElement.style.display = 'block';
+                    if (method === 'atm') { l1.textContent = '匯款人姓名'; l2.textContent = '轉帳末五碼'; }
+                    else if (method === 'cod') { l1.textContent = '收件人姓名'; l2.textContent = '聯絡手機'; }
+                    else { l1.textContent = '帳戶姓名'; l2.style.display = 'none'; }
+                }
             }
+        }
+
+        function calculateInstallment() {
+            let subtotal = cart.filter(i => i.selected).reduce((sum, item) => sum + (item.price * item.qty), 0);
+            document.getElementById('inst3').textContent = Math.round(subtotal / 3).toLocaleString();
+            document.getElementById('inst6').textContent = Math.round(subtotal / 6).toLocaleString();
+            document.getElementById('inst12').textContent = Math.round(subtotal / 12).toLocaleString();
         }
 
         function changeQty(index, delta) {
@@ -1292,12 +2079,31 @@
             calculateTotal();
         }
 
+        function deleteSelectedCartItems() {
+            cart = cart.filter(i => !i.selected);
+            saveUserData();
+            renderCart();
+            updateCartCount();
+        }
+
+        function clearCart() {
+            cart = [];
+            saveUserData();
+            renderCart();
+            updateCartCount();
+        }
+
         function renderCart() {
             const tbody = document.getElementById('cartTableBody');
             const select = document.getElementById('couponSelect');
             tbody.innerHTML = '';
             select.innerHTML = `<option value="0">-- 不使用優惠 --</option>`;
             userCoupons.forEach(c => { select.innerHTML += `<option value="${c}">${c}</option>`; });
+            products.forEach(p => {
+                if(p.coupon && !userCoupons.includes(p.coupon)) {
+                    select.innerHTML += `<option value="${p.coupon}">${p.coupon}</option>`;
+                }
+            });
 
             if(cart.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-sub);">購物車是空的</td></tr>`;
@@ -1305,6 +2111,7 @@
                 document.getElementById('discountAmount').textContent = '0';
                 document.getElementById('cartTotal').textContent = '0';
                 document.getElementById('earnCoins').textContent = '0';
+                document.getElementById('giftBanner').style.display = 'none';
                 return;
             }
 
@@ -1313,7 +2120,7 @@
                 tbody.innerHTML += `
                     <tr>
                         <td><input type="checkbox" ${item.selected ? 'checked' : ''} onclick="toggleItemSelection(${index})"></td>
-                        <td>${item.name}</td>
+                        <td>${item.name} <br><span style="font-size: 11px; color: var(--text-sub);">(${item.color} / ${item.size})</span></td>
                         <td>NT$ ${item.price.toLocaleString()}</td>
                         <td>
                             <button class="btn btn-small" onclick="changeQty(${index}, -1)">-</button>
@@ -1334,8 +2141,9 @@
             let subtotal = cart.filter(i => i.selected).reduce((sum, item) => sum + (item.price * item.qty), 0);
             const val = document.getElementById('couponSelect').value;
             let discount = 0;
-            if(val.includes('92折') || val.includes('88折')) discount = Math.round(subtotal * 0.1);
-            else if(val.includes('150') || val.includes('300') || val.includes('500') || val.includes('100') || val.includes('折抵 100')) discount = 100;
+            if(val.includes('92折') || val.includes('88折') || val.includes('8折')) discount = Math.round(subtotal * 0.1);
+            else if(val.includes('150') || val.includes('300') || val.includes('500') || val.includes('100') || val.includes('折抵 100') || val.includes('折50')) discount = 100;
+            else if(val.includes('折300')) discount = 300;
 
             let final = subtotal - discount;
             if(final < 0) final = 0;
@@ -1345,6 +2153,12 @@
             document.getElementById('discountAmount').textContent = discount.toLocaleString();
             document.getElementById('cartTotal').textContent = final.toLocaleString();
             document.getElementById('earnCoins').textContent = earn;
+
+            if (final >= 2000) {
+                document.getElementById('giftBanner').style.display = 'block';
+            } else {
+                document.getElementById('giftBanner').style.display = 'none';
+            }
         }
 
         function removeFromCart(index) {
@@ -1356,52 +2170,92 @@
 
         function checkout() {
             const selectedItems = cart.filter(i => i.selected);
-            if(selectedItems.length === 0) { alert('請至少勾選一項要購買的商品！'); return; }
-            const val1 = document.getElementById('payInput1').value.trim();
-            if(!val1) { alert('請填寫完整的付款基本資料！'); return; }
+            if(selectedItems.length === 0) { 
+                showSysMsg('cartMsg', '請至少勾選一項要購買的商品！', 'error');
+                return; 
+            }
+
+            const payMethod = document.getElementById('payMethod').value;
+            const subtotal = selectedItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            
+            const val = document.getElementById('couponSelect').value;
+            let discount = 0;
+            if(val.includes('92折') || val.includes('88折') || val.includes('8折')) discount = Math.round(subtotal * 0.1);
+            else if(val.includes('150') || val.includes('300') || val.includes('500') || val.includes('100') || val.includes('折抵 100') || val.includes('折50')) discount = 100;
+            else if(val.includes('折300')) discount = 300;
+
+            let final = subtotal - discount;
+            if(final < 0) final = 0;
+
+            if (payMethod === 'wallet') {
+                if (walletBalance < final) {
+                    showSysMsg('cartMsg', '虛擬錢包餘額不足，請先前往上方「虛擬錢包」進行儲值！', 'error');
+                    return;
+                }
+                walletBalance -= final;
+                document.getElementById('walletBalance').textContent = `NT$ ${walletBalance.toLocaleString()}`;
+                document.getElementById('payWalletBalance').textContent = `NT$ ${walletBalance.toLocaleString()}`;
+            } else {
+                const val1 = document.getElementById('payInput1').value.trim();
+                if(!val1) { 
+                    showSysMsg('cartMsg', '請填寫完整的付款基本資料！', 'error');
+                    return; 
+                }
+            }
 
             const storeBranch = document.getElementById('storeBranchSelect').value;
-            const subtotal = selectedItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const earn = Math.round(subtotal * 0.1);
+            let earn = Math.round(final * 0.1);
+            let maxDays = Math.max(...selectedItems.map(i => i.shippingDays || 3));
 
             userCoins += earn;
+            totalSpent += final;
             document.getElementById('userCoins').textContent = userCoins;
 
             const newOrder = {
                 id: Math.floor(10000 + Math.random() * 90000),
-                itemsText: selectedItems.map(i => `${i.name} x${i.qty}`).join(', '),
+                itemsText: selectedItems.map(i => `${i.name} (${i.color}/${i.size}) x${i.qty}`).join(', '),
                 total: subtotal,
                 storeBranch: storeBranch,
+                shippingDays: maxDays,
                 status: '已送達',
                 productId: selectedItems[0].id
             };
             orders.unshift(newOrder);
 
+            selectedItems.forEach(item => {
+                if(item.name.includes('[') && item.name.includes('自售]')) {
+                    let sellerMatch = item.name.match(/\[(.*?)自售\]/);
+                    if(sellerMatch && sellerMatch[1]) {
+                        let seller = sellerMatch[1];
+                        let sellerNotifs = JSON.parse(localStorage.getItem(`sysnotifs_${seller}`)) || [];
+                        sellerNotifs.push(`🎉 您的自售商品「${item.name}」已被買家 ${currentUser} 購買！(寄送至: ${storeBranch})`);
+                        localStorage.setItem(`sysnotifs_${seller}`, JSON.stringify(sellerNotifs));
+                    }
+                }
+            });
+
             let sysNotifs = JSON.parse(localStorage.getItem(`sysnotifs_${currentUser}`)) || [];
-            sysNotifs.push(`訂單通知：您的訂單 #${newOrder.id} 已成立，並成功獲得 ${earn} 點蝦幣回饋！`);
+            let giftText = final >= 2000 ? ' 🎁 內含滿額贈禮一份！' : '';
+            sysNotifs.push(`訂單通知：您的訂單 #${newOrder.id} 已成立，預計 ${maxDays} 天送達，獲得 ${earn} 點蝦幣回饋！${giftText}`);
             localStorage.setItem(`sysnotifs_${currentUser}`, JSON.stringify(sysNotifs));
 
             cart = cart.filter(i => !i.selected);
             saveUserData();
             renderCart();
             updateCartCount();
-            alert(`🎉 訂單已成功成立！貨物將寄送至「${storeBranch}」，並獲得 ${earn} 點蝦幣回饋！`);
-            showMallSubSection('ordersArea');
+            showSysMsg('cartMsg', `🎉 訂單已成功成立！貨物預計 ${maxDays} 天後送達「${storeBranch}」${giftText}`, 'success');
+            setTimeout(() => { showMallSubSection('ordersArea'); }, 1500);
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            const current = localStorage.getItem('currentUser');
-            let users = JSON.parse(localStorage.getItem('users')) || {};
-            if(current && users[current]) {
-                currentUser = current;
-                loadUserData();
-                initSystem(current);
-            } else {
-                document.getElementById('authPage').classList.remove('inactive');
-            }
+            localStorage.removeItem('currentUser');
+            document.getElementById('authPage').classList.remove('inactive');
         });
 
-        function logout() { localStorage.removeItem('currentUser'); location.reload(); }
+        function logout() { 
+            localStorage.removeItem('currentUser'); 
+            location.reload(); 
+        }
     </script>
 </body>
 </html>
