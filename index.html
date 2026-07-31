@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>酷台線上購物網</title>
+    <title>蝦皮風格旗艦商城 - 工作證專屬視角與客服中心究極版</title>
     <style>
         :root {
             --primary: #ee4d2d;
@@ -192,12 +192,11 @@
 </head>
 <body>
 
-    <!-- 登入/註冊全螢幕頁面 (強制每次重新整理都需登入) -->
+    <!-- 登入/註冊全螢幕頁面 -->
     <div id="authPage">
         <div class="auth-card" id="loginCardBox">
-            <h2 style="margin-bottom: 15px;">會員登入 (安全驗證)</h2>
+            <h2 style="margin-bottom: 15px;">會員登入</h2>
             <div id="loginMsg" class="system-msg"></div>
-            <p style="font-size: 12px; color: #666; margin-bottom: 15px;">測試帳號: <b>admin</b> | 密碼: <b>123456</b></p>
             <form id="loginForm">
                 <div class="input-group">
                     <label>帳號</label>
@@ -234,25 +233,104 @@
         </div>
     </div>
 
+    <!-- 管理員身分驗證 Modal -->
+    <div id="adminAuthModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close-btn" onclick="closeAdminModal()">&times;</span>
+            <h2 style="font-size: 18px; color: var(--primary); margin-bottom: 12px;">👑 管理員身分驗證</h2>
+            <div id="adminAuthMsg" class="system-msg"></div>
+            <p style="font-size: 12px; color: var(--text-sub); margin-bottom: 15px;">請輸入管理員認證密鑰以進入後台。</p>
+            <div class="input-group">
+                <label>管理員帳號</label>
+                <input type="text" id="adminInputAcc" placeholder="請輸入帳號">
+            </div>
+            <div class="input-group">
+                <label>管理員密碼</label>
+                <input type="password" id="adminInputPass" placeholder="請輸入密碼">
+            </div>
+            <button class="btn btn-danger" onclick="verifyAdminLogin()">驗證並進入後台</button>
+        </div>
+    </div>
+
+    <!-- 購買管理員工作證 Modal (需選擇方案與付款資料) -->
+    <div id="adminBadgeBuyModal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <span class="close-btn" onclick="closeAdminBadgeModal()">&times;</span>
+            <h2 style="font-size: 18px; color: var(--primary); margin-bottom: 12px;">💼 選擇管理員工作證方案</h2>
+            <div id="badgeBuyMsg" class="system-msg"></div>
+            <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 15px;">請選擇您要申辦的管理員工作證方案（費用皆為 NT$ 1,000），並填寫付款資料。</p>
+            
+            <div class="input-group">
+                <label>選擇工作證方案</label>
+                <select id="selectedBadgeScheme">
+                    <option value="super">👑 超級管理員工作證 (全功能視角)</option>
+                    <option value="marketing">📢 營運/行銷管理員工作證 (公告與行銷視角)</option>
+                    <option value="support">📦 客服/訂單管理員工作證 (客服與訂單視角)</option>
+                    <option value="community">🌐 社群管理員工作證 (社群管理視角)</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>選擇付款方式</label>
+                <select id="badgePayMethod" onchange="toggleBadgePayFields()">
+                    <option value="wallet">虛擬錢包現金餘額支付</option>
+                    <option value="credit">信用卡線上刷卡</option>
+                    <option value="atm">網路 ATM / 轉帳</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label id="badgePayLabel1">持卡人姓名 / 匯款人姓名</label>
+                <input type="text" id="badgePayInput1" placeholder="請輸入姓名">
+            </div>
+            <div class="input-group" id="badgePayGroup2">
+                <label id="badgePayLabel2">信用卡卡號 (16碼)</label>
+                <input type="text" id="badgePayInput2" placeholder="4111 2222 3333 4444">
+            </div>
+
+            <button class="btn btn-success" onclick="purchaseAdminBadge()">確認付款並取得工作證</button>
+        </div>
+    </div>
+
+    <!-- 管理員檢視會員歷史紀錄 Modal -->
+    <div id="userAuditModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close-btn" onclick="closeUserAuditModal()">&times;</span>
+            <h2 id="auditModalTitle" style="font-size: 18px; color: var(--primary); margin-bottom: 15px;"></h2>
+            <div id="auditModalBody" style="font-size: 13px; line-height: 1.8; max-height: 400px; overflow-y: auto; background: #f9fafb; padding: 15px; border-radius: 8px; border: 1px solid var(--border);"></div>
+            <button class="btn" style="margin-top: 15px;" onclick="closeUserAuditModal()">關閉稽核視窗</button>
+        </div>
+    </div>
+
     <!-- 頂部導覽列 -->
     <div id="navbar" class="navbar" style="display: none;">
-        <h1 onclick="showMallSubSection('mallHome')">🛒 酷台線上購物網</h1>
+        <h1 onclick="showMallSubSection('mallHome')">🛒 蝦皮旗艦商城</h1>
         <div class="nav-links">
-            <span>用戶: <b id="navUsername"></b> | 🪙 <b id="userCoins">200</b> | 💰 <b id="walletBalance">NT$ 5,000</b></span>
+            <span>用戶: <b id="navUsername"></b> <span id="navVerifiedBadge" style="color:#60a5fa; display:none;" title="已實名認證">✓</span> | 🪙 <b id="userCoins">200</b> | 💰 <b id="walletBalance">NT$ 5,000</b></span>
             <span onclick="showMallSubSection('mallHome')">首頁</span>
-            <span onclick="showMallSubSection('spinWheelArea')" style="color: #fef08a;">🎰 幸運輪盤</span>
-            <span onclick="showMallSubSection('bulletinBoardArea')" style="color: #fde047;">📢 公告欄</span>
+            <span onclick="showMallSubSection('spinWheelArea')" style="color: #fef08a;">🎰 輪盤</span>
+            <span onclick="showMallSubSection('bulletinBoardArea')" style="color: #fde047;">📢 公告</span>
             <span onclick="showMallSubSection('friendsArea')" style="color: #67e8f9;">👥 好友 <span id="friendBadge" class="badge-dot" style="display:none;">0</span></span>
             <span onclick="showMallSubSection('communityFeedArea')" style="color: #93c5fd;">🌐 社團</span>
             <span onclick="showMallSubSection('sellArea')">🏷️ 賣衣/物</span>
-            <span onclick="showMallSubSection('sellerAnswerArea')">💬 問答區</span>
+            <span onclick="showMallSubSection('sellerAnswerArea')">💬 問答</span>
+            <span onclick="showMallSubSection('supportCenterArea')" style="color: #6ee7b7;">🎧 客服中心</span>
             <span onclick="showMallSubSection('walletTopupArea')">💳 錢包</span>
             <span onclick="showMallSubSection('couponCenterArea')">🎫 領券</span>
             <span onclick="showMallSubSection('vipArea')">👑 會員</span>
+            <span onclick="handleAdminNavClick()" style="color: #f87171;">👑 後台管理</span>
             <span onclick="showMallSubSection('notificationArea')">🔔 通知 <span id="notifBadge" class="badge-dot" style="display:none;">0</span></span>
             <span onclick="showMallSubSection('ordersArea')">📦 訂單</span>
             <span onclick="showMallSubSection('cartArea')">🛍️ 購物車 (<span id="cartCount">0</span>)</span>
             <span onclick="logout()" style="color: #ffeb3b;">登出</span>
+        </div>
+    </div>
+
+    <!-- 被禁用的提示牆 (被水桶罩住，其他地方完全不能用) -->
+    <div id="bannedWall" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:99999; justify-content:center; align-items:center; color:white; text-align:center; padding:20px;">
+        <div style="background:#1f2937; padding:40px; border-radius:12px; max-width:500px; border: 2px solid var(--danger);">
+            <h2 style="color: var(--danger); margin-bottom: 15px;">🚫 帳號已被社群管理員禁用 (水桶中)</h2>
+            <p id="bannedReasonText" style="font-size: 15px; line-height: 1.6; margin-bottom: 20px;"></p>
+            <p style="font-size: 13px; color: #9ca3af; margin-bottom: 20px;">您目前已被罩住，無法使用購物網的其他任何功能。</p>
+            <button class="btn btn-danger" onclick="logout()">登出帳號</button>
         </div>
     </div>
 
@@ -268,14 +346,13 @@
 
             <div class="promo-banner">
                 <div>
-                    <h2>🔥 8.8 超級品牌日・幸運輪盤與專屬優惠</h2>
-                    <p>精選 30 樣全類別商品（含流行服飾）完美上架！參與輪盤抽獎贏取神券與蝦幣。</p>
+                    <h2>🔥 8.8 超級品牌日・工作證與管理員系統</h2>
+                    <p>精選 30 樣全類別商品（含流行服飾）完美上架！參與輪盤抽獎與會員中心特權升級。</p>
                     <div style="background: #fef08a; color: #1e3a8a; padding: 6px 12px; border-radius: 6px; font-weight: bold; display: inline-block; cursor:pointer;" onclick="showMallSubSection('spinWheelArea')">🎰 前往試手氣轉動幸運輪盤</div>
                 </div>
-                <div style="font-size: 50px;">🎰</div>
+                <div style="font-size: 50px;">👑</div>
             </div>
 
-            <!-- 🤖 AI 智能推薦「猜你喜歡」區塊 -->
             <div id="aiRecommendationSection" style="background: #f0fdf4; padding: 20px; border-radius: 8px; margin-bottom: 25px; border: 1px solid #bbf7d0; display: none;">
                 <h3 style="color: #166534; margin-bottom: 12px; font-size: 16px;">🤖 AI 智能推薦・猜你喜歡</h3>
                 <div id="aiRecList" style="display: flex; gap: 15px; overflow-x: auto; padding-bottom: 5px;"></div>
@@ -318,7 +395,115 @@
             <div class="product-grid" id="productGrid"></div>
         </div>
 
-        <!-- 🎰 幸運商城抽獎輪盤專區 (每日限抽一次與說明) -->
+        <!-- 👑 後台管理中心 (依工作證方案顯示專屬視角) -->
+        <div id="adminUserArea" class="mall-sub-section mall-container" style="display: none;">
+            <h2>👑 後台管理中心</h2>
+            <div id="adminMsg" class="system-msg"></div>
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 6px; margin-bottom: 20px; font-size: 13px; color: #1e40af;">
+                👤 <b>目前工作證視角方案：</b> <span id="currentAdminRoleBadge" style="font-weight: bold;">超級管理員</span>
+            </div>
+
+            <!-- 🌐 社群管理員視角 -->
+            <div id="panelCommunity" style="background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; display:none;">
+                <h3 style="color: #7c3aed; margin-bottom: 10px;">🌐 社群管理視角 (填表單禁用水桶用戶)</h3>
+                <div class="input-group">
+                    <label>違規用戶帳號</label>
+                    <input type="text" id="banUserAcc" placeholder="輸入要禁用的用戶帳號...">
+                </div>
+                <div class="input-group">
+                    <label>違規原因說明</label>
+                    <textarea id="banReason" rows="2" placeholder="填寫違規原因..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label>禁用天數 (天)</label>
+                    <input type="number" id="banDays" value="3" placeholder="例如: 3">
+                </div>
+                <button class="btn btn-small btn-danger" onclick="adminBanUser()">確認填表並禁用用戶</button>
+            </div>
+
+            <!-- 📦 客服/訂單管理員視角 -->
+            <div id="panelSupport" style="background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; display:none;">
+                <h3 style="color: #2563eb; margin-bottom: 10px;">📦 客服與訂單管理視角 (回應與異常訂單強制移除)</h3>
+                <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 15px;">提示：若訂單金額高於 NT$ 100,000 判定為異常，客服可執行強制移除。</p>
+                <div id="adminOrdersAuditList" style="margin-bottom: 25px;"></div>
+
+                <h3 style="color: #059669; margin-bottom: 10px;">🎧 客服中心受理與改善清單 (用戶申訴紀錄)</h3>
+                <div id="adminSupportCenterList"></div>
+            </div>
+
+            <!-- 📢 營運/行銷管理員視角 -->
+            <div id="panelMarketing" style="background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; display:none;">
+                <h3 style="color: var(--primary); margin-bottom: 10px;">📢 營運/行銷管理視角 (公告與折價券)</h3>
+                <div class="input-group">
+                    <label>新增公告欄新聞標題</label>
+                    <input type="text" id="newAnnTitle" placeholder="標題...">
+                </div>
+                <div class="input-group">
+                    <label>公告內容</label>
+                    <textarea id="newAnnContent" rows="2" placeholder="內容說明..."></textarea>
+                </div>
+                <button class="btn btn-small btn-success" onclick="adminAddAnnouncement()" style="margin-bottom: 15px;">發布公告新聞</button>
+
+                <div class="input-group">
+                    <label>發放指定折價券給某會員帳號</label>
+                    <input type="text" id="targetUserForCoupon" placeholder="輸入用戶帳號 (如 user01)" style="margin-bottom: 6px;">
+                    <select id="couponSelectForAdmin" style="padding: 6px; width:100%; border:1px solid var(--border); border-radius:4px; margin-bottom:6px;">
+                        <option value="【超級品牌日】92折券">【超級品牌日】92折券</option>
+                        <option value="【今日專屬】現折 NT$ 150">【今日專屬】現折 NT$ 150</option>
+                        <option value="【VIP 專屬】全館 88 折券">【VIP 專屬】全館 88 折券</option>
+                    </select>
+                </div>
+                <button class="btn btn-small btn-warning" onclick="adminSendCouponToUser()">發放折價券給指定用戶</button>
+            </div>
+
+            <!-- 👑 超級管理員視角 (全功能) -->
+            <div id="panelSuper" style="background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--border); display:none;">
+                <h3>👑 超級管理員全功能視角 (會員管控與稽核)</h3>
+                <table style="margin-top: 10px;">
+                    <thead>
+                        <tr>
+                            <th>會員帳號</th>
+                            <th>實名狀態</th>
+                            <th>修改帳號/密碼</th>
+                            <th>查看所有歷史紀錄</th>
+                            <th>踢出會員 (刪除)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminUserTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 🎧 客服中心專區 (用戶提交原因與以後該怎麼做) -->
+        <div id="supportCenterArea" class="mall-sub-section mall-container" style="display: none;">
+            <h2>🎧 客服中心與申訴改善系統</h2>
+            <div id="supportMsg" class="system-msg"></div>
+            <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 20px;">若您遇到任何交易或使用問題，請在此提交客服單，並記錄問題發生原因與未來改善對策。</p>
+            
+            <div style="background: white; padding: 30px; border-radius: 12px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); max-width: 600px;">
+                <h3 style="color: var(--primary); margin-bottom: 15px; font-size: 16px;">✍️ 提交新的客服申訴單</h3>
+                <div class="input-group">
+                    <label>問題主旨與項目</label>
+                    <input type="text" id="suppSubject" placeholder="例如: 訂單物流延遲或扣款異常">
+                </div>
+                <div class="input-group">
+                    <label>發生原因說明</label>
+                    <textarea id="suppReason" rows="3" placeholder="請詳細描述問題發生的原因..."></textarea>
+                </div>
+                <div class="input-group">
+                    <label>以後該怎麼做 (改善對策與預防措施)</label>
+                    <textarea id="suppSolution" rows="3" placeholder="請填寫未來如何避免此問題再度發生..."></textarea>
+                </div>
+                <button class="btn btn-success" onclick="submitSupportTicket()">送出客服申訴單</button>
+            </div>
+
+            <div style="background: white; padding: 25px; border-radius: 8px; border: 1px solid var(--border);">
+                <h3>📋 我的客服申訴紀錄與客服回覆</h3>
+                <div id="mySupportTicketsList" style="margin-top: 15px; display: flex; flex-direction: column; gap: 15px;"></div>
+            </div>
+        </div>
+
+        <!-- 🎰 幸運商城抽獎輪盤專區 -->
         <div id="spinWheelArea" class="mall-sub-section mall-container" style="display: none;">
             <h2>🎰 幸運商城抽獎輪盤</h2>
             <div id="wheelMsg" class="system-msg"></div>
@@ -328,8 +513,6 @@
                 <p style="font-size: 13px; color: var(--text-sub); margin-bottom: 20px;">有機率抽中「全館 5 折神券」、「免運券」或 100 點免費蝦幣！</p>
                 <div id="wheelResultBox" style="background: #fef3c7; border: 1px solid #f59e0b; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; color: #b45309; margin-bottom: 20px; display: none;"></div>
                 <button id="spinBtn" class="btn btn-warning" onclick="spinWheel()" style="font-size: 16px;">立即轉動輪盤抽獎 (-20 蝦幣)</button>
-                
-                <!-- 下方明確說明文字 -->
                 <p style="font-size: 12px; color: var(--text-sub); margin-top: 15px; line-height: 1.5;">
                     ※ <b>活動說明：</b>每個帳號<b>每天限抽獎 1 次</b>，每次消耗 20 點蝦幣。中獎率 100%，快來試試今天的好手氣吧！
                 </p>
@@ -531,11 +714,12 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;" id="couponCenterList"></div>
         </div>
 
-        <!-- 👑 會員等級 -->
+        <!-- 👑 會員中心與帳號管理中心 -->
         <div id="vipArea" class="mall-sub-section mall-container" style="display: none;">
-            <h2>👑 會員等級與消費成長中心</h2>
+            <h2>👑 會員等級與帳號管理中心</h2>
             <div id="vipMsg" class="system-msg"></div>
             <div style="background: white; padding: 30px; border-radius: 12px; margin-top: 20px; max-width: 600px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                
                 <div style="margin-bottom: 20px; padding: 15px; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px;">
                     <h3 id="memberTierTitle" style="color: #d97706; margin-bottom: 5px;">⭐ 當前等級：銅牌會員</h3>
                     <p id="memberTierDesc" style="font-size: 13px; color: #92400e; margin-bottom: 10px;">累計消費滿額可解鎖更高會員等級與 15% 蝦幣回饋！</p>
@@ -545,9 +729,31 @@
                     <p style="font-size: 12px; color: var(--text-sub); margin-top: 5px;">累計消費總額：NT$ <span id="totalSpentText">0</span> / 升級門檻 NT$ <span id="tierGoalText">5,000</span></p>
                 </div>
 
-                <div id="vipStatusBox" style="margin-bottom: 20px; padding: 15px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px;">
-                    <h3 id="vipStatusTitle" style="color: #166534; margin-bottom: 5px;">VIP 尊榮特權</h3>
-                    <p style="font-size: 13px; color: #15803d;">填寫下方基本資料即可解鎖專屬特權。</p>
+                <div style="margin-bottom: 20px; padding: 15px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h4 style="color: #1e40af; font-size: 15px;">🛡️ 帳號實名認證狀態</h4>
+                        <p style="font-size: 12px; color: var(--text-sub); margin-top: 2px;" id="verifyStatusText">尚未完成實名認證 (享有信任藍勾勾標章)</p>
+                    </div>
+                    <button id="verifyBtn" class="btn btn-small btn-success" onclick="toggleVerification()">進行實名認證</button>
+                </div>
+
+                <div style="margin-bottom: 20px; padding: 15px; background: #f9fafb; border: 1px solid var(--border); border-radius: 8px;">
+                    <h4 style="margin-bottom: 10px; font-size: 15px; color: var(--text-main);">🔑 修改登入密碼</h4>
+                    <div class="input-group">
+                        <label>新密碼</label>
+                        <input type="password" id="newPassInput" placeholder="輸入新密碼">
+                    </div>
+                    <button class="btn btn-small btn-warning" onclick="updatePassword()">更新密碼</button>
+                </div>
+
+                <div style="margin-bottom: 20px; padding: 15px; background: #f9fafb; border: 1px solid var(--border); border-radius: 8px;">
+                    <h4 style="margin-bottom: 10px; font-size: 15px; color: var(--text-main);">📇 多筆常用收件地址管理</h4>
+                    <div class="input-group">
+                        <label>新增常用地址 (如: 公司、老家)</label>
+                        <input type="text" id="newAddressInput" placeholder="例如: 台北市信義區忠孝東路五段 8 號">
+                    </div>
+                    <button class="btn btn-small btn-success" onclick="saveNewAddress()" style="margin-bottom: 10px;">儲存地址</button>
+                    <div id="addressListContainer" style="font-size: 13px; color: var(--text-sub);"></div>
                 </div>
                 
                 <form id="vipForm" onsubmit="applyVip(event)">
@@ -895,7 +1101,7 @@
             { id: 7, name: "Nintendo Switch OLED 台灣專用機", price: 10480, category: "🎮 電動遊戲", isSpecial: true, sales: 720, shippingDays: 2, desc: "7吋 OLED 螢幕色彩更鮮明，隨時隨地享受歡樂。", pros: "螢幕超美。", reviews: ["admin: ❤️❤️❤️❤️❤️ 聚會必備。"], qna: [{ q: "有附手把嗎？", a: "賣家回覆：內含左右手把。" }] },
             { id: 8, name: "薩爾達傳說 王國之淚", price: 1590, category: "🎮 電動遊戲", isSpecial: false, sales: 940, shippingDays: 2, desc: "探索浩瀚的海拉魯大陸，無限可能與冒險。", pros: "自由度極高。", reviews: ["user01: ❤️❤️❤️❤️❤️ 時間小偷！"], qna: [{ q: "中文版嗎？", a: "賣家回覆：支援繁體中文。" }] },
             { id: 9, name: "微軟 Xbox Series X 主機", price: 15300, category: "🎮 電動遊戲", isSpecial: false, sales: 510, shippingDays: 3, desc: "效能最強大的家用主機，支援 4K 120fps。", pros: "效能強悍。", reviews: ["admin: ❤️❤️❤️❤️❤️ 搭配 XGP 超划算。"], qna: [{ q: "有現貨嗎？", a: "賣家回覆：有現貨。" }] },
-            { id: 10, name: "萬代 MG 鋼彈 模型", price: 1350, category: "🧸 玩具模型", isSpecial: false, sales: 430, shippingDays: 4, desc: "精細分件與骨架設計，模型迷必收藏。", pros: "組裝手感極佳。", reviews: ["user01: ❤️❤️❤️❤️❤️ 紓壓首選。"], qna: [{ q: "要上色嗎？", a: "賣家回覆：素組就很漂亮。" }] },
+            { id: 10, name: "萬代 MG 鋼彈 模型", price: 1350, category: "🧸 玩具模型", isSpecial: false, sales: 430, shippingDays: 4, desc: "精細分件與骨架設計，模型迷必收藏。", pros: "組裝手感極佳。", reviews: ["user01: ❤️❤️❤️❤️❤️ 紓壓首選。"], qna: [{ q: "要上色嗎？", a: "賣家回覆 : 素組就很漂亮。" }] },
             { id: 11, name: "LEGO 樂高經典賽車", price: 1680, category: "🧸 玩具模型", isSpecial: false, sales: 380, shippingDays: 3, desc: "激發無限創造力與動手能力。", pros: "品質精良。", reviews: ["admin: ❤️❤️❤️❤️❤️ 益智好玩。"], qna: [{ q: "適合幾歲？", a: "賣家回覆：建議 7 歲以上。" }] },
             { id: 12, name: "碳纖維超輕量羽球拍組", price: 2280, category: "⚽ 運動用品", isSpecial: false, sales: 410, shippingDays: 3, desc: "高磅數耐打、輕量化設計，殺球犀利。", pros: "極輕手感。", reviews: ["user01: ❤️❤️❤️❤️❤️ 殺球超有力。"], qna: [{ q: "有拍袋嗎？", a: "賣家回覆：附原廠拍袋。" }] },
             { id: 13, name: "10mm 加厚防滑瑜珈墊", price: 680, category: "⚽ 運動用品", isSpecial: false, sales: 610, shippingDays: 3, desc: "高密度 NBR 材質、絕佳防滑避震。", pros: "加厚防震。", reviews: ["admin: ❤️❤️❤️❤️❤️ 膝蓋不痛。"], qna: [{ q: "會不會滑？", a: "賣家回覆：雙面防滑。" }] },
@@ -935,13 +1141,16 @@
         let totalSpent = 0;
         let reviewingProductId = null;
         let isVip = false;
+        let isVerified = false;
+        let savedAddresses = [];
         let isListView = false;
+        let currentAdminRole = 'super';
 
         let communityPosts = JSON.parse(localStorage.getItem('communityPosts_db')) || [
             { id: 1, author: "admin", text: "大家安安！歡迎來到蝦皮公開社團，快來邀請好友一起交流討論好物吧！", time: "2026-08-01 12:00", comments: [{ author: "user01", text: "版主好！我已經把朋友都拉進來了！" }] }
         ];
 
-        let officialAnnouncements = [
+        let officialAnnouncements = JSON.parse(localStorage.getItem('officialAnnouncements_db')) || [
             { title: "【公告】8.8 超級品牌日免運馬拉松開跑！", date: "2026-08-01", content: "活動期間全館滿額即享超商免運費，結帳再加碼回饋 10% 蝦幣！" },
             { title: "【系統通知】伺服器例行維護公告", date: "2026-07-28", content: "為提供更優質的購物體驗，系統將於凌晨 02:00 進行 30 分鐘升級維護。" }
         ];
@@ -950,6 +1159,8 @@
             { title: "2026 夏季流行服飾趨勢解析：工裝與復古寬褲大熱門", date: "2026-07-30", content: "今年夏天復古風潮持續延燒，舒適透氣的純棉與多口袋工裝剪裁成為各大街頭指標。" },
             { title: "次世代 3C 科技新品連發：極致輕巧與 AI 智慧功能成主流", date: "2026-07-29", content: "隨著全新晶片問世，智慧穿戴與隨身影像設備更加輕量化，滿足現代人的快節奏生活。" }
         ];
+
+        let supportTickets = JSON.parse(localStorage.getItem('supportTickets_db')) || [];
 
         function saveUserData() {
             if(!currentUser) return;
@@ -961,8 +1172,12 @@
             localStorage.setItem(`wallet_${currentUser}`, walletBalance);
             localStorage.setItem(`spent_${currentUser}`, totalSpent);
             localStorage.setItem(`vip_${currentUser}`, isVip);
+            localStorage.setItem(`verified_${currentUser}`, isVerified);
+            localStorage.setItem(`addresses_${currentUser}`, JSON.stringify(savedAddresses));
             localStorage.setItem(`products_db`, JSON.stringify(products));
             localStorage.setItem(`communityPosts_db`, JSON.stringify(communityPosts));
+            localStorage.setItem(`officialAnnouncements_db`, JSON.stringify(officialAnnouncements));
+            localStorage.setItem(`supportTickets_db`, JSON.stringify(supportTickets));
         }
 
         function loadUserData() {
@@ -975,11 +1190,17 @@
             walletBalance = parseInt(localStorage.getItem(`wallet_${currentUser}`)) || 5000;
             totalSpent = parseInt(localStorage.getItem(`spent_${currentUser}`)) || 0;
             isVip = localStorage.getItem(`vip_${currentUser}`) === 'true';
+            isVerified = localStorage.getItem(`verified_${currentUser}`) === 'true';
+            savedAddresses = JSON.parse(localStorage.getItem(`addresses_${currentUser}`)) || ["台北市信義區忠孝東路五段 8 號"];
             
             let db = JSON.parse(localStorage.getItem(`products_db`));
             if(db) products = db;
             let cp = JSON.parse(localStorage.getItem('communityPosts_db'));
             if(cp) communityPosts = cp;
+            let an = JSON.parse(localStorage.getItem('officialAnnouncements_db'));
+            if(an) officialAnnouncements = an;
+            let st = JSON.parse(localStorage.getItem('supportTickets_db'));
+            if(st) supportTickets = st;
         }
 
         function toggleAuthMode(mode) {
@@ -1001,6 +1222,8 @@
                 renderAiRecommendations();
                 checkNotifications();
             }
+            if(sectionId === 'adminUserArea') renderAdminDashboardByRole();
+            if(sectionId === 'supportCenterArea') renderSupportCenter();
             if(sectionId === 'spinWheelArea') checkSpinWheelStatus();
             if(sectionId === 'bulletinBoardArea') renderBulletinBoard();
             if(sectionId === 'communityFeedArea') {
@@ -1017,7 +1240,7 @@
                 document.getElementById('walletBalanceText').textContent = `NT$ ${walletBalance.toLocaleString()}`;
             }
             if(sectionId === 'couponCenterArea') renderCouponCenter();
-            if(sectionId === 'vipArea') renderMemberTier();
+            if(sectionId === 'vipArea') renderMemberCenterData();
             if(sectionId === 'cartArea') {
                 renderCart();
                 togglePayMethod();
@@ -1029,7 +1252,466 @@
             if(sectionId === 'notificationArea') renderNotificationsList();
         }
 
-        // 🎰 檢查今日是否已抽過獎
+        // 工作證購買檢查
+        function handleAdminNavClick() {
+            let scheme = localStorage.getItem(`adminScheme_${currentUser}`);
+            if (!scheme) {
+                document.getElementById('badgePayInput1').value = '';
+                document.getElementById('badgePayInput2').value = '';
+                document.getElementById('adminBadgeBuyModal').classList.add('active');
+            } else {
+                openAdminAuthModal();
+            }
+        }
+        function closeAdminBadgeModal() {
+            document.getElementById('adminBadgeBuyModal').classList.remove('active');
+        }
+        function toggleBadgePayFields() {
+            const m = document.getElementById('badgePayMethod').value;
+            const g2 = document.getElementById('badgePayGroup2');
+            if (m === 'wallet') {
+                g2.style.display = 'none';
+                document.getElementById('badgePayLabel1').textContent = '確認付款人帳號';
+            } else {
+                g2.style.display = 'block';
+                document.getElementById('badgePayLabel1').textContent = '持卡人姓名 / 匯款人姓名';
+            }
+        }
+        function purchaseAdminBadge() {
+            const scheme = document.getElementById('selectedBadgeScheme').value;
+            const m = document.getElementById('badgePayMethod').value;
+            if (m === 'wallet') {
+                if (walletBalance < 1000) {
+                    showSysMsg('badgeBuyMsg', '虛擬錢包餘額不足 NT$ 1,000！', 'error');
+                    return;
+                }
+                walletBalance -= 1000;
+                document.getElementById('walletBalance').textContent = `NT$ ${walletBalance.toLocaleString()}`;
+            } else {
+                const v1 = document.getElementById('badgePayInput1').value.trim();
+                const v2 = document.getElementById('badgePayInput2').value.trim();
+                if (!v1 || !v2) {
+                    showSysMsg('badgeBuyMsg', '請填寫完整的付款資料！', 'error');
+                    return;
+                }
+            }
+
+            localStorage.setItem(`adminScheme_${currentUser}`, scheme);
+            closeAdminBadgeModal();
+            showSysMsg('mallHome', '💼 成功購買管理員工作證！', 'success');
+            openAdminAuthModal();
+        }
+
+        function openAdminAuthModal() {
+            document.getElementById('adminInputAcc').value = '';
+            document.getElementById('adminInputPass').value = '';
+            document.getElementById('adminAuthModal').classList.add('active');
+        }
+        function closeAdminModal() {
+            document.getElementById('adminAuthModal').classList.remove('active');
+        }
+
+        function verifyAdminLogin() {
+            const acc = document.getElementById('adminInputAcc').value.trim();
+            const pass = document.getElementById('adminInputPass').value.trim();
+            const role = document.getElementById('adminRoleSelect').value;
+
+            if (acc === '13579' && pass === '2468') {
+                let purchasedScheme = localStorage.getItem(`adminScheme_${currentUser}`);
+                if (purchasedScheme !== 'super' && purchasedScheme !== role) {
+                    showSysMsg('adminAuthMsg', `您的工作證方案不符合此視角！您購買的是 [${purchasedScheme}] 方案`, 'error');
+                    return;
+                }
+
+                currentAdminRole = role;
+                let roleNames = { 'super': '超級管理員', 'marketing': '營運/行銷管理員', 'support': '客服/訂單管理員', 'community': '社群管理員' };
+                document.getElementById('currentAdminRoleBadge').textContent = roleNames[role];
+                closeAdminModal();
+                showMallSubSection('adminUserArea');
+            } else {
+                showSysMsg('adminAuthMsg', '管理員身分驗證失敗！', 'error');
+            }
+        }
+
+        // 依據工作證方案顯示對應視角面板
+        function renderAdminDashboardByRole() {
+            document.getElementById('panelSuper').style.display = 'none';
+            document.getElementById('panelMarketing').style.display = 'none';
+            document.getElementById('panelSupport').style.display = 'none';
+            document.getElementById('panelCommunity').style.display = 'none';
+
+            if (currentAdminRole === 'super') {
+                document.getElementById('panelSuper').style.display = 'block';
+                document.getElementById('panelMarketing').style.display = 'block';
+                document.getElementById('panelSupport').style.display = 'block';
+                document.getElementById('panelCommunity').style.display = 'block';
+                renderAdminUserTable();
+                renderAdminOrdersAudit();
+                renderAdminSupportTickets();
+            } else if (currentAdminRole === 'marketing') {
+                document.getElementById('panelMarketing').style.display = 'block';
+            } else if (currentAdminRole === 'support') {
+                document.getElementById('panelSupport').style.display = 'block';
+                renderAdminOrdersAudit();
+                renderAdminSupportTickets();
+            } else if (currentAdminRole === 'community') {
+                document.getElementById('panelCommunity').style.display = 'block';
+            }
+        }
+
+        // 營運/行銷視角
+        function adminAddAnnouncement() {
+            const t = document.getElementById('newAnnTitle').value.trim();
+            const c = document.getElementById('newAnnContent').value.trim();
+            if(!t || !c) {
+                showSysMsg('adminMsg', '請填寫公告標題與內容！', 'error');
+                return;
+            }
+            let now = new Date().toISOString().slice(0, 10);
+            officialAnnouncements.push({ title: t, date: now, content: c });
+            saveUserData();
+            document.getElementById('newAnnTitle').value = '';
+            document.getElementById('newAnnContent').value = '';
+            showSysMsg('adminMsg', '🎉 公告新聞已成功新增並發布至公告欄！', 'success');
+        }
+
+        function adminSendCouponToUser() {
+            const u = document.getElementById('targetUserForCoupon').value.trim();
+            const coup = document.getElementById('couponSelectForAdmin').value;
+            if(!u) {
+                showSysMsg('adminMsg', '請輸入指定的用戶帳號！', 'error');
+                return;
+            }
+            let uCoupons = JSON.parse(localStorage.getItem(`coupons_${u}`)) || [];
+            if(!uCoupons.includes(coup)) {
+                uCoupons.push(coup);
+                localStorage.setItem(`coupons_${u}`, JSON.stringify(uCoupons));
+                
+                let uNotifs = JSON.parse(localStorage.getItem(`sysnotifs_${u}`)) || [];
+                uNotifs.push(`🎁 恭喜！營運管理員派發了一張專屬折價券「${coup}」至您的背包！`);
+                localStorage.setItem(`sysnotifs_${u}`, JSON.stringify(uNotifs));
+
+                showSysMsg('adminMsg', `🎉 成功將折價券派發給用戶 [${u}]！`, 'success');
+            } else {
+                showSysMsg('adminMsg', `該用戶已經擁有這張折價券囉！`, 'error');
+            }
+        }
+
+        // 客服/訂單視角：異常訂單強制移除 (>100000) 與客服中心受理
+        function renderAdminOrdersAudit() {
+            const container = document.getElementById('adminOrdersAuditList');
+            container.innerHTML = '';
+            let allUsers = JSON.parse(localStorage.getItem('users')) || {};
+            let foundAbnormal = false;
+
+            Object.keys(allUsers).forEach(acc => {
+                let uOrders = JSON.parse(localStorage.getItem(`orders_${acc}`)) || [];
+                uOrders.forEach(ord => {
+                    if (ord.total > 100000) {
+                        foundAbnormal = true;
+                        container.innerHTML += `
+                            <div style="background:#fee2e2; border:1px solid #fecaca; padding:12px; border-radius:6px; margin-bottom:10px;">
+                                <p style="color:#b91c1c; font-weight:bold;">⚠️ 發現高額異常訂單 (大於 10 萬元)</p>
+                                <p>用戶: <b>${acc}</b> | 訂單編號: #${ord.id} | 金額: <b>NT$ ${ord.total.toLocaleString()}</b></p>
+                                <button class="btn btn-small btn-danger" style="margin-top:6px;" onclick="adminForceRemoveOrder('${acc}', ${ord.id})">強迫移除此異常訂單</button>
+                            </div>
+                        `;
+                    }
+                });
+            });
+
+            if(!foundAbnormal) {
+                container.innerHTML = `<p style="color: var(--success);">🟢 目前所有訂單金額正常，無大於 10 萬元的異常訂單。</p>`;
+            }
+        }
+
+        function adminForceRemoveOrder(acc, ordId) {
+            if(confirm(`確定要強迫移除會員 [${acc}] 的異常訂單 #${ordId} 嗎？`)) {
+                let uOrders = JSON.parse(localStorage.getItem(`orders_${acc}`)) || [];
+                uOrders = uOrders.filter(o => o.id !== ordId);
+                localStorage.setItem(`orders_${acc}`, JSON.stringify(uOrders));
+                
+                let uNotifs = JSON.parse(localStorage.getItem(`sysnotifs_${acc}`)) || [];
+                uNotifs.push(`⚠️ 系統通知：您的異常訂單 #${ordId} 已被客服管理員強迫移除。`);
+                localStorage.setItem(`sysnotifs_${acc}`, JSON.stringify(uNotifs));
+
+                showSysMsg('adminMsg', `🎉 已成功強迫移除異常訂單 #${ordId}！`, 'success');
+                renderAdminOrdersAudit();
+            }
+        }
+
+        function renderAdminSupportTickets() {
+            const container = document.getElementById('adminSupportCenterList');
+            container.innerHTML = '';
+            if (supportTickets.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-sub);">目前沒有任何客服申訴單。</p>`;
+                return;
+            }
+
+            supportTickets.forEach((t, idx) => {
+                container.innerHTML += `
+                    <div style="background:#f9fafb; border:1px solid var(--border); padding:15px; border-radius:6px; margin-bottom:10px;">
+                        <p>👤 <b>提問用戶：</b> ${t.author} | 🕒 ${t.time}</p>
+                        <p>📌 <b>主旨：</b> ${t.subject}</p>
+                        <p style="color:#b91c1c;">❓ <b>發生原因：</b> ${t.reason}</p>
+                        <p style="color:#059669;">💡 <b>以後該怎麼做 (改善對策)：</b> ${t.solution}</p>
+                        <div style="margin-top: 10px; display: flex; gap: 8px;">
+                            <input type="text" id="suppReply_${idx}" placeholder="輸入客服回覆說明..." style="flex:1; padding:6px; font-size:12px; border:1px solid var(--border); border-radius:4px;">
+                            <button class="btn btn-small btn-success" onclick="adminReplySupport(${idx})">回覆並存檔</button>
+                        </div>
+                        <p style="font-size: 12px; color:var(--primary); margin-top:5px;" id="suppReplyStatus_${idx}"><b>客服回覆：</b> ${t.reply || '尚未回覆'}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function adminReplySupport(idx) {
+            const txt = document.getElementById(`suppReply_${idx}`).value.trim();
+            if(!txt) return;
+            supportTickets[idx].reply = txt;
+            saveUserData();
+            renderAdminSupportTickets();
+            showSysMsg('adminMsg', '客服回覆已成功送出！', 'success');
+        }
+
+        // 社群管理員視角：填表單禁用用戶 (水桶罩住，其他地方完全不能用)
+        function adminBanUser() {
+            const acc = document.getElementById('banUserAcc').value.trim();
+            const reason = document.getElementById('banReason').value.trim();
+            const days = parseInt(document.getElementById('banDays').value) || 3;
+
+            if(!acc || !reason) {
+                showSysMsg('adminMsg', '請完整填寫禁用帳號與原因！', 'error');
+                return;
+            }
+
+            let allUsers = JSON.parse(localStorage.getItem('users')) || {};
+            if(!allUsers[acc]) {
+                showSysMsg('adminMsg', '查無此會員帳號！', 'error');
+                return;
+            }
+
+            localStorage.setItem(`banned_${acc}`, JSON.stringify({ reason: reason, days: days, time: new Date().toISOString() }));
+            let uNotifs = JSON.parse(localStorage.getItem(`sysnotifs_${acc}`)) || [];
+            uNotifs.push(`🚫 社群水桶通知：因「${reason}」，您的帳號已被社群管理員禁用 ${days} 天！`);
+            localStorage.setItem(`sysnotifs_${acc}`, JSON.stringify(uNotifs));
+
+            showSysMsg('adminMsg', `🎉 已成功將會員 [${acc}] 禁用水桶 ${days} 天！`, 'success');
+            document.getElementById('banUserAcc').value = '';
+            document.getElementById('banReason').value = '';
+        }
+
+        function checkUserBannedStatus() {
+            if(!currentUser) return;
+            let banInfo = JSON.parse(localStorage.getItem(`banned_${currentUser}`));
+            if (banInfo) {
+                document.getElementById('bannedReasonText').textContent = `原因：${banInfo.reason}\n禁用天數：${banInfo.days} 天`;
+                document.getElementById('bannedWall').style.display = 'flex';
+            } else {
+                document.getElementById('bannedWall').style.display = 'none';
+            }
+        }
+
+        // 用戶提交客服單
+        function submitSupportTicket() {
+            const sub = document.getElementById('suppSubject').value.trim();
+            const rea = document.getElementById('suppReason').value.trim();
+            const sol = document.getElementById('suppSolution').value.trim();
+            if(!sub || !rea || !sol) {
+                showSysMsg('supportMsg', '請完整填寫主旨、發生原因與以後該怎麼做！', 'error');
+                return;
+            }
+
+            let now = new Date().toISOString().slice(0, 16).replace('T', ' ');
+            supportTickets.push({ author: currentUser, subject: sub, reason: rea, solution: sol, time: now, reply: '' });
+            saveUserData();
+            document.getElementById('suppSubject').value = '';
+            document.getElementById('suppReason').value = '';
+            document.getElementById('suppSolution').value = '';
+            showSysMsg('supportMsg', '🎉 客服申訴單已成功提交！客服人員將盡快為您處理。', 'success');
+            renderSupportCenter();
+        }
+
+        function renderSupportCenter() {
+            const container = document.getElementById('mySupportTicketsList');
+            container.innerHTML = '';
+            let myTickets = supportTickets.filter(t => t.author === currentUser);
+            if(myTickets.length === 0) {
+                container.innerHTML = `<p style="color: var(--text-sub);">您目前沒有提交任何客服申訴單。</p>`;
+                return;
+            }
+            myTickets.slice().reverse().forEach(t => {
+                container.innerHTML += `
+                    <div style="background:#f8fafc; border:1px solid var(--border); padding:15px; border-radius:6px;">
+                        <p style="font-size:11px; color:var(--text-sub); margin-bottom:4px;">${t.time}</p>
+                        <p><b>主旨：</b> ${t.subject}</p>
+                        <p style="color:#b91c1c;">❓ <b>原因：</b> ${t.reason}</p>
+                        <p style="color:#059669;">💡 <b>改善對策 (以後怎麼做)：</b> ${t.solution}</p>
+                        <p style="color:var(--primary); margin-top:6px;"><b>🎧 客服回覆：</b> ${t.reply || '尚未回覆 (處理中)'}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function renderAdminUserTable() {
+            const tbody = document.getElementById('adminUserTableBody');
+            tbody.innerHTML = '';
+            let allUsers = JSON.parse(localStorage.getItem('users')) || {};
+            
+            Object.keys(allUsers).forEach(acc => {
+                let uVerified = localStorage.getItem(`verified_${acc}`) === 'true';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><b>${acc}</b></td>
+                        <td>${uVerified ? '<span style="color:var(--success);">✓ 已認證</span>' : '未認證'}</td>
+                        <td>
+                            <input type="text" id="editAcc_${acc}" value="${acc}" style="width: 90px; padding: 4px; font-size:12px; margin-right:4px;">
+                            <input type="text" id="editPass_${acc}" value="${allUsers[acc]}" style="width: 90px; padding: 4px; font-size:12px; margin-right:4px;" placeholder="新密碼">
+                            <button class="btn btn-small btn-warning" onclick="adminUpdateUser('${acc}')">儲存</button>
+                        </td>
+                        <td>
+                            <button class="btn btn-small btn-success" onclick="adminAuditUser('${acc}')">查看紀錄</button>
+                        </td>
+                        <td>
+                            ${acc === 'admin' ? '<span style="color:#999;">不可踢出</span>' : `<button class="btn btn-small btn-danger" onclick="adminKickUser('${acc}')">踢出會員</button>`}
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function adminAuditUser(acc) {
+            let uCoins = localStorage.getItem(`coins_${acc}`) || 200;
+            let uWallet = localStorage.getItem(`wallet_${acc}`) || 5000;
+            let uSpent = localStorage.getItem(`spent_${acc}`) || 0;
+            let uVerified = localStorage.getItem(`verified_${acc}`) === 'true';
+            let uOrders = JSON.parse(localStorage.getItem(`orders_${acc}`)) || [];
+            let uAddresses = JSON.parse(localStorage.getItem(`addresses_${acc}`)) || [];
+
+            let ordersHtml = uOrders.length > 0 ? uOrders.map(o => `📦 訂單 #${o.id} | 金額: NT$ ${o.total} | 狀態: ${o.status} | 分店: ${o.storeBranch}`).join('<br>') : '無歷史訂單';
+            let addressHtml = uAddresses.length > 0 ? uAddresses.join(', ') : '無儲存地址';
+
+            document.getElementById('auditModalTitle').textContent = `🔍 會員 [${acc}] 完整歷史足跡稽核`;
+            document.getElementById('auditModalBody').innerHTML = `
+                <p>👤 <b>帳號名稱：</b> ${acc}</p>
+                <p>🛡️ <b>實名認證：</b> ${uVerified ? '已認證 (✓)' : '未認證'}</p>
+                <p>🪙 <b>可用蝦幣：</b> ${uCoins} 點</p>
+                <p>💰 <b>錢包現金餘額：</b> NT$ ${parseInt(uWallet).toLocaleString()}</p>
+                <p>📊 <b>累積消費總額：</b> NT$ ${parseInt(uSpent).toLocaleString()}</p>
+                <p>📇 <b>常用收件地址：</b> ${addressHtml}</p>
+                <hr style="margin: 10px 0; border: none; border-top: 1px solid #ccc;">
+                <p><b>📦 歷史訂單紀錄：</b><br>${ordersHtml}</p>
+            `;
+            document.getElementById('userAuditModal').classList.add('active');
+        }
+
+        function closeUserAuditModal() {
+            document.getElementById('userAuditModal').classList.remove('active');
+        }
+
+        function adminUpdateUser(oldAcc) {
+            let newAcc = document.getElementById(`editAcc_${oldAcc}`).value.trim();
+            let newPass = document.getElementById(`editPass_${oldAcc}`).value.trim();
+            if(!newAcc || !newPass) {
+                showSysMsg('adminMsg', '帳號與密碼不能為空！', 'error');
+                return;
+            }
+
+            let allUsers = JSON.parse(localStorage.getItem('users')) || {};
+            if(newAcc !== oldAcc) {
+                if(allUsers[newAcc]) {
+                    showSysMsg('adminMsg', '此新帳號名稱已被使用！', 'error');
+                    return;
+                }
+                allUsers[newAcc] = newPass;
+                delete allUsers[oldAcc];
+                ['cart', 'coins', 'wallet', 'spent', 'verified', 'addresses', 'orders', 'coupons', 'wishlist'].forEach(prefix => {
+                    let val = localStorage.getItem(`${prefix}_${oldAcc}`);
+                    if(val) {
+                        localStorage.setItem(`${prefix}_${newAcc}`, val);
+                        localStorage.removeItem(`${prefix}_${oldAcc}`);
+                    }
+                });
+            } else {
+                allUsers[oldAcc] = newPass;
+            }
+
+            localStorage.setItem('users', JSON.stringify(allUsers));
+            showSysMsg('adminMsg', `🎉 會員 [${newAcc}] 資料已成功更新！`, 'success');
+            renderAdminUserTable();
+        }
+
+        function adminKickUser(acc) {
+            if(confirm(`確定要將會員 [${acc}] 踢出並永久刪除該帳號嗎？`)) {
+                let allUsers = JSON.parse(localStorage.getItem('users')) || {};
+                delete allUsers[acc];
+                localStorage.setItem('users', JSON.stringify(allUsers));
+                ['cart', 'coins', 'wallet', 'spent', 'verified', 'addresses', 'orders', 'coupons', 'wishlist'].forEach(prefix => {
+                    localStorage.removeItem(`${prefix}_${acc}`);
+                });
+                showSysMsg('adminMsg', `🎉 已成功將會員 [${acc}] 踢出購物網！`, 'success');
+                renderAdminUserTable();
+            }
+        }
+
+        function renderMemberCenterData() {
+            const vText = document.getElementById('verifyStatusText');
+            const vBtn = document.getElementById('verifyBtn');
+            if (isVerified) {
+                vText.textContent = "已完成實名認證 (享有信任藍勾勾標章)";
+                vBtn.textContent = "取消認證";
+                vBtn.className = "btn btn-small btn-danger";
+                document.getElementById('navVerifiedBadge').style.display = 'inline';
+            } else {
+                vText.textContent = "尚未完成實名認證";
+                vBtn.textContent = "進行實名認證";
+                vBtn.className = "btn btn-small btn-success";
+                document.getElementById('navVerifiedBadge').style.display = 'none';
+            }
+
+            renderAddressList();
+            renderMemberTier();
+        }
+
+        function toggleVerification() {
+            isVerified = !isVerified;
+            saveUserData();
+            renderMemberCenterData();
+            showSysMsg('vipMsg', isVerified ? '🎉 實名認證成功！已解鎖信任藍勾勾標章。' : '已取消實名認證。', 'success');
+        }
+
+        function updatePassword() {
+            const newPass = document.getElementById('newPassInput').value.trim();
+            if(!newPass) {
+                showSysMsg('vipMsg', '請輸入新密碼！', 'error');
+                return;
+            }
+            let allUsers = JSON.parse(localStorage.getItem('users')) || {};
+            allUsers[currentUser] = newPass;
+            localStorage.setItem('users', JSON.stringify(allUsers));
+            document.getElementById('newPassInput').value = '';
+            showSysMsg('vipMsg', '🎉 密碼已成功更新！', 'success');
+        }
+
+        function saveNewAddress() {
+            const addr = document.getElementById('newAddressInput').value.trim();
+            if(!addr) {
+                showSysMsg('vipMsg', '請輸入收件地址！', 'error');
+                return;
+            }
+            if(!savedAddresses.includes(addr)) savedAddresses.push(addr);
+            saveUserData();
+            document.getElementById('newAddressInput').value = '';
+            renderAddressList();
+            showSysMsg('vipMsg', '🎉 常用收件地址已成功新增！', 'success');
+        }
+
+        function renderAddressList() {
+            const container = document.getElementById('addressListContainer');
+            container.innerHTML = savedAddresses.map((a, idx) => `📍 地址 ${idx+1}: ${a}`).join('<br>');
+        }
+
         function checkSpinWheelStatus() {
             let todayStr = new Date().toISOString().slice(0, 10);
             let lastSpinDate = localStorage.getItem(`lastSpin_${currentUser}`);
@@ -1048,7 +1730,6 @@
             }
         }
 
-        // 🎰 幸運輪盤抽獎函數 (每日限一次)
         function spinWheel() {
             let todayStr = new Date().toISOString().slice(0, 10);
             let lastSpinDate = localStorage.getItem(`lastSpin_${currentUser}`);
@@ -1091,7 +1772,6 @@
             checkSpinWheelStatus();
         }
 
-        // 🤖 AI 智能推薦「猜你喜歡」
         function renderAiRecommendations() {
             const section = document.getElementById('aiRecommendationSection');
             const container = document.getElementById('aiRecList');
@@ -1547,7 +2227,7 @@
             document.getElementById('userQnAInput').value = '';
             saveUserData();
             renderQnABox();
-            showSysMsg('modalMsg', '提問已送出！賣家可在「賣家回答區」統一查看並回覆。', 'success');
+            showSysMsg('modalMsg', '提問已送出！客服與買賣雙方可在專區檢視。', 'success');
         }
 
         function openSellerProfileModal() {
@@ -1673,7 +2353,7 @@
             }
             allMyCoupons.forEach(coupon => {
                 container.innerHTML += `
-                    <div style="background: #fef08a; border: 1px solid #fde047; padding: 15px; border-radius: 8px; width: 240px; cursor: pointer;" onclick="openCouponModal('${coupon}')">
+                    <div style="background: #fef08a; border: 1px solid #fde68a; padding: 15px; border-radius: 8px; width: 240px; cursor: pointer;" onclick="openCouponModal('${coupon}')">
                         <b>🎫 ${coupon}</b>
                         <p style="font-size: 11px; color: #666; margin-top: 5px;">👆 點擊查看詳細資料與福利</p>
                     </div>
@@ -1819,6 +2499,7 @@
             if(users[u] && users[u] === p) {
                 currentUser = u;
                 loadUserData();
+                checkUserBannedStatus();
                 initSystem(u);
             } else {
                 showSysMsg('loginMsg', '帳號或密碼錯誤！', 'error');
