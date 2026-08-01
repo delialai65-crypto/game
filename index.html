@@ -549,7 +549,7 @@
                 <button class="btn-secondary" onclick="returnHome()">返回首頁</button>
             </div>
 
-            <!-- 分頁 5：好友與邀請 -->
+            <!-- 分頁 5：好友與邀請 (Line 風格邀請機制) -->
             <div id="contentFriends" class="hidden">
                 <h2>👥 好友與邀請管理</h2>
                 <div class="input-group">
@@ -568,18 +568,20 @@
                 <button class="btn-secondary" onclick="returnHome()">返回首頁</button>
             </div>
 
-            <!-- 分頁 6：聊天室 -->
+            <!-- 分頁 6：聊天室 (Line 風格即時聊天) -->
             <div id="contentChat" class="hidden">
                 <h2>💬 Line 風格即時聊天室</h2>
                 <div class="chat-container">
-                    <div class="chat-sidebar" id="chatSidebarList"></div>
+                    <div class="chat-sidebar" id="chatSidebarList">
+                        <!-- 好友聊天室列表 -->
+                    </div>
                     <div class="chat-main">
                         <div style="padding: 10px 15px; background: #eee; font-weight: bold; border-bottom: 1px solid #ddd;" id="activeChatTitle">請選擇聊天對象</div>
                         <div class="chat-messages" id="chatMessagesArea">
                             <div style="text-align: center; color: #888; margin-top: 50px;">請從左側選擇已同意的好友開始聊天</div>
                         </div>
                         <div class="chat-input-bar">
-                            <input type="text" id="chatMessageInput" placeholder="輸入訊息..." disabled onkeypress="if(event.key==='Enter') sendChatMessage()">
+                            <input type="text" id="chatMessageInput" placeholder="輸入訊息..." disabled>
                             <button class="btn-primary" onclick="sendChatMessage()" id="chatSendBtn" disabled>傳送</button>
                         </div>
                     </div>
@@ -587,17 +589,19 @@
                 <button class="btn-secondary" onclick="returnHome()">返回首頁</button>
             </div>
 
-            <!-- 分頁 7：管理員專區 -->
+            <!-- 分頁 7：管理員專區 (不同權限視角) -->
             <div id="contentAdmin" class="hidden">
                 <h2>🛡️ 管理員專區與工作證視角</h2>
-                <div id="adminViewContainer" class="card" style="background: #f8f9fa; border: 1px solid #ddd;"></div>
+                <div id="adminViewContainer" class="card" style="background: #f8f9fa; border: 1px solid #ddd;">
+                    <!-- 動態渲染對應視角 -->
+                </div>
                 <button class="btn-secondary" onclick="returnHome()">返回首頁</button>
             </div>
 
-            <!-- 分頁 8：客服中心 -->
+            <!-- 分頁 8：客服中心 (問題與改善對策) -->
             <div id="contentSupport" class="hidden">
                 <h2>🎧 客服中心與問題回報</h2>
-                <p style="font-size: 13px; color: #7f8c8d; margin-bottom: 15px;">在此填寫遇到的問題原因以及「以後該怎麼做」的改善對策紀錄。</p>
+                <p style="font-size: 13px; color: #7f8c8d; margin-bottom: 15px;">在此填寫遇到的問題原因以及「以後該怎麼做」的改善對策。</p>
                 <div class="input-group">
                     <label for="supportReason">問題原因描述</label>
                     <textarea id="supportReason" rows="3" placeholder="請詳細描述發生了什麼問題與原因..."></textarea>
@@ -767,11 +771,12 @@
         let userXp = 0;
         let userCoins = 150;
         let completedStages = 0;
-        let userRole = "一般會員"; 
+        let userRole = "一般會員"; // "一般會員", "社群管理員", "客服/訂單管理員", "營運/行銷管理員", "超級管理員"
 
-        let allUsersData = {}; 
-        let globalChatMessages = []; 
-        let supportTickets = []; 
+        // 全球帳戶資料庫 (支援多帳號與排行榜、好友、聊天)
+        let allUsersData = {}; // { username: { xp, coins, role, friends: [], requests: [], chatMessages: [] } }
+        let globalChatMessages = []; // 全球公開聊天紀錄與私訊紀錄
+        let supportTickets = []; // 客服回報紀錄
 
         let questProgress = { stagesDone: 0, correctCount: 0, langChanged: 0 };
         let questClaimed = { 1: false, 2: false, 3: false };
@@ -785,8 +790,9 @@
         let currentQIndex = 0;   
         let currentQuestions = []; 
         let modeType = "normal"; 
-        let activeChatFriend = null; 
+        let activeChatFriend = null; // 當前正在聊天的好友
 
+        // 暫存購買方案
         let selectedPlanKey = "";
         let selectedPlanName = "";
         let selectedPlanPrice = 0;
@@ -855,6 +861,7 @@
             currentUser = username;
             currentLang = lang;
             
+            // 如果是新帳號，初始化資料並自動新增進排行榜
             if (!allUsersData[currentUser]) {
                 allUsersData[currentUser] = {
                     xp: 0, coins: 200, role: "一般會員",
@@ -929,7 +936,7 @@
 
             if (tabName === 'quest') updateQuestUI();
             if (tabName === 'friends') renderFriendsManager();
-            if (tabName === 'chat') { renderChatSidebar(); renderChatMessages(); }
+            if (tabName === 'chat') renderChatSidebar();
             if (tabName === 'admin') renderAdminView();
             if (tabName === 'support') renderSupportTickets();
             if (tabName === 'rank') renderLeaderboard();
@@ -945,7 +952,7 @@
             renderStageGrid();
         }
 
-        // 好友與邀請機制
+        // 👥 好友與邀請機制
         function sendFriendRequest() {
             const targetName = document.getElementById("addFriendInput").value.trim();
             if (!targetName) return;
@@ -986,6 +993,7 @@
         function renderFriendsManager() {
             let myData = allUsersData[currentUser] || { friends: [], requests: [] };
             
+            // 渲染收到的邀請函
             let reqContainer = document.getElementById("friendRequestsContainer");
             if (!myData.requests || myData.requests.length === 0) {
                 reqContainer.innerHTML = `<p style="color: #7f8c8d; font-size: 13px;">目前沒有新的好友邀請函。</p>`;
@@ -1001,6 +1009,7 @@
                 `).join('');
             }
 
+            // 渲染好友列表
             let friendContainer = document.getElementById("friendsListContainer");
             if (!myData.friends || myData.friends.length === 0) {
                 friendContainer.innerHTML = `<p style="color: #7f8c8d; font-size: 13px;">尚無好友，趕快發送邀請與其他帳號互動吧！</p>`;
@@ -1042,14 +1051,12 @@
             if (friendData && friendData.friends) {
                 friendData.friends = friendData.friends.filter(f => f !== currentUser);
             }
-            if (activeChatFriend === friendName) activeChatFriend = null;
             saveGlobalData();
             renderFriendsManager();
             renderChatSidebar();
-            renderChatMessages();
         }
 
-        // 聊天室
+        // 💬 Line 風格聊天室
         function renderChatSidebar() {
             let myData = allUsersData[currentUser] || { friends: [] };
             let sidebar = document.getElementById("chatSidebarList");
@@ -1069,7 +1076,7 @@
 
         function selectChatFriend(friendName) {
             activeChatFriend = friendName;
-            document.getElementById("activeChatTitle").innerText = `與 ${friendName} 的聊天室`;
+            document.getElementById("activeChatTitle.innerText") || (document.getElementById("activeChatTitle").innerText = `與 ${friendName} 的聊天室`);
             document.getElementById("chatMessageInput").disabled = false;
             document.getElementById("chatSendBtn").disabled = false;
             renderChatSidebar();
@@ -1078,13 +1085,12 @@
 
         function renderChatMessages() {
             let area = document.getElementById("chatMessagesArea");
-            loadGlobalData(); // 隨時同步最新對話
-
             if (!activeChatFriend) {
                 area.innerHTML = `<div style="text-align: center; color: #888; margin-top: 50px;">請從左側選擇已同意的好友開始聊天</div>`;
                 return;
             }
 
+            // 過濾雙方對話紀錄
             let filtered = globalChatMessages.filter(m => 
                 (m.from === currentUser && m.to === activeChatFriend) || 
                 (m.from === activeChatFriend && m.to === currentUser)
@@ -1124,7 +1130,7 @@
             renderChatMessages();
         }
 
-        // 管理員工作證購買與分流視角
+        // 🎫 管理員工作證購買與分流視角
         function goToAdminPurchase() {
             hideAllSections();
             document.getElementById("adminPlanSelectionSection").classList.remove("hidden");
@@ -1145,7 +1151,7 @@
 
         function confirmAdminPayment() {
             if (userCoins < selectedPlanPrice) {
-                alert("❌ 金幣不足，無法購買此工作證方案！");
+                alert("❌ 金幣不足，無法購買此工作證方案！多去闖關或完成任務賺取金幣吧！");
                 return;
             }
 
@@ -1170,19 +1176,37 @@
             if (role === '一般會員') {
                 html += `<p style="color:#7f8c8d;">您目前是一般會員，無法查看管理員視角。請前往道具商城點擊「購買管理員工作證方案」來解鎖權限！</p>`;
             } else if (role === '社群管理員') {
-                html += `<h4 style="color:#2980b9; margin-bottom:10px;">📊 社群管理員專屬視角</h4><p>• 檢視全站用戶社群互動數據與熱門討論。</p>`;
+                html += `
+                    <h4 style="color:#2980b9; margin-bottom:10px;">📊 社群管理員專屬視角</h4>
+                    <p>• 檢視全站用戶社群互動數據與熱門討論。</p>
+                    <p>• 審核社群違規貼文與留言檢舉。</p>
+                `;
             } else if (role === '客服/訂單管理員') {
-                html += `<h4 style="color:#27ae60; margin-bottom:10px;">🎧 客服與訂單管理員專屬視角</h4><p>• 處理來自客服中心用戶提交的問題回報與改善對策。</p>`;
+                html += `
+                    <h4 style="color:#27ae60; margin-bottom:10px;">🎧 客服與訂單管理員專屬視角</h4>
+                    <p>• 處理來自客服中心用戶提交的問題回報與改善對策。</p>
+                    <p>• 檢視全站道具購買與商城訂單狀態。</p>
+                `;
             } else if (role === '營運/行銷管理員') {
-                html += `<h4 style="color:#8e44ad; margin-bottom:10px;">📈 營運與行銷管理員專屬視角</h4><p>• 檢視 10 大主題活動參與率與每日活躍數據。</p>`;
+                html += `
+                    <h4 style="color:#8e44ad; margin-bottom:10px;">📈 營運與行銷管理員專屬視角</h4>
+                    <p>• 檢視 10 大主題活動參與率與每日活躍數據。</p>
+                    <p>• 設定與管理行銷推廣方案及經驗值加成。</p>
+                `;
             } else if (role === '超級管理員') {
-                html += `<h4 style="color:#c0392b; margin-bottom:10px;">👑 超級管理員【全視角制霸】</h4><p>✅ 社群、客服、訂單、營運、行銷全部視角通行！</p>`;
+                html += `
+                    <h4 style="color:#c0392b; margin-bottom:10px;">👑 超級管理員【全視角制霸】</h4>
+                    <p>✅ <strong>社群視角</strong>：正常解鎖管理。</p>
+                    <p>✅ <strong>客服與訂單視角</strong>：正常解鎖管理。</p>
+                    <p>✅ <strong>營運與行銷視角</strong>：正常解鎖管理。</p>
+                    <p style="color:#d68910; margin-top:10px;">🚀 您擁有最高權限，可檢視全站所有數據與所有帳號紀錄！</p>
+                `;
             }
 
             container.innerHTML = html;
         }
 
-        // 客服中心
+        // 🎧 客服中心
         function submitSupportTicket() {
             let reason = document.getElementById("supportReason").value.trim();
             let action = document.getElementById("supportAction").value.trim();
@@ -1192,12 +1216,18 @@
                 return;
             }
 
-            supportTickets.push({ user: currentUser, reason, action, time: new Date().toLocaleString() });
+            supportTickets.push({
+                user: currentUser,
+                reason,
+                action,
+                time: new Date().toLocaleString()
+            });
+
             saveGlobalData();
             document.getElementById("supportReason").value = "";
             document.getElementById("supportAction").value = "";
             renderSupportTickets();
-            alert("✅ 客服單與改善對策已成功提交！");
+            alert("✅ 客服單與改善對策已成功提交！客服/訂單管理員將會為您審閱。");
         }
 
         function renderSupportTickets() {
@@ -1206,6 +1236,7 @@
                 list.innerHTML = `<p style="color: #7f8c8d; font-size: 13px;">目前尚無客服回報紀錄。</p>`;
                 return;
             }
+
             list.innerHTML = supportTickets.map((t, idx) => `
                 <div style="background: #f8f9fa; border: 1px solid #ddd; padding: 12px; border-radius: 8px; margin-bottom: 10px; font-size: 13px;">
                     <strong>#${idx+1} 提報人：${t.user}</strong> (${t.time})<br>
@@ -1215,7 +1246,7 @@
             `).join('');
         }
 
-        // 其他基礎函式
+        // 其他基礎闖關、任務、排行榜、商城道具函式
         function claimQuest(id, xp, coins) {
             if (questClaimed[id]) return;
             questClaimed[id] = true;
@@ -1289,6 +1320,7 @@
         }
 
         function renderLeaderboard() {
+            // 自動彙整所有註冊過的帳號並依照 XP 排行
             let list = Object.keys(allUsersData).map(name => ({
                 name,
                 xp: allUsersData[name].xp || 0,
@@ -1374,4 +1406,4 @@
         }
     </script>
 </body>
-</html>
+    </html>
