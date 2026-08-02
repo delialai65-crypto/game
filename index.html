@@ -3,77 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>尊榮席次預約 | 頂級領袖高峰會</title>
+    <title>登入頁面</title>
     <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: "Microsoft JhengHei", sans-serif;
+        }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            margin: 0; padding: 60px 20px; background-color: #0f1115; color: #e5e7eb; line-height: 1.6;
+            background: linear-gradient(135deg, #74b9ff, #a29bfe);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
-        .register-container {
-            max-width: 520px; margin: 0 auto; background: #1a1c23;
-            padding: 40px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border: 1px solid #2d3748;
+
+        .login-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
         }
-        h2 { color: #d4af37; text-align: center; margin-top: 0; margin-bottom: 30px; letter-spacing: 1px; }
-        .form-group { margin-bottom: 22px; }
-        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; color: #d1d5db; font-size: 0.95rem; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 14px; border: 1px solid #374151;
-            border-radius: 4px; box-sizing: border-box; font-size: 1rem;
-            background-color: #111318; color: #fff;
+
+        .login-container h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333333;
         }
-        .form-group input:focus, .form-group select:focus {
-            outline: none; border-color: #d4af37;
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
         }
-        .submit-btn {
-            background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%);
-            color: #0f1115; border: none; width: 100%; padding: 15px;
-            font-size: 1.1rem; font-weight: bold; border-radius: 4px; cursor: pointer;
-            transition: all 0.3s; margin-top: 10px;
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #666666;
+            font-size: 14px;
         }
-        .submit-btn:hover { opacity: 0.9; }
-        .back-link {
-            display: block; text-align: center; margin-top: 25px;
-            color: #9ca3af; text-decoration: none; font-size: 0.9rem;
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
         }
-        .back-link:hover { color: #d4af37; text-decoration: underline; }
+
+        .toggle-password {
+            position: absolute;
+            right: 12px;
+            top: 38px;
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #0984e3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .login-btn:hover {
+            background-color: #74b9ff;
+        }
+
+        .error-msg {
+            color: #d63031;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
     </style>
 </head>
 <body>
 
-    <div class="register-container">
-        <h2>席次預約表單</h2>
-        <form>
-            <div class="form-group">
-                <label for="event-select">選擇尊榮場次：</label>
-                <select id="event-select" required>
-                    <option value="" disabled selected>-- 請選擇您的專屬梯次 --</option>
-                    <option value="vip-taipei">09/10 台北場：全球趨勢與領袖思維（NT$ 6,800）</option>
-                    <option value="vip-taichung">09/17 台中場：創新商業模式私董會（NT$ 6,800）</option>
-                    <option value="vip-kaohsiung">09/24 高雄場：高階經理人美學沙龍（NT$ 6,800）</option>
-                </select>
+    <div class="login-container">
+        <h2>會員登入</h2>
+        <form id="loginForm">
+            <div class="input-group">
+                <label for="username">帳號</label>
+                <input type="text" id="username" placeholder="請輸入帳號">
+                <div id="usernameError" class="error-msg">請輸入帳號</div>
+            </div>
+            
+            <div class="input-group">
+                <label for="password">密碼</label>
+                <input type="password" id="password" placeholder="請輸入密碼">
+                <button type="button" class="toggle-password" id="toggleBtn">顯示</button>
+                <div id="passwordError" class="error-msg">請輸入密碼</div>
             </div>
 
-            <div class="form-group">
-                <label for="name">貴賓姓名：</label>
-                <input type="text" id="name" placeholder="請輸入真實姓名或稱謂" required>
-            </div>
-
-            <div class="form-group">
-                <label for="email">電子郵件：</label>
-                <input type="email" id="email" placeholder="example@email.com" required>
-            </div>
-
-            <div class="form-group">
-                <label for="phone">聯絡電話：</label>
-                <input type="tel" id="phone" placeholder="0912-345-678" required>
-            </div>
-
-            <button type="submit" class="submit-btn">確認預約席次</button>
+            <button type="submit" class="login-btn">登入</button>
         </form>
-
-        <a href="index.html" class="back-link">&larr; 返回高峰會主頁</a>
     </div>
+
+    <script>
+        const passwordInput = document.getElementById('password');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const usernameError = document.getElementById('usernameError');
+        const passwordError = document.getElementById('passwordError');
+
+        // 切換密碼顯示
+        toggleBtn.addEventListener('click', function() {
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleBtn.textContent = '隱藏';
+            } else {
+                passwordInput.type = 'password';
+                toggleBtn.textContent = '顯示';
+            }
+        });
+
+        // 模擬登入送出
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            let isValid = true;
+
+            if (usernameInput.value.trim() === '') {
+                usernameError.style.display = 'block';
+                isValid = false;
+            } else {
+                usernameError.style.display = 'none';
+            }
+
+            if (passwordInput.value.trim() === '') {
+                passwordError.style.display = 'block';
+                isValid = false;
+            } else {
+                passwordError.style.display = 'none';
+            }
+
+            // 如果有填寫，就模擬登入成功並跳轉到會員頁面
+            if (isValid) {
+                alert('登入成功！即將進入會員中心');
+                window.location.href = 'dashboard.html'; 
+            }
+        });
+    </script>
 
 </body>
 </html>
