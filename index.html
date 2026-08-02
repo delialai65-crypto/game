@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登入頁面</title>
+    <title>VIP 尊榮會員系統</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,26 +13,60 @@
         }
 
         body {
-            background: linear-gradient(135deg, #74b9ff, #a29bfe);
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            color: #fff;
         }
 
-        .login-container {
-            background-color: #ffffff;
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
+            animation: fadeIn 0.5s ease-in-out;
+            display: none; /* 預設全部隱藏，透過 JS 控制顯示 */
         }
 
-        .login-container h2 {
+        .card.active {
+            display: block; /* 顯示當前啟用的畫面 */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 標題漸層色 */
+        .login-title {
+            background: linear-gradient(45deg, #f39c12, #f1c40f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .register-title {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard-title {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .card h2, .card h1 {
             text-align: center;
             margin-bottom: 30px;
-            color: #333333;
+            font-size: 28px;
+            letter-spacing: 2px;
         }
 
         .input-group {
@@ -43,83 +77,185 @@
         .input-group label {
             display: block;
             margin-bottom: 8px;
-            color: #666666;
+            color: #aaa;
             font-size: 14px;
         }
 
         .input-group input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
             font-size: 16px;
+            color: #fff;
+            transition: all 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #f1c40f;
+            box-shadow: 0 0 10px rgba(241, 196, 15, 0.3);
+            outline: none;
         }
 
         .toggle-password {
             position: absolute;
-            right: 12px;
-            top: 38px;
+            right: 14px;
+            top: 40px;
             background: none;
             border: none;
-            color: #888;
+            color: #aaa;
             cursor: pointer;
             font-size: 14px;
         }
 
-        .login-btn {
+        .btn {
             width: 100%;
-            padding: 12px;
-            background-color: #0984e3;
-            color: white;
+            padding: 14px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .login-btn {
+            background: linear-gradient(45deg, #f39c12, #f1c40f);
+            color: #1a1a1a;
+            box-shadow: 0 5px 15px rgba(241, 196, 15, 0.4);
         }
 
         .login-btn:hover {
-            background-color: #74b9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(241, 196, 15, 0.6);
+        }
+
+        .register-btn {
+            background: linear-gradient(45deg, #00b09b, #96c93d);
+            color: #1a1a1a;
+            box-shadow: 0 5px 15px rgba(0, 176, 155, 0.4);
+        }
+
+        .register-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 176, 155, 0.6);
+        }
+
+        .logout-btn {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            color: white;
+            box-shadow: 0 5px 15px rgba(255, 65, 108, 0.4);
+            margin-top: 20px;
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(255, 65, 108, 0.6);
         }
 
         .error-msg {
-            color: #d63031;
+            color: #ff6b6b;
             font-size: 12px;
             margin-top: 5px;
             display: none;
+        }
+
+        .extra-links {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .extra-links a {
+            color: #f1c40f;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .extra-links a:hover {
+            text-decoration: underline;
+        }
+
+        .dashboard-text {
+            color: #aaa;
+            margin-bottom: 30px;
+            font-size: 16px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
 
-    <div class="login-container">
-        <h2>會員登入</h2>
+    <!-- 1. 登入畫面 -->
+    <div id="loginCard" class="card active">
+        <h2 class="login-title">VIP 尊榮登入</h2>
         <form id="loginForm">
             <div class="input-group">
-                <label for="username">帳號</label>
+                <label for="username">會員帳號</label>
                 <input type="text" id="username" placeholder="請輸入帳號">
                 <div id="usernameError" class="error-msg">請輸入帳號</div>
             </div>
             
             <div class="input-group">
-                <label for="password">密碼</label>
+                <label for="password">安全密碼</label>
                 <input type="password" id="password" placeholder="請輸入密碼">
                 <button type="button" class="toggle-password" id="toggleBtn">顯示</button>
                 <div id="passwordError" class="error-msg">請輸入密碼</div>
             </div>
 
-            <button type="submit" class="login-btn">登入</button>
+            <button type="submit" class="btn login-btn">立即登入</button>
+
+            <div class="extra-links">
+                <a onclick="switchPage('registerCard')">加入會員</a>
+            </div>
         </form>
     </div>
 
+    <!-- 2. 註冊畫面 -->
+    <div id="registerCard" class="card">
+        <h2 class="register-title">註冊 VIP 會員</h2>
+        <form id="registerForm">
+            <div class="input-group">
+                <label for="newUsername">設定新帳號</label>
+                <input type="text" id="newUsername" placeholder="請輸入欲使用的帳號" required>
+            </div>
+            
+            <div class="input-group">
+                <label for="newPassword">設定安全密碼</label>
+                <input type="password" id="newPassword" placeholder="請輸入密碼" required>
+            </div>
+
+            <button type="submit" class="btn register-btn">完成註冊</button>
+
+            <div class="extra-links">
+                <a onclick="switchPage('loginCard')">已有帳號？返回登入</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- 3. 會員中心畫面 -->
+    <div id="dashboardCard" class="card">
+        <h1 class="dashboard-title">歡迎回來！</h1>
+        <p class="dashboard-text">您已成功解鎖專屬的豪華會員控制台。</p>
+        <button class="btn logout-btn" onclick="switchPage('loginCard')">安全登出</button>
+    </div>
+
     <script>
+        // 切換畫面的核心函式
+        function switchPage(cardId) {
+            // 隱藏所有卡片
+            document.querySelectorAll('.card').forEach(card => {
+                card.classList.remove('active');
+            });
+            // 顯示指定的卡片
+            document.getElementById(cardId).classList.add('active');
+        }
+
+        // 密碼顯示/隱藏切換
         const passwordInput = document.getElementById('password');
         const toggleBtn = document.getElementById('toggleBtn');
-        const loginForm = document.getElementById('loginForm');
-        const usernameInput = document.getElementById('username');
-        const usernameError = document.getElementById('usernameError');
-        const passwordError = document.getElementById('passwordError');
-
-        // 切換密碼顯示
         toggleBtn.addEventListener('click', function() {
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
@@ -130,7 +266,12 @@
             }
         });
 
-        // 模擬登入送出
+        // 登入表單驗證與跳轉
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const usernameError = document.getElementById('usernameError');
+        const passwordError = document.getElementById('passwordError');
+
         loginForm.addEventListener('submit', function(event) {
             event.preventDefault();
             let isValid = true;
@@ -149,13 +290,19 @@
                 passwordError.style.display = 'none';
             }
 
-            // 如果有填寫，就模擬登入成功並跳轉到會員頁面
             if (isValid) {
-                alert('登入成功！即將進入會員中心');
-                window.location.href = 'dashboard.html'; 
+                alert('尊榮登入成功！');
+                switchPage('dashboardCard');
             }
         });
-    </script>
 
+        // 註冊表單事件
+        const registerForm = document.getElementById('registerForm');
+        registerForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            alert('註冊成功！請使用新帳號登入');
+            switchPage('loginCard');
+        });
+    </script>
 </body>
 </html>
