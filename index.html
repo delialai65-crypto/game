@@ -51,9 +51,16 @@
         .friend-card { background: #f8f9fa; border: 1px solid #ddd; padding: 12px 15px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .admin-plan-card { border: 2px solid #3498db; background: #fefefe; border-radius: 12px; padding: 20px; margin-bottom: 15px; cursor: pointer; transition: all 0.2s; }
         .admin-plan-card:hover { background: #ebf5fb; transform: translateY(-2px); }
+        .sub-admin-box { background: #fdfefe; border: 1px solid #dcdde1; border-left: 5px solid #2980b9; padding: 20px; border-radius: 8px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; max-height: 400px; overflow-y: auto; padding: 5px; }
+        .shop-item { background: #fafbfc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s; }
+        .shop-item:hover { border-color: #f1c40f; background: #fef9e7; }
+        .shop-item h4 { font-size: 14px; color: #2c3e50; margin-bottom: 4px; }
+        .shop-item .price { font-size: 12px; color: #d68910; font-weight: bold; }
         .game-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; font-size: 14px; color: #7f8c8d; }
-        .game-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .item-backpack-btn { background: #e67e22; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; width: auto; }
+        .game-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 10px; }
+        .backpack-btn, .toolbox-btn { background: #e67e22; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: bold; width: auto; }
+        .toolbox-btn { background: #9b59b6; }
         .question-box { font-size: 20px; margin-bottom: 20px; color: #2c3e50; line-height: 1.4; }
         .options-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
         .option-btn { background-color: #f8f9fa; border: 1px solid #ddd; padding: 14px; border-radius: 8px; font-size: 16px; cursor: pointer; text-align: left; transition: all 0.2s; }
@@ -62,7 +69,7 @@
         .feedback-correct { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .feedback-wrong { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-        .modal-card { background: white; padding: 30px; border-radius: 16px; max-width: 450px; width: 100%; text-align: left; box-shadow: 0 5px 25px rgba(0,0,0,0.2); }
+        .modal-card { background: white; padding: 30px; border-radius: 16px; max-width: 480px; width: 100%; text-align: left; box-shadow: 0 5px 25px rgba(0,0,0,0.2); }
         footer { text-align: center; padding: 15px; font-size: 12px; color: #aaa; background-color: #fff; border-top: 1px solid #eaeaea; }
         .hidden { display: none !important; }
     </style>
@@ -81,71 +88,93 @@
     </header>
 
     <main>
+        <!-- 登入頁 -->
         <section id="authSection" class="card">
             <h2>會員註冊與登入</h2>
-            <div class="input-group">
-                <label for="usernameInput">使用者名稱</label>
-                <input type="text" id="usernameInput" placeholder="請輸入您的帳號">
-            </div>
-            <div class="input-group">
-                <label for="passwordInput">密碼</label>
-                <input type="password" id="passwordInput" placeholder="請輸入密碼">
-            </div>
-            <div class="input-group">
-                <label for="langSelectAuth">初始學習語言 (20選1)</label>
-                <select id="langSelectAuth">
-                    <option value="en">英語 (English)</option><option value="ja">日語 (日本語)</option><option value="ko">韓語 (한국어)</option>
-                    <option value="es">西班牙語 (Español)</option><option value="fr">法語 (Français)</option><option value="de">德語 (Deutsch)</option>
-                    <option value="it">義大利語 (Italiano)</option><option value="zh">繁體中文 (Chinese)</option>
-                </select>
-            </div>
+            <div class="input-group"><label>使用者名稱</label><input type="text" id="usernameInput" placeholder="請輸入帳號"></div>
+            <div class="input-group"><label>密碼</label><input type="password" id="passwordInput" placeholder="請輸入密碼"></div>
             <div class="error-msg" id="errorMsg">請填寫完整的帳號與密碼！</div>
             <button class="btn-primary" onclick="registerAndLogin()">立即註冊並登入</button>
         </section>
 
+        <!-- 停權畫面 -->
+        <section id="bannedSection" class="card hidden" style="text-align: center; border-left: 6px solid #e74c3c;">
+            <h2 style="color: #c0392b; margin-bottom: 15px;">🚫 您的帳號已被停權</h2>
+            <div style="background: #fdf2f2; border: 1px solid #f5c6cb; padding: 20px; border-radius: 8px; margin-bottom: 20px; text-align: left;">
+                <p style="margin-bottom: 10px;"><strong>違規原因：</strong><span id="bannedReasonText" style="color: #c0392b;"></span></p>
+                <p><strong>剩餘天數：</strong><span id="bannedDaysText" style="color: #e67e22; font-weight: bold;"></span> 天</p>
+            </div>
+            <button class="logout-btn" style="padding: 14px; font-size: 16px; width: 100%; background-color: #c0392b;" onclick="logout()">登出</button>
+        </section>
+
+        <!-- 主儀表板 -->
         <section id="dashboardSection" class="card hidden">
             <div class="nav-tabs">
                 <button class="tab-btn active" id="tabMap" onclick="switchTab('map')">🗺️ 闖關地圖</button>
-                <button class="tab-btn" id="tabFriends" onclick="switchTab('friends')">👥 好友與邀請</button>
+                <button class="tab-btn" id="tabShop" onclick="switchTab('shop')">🛒 道具與裝飾商城</button>
+                <button class="tab-btn" id="tabGacha" onclick="switchTab('gacha')">🎰 幸運扭蛋機</button>
+                <button class="tab-btn" id="tabFriends" onclick="switchTab('friends')">👥 好友與轉帳</button>
                 <button class="tab-btn" id="tabChat" onclick="switchTab('chat')">💬 聊天室</button>
-                <button class="tab-btn" id="tabAdmin" onclick="switchTab('admin')">🛡️ 管理員專區</button>
-                <button class="tab-btn" id="tabSupport" onclick="switchTab('support')">🎧 客服中心</button>
+                <button class="tab-btn" id="tabAdmin" onclick="switchTab('admin')">🛡️ 管理員後台</button>
                 <button class="tab-btn" id="tabRank" onclick="switchTab('rank')">🏆 排行榜</button>
             </div>
 
+            <!-- 階段地圖 -->
             <div id="contentMap">
-                <div class="toolbar">
-                    <h2>🗺️ 50 階段闖關地圖</h2>
-                </div>
+                <h2>🗺️ 50 階段闖關地圖</h2>
                 <div class="stage-grid" id="stageGridContainer"></div>
                 <button class="btn-secondary" onclick="returnHome()">返回首頁</button>
             </div>
 
-            <div id="contentFriends" class="hidden">
-                <h2>👥 好友與邀請管理</h2>
-                <div class="input-group">
-                    <label for="addFriendInput">新增好友 (輸入用戶名稱)</label>
-                    <div style="display: flex; gap: 10px;">
-                        <input type="text" id="addFriendInput" placeholder="請輸入對方的帳號名稱">
-                        <button class="btn-primary" style="width: 120px;" onclick="sendFriendRequest()">發送邀請函</button>
-                    </div>
+            <!-- 商城 (含頭銜裝飾與道具) -->
+            <div id="contentShop" class="hidden">
+                <h2>🛒 道具與自訂裝飾商店</h2>
+                <div style="margin-bottom: 15px;"><button class="btn-primary" onclick="goToAdminPurchase()">🎫 購買管理員工作證方案</button></div>
+                <h3>✨ 頭銜與聊天外框裝飾</h3>
+                <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:10px; margin: 10px 0 20px;">
+                    <div class="shop-item" onclick="buyTitle('👑 語文大師', 150)"><h4>👑 語文大師頭銜</h4><p class="price">💎 150 金幣</p></div>
+                    <div class="shop-item" onclick="buyTitle('🔥 肝帝', 120)"><h4>🔥 肝帝頭銜</h4><p class="price">💎 120 金幣</p></div>
+                    <div class="shop-item" onclick="buyColor('#2980b9', 100)"><h4>🎨 藍色發言框</h4><p class="price">💎 100 金幣</p></div>
+                    <div class="shop-item" onclick="buyBoost(200)"><h4>⚡ 經驗值 2 倍加倍券</h4><p class="price">💎 200 金幣</p></div>
                 </div>
-                <h3 style="margin-top: 20px; font-size: 16px;">📥 收到的好友邀請函</h3>
-                <div id="friendRequestsContainer" style="margin-top: 10px; margin-bottom: 20px;"></div>
-                <h3 style="font-size: 16px;">🤝 我的好友列表</h3>
-                <div id="friendsListContainer" style="margin-top: 10px;"></div>
+                <h3>🎁 35種強力道具</h3>
+                <div class="shop-grid" id="shopGridContainer"></div>
                 <button class="btn-secondary" onclick="returnHome()">返回首頁</button>
             </div>
 
+            <!-- 幸運扭蛋機 -->
+            <div id="contentGacha" class="hidden" style="text-align: center;">
+                <h2>🎰 幸運扭蛋機</h2>
+                <p style="color: #7f8c8d; margin-bottom: 20px;">每次抽獎消耗 <strong>30 金幣</strong>，隨機獲得稀有道具、大量 XP 或 200 金幣大獎！</p>
+                <div style="font-size: 60px; margin: 20px;">🎁</div>
+                <button class="btn-primary" style="max-width: 250px; margin: 0 auto;" onclick="spinGacha()">試手氣抽獎 (30金幣)</button>
+                <div id="gachaResult" style="margin-top: 20px; font-weight: bold; color: #27ae60; font-size: 18px;"></div>
+                <br><button class="btn-secondary" onclick="returnHome()">返回首頁</button>
+            </div>
+
+            <!-- 好友與轉帳 -->
+            <div id="contentFriends" class="hidden">
+                <h2>👥 好友管理與金幣轉帳紅包</h2>
+                <div class="input-group">
+                    <label>新增好友</label>
+                    <div style="display: flex; gap: 10px;">
+                        <input type="text" id="addFriendInput" placeholder="輸入用戶帳號">
+                        <button class="btn-primary" style="width: 120px;" onclick="sendFriendRequest()">發送邀請</button>
+                    </div>
+                </div>
+                <h3>📥 邀請函</h3><div id="friendRequestsContainer" style="margin: 10px 0 20px;"></div>
+                <h3>🤝 我的好友與金幣轉帳</h3><div id="friendsListContainer" style="margin-top: 10px;"></div>
+                <button class="btn-secondary" onclick="returnHome()">返回首頁</button>
+            </div>
+
+            <!-- 聊天室 -->
             <div id="contentChat" class="hidden">
                 <h2>💬 Line 風格即時聊天室</h2>
                 <div class="chat-container">
                     <div class="chat-sidebar" id="chatSidebarList"></div>
                     <div class="chat-main">
-                        <div style="padding: 10px 15px; background: #eee; font-weight: bold; border-bottom: 1px solid #ddd;" id="activeChatTitle">請選擇聊天對象</div>
-                        <div class="chat-messages" id="chatMessagesArea">
-                            <div style="text-align: center; color: #888; margin-top: 50px;">請從左側選擇已同意的好友開始聊天</div>
-                        </div>
+                        <div style="padding: 10px 15px; background: #eee; font-weight: bold;" id="activeChatTitle">請選擇好友</div>
+                        <div class="chat-messages" id="chatMessagesArea"></div>
                         <div class="chat-input-bar">
                             <input type="text" id="chatMessageInput" placeholder="輸入訊息..." disabled onkeypress="if(event.key==='Enter') sendChatMessage()">
                             <button class="btn-primary" onclick="sendChatMessage()" id="chatSendBtn" disabled>傳送</button>
@@ -155,22 +184,14 @@
                 <button class="btn-secondary" onclick="returnHome()">返回首頁</button>
             </div>
 
+            <!-- 管理員後台 -->
             <div id="contentAdmin" class="hidden">
-                <h2>🛡️ 管理員專區與工作證視角</h2>
-                <div style="margin-bottom: 15px;"><button class="btn-primary" onclick="goToAdminPurchase()">🎫 購買管理員工作證方案</button></div>
-                <div id="adminViewContainer" class="card" style="background: #f8f9fa; border: 1px solid #ddd;"></div>
+                <h2>🛡️ 管理員後台控制台</h2>
+                <div id="adminViewContainer"></div>
                 <button class="btn-secondary" onclick="returnHome()">返回首頁</button>
             </div>
 
-            <div id="contentSupport" class="hidden">
-                <h2>🎧 客服中心與問題回報</h2>
-                <div class="input-group"><label>問題原因描述</label><textarea id="supportReason" rows="3"></textarea></div>
-                <div class="input-group"><label>以後該怎麼做 (改善對策)</label><textarea id="supportAction" rows="3"></textarea></div>
-                <button class="btn-primary" onclick="submitSupportTicket()">提交客服單</button>
-                <div id="supportTicketsList" style="margin-top: 15px;"></div>
-                <button class="btn-secondary" onclick="returnHome()">返回首頁</button>
-            </div>
-
+            <!-- 排行榜 -->
             <div id="contentRank" class="hidden">
                 <h2>🏆 全球學習排行榜</h2>
                 <table style="width:100%; border-collapse:collapse; margin-top:10px;">
@@ -181,28 +202,77 @@
             </div>
         </section>
 
-        <!-- 管理員方案選購 -->
+        <!-- 復活卡提示彈出視窗 (答錯時可消耗金幣復活) -->
+        <div id="reviveModal" class="modal-overlay hidden">
+            <div class="modal-card" style="text-align: center;">
+                <h3 style="color: #c0392b;">❌ 挑戰答錯囉！</h3>
+                <p style="margin: 15px 0;">是否要消耗 <strong>50 金幣</strong> 使用復活卡滿血復活，繼續完成本關卡？</p>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn-primary" onclick="confirmRevive()">使用復活卡 (50金幣)</button>
+                    <button class="btn-secondary" onclick="declineRevive()" style="margin-top:0;">放棄並返回</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 道具詳細與購買彈出視窗 -->
+        <div id="itemModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <h3 id="modalItemName">道具名稱</h3>
+                <p style="margin-top: 10px;"><strong>💎 價格：</strong><span id="modalItemPrice"></span> 金幣</p>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn-primary" onclick="buyCurrentItem()">確認購買</button>
+                    <button class="btn-secondary" onclick="closeModal()" style="margin-top:0;">關閉視窗</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 背包視窗 -->
+        <div id="backpackModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <h3>🎒 我的道具背包</h3>
+                <div id="backpackItemsContainer" style="max-height: 250px; overflow-y: auto;"></div>
+                <button class="btn-secondary" onclick="closeBackpackModal()" style="margin-top: 15px;">關閉背包</button>
+            </div>
+        </div>
+
+        <!-- 管理員編號驗證彈出視窗 -->
+        <div id="adminIdModal" class="modal-overlay hidden">
+            <div class="modal-card">
+                <h3>🔐 請輸入管理員編號</h3>
+                <div class="input-group"><label>管理員編號</label><input type="password" id="adminIdInput" placeholder="輸入編號解鎖後台"></div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn-primary" onclick="verifyAdminId()">驗證進入</button>
+                    <button class="btn-secondary" onclick="closeAdminModal()" style="margin-top:0;">取消返回</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 方案選擇頁 -->
         <section id="adminPlanSelectionSection" class="card hidden">
             <h2>🎫 選擇管理員工作證方案</h2>
-            <div class="admin-plan-card" onclick="selectAdminPlan('社群管理員', 300)"><h4>🛡️ 社群管理員 (300 金幣)</h4></div>
-            <div class="admin-plan-card" onclick="selectAdminPlan('客服/訂單管理員', 400)"><h4>🎧 客服/訂單管理員 (400 金幣)</h4></div>
-            <div class="admin-plan-card" onclick="selectAdminPlan('營運/行銷管理員', 500)"><h4>📈 營運/行銷管理員 (500 金幣)</h4></div>
-            <div class="admin-plan-card" onclick="selectAdminPlan('超級管理員', 1000)"><h4>👑 超級管理員 (1000 金幣)</h4></div>
+            <div class="admin-plan-card" onclick="selectAdminPlan('社群管理員', 300)"><h4>🛡️ 社群管理員工作證 (300金幣)</h4></div>
+            <div class="admin-plan-card" onclick="selectAdminPlan('客服/訂單管理員', 400)"><h4>🎧 客服/訂單管理員工作證 (400金幣)</h4></div>
+            <div class="admin-plan-card" onclick="selectAdminPlan('營運/行銷管理員', 500)"><h4>📈 營運/行銷管理員工作證 (500金幣)</h4></div>
+            <div class="admin-plan-card" onclick="selectAdminPlan('超級管理員', 1000)"><h4>👑 超級管理員工作證 (1000金幣)</h4></div>
             <button class="btn-secondary" onclick="returnHome()">返回首頁</button>
         </section>
 
-        <!-- 付款頁面 -->
+        <!-- 付款頁 -->
         <section id="adminPaymentSection" class="card hidden">
             <h2>💳 工作證方案結帳付款</h2>
             <p><strong>方案：</strong><span id="payPlanName"></span></p>
             <p><strong>金額：</strong><span id="payPlanPrice"></span> 金幣</p>
-            <button class="btn-primary" onclick="confirmAdminPayment()">確認付款</button>
+            <button class="btn-primary" onclick="confirmAdminPayment()">確認付款並開通</button>
             <button class="btn-secondary" onclick="returnHome()">返回首頁</button>
         </section>
 
         <!-- 遊戲答題介面 -->
         <section id="gameSection" class="card hidden">
-            <div class="game-header"><span id="gameInfoTitle">階段與關卡</span><span id="questionCountTitle">題目: 1 / 10</span></div>
+            <div class="game-top-bar">
+                <span id="gameInfoTitle" style="font-weight:bold; color:#2c3e50;">第 1 階段 - 第 1 關</span>
+                <button class="backpack-btn" onclick="openBackpackModal()">🎒 背包</button>
+            </div>
+            <div class="game-header"><span id="questionCountTitle">題目: 1 / 5</span></div>
             <div class="question-box" id="questionText">載入中...</div>
             <div class="feedback-banner" id="feedbackBanner"></div>
             <div class="options-grid" id="optionsContainer"></div>
@@ -218,43 +288,44 @@
     </main>
 
     <script>
-        // 龐大題庫集，支援動態組合
-        const vocabPool = [
-            {q: "「Hello」的意思是？", opts: ["你好", "再見", "謝謝", "對不起"], exp: "Hello 指的是你好。"},
-            {q: "代表「蘋果」的單字是？", opts: ["Apple", "Banana", "Orange", "Grape"], exp: "Apple 是蘋果。"},
-            {q: "「Thank you」的回應是？", opts: ["You're welcome", "Goodbye", "Hello", "Sorry"], exp: "應回答 You're welcome。"},
-            {q: "「Cat」是甚麼動物？", opts: ["貓", "狗", "鳥", "魚"], exp: "Cat 是貓。"},
-            {q: "數字「Five」是多少？", opts: ["5", "3", "4", "6"], exp: "Five 是 5。"},
-            {q: "「Water」的意思是？", opts: ["水", "火", "風", "土"], exp: "Water 是水。"},
-            {q: "「Book」的意思是？", opts: ["書本", "筆", "桌子", "椅子"], exp: "Book 是書本。"},
-            {q: "「Sun」是指？", opts: ["太陽", "月亮", "星星", "雲"], exp: "Sun 是太陽。"},
-            {q: "「Friend」的意思是？", opts: ["朋友", "敵人", "老師", "學生"], exp: "Friend 是朋友。"},
-            {q: "「Happy」的意思是？", opts: ["快樂的", "悲傷的", "生氣的", "疲倦的"], exp: "Happy 是快樂的。"},
-            {q: "成語「一石二鳥」比喻？", opts: ["做一件事達到兩個目的", "浪費時間", "盲目跟從", "孤立無援"], exp: "一石二鳥指一舉兩得。"},
-            {q: "「望梅止渴」的主角是誰？", opts: ["曹操", "劉備", "諸葛亮", "關羽"], exp: "典故主角為曹操。"},
-            {q: "形容時間極快的成語？", opts: ["白駒過隙", "度日如年", "長夜漫漫", "歲月靜好"], exp: "白駒過隙形容時間快。"},
-            {q: "「破釜沉舟」比喻？", opts: ["做事有決心、不成功便成仁", "半途而廢", "猶豫不決", "盲目冒險"], exp: "破釜沉舟比喻決心。"},
-            {q: "「巧奪天工」形容？", opts: ["技藝高超、人工勝過天然", "天然美景", "運氣極好", "工程浩大"], exp: "巧奪天工指人工精巧。"}
+        const fullVocabPool = [
+            {q: "「Hello」的中文字義？", opts: ["你好", "再見", "謝謝", "對不起"], exp: "Hello 指的是你好。"},
+            {q: "代表「蘋果」的單字？", opts: ["Apple", "Banana", "Orange", "Grape"], exp: "Apple 是蘋果。"},
+            {q: "「Thank you」的回應？", opts: ["You're welcome", "Goodbye", "Hello", "Sorry"], exp: "應回答 You're welcome。"}
         ];
+
+        const shopItems = Array.from({length: 35}, (_, i) => ({
+            id: i + 1,
+            name: `強力學習道具 #${i + 1}`,
+            price: (i + 1) * 20,
+            advantage: `專屬強化優點`,
+            benefit: `獲得被動增益`
+        }));
 
         let currentUser = null;
         let userXp = 0;
-        let userCoins = 200;
+        let userCoins = 500;
         let completedStages = 0;
         let userRole = "一般會員"; 
+        let userTitle = ""; // 自訂稱號
+        let userChatColor = "#333"; // 發言框顏色
+        let isXpBoostActive = false; // 加倍券狀態
+        let isAdminVerified = false; 
 
         let allUsersData = {}; 
         let globalChatMessages = []; 
-        let supportTickets = []; 
+        let bannedUsers = {}; 
+        let assignedAdminIds = {}; 
         let activeChatFriend = null; 
 
         let currentStageIdx = 0;
-        let currentSubStage = 1;
         let currentQIndex = 0;
         let currentStageQuestions = [];
 
         let selectedPlanName = "";
         let selectedPlanPrice = 0;
+        let currentSelectedItem = null;
+        let inventory = {}; 
 
         window.onload = function() {
             const savedUser = localStorage.getItem("global_user");
@@ -262,6 +333,10 @@
             if (savedUser && allUsersData[savedUser]) {
                 currentUser = savedUser;
                 loadUserData(currentUser);
+                if (bannedUsers[currentUser]) {
+                    showBannedScreen(bannedUsers[currentUser]);
+                    return;
+                }
                 startApp();
             }
         };
@@ -271,45 +346,61 @@
             if (savedAll) allUsersData = JSON.parse(savedAll);
             const savedChat = localStorage.getItem("global_chat_msgs");
             if (savedChat) globalChatMessages = JSON.parse(savedChat);
-            const savedSup = localStorage.getItem("global_support_tickets");
-            if (savedSup) supportTickets = JSON.parse(savedSup);
+            const savedBanned = localStorage.getItem("global_banned_users");
+            if (savedBanned) bannedUsers = JSON.parse(savedBanned);
+            const savedIds = localStorage.getItem("global_admin_ids");
+            if (savedIds) assignedAdminIds = JSON.parse(savedIds);
         }
 
         function saveGlobalData() {
             if (currentUser && allUsersData[currentUser]) {
                 allUsersData[currentUser] = {
                     xp: userXp, coins: userCoins, role: userRole,
+                    title: userTitle, color: userChatColor,
                     friends: allUsersData[currentUser].friends || [],
                     requests: allUsersData[currentUser].requests || [],
-                    completedStages
+                    completedStages, inventory
                 };
             }
             localStorage.setItem("global_all_users", JSON.stringify(allUsersData));
             localStorage.setItem("global_chat_msgs", JSON.stringify(globalChatMessages));
-            localStorage.setItem("global_support_tickets", JSON.stringify(supportTickets));
+            localStorage.setItem("global_banned_users", JSON.stringify(bannedUsers));
+            localStorage.setItem("global_admin_ids", JSON.stringify(assignedAdminIds));
         }
 
         function loadUserData(username) {
             const data = allUsersData[username];
             if (data) {
                 userXp = data.xp || 0;
-                userCoins = data.coins || 200;
+                userCoins = data.coins || 500;
                 userRole = data.role || "一般會員";
+                userTitle = data.title || "";
+                userChatColor = data.color || "#333";
                 completedStages = data.completedStages || 0;
+                inventory = data.inventory || {};
             }
         }
 
         function registerAndLogin() {
             const username = document.getElementById("usernameInput").value.trim();
             if (!username) { document.getElementById("errorMsg").style.display = "block"; return; }
+            if (bannedUsers[username]) { showBannedScreen(bannedUsers[username]); return; }
+
             currentUser = username;
             if (!allUsersData[currentUser]) {
-                allUsersData[currentUser] = { xp: 0, coins: 200, role: "一般會員", friends: [], requests: [], completedStages: 0 };
+                allUsersData[currentUser] = { xp: 0, coins: 500, role: "一般會員", friends: [], requests: [], completedStages: 0, inventory: {} };
             }
             loadUserData(currentUser);
             localStorage.setItem("global_user", currentUser);
             saveGlobalData();
             startApp();
+        }
+
+        function showBannedScreen(banInfo) {
+            hideAllSections();
+            document.getElementById("bannedReasonText").innerText = banInfo.reason;
+            document.getElementById("bannedDaysText").innerText = banInfo.days;
+            document.getElementById("bannedSection").classList.remove("hidden");
         }
 
         function startApp() {
@@ -319,15 +410,14 @@
             document.getElementById("displayUsername").innerText = currentUser;
             updateDashboard();
             renderStageGrid();
+            renderShopItems();
             renderFriendsManager();
             renderChatSidebar();
-            renderAdminView();
-            renderSupportTickets();
             renderLeaderboard();
         }
 
         function hideAllSections() {
-            ['authSection', 'dashboardSection', 'adminPlanSelectionSection', 'adminPaymentSection', 'gameSection', 'resultSection'].forEach(id => {
+            ['authSection', 'bannedSection', 'dashboardSection', 'adminPlanSelectionSection', 'adminPaymentSection', 'gameSection', 'resultSection'].forEach(id => {
                 document.getElementById(id).classList.add("hidden");
             });
         }
@@ -338,23 +428,130 @@
             document.getElementById("userXp").innerText = userXp;
             document.getElementById("userCoins").innerText = userCoins;
             let level = Math.floor(userXp / 200) + 1;
-            document.getElementById("userLevelBadge").innerText = `LV.${level} ${userRole}`;
+            document.getElementById("userLevelBadge").innerText = `LV.${level} ${userTitle} ${userRole}`;
             saveGlobalData();
         }
 
         function switchTab(tabName) {
-            ['Map', 'Friends', 'Chat', 'Admin', 'Support', 'Rank'].forEach(t => {
+            if (tabName === 'admin' && !isAdminVerified) {
+                document.getElementById("adminIdModal").classList.remove("hidden");
+                return;
+            }
+
+            ['Map', 'Shop', 'Gacha', 'Friends', 'Chat', 'Admin', 'Rank'].forEach(t => {
                 document.getElementById(`tab${t}`).classList.remove("active");
                 document.getElementById(`content${t}`).classList.add("hidden");
             });
             document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.add("active");
             document.getElementById(`content${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`).classList.remove("hidden");
+            
             if (tabName === 'chat') { renderChatSidebar(); renderChatMessages(); }
+            if (tabName === 'admin') renderAdminView();
         }
 
-        function changeLanguage() { renderStageGrid(); }
+        function verifyAdminId() {
+            let inputId = document.getElementById("adminIdInput").value.trim();
+            if (userRole !== "一般會員" && assignedAdminIds[currentUser] === inputId) {
+                isAdminVerified = true;
+                document.getElementById("adminIdModal").classList.add("hidden");
+                switchTab('admin');
+                alert("🔐 管理員後台驗證成功！");
+            } else {
+                alert("❌ 編號錯誤！");
+            }
+            document.getElementById("adminIdInput").value = "";
+        }
 
-        // 50 階段地圖與動態不重複題庫引擎
+        function closeAdminModal() { document.getElementById("adminIdModal").classList.add("hidden"); }
+
+        // 商城、裝飾、扭蛋與加倍券
+        function renderShopItems() {
+            document.getElementById("shopGridContainer").innerHTML = shopItems.map(item => `
+                <div class="shop-item" onclick="openItemModal(${item.id})">
+                    <h4>🎁 ${item.name}</h4>
+                    <p class="price">💎 ${item.price} 金幣</p>
+                </div>
+            `).join('');
+        }
+
+        function openItemModal(id) {
+            currentSelectedItem = shopItems.find(i => i.id === id);
+            document.getElementById("modalItemName").innerText = currentSelectedItem.name;
+            document.getElementById("modalItemPrice").innerText = currentSelectedItem.price;
+            document.getElementById("itemModal").classList.remove("hidden");
+        }
+
+        function closeModal() { document.getElementById("itemModal").classList.add("hidden"); }
+
+        function buyCurrentItem() {
+            if (userCoins < currentSelectedItem.price) { alert("❌ 金幣不足！"); return; }
+            userCoins -= currentSelectedItem.price;
+            inventory[currentSelectedItem.id] = (inventory[currentSelectedItem.id] || 0) + 1;
+            saveGlobalData();
+            updateDashboard();
+            alert(`🎉 成功購買 ${currentSelectedItem.name}！`);
+            closeModal();
+        }
+
+        function buyTitle(title, price) {
+            if (userCoins < price) { alert("❌ 金幣不足！"); return; }
+            userCoins -= price;
+            userTitle = title;
+            saveGlobalData();
+            updateDashboard();
+            alert(`👑 成功解鎖頭銜：${title}`);
+        }
+
+        function buyColor(color, price) {
+            if (userCoins < price) { alert("❌ 金幣不足！"); return; }
+            userCoins -= price;
+            userChatColor = color;
+            saveGlobalData();
+            updateDashboard();
+            alert(`🎨 聊天外框顏色已更新！`);
+        }
+
+        function buyBoost(price) {
+            if (userCoins < price) { alert("❌ 金幣不足！"); return; }
+            userCoins -= price;
+            isXpBoostActive = true;
+            saveGlobalData();
+            updateDashboard();
+            alert(`⚡ 成功啟動經驗值 2 倍加倍券！`);
+        }
+
+        // 幸運扭蛋機
+        function spinGacha() {
+            if (userCoins < 30) { alert("❌ 金幣不足 30 枚！"); return; }
+            userCoins -= 30;
+            let rand = Math.random();
+            let msg = "";
+            if (rand < 0.5) {
+                userXp += 50;
+                msg = "🎁 恭喜抽中：+50 XP！";
+            } else if (rand < 0.8) {
+                userCoins += 60;
+                msg = "💰 恭喜抽中：+60 金幣回本！";
+            } else {
+                userCoins += 200;
+                msg = "👑 【超級大獎】恭喜抽中：+200 金幣！";
+            }
+            updateDashboard();
+            document.getElementById("gachaResult").innerText = msg;
+        }
+
+        function openBackpackModal() {
+            let container = document.getElementById("backpackItemsContainer");
+            let owned = Object.keys(inventory).filter(id => inventory[id] > 0);
+            container.innerHTML = owned.length ? owned.map(id => `
+                <div style="background:#f8f9fa; padding:10px; border-radius:8px; margin-bottom:8px;">道具 #${id} (擁有: ${inventory[id]})</div>
+            `).join('') : "背包空空如也";
+            document.getElementById("backpackModal").classList.remove("hidden");
+        }
+
+        function closeBackpackModal() { document.getElementById("backpackModal").classList.add("hidden"); }
+
+        // 闖關與復活卡
         function renderStageGrid() {
             document.getElementById("stageGridContainer").innerHTML = Array.from({length:50}, (_, i) => `
                 <div class="stage-box ${i < completedStages ? 'completed' : ''}" onclick="startStage(${i})">
@@ -365,7 +562,6 @@
 
         function startStage(stageIdx) {
             currentStageIdx = stageIdx;
-            currentSubStage = 1;
             currentQIndex = 0;
             generateUniqueStageQuestions(stageIdx);
             hideAllSections();
@@ -373,15 +569,12 @@
             displayQuestion();
         }
 
-        // 確保每一階段、每一關的題目和答案都完全不一樣
         function generateUniqueStageQuestions(stage) {
             currentStageQuestions = [];
-            let pool = [...vocabPool];
-            // 透過階段編號進行位移打亂，確保 50 個階段題目組合完全不同
-            for (let i = 0; i < 10; i++) {
-                let index = (stage * 3 + i) % pool.length;
+            let pool = [...fullVocabPool];
+            for (let i = 0; i < 5; i++) {
+                let index = (stage * 2 + i) % pool.length;
                 let qItem = JSON.parse(JSON.stringify(pool[index]));
-                // 替換題目編號讓每一題文字都有所區隔
                 qItem.q = `[階段 ${stage + 1}] ${qItem.q} (第 ${i + 1} 題)`;
                 currentStageQuestions.push(qItem);
             }
@@ -391,8 +584,9 @@
             if (currentQIndex >= currentStageQuestions.length) {
                 hideAllSections();
                 document.getElementById("resultSection").classList.remove("hidden");
-                document.getElementById("resultText").innerText = `恭喜成功通關第 ${currentStageIdx + 1} 階段！獲得 +50 XP, +100 金幣！`;
-                userXp += 50; userCoins += 100;
+                document.getElementById("resultText").innerText = `恭喜成功通關第 ${currentStageIdx + 1} 階段！`;
+                let earnedXp = isXpBoostActive ? 100 : 50;
+                userXp += earnedXp; userCoins += 100;
                 completedStages = Math.max(completedStages, currentStageIdx + 1);
                 saveGlobalData();
                 updateDashboard();
@@ -401,11 +595,10 @@
 
             let q = currentStageQuestions[currentQIndex];
             document.getElementById("gameInfoTitle").innerText = `第 ${currentStageIdx + 1} 階段 - 闖關中`;
-            document.getElementById("questionCountTitle").innerText = `題目: ${currentQIndex + 1} / 10`;
+            document.getElementById("questionCountTitle").innerText = `題目: ${currentQIndex + 1} / 5`;
             document.getElementById("questionText").innerText = q.q;
             document.getElementById("feedbackBanner").style.display = "none";
 
-            // 隨機洗牌選項，確保答案位置每次不同
             let optsWithIndex = q.opts.map((opt, i) => ({ text: opt, isCorrect: i === 0 }));
             optsWithIndex.sort(() => Math.random() - 0.5);
 
@@ -422,22 +615,37 @@
 
             if (isCorrect) {
                 banner.className = "feedback-banner feedback-correct";
-                banner.innerHTML = `✨ <strong>答對囉！</strong> +5 XP, +10 金幣<br>💡 <strong>解析：</strong>${exp}`;
-                userXp += 5; userCoins += 10;
+                let addXp = isXpBoostActive ? 10 : 5;
+                banner.innerHTML = `✨ <strong>答對囉！</strong> +${addXp} XP, +10 金幣<br>💡 <strong>解析：</strong>${exp}`;
+                userXp += addXp; userCoins += 10;
+                saveGlobalData();
+                updateDashboard();
+                setTimeout(() => { currentQIndex++; displayQuestion(); }, 2500);
             } else {
                 banner.className = "feedback-banner feedback-wrong";
                 banner.innerHTML = `❌ <strong>答錯囉！</strong><br>💡 <strong>正確解析：</strong>${exp}`;
+                // 彈出復活卡提示視窗
+                document.getElementById("reviveModal").classList.remove("hidden");
             }
-            saveGlobalData();
-            updateDashboard();
-
-            setTimeout(() => {
-                currentQIndex++;
-                displayQuestion();
-            }, 3000);
         }
 
-        // 好友與聊天
+        function confirmRevive() {
+            if (userCoins < 50) { alert("❌ 金幣不足 50 枚，無法復活！"); declineRevive(); return; }
+            userCoins -= 50;
+            saveGlobalData();
+            updateDashboard();
+            document.getElementById("reviveModal").classList.add("hidden");
+            alert("🛡️ 復活成功！繼續闖關！");
+            currentQIndex++;
+            displayQuestion();
+        }
+
+        function declineRevive() {
+            document.getElementById("reviveModal").classList.add("hidden");
+            returnHome();
+        }
+
+        // 好友與轉帳
         function sendFriendRequest() {
             const targetName = document.getElementById("addFriendInput").value.trim();
             if (!targetName || targetName === currentUser) return;
@@ -455,8 +663,20 @@
                 <div class="friend-card"><span>來自 ${s} 的邀請</span><button class="btn-primary" style="width:80px;" onclick="respondFriendRequest('${s}', true)">同意</button></div>
             `).join('') || "無邀請";
             document.getElementById("friendsListContainer").innerHTML = (myData.friends || []).map(f => `
-                <div class="friend-card"><span>好友：${f}</span></div>
+                <div class="friend-card">
+                    <span>好友：${f}</span>
+                    <button class="btn-primary" style="width:120px; padding:6px;" onclick="transferCoins('${f}')">轉帳 50 金幣</button>
+                </div>
             `).join('') || "尚無好友";
+        }
+
+        function transferCoins(friendName) {
+            if (userCoins < 50) { alert("❌ 金幣不足 50 枚！"); return; }
+            userCoins -= 50;
+            allUsersData[friendName].coins = (allUsersData[friendName].coins || 0) + 50;
+            saveGlobalData();
+            updateDashboard();
+            alert(`🎁 成功轉帳 50 金幣給好友「${friendName}」！`);
         }
 
         function respondFriendRequest(sender, isAgree) {
@@ -492,20 +712,20 @@
             loadGlobalData();
             if (!activeChatFriend) return;
             let filtered = globalChatMessages.filter(m => (m.from === currentUser && m.to === activeChatFriend) || (m.from === activeChatFriend && m.to === currentUser));
-            area.innerHTML = filtered.map(m => `<div class="chat-bubble ${m.from === currentUser ? 'mine' : 'theirs'}">${m.text}</div>`).join('') || "開始聊天吧！";
+            area.innerHTML = filtered.map(m => `<div class="chat-bubble ${m.from === currentUser ? 'mine' : 'theirs'}" style="color:${m.color || '#333'}">${m.text}</div>`).join('') || "開始聊天吧！";
             area.scrollTop = area.scrollHeight;
         }
 
         function sendChatMessage() {
             let input = document.getElementById("chatMessageInput");
             if (!input.value.trim() || !activeChatFriend) return;
-            globalChatMessages.push({ from: currentUser, to: activeChatFriend, text: input.value.trim() });
+            globalChatMessages.push({ from: currentUser, to: activeChatFriend, text: input.value.trim(), color: userChatColor });
             saveGlobalData();
             input.value = "";
             renderChatMessages();
         }
 
-        // 管理員與客服
+        // 管理員後台
         function goToAdminPurchase() { hideAllSections(); document.getElementById("adminPlanSelectionSection").classList.remove("hidden"); }
         function selectAdminPlan(n, p) {
             selectedPlanName = n; selectedPlanPrice = p;
@@ -516,27 +736,33 @@
         }
         function confirmAdminPayment() {
             userRole = selectedPlanName;
+            isAdminVerified = true;
+            let genId = "ADM-" + Math.floor(1000 + Math.random() * 9000);
+            assignedAdminIds[currentUser] = genId;
             saveGlobalData();
-            alert("工作證開通成功！");
+            alert(`工作證開通成功！您的編號為：${genId}`);
             returnHome();
+            switchTab('admin');
         }
-        function renderAdminView() { document.getElementById("adminViewContainer").innerHTML = `目前身分：${userRole}`; }
-        function submitSupportTicket() {
-            let r = document.getElementById("supportReason").value;
-            let a = document.getElementById("supportAction").value;
-            if(!r || !a) return;
-            supportTickets.push({user: currentUser, r, a});
-            saveGlobalData();
-            alert("客服單已提交！");
-            renderSupportTickets();
+
+        function renderAdminView() {
+            let container = document.getElementById("adminViewContainer");
+            if (userRole === '一般會員') {
+                container.innerHTML = `<p style="color:#7f8c8d;">您目前是一般會員，請先購買工作證！</p>`;
+                return;
+            }
+            container.innerHTML = `<h3>🛡️ 後台管理身分：<span style="color:#e67e22;">${userRole}</span></h3>`;
         }
-        function renderSupportTickets() {
-            document.getElementById("supportTicketsList").innerHTML = supportTickets.map(t => `<div style="background:#f8f9fa; padding:10px; border-radius:8px; margin-bottom:5px;"><strong>${t.user}</strong><br>原因：${t.r}<br>對策：${t.a}</div>`).join('');
-        }
+
         function renderLeaderboard() {
             document.getElementById("leaderboardBody").innerHTML = Object.keys(allUsersData).map((u, i) => `<tr><td style="padding:10px;">${i+1}</td><td style="padding:10px;">${u}</td><td style="padding:10px;">${allUsersData[u].role}</td><td style="padding:10px;">${allUsersData[u].xp} XP</td></tr>`).join('');
         }
-        function logout() { localStorage.removeItem("global_user"); location.reload(); }
+
+        function logout() { 
+            isAdminVerified = false;
+            localStorage.removeItem("global_user"); 
+            location.reload(); 
+        }
     </script>
 </body>
 </html>
