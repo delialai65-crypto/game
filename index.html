@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>是東西：秘境對決 | 終極完全體</title>
+    <title>是東西：牌局對決 | 傳奇肉鴿完全豐富互動版</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Google Fonts -->
@@ -19,73 +19,102 @@
             -webkit-text-fill-color: transparent;
         }
         .luxury-border {
-            border: 1px solid rgba(197, 160, 89, 0.3);
+            border: 1px solid rgba(197, 160, 89, 0.4);
             transition: all 0.3s ease;
         }
         .luxury-border:hover:not(:disabled) {
-            border-color: rgba(197, 160, 89, 0.9);
-            box-shadow: 0 0 25px rgba(197, 160, 89, 0.2);
+            border-color: rgba(197, 160, 89, 1);
+            box-shadow: 0 0 30px rgba(197, 160, 89, 0.3);
         }
         .selected-card {
             border-color: #C5A059 !important;
-            background: rgba(197, 160, 89, 0.15) !important;
-        }
-        @keyframes spellCast {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); filter: brightness(1.2); }
-            100% { transform: scale(1); }
-        }
-        .cast-effect {
-            animation: spellCast 0.4s ease-in-out;
+            background: rgba(197, 160, 89, 0.2) !important;
         }
         .game-screen { display: none; }
         .game-screen.active { display: flex; }
+        
         .modal-screen { display: none; }
-        .modal-screen.active { display: flex; }
+        .modal-screen.active { display: flex !important; }
+
+        .card-item {
+            transition: all 0.25s ease;
+            background: linear-gradient(145deg, #111111, #1a1a1a);
+            border: 1px solid rgba(197, 160, 89, 0.4);
+        }
+        .card-item:hover {
+            transform: translateY(-8px);
+            border-color: #C5A059;
+            box-shadow: 0 10px 25px rgba(197, 160, 89, 0.3);
+        }
+
+        @keyframes hitShake {
+            0% { transform: translate(0, 0); }
+            25% { transform: translate(-5px, 3px); }
+            50% { transform: translate(5px, -3px); }
+            75% { transform: translate(-3px, -1px); }
+            100% { transform: translate(0, 0); }
+        }
+        .hit-effect { animation: hitShake 0.35s ease-in-out; }
     </style>
 </head>
-<body class="bg-[#050505] text-gray-300 font-sans-luxury h-screen flex flex-col justify-between overflow-hidden selection:bg-[#C5A059] selection:text-black">
+<body class="bg-[#030303] text-gray-200 font-sans-luxury h-screen flex flex-col justify-between overflow-hidden selection:bg-[#C5A059] selection:text-black">
 
     <!---------------------------------------------------------
       1. 遊戲首頁 (Lobby View)
     ---------------------------------------------------------->
-    <div id="lobby-screen" class="game-screen active absolute inset-0 z-20 bg-[#050505] flex-col justify-center items-center text-center px-6">
-        <div class="absolute w-[700px] h-[700px] bg-[#C5A059]/5 rounded-full blur-[140px] pointer-events-none -top-20 -left-20"></div>
-        <div class="absolute w-[600px] h-[600px] bg-purple-950/20 rounded-full blur-[160px] pointer-events-none -bottom-20 -right-20"></div>
+    <div id="lobby-screen" class="game-screen active absolute inset-0 z-20 bg-[#030303] flex-col justify-center items-center text-center px-6">
+        <div class="absolute w-[800px] h-[800px] bg-[#C5A059]/5 rounded-full blur-[150px] pointer-events-none -top-20 -left-20"></div>
+        <div class="absolute w-[700px] h-[700px] bg-purple-950/20 rounded-full blur-[180px] pointer-events-none -bottom-20 -right-20"></div>
 
-        <div class="relative z-30 max-w-3xl space-y-6">
-            <p class="text-xs uppercase tracking-[0.4em] text-gray-500 font-serif-en">Artifact Magic Duel - Ultimate 45+ Features</p>
-            <h1 class="font-serif-zh text-5xl md:text-7xl tracking-wider leading-[1.2]">
-                <span class="shi-dong-xi-gradient">是東西：秘境對決</span>
+        <div class="relative z-30 max-w-5xl space-y-5">
+            <p class="text-xs uppercase tracking-[0.5em] text-[#C5A059] font-serif-en">Artifact Card Game - Rich Interactive Edition</p>
+            <h1 class="font-serif-zh text-5xl md:text-7xl tracking-wider leading-[1.1]">
+                <span class="shi-dong-xi-gradient">是東西：牌局對決</span>
             </h1>
-            <p class="text-sm md:text-base font-light tracking-[0.15em] text-gray-400 max-w-lg mx-auto leading-relaxed">
-                收錄 35 種傳奇道具、10大天賦法師、成就要塞、每日福利、榮譽榜與秘境圖鑑。
-            </p>
+            <div class="flex justify-center items-center gap-4 text-xs font-serif-en">
+                <span id="player-title-display" class="text-amber-400 uppercase tracking-widest">稱號: 秘境新星</span>
+                <span class="text-gray-500">|</span>
+                <span class="text-[#C5A059]">金幣: <strong id="lobby-gold-display" class="text-white">5000</strong></span>
+            </div>
 
-            <div class="pt-2">
-                <button onclick="goToSelectScreen()" class="px-12 py-5 text-xs uppercase tracking-[0.3em] text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all duration-300 shadow-2xl cursor-pointer">
-                    開始冒險
+            <!-- 主功能按鈕列 -->
+            <div class="flex flex-wrap justify-center items-center gap-3 pt-2">
+                <button onclick="goToSelectScreen()" class="px-8 py-3.5 text-xs uppercase tracking-[0.3em] text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all shadow-xl cursor-pointer font-bold">
+                    冒險闖關 (7階段)
+                </button>
+                <button onclick="startTrainingMode()" class="px-8 py-3.5 text-xs uppercase tracking-[0.3em] text-black bg-[#C5A059] hover:bg-white rounded-full font-bold transition-all shadow-xl cursor-pointer">
+                    🎯 無盡深淵爬塔
+                </button>
+                <button onclick="openLobbyShop()" class="px-8 py-3.5 text-xs uppercase tracking-[0.3em] text-amber-400 border border-amber-500/50 rounded-full bg-black hover:bg-amber-500 hover:text-black transition-all shadow-xl cursor-pointer font-bold">
+                    🛒 商店與十連抽
                 </button>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-3 gap-3 pt-4 max-w-lg mx-auto">
-                <button onclick="openModal('achievement-modal')" class="py-3 px-4 text-xs uppercase tracking-widest text-gray-300 luxury-border rounded-xl bg-black/80 hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
-                    🏆 成就殿堂
+            <!-- 網格功能按鈕列 (豐富的完整功能) -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2.5 pt-2 max-w-2xl mx-auto">
+                <button onclick="openModal('quest-modal')" class="py-3 px-4 text-[11px] uppercase tracking-widest text-gray-300 luxury-border rounded-xl bg-black/80 hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
+                    📜 公會懸賞令
                 </button>
-                <button onclick="openModal('daily-modal')" class="py-3 px-4 text-xs uppercase tracking-widest text-gray-300 luxury-border rounded-xl bg-black/80 hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
-                    🎁 每日簽到
+                <button onclick="openModal('codex-modal')" class="py-3 px-4 text-[11px] uppercase tracking-widest text-gray-300 luxury-border rounded-xl bg-black/80 hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
+                    📖 圖鑑與世界觀手札
                 </button>
-                <button onclick="openModal('codex-modal')" class="py-3 px-4 text-xs uppercase tracking-widest text-gray-300 luxury-border rounded-xl bg-black/80 hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
-                    📖 秘境圖鑑
+                <button onclick="openModal('achievement-modal')" class="py-3 px-4 text-[11px] uppercase tracking-widest text-gray-300 luxury-border rounded-xl bg-black/80 hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
+                    🏆 成就殿堂與獎盃
                 </button>
-                <button onclick="openModal('leaderboard-modal')" class="py-3 px-4 text-xs uppercase tracking-widest text-gray-300 luxury-border rounded-xl bg-black/80 hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
-                    🏅 榮譽榜
+                <button onclick="openModal('daily-modal')" class="py-3 px-4 text-[11px] uppercase tracking-widest text-gray-300 luxury-border rounded-xl bg-black/80 hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
+                    🎁 每日簽到與占卜
                 </button>
-                <button onclick="openModal('settings-modal')" class="py-3 px-4 text-xs uppercase tracking-widest text-gray-300 luxury-border rounded-xl bg-black/80 hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
-                    ⚙️ 遊戲設定
+                <button onclick="openModal('leaderboard-modal')" class="py-3 px-4 text-[11px] uppercase tracking-widest text-gray-300 luxury-border rounded-xl bg-black/80 hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
+                    🏅 無盡深淵榮譽榜
                 </button>
-                <button onclick="toggleBGM()" id="bgm-btn" class="py-3 px-4 text-xs uppercase tracking-widest text-amber-400 luxury-border rounded-xl bg-black/80 hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
-                    🎵 音效：開
+                <button onclick="openModal('craft-modal')" class="py-3 px-4 text-[11px] uppercase tracking-widest text-gray-300 luxury-border rounded-xl bg-black/80 hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
+                    🧪 雙卡合成鍊金爐
+                </button>
+                <button onclick="openModal('codex-modal')" class="py-3 px-4 text-[11px] uppercase tracking-widest text-gray-300 luxury-border rounded-xl bg-black/80 hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
+                    💬 全球玩家彈幕
+                </button>
+                <button onclick="openModal('settings-modal')" class="py-3 px-4 text-[11px] uppercase tracking-widest text-gray-300 luxury-border rounded-xl bg-black/80 hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
+                    ⚙️ 雲端存檔與設定
                 </button>
             </div>
         </div>
@@ -93,615 +122,757 @@
 
 
     <!---------------------------------------------------------
-      MODALS: 彈跳視窗系列
+      MODALS & ALL INTERACTIVE POPUPS (z-50 ~ z-80)
     ---------------------------------------------------------->
-    <div id="achievement-modal" class="modal-screen absolute inset-0 z-50 bg-black/90 backdrop-blur-md justify-center items-center px-6">
-        <div class="max-w-xl w-full bg-[#0d0d0d] border border-[#C5A059]/40 p-8 rounded-2xl space-y-6 text-left relative">
-            <h2 class="font-serif-zh text-2xl text-white border-b border-white/10 pb-3">🏆 成就殿堂 (Achievements)</h2>
-            <div class="space-y-3 max-h-60 overflow-y-auto pr-2 text-sm text-gray-300">
-                <div class="flex justify-between items-center bg-black/60 p-3 rounded-lg border border-white/10">
-                    <div><div class="font-bold text-white">初學者的魔法</div><div class="text-[11px] text-gray-400">完成第一場冒險</div></div>
-                    <span id="ach-1" class="text-xs text-amber-400">已解鎖</span>
+    <!-- 1. 商鋪與十連抽 -->
+    <div id="lobby-shop-modal" class="modal-screen absolute inset-0 z-50 bg-black/95 backdrop-blur-xl justify-center items-center px-6 py-8">
+        <div class="max-w-4xl w-full bg-[#0d0d0d] border border-[#C5A059]/50 p-8 rounded-3xl space-y-6 flex flex-col max-h-[85vh] shadow-2xl">
+            <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                <div>
+                    <span class="text-xs uppercase tracking-[0.4em] text-[#C5A059] font-serif-en">Grand Emporium & Gacha</span>
+                    <h2 class="font-serif-zh text-2xl text-white">首頁商鋪、十連抽與卡牌強化</h2>
                 </div>
-                <div class="flex justify-between items-center bg-black/60 p-3 rounded-lg border border-white/10">
-                    <div><div class="font-bold text-white">財源滾滾</div><div class="text-[11px] text-gray-400">累計獲得超過 500 金幣</div></div>
-                    <span id="ach-2" class="text-xs text-gray-500">未解鎖</span>
-                </div>
-                <div class="flex justify-between items-center bg-black/60 p-3 rounded-lg border border-white/10">
-                    <div><div class="font-bold text-white">萬物收藏家</div><div class="text-[11px] text-gray-400">在商店解鎖 5 種以上道具</div></div>
-                    <span id="ach-3" class="text-xs text-gray-500">未解鎖</span>
+                <div class="text-right">
+                    <div class="text-xs uppercase text-gray-500 font-serif-en">Player Gold</div>
+                    <div id="lobby-shop-gold" class="text-2xl text-amber-400 font-serif-en font-bold">5000</div>
                 </div>
             </div>
+
+            <div class="flex gap-3">
+                <button onclick="switchShopTab('mana')" id="tab-btn-mana" class="px-4 py-2 text-xs uppercase bg-[#C5A059] text-black font-bold rounded-xl cursor-pointer transition-all">⚡ 法力水晶</button>
+                <button onclick="switchShopTab('items')" id="tab-btn-items" class="px-4 py-2 text-xs uppercase bg-black text-gray-300 luxury-border rounded-xl cursor-pointer transition-all">道具商城</button>
+                <button onclick="switchShopTab('gacha')" id="tab-btn-gacha" class="px-4 py-2 text-xs uppercase bg-black text-purple-300 border border-purple-500/50 rounded-xl cursor-pointer transition-all">🌟 奧術十連抽</button>
+            </div>
+
+            <div id="lobby-shop-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 overflow-y-auto pr-2 flex-1"></div>
+
             <div class="text-center pt-2">
-                <button onclick="closeModal('achievement-modal')" class="px-8 py-3 text-xs uppercase tracking-[0.3em] text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">關閉</button>
+                <button onclick="closeModal('lobby-shop-modal')" class="px-10 py-3 text-xs uppercase tracking-[0.3em] text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer font-bold">返回首頁</button>
             </div>
         </div>
     </div>
 
-    <div id="daily-modal" class="modal-screen absolute inset-0 z-50 bg-black/90 backdrop-blur-md justify-center items-center px-6">
-        <div class="max-w-md w-full bg-[#0d0d0d] border border-[#C5A059]/40 p-8 rounded-2xl space-y-6 text-center">
-            <h2 class="font-serif-zh text-2xl text-white border-b border-white/10 pb-3">🎁 每日登入福利</h2>
-            <p class="text-sm text-gray-300">每天登入秘境即可領取免費的戰鬥資金與道具補給！</p>
-            <div class="bg-black/60 p-6 rounded-xl border border-[#C5A059]/30 space-y-2">
-                <div class="text-xs uppercase text-[#C5A059] font-serif-en">Day 1 Reward</div>
-                <div class="text-2xl text-amber-400 font-bold">+100 金幣</div>
-            </div>
-            <div class="flex gap-4">
-                <button onclick="claimDaily()" id="claim-btn" class="flex-1 py-3 text-xs uppercase text-black bg-[#C5A059] hover:bg-white rounded-xl font-bold transition-all cursor-pointer">領取獎勵</button>
-                <button onclick="closeModal('daily-modal')" class="flex-1 py-3 text-xs uppercase text-[#E2D1B5] luxury-border rounded-xl bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">關閉</button>
-            </div>
+    <!-- 2. 懸賞任務 -->
+    <div id="quest-modal" class="modal-screen absolute inset-0 z-50 bg-black/90 backdrop-blur-md justify-center items-center px-6">
+        <div class="max-w-xl w-full bg-[#0d0d0d] border border-[#C5A059]/40 p-8 rounded-2xl space-y-6 text-left">
+            <h2 class="font-serif-zh text-2xl text-white border-b border-white/10 pb-3">📜 冒險者公會懸賞令</h2>
+            <div id="quest-list" class="space-y-3 text-sm text-gray-300"></div>
+            <div class="text-center pt-2"><button onclick="closeModal('quest-modal')" class="px-8 py-3 text-xs uppercase text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">關閉</button></div>
         </div>
     </div>
 
+    <!-- 3. 圖鑑與手札 -->
     <div id="codex-modal" class="modal-screen absolute inset-0 z-50 bg-black/90 backdrop-blur-md justify-center items-center px-6">
         <div class="max-w-2xl w-full bg-[#0d0d0d] border border-[#C5A059]/40 p-8 rounded-2xl space-y-6 text-left">
-            <h2 class="font-serif-zh text-2xl text-white border-b border-white/10 pb-3">📖 秘境圖鑑與背景故事</h2>
-            <div class="space-y-4 max-h-72 overflow-y-auto pr-2 text-xs text-gray-300 leading-relaxed">
-                <p><strong class="text-[#C5A059]">【關於是東西】</strong> 萬物皆有形，皆可化為法術。在遠古的秘境中，世間萬物（無論是重劍、黑膠唱片還是茶杯）都潛藏著強大的奧術波動。</p>
-                <p><strong class="text-[#C5A059]">【法師天賦】</strong> 10 大傳奇法師各自掌握不同的奧術分支，如吸血伯爵、狂戰士、閃避大師等。</p>
-                <p><strong class="text-[#C5A059]">【決鬥場地】</strong> 從暗黑神殿到冰川溪流，不同的環境會直接影響道具的殺傷力或提供每回合的回血庇護。</p>
+            <h2 class="font-serif-zh text-2xl text-white border-b border-white/10 pb-3">📖 秘境圖鑑與世界觀手札</h2>
+            <div class="space-y-3 text-xs text-gray-300 max-h-60 overflow-y-auto pr-2">
+                <p><strong class="text-[#C5A059]">【世界觀】</strong> 萬物皆有形，皆可化為法術。在遠古秘境中，世間萬物皆潛藏強大奧術波動。</p>
+                <p><strong class="text-[#C5A059]">【全球彈幕】</strong> 玩家留言：「這款肉鴿卡牌太好玩了吧！」「法力升到7點簡直無敵！」</p>
             </div>
-            <div class="text-center pt-2">
-                <button onclick="closeModal('codex-modal')" class="px-8 py-3 text-xs uppercase tracking-[0.3em] text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">關閉</button>
+            <div class="text-center pt-2"><button onclick="closeModal('codex-modal')" class="px-8 py-3 text-xs uppercase text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">關閉</button></div>
+        </div>
+    </div>
+
+    <!-- 4. 成就與獎盃 -->
+    <div id="achievement-modal" class="modal-screen absolute inset-0 z-50 bg-black/90 backdrop-blur-md justify-center items-center px-6">
+        <div class="max-w-xl w-full bg-[#0d0d0d] border border-[#C5A059]/40 p-8 rounded-2xl space-y-6 text-left">
+            <h2 class="font-serif-zh text-2xl text-white border-b border-white/10 pb-3">🏆 成就殿堂與獎盃展示</h2>
+            <div class="space-y-3 text-sm text-gray-300">
+                <div class="flex justify-between items-center bg-black/60 p-3.5 rounded-xl border border-white/10">
+                    <div><div class="font-bold text-white">傳奇肉鴿宗師</div><div class="text-[11px] text-gray-400">解鎖全部卡牌與通關 7 個階段</div></div>
+                    <span class="text-xs text-amber-400">進行中</span>
+                </div>
+            </div>
+            <div class="text-center pt-2"><button onclick="closeModal('achievement-modal')" class="px-8 py-3 text-xs uppercase text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">關閉</button></div>
+        </div>
+    </div>
+
+    <!-- 5. 每日簽到與占卜 -->
+    <div id="daily-modal" class="modal-screen absolute inset-0 z-50 bg-black/90 backdrop-blur-md justify-center items-center px-6">
+        <div class="max-w-md w-full bg-[#0d0d0d] border border-[#C5A059]/40 p-8 rounded-2xl space-y-6 text-center">
+            <h2 class="font-serif-zh text-2xl text-white border-b border-white/10 pb-3">🎁 每日簽到與幸運占卜</h2>
+            <div class="text-3xl text-amber-400 font-bold font-serif-en">+800 金幣</div>
+            <p class="text-xs text-gray-400">今日運勢：大吉！暴擊率額外提升 15%！</p>
+            <div class="flex gap-4 pt-2">
+                <button onclick="claimDaily()" id="claim-btn" class="flex-1 py-3.5 text-xs uppercase text-black bg-[#C5A059] hover:bg-white rounded-xl font-bold transition-all cursor-pointer">領取獎勵</button>
+                <button onclick="closeModal('daily-modal')" class="flex-1 py-3.5 text-xs uppercase text-[#E2D1B5] luxury-border rounded-xl bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">關閉</button>
             </div>
         </div>
     </div>
 
+    <!-- 6. 深淵排行榜 -->
     <div id="leaderboard-modal" class="modal-screen absolute inset-0 z-50 bg-black/90 backdrop-blur-md justify-center items-center px-6">
         <div class="max-w-xl w-full bg-[#0d0d0d] border border-[#C5A059]/40 p-8 rounded-2xl space-y-6 text-left">
-            <h2 class="font-serif-zh text-2xl text-white border-b border-white/10 pb-3">🏅 秘境榮譽榜 (Leaderboard)</h2>
+            <h2 class="font-serif-zh text-2xl text-white border-b border-white/10 pb-3">🏅 無盡深淵爬塔榮譽榜</h2>
             <div class="space-y-3 text-sm text-gray-300">
-                <div class="flex justify-between items-center bg-black/60 p-3 rounded-lg border border-white/10"><span class="text-amber-400 font-bold">1. 闇夜大祭司</span><span>勝場: 24 場</span></div>
-                <div class="flex justify-between items-center bg-black/60 p-3 rounded-lg border border-white/10"><span class="text-gray-300 font-bold">2. 無名大法師</span><span>勝場: 18 場</span></div>
-                <div class="flex justify-between items-center bg-black/60 p-3 rounded-lg border border-white/10"><span class="text-amber-700 font-bold">3. 星象占卜師</span><span>勝場: 12 場</span></div>
+                <div class="flex justify-between items-center bg-black/60 p-3 rounded-lg border border-white/10"><span class="text-amber-400 font-bold">1. 闇夜大法師</span><span>爬塔層數: 第 28 層</span></div>
+                <div class="flex justify-between items-center bg-black/60 p-3 rounded-lg border border-white/10"><span class="text-gray-300 font-bold">2. 無名宗師</span><span>爬塔層數: 第 19 層</span></div>
             </div>
-            <div class="text-center pt-2">
-                <button onclick="closeModal('leaderboard-modal')" class="px-8 py-3 text-xs uppercase tracking-[0.3em] text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">關閉</button>
-            </div>
+            <div class="text-center pt-2"><button onclick="closeModal('leaderboard-modal')" class="px-8 py-3 text-xs uppercase text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">關閉</button></div>
         </div>
     </div>
 
+    <!-- 7. 卡牌合成工坊 -->
+    <div id="craft-modal" class="modal-screen absolute inset-0 z-50 bg-black/90 backdrop-blur-md justify-center items-center px-6">
+        <div class="max-w-md w-full bg-[#0d0d0d] border border-[#C5A059]/40 p-8 rounded-2xl space-y-6 text-center">
+            <h2 class="font-serif-zh text-2xl text-white border-b border-white/10 pb-3">🧪 雙卡合成鍊金爐</h2>
+            <p class="text-xs text-gray-300">消耗 300 金幣將兩張隨機卡牌融合成一張稀有強化傳奇卡！</p>
+            <button onclick="craftCards()" class="px-6 py-3 text-xs uppercase bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold cursor-pointer">開始鍊金合成</button>
+            <div class="text-center pt-2"><button onclick="closeModal('craft-modal')" class="px-8 py-3 text-xs uppercase text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">關閉</button></div>
+        </div>
+    </div>
+
+    <!-- 8. 雲端存檔與設定 -->
     <div id="settings-modal" class="modal-screen absolute inset-0 z-50 bg-black/90 backdrop-blur-md justify-center items-center px-6">
         <div class="max-w-md w-full bg-[#0d0d0d] border border-[#C5A059]/40 p-8 rounded-2xl space-y-6 text-left">
-            <h2 class="font-serif-zh text-2xl text-white border-b border-white/10 pb-3">⚙️ 遊戲設定 (Settings)</h2>
-            <div class="space-y-4 text-sm text-gray-300">
+            <h2 class="font-serif-zh text-2xl text-white border-b border-white/10 pb-3">⚙️ 雲端存檔與設定</h2>
+            <div class="space-y-4 text-sm">
                 <div class="flex justify-between items-center">
-                    <span>背景音樂與音效</span>
+                    <span>音效開關</span>
                     <button onclick="toggleBGM()" class="px-4 py-2 text-xs uppercase bg-[#C5A059] text-black font-bold rounded-lg cursor-pointer">切換開關</button>
                 </div>
                 <div class="flex justify-between items-center">
-                    <span>介面極致風格</span>
-                    <span class="text-xs text-[#C5A059]">黑金奢華暗黑風</span>
+                    <span>Google 雲端同步</span>
+                    <button onclick="syncCloudSave()" class="px-4 py-2 text-xs uppercase bg-blue-600 text-white font-bold rounded-lg cursor-pointer">立即同步</button>
                 </div>
             </div>
-            <div class="text-center pt-2">
-                <button onclick="closeModal('settings-modal')" class="px-8 py-3 text-xs uppercase tracking-[0.3em] text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">儲存並關閉</button>
-            </div>
+            <div class="text-center pt-2"><button onclick="closeModal('settings-modal')" class="px-8 py-3 text-xs uppercase text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">關閉</button></div>
+        </div>
+    </div>
+
+    <!-- 9. 聖物選擇彈窗 (z-80) -->
+    <div id="blessing-modal" class="modal-screen absolute inset-0 z-[80] bg-black/95 backdrop-blur-xl justify-center items-center px-6">
+        <div class="max-w-3xl w-full bg-[#0d0d0d] border border-[#C5A059]/60 p-10 rounded-3xl space-y-8 text-center shadow-2xl">
+            <span class="text-xs uppercase tracking-[0.4em] text-[#C5A059] font-serif-en">Mystic Blessing</span>
+            <h2 class="font-serif-zh text-4xl text-white">選擇一項隨機聖物祝福</h2>
+            <div id="blessing-choices" class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2"></div>
         </div>
     </div>
 
 
     <!---------------------------------------------------------
-      2. 角色與場地選擇介面 (Select Screen)
+      2. 冒險階段選擇介面 (Select Screen)
     ---------------------------------------------------------->
     <div id="select-screen" class="game-screen absolute inset-0 z-20 bg-[#060606] flex-col justify-between px-6 py-8 overflow-y-auto">
         <div class="max-w-5xl w-full mx-auto">
-            <button onclick="goToLobby()" class="text-xs uppercase tracking-[0.2em] text-gray-400 hover:text-[#C5A059] transition-all flex items-center gap-2 cursor-pointer">
-                ← 返回首頁
-            </button>
+            <button onclick="goToLobby()" class="text-xs uppercase tracking-[0.2em] text-gray-400 hover:text-[#C5A059] transition-all flex items-center gap-2 cursor-pointer font-bold">← 返回首頁</button>
         </div>
 
-        <div class="max-w-5xl w-full mx-auto space-y-8 my-auto">
-            <div class="text-center space-y-2">
-                <span class="text-xs uppercase tracking-[0.3em] text-[#C5A059] font-serif-en">Preparation</span>
-                <h2 class="font-serif-zh text-3xl text-white">選擇你的天賦法師與決鬥場地</h2>
+        <div class="max-w-5xl w-full mx-auto space-y-6 my-auto text-center">
+            <div class="space-y-2">
+                <span class="text-xs uppercase tracking-[0.3em] text-[#C5A059] font-serif-en">Adventure Campaign</span>
+                <h2 class="font-serif-zh text-3xl text-white">選擇冒險階段 (Stage 1 ~ 7)</h2>
             </div>
-            <div class="space-y-4">
-                <h3 class="text-xs uppercase tracking-[0.2em] text-gray-400 font-serif-en">1. 選擇 10 大天賦法師</h3>
-                <div id="mage-grid" class="grid grid-cols-2 md:grid-cols-5 gap-3"></div>
-            </div>
-            <div class="space-y-4">
-                <h3 class="text-xs uppercase tracking-[0.2em] text-gray-400 font-serif-en">2. 選擇 10 大決鬥場地</h3>
-                <div id="arena-grid" class="grid grid-cols-2 md:grid-cols-5 gap-3"></div>
-            </div>
-            <div class="text-center pt-2">
-                <button onclick="goToWheel()" class="px-12 py-4 text-xs uppercase tracking-[0.3em] text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all shadow-xl cursor-pointer">
-                    確認配置，轉動命運輪盤
-                </button>
-            </div>
+            
+            <div id="stages-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto pt-2"></div>
         </div>
         <div></div>
     </div>
 
 
     <!---------------------------------------------------------
-      3. 命運輪盤抽敵介面 (Wheel Screen)
+      3. 實際卡牌遊戲戰場 (Card Battle View)
     ---------------------------------------------------------->
-    <div id="wheel-screen" class="game-screen absolute inset-0 z-20 bg-[#040404] flex-col justify-between px-6 py-8">
-        <div class="max-w-xl w-full mx-auto">
-            <button onclick="goToSelectScreen()" class="text-xs uppercase tracking-[0.2em] text-gray-400 hover:text-[#C5A059] transition-all flex items-center gap-2 cursor-pointer">
-                ← 返回角色選擇
-            </button>
-        </div>
-
-        <div class="max-w-xl w-full mx-auto text-center space-y-8 bg-[#0d0d0d] border border-[#C5A059]/40 p-10 rounded-2xl shadow-2xl my-auto">
-            <div>
-                <span class="text-xs uppercase tracking-[0.4em] text-[#C5A059] font-serif-en">Destiny Wheel</span>
-                <h2 class="font-serif-zh text-3xl text-white mt-2">命運輪盤轉動中</h2>
-            </div>
-
-            <div id="wheel-display" class="h-32 bg-black border border-white/10 rounded-xl flex flex-col justify-center items-center space-y-2">
-                <div class="text-xs text-gray-500 uppercase tracking-widest font-serif-en">Target Opponent</div>
-                <div id="wheel-target-name" class="font-serif-zh text-3xl text-[#E2D1B5]">準備轉動...</div>
-            </div>
-
-            <div>
-                <button id="spin-btn" onclick="spinWheel()" class="px-10 py-4 text-xs uppercase tracking-[0.3em] text-black bg-[#C5A059] hover:bg-white transition-all rounded-full font-bold cursor-pointer">
-                    轉動輪盤決定對手
-                </button>
-                <button id="to-shop-btn" onclick="goToShop()" class="hidden px-10 py-4 text-xs uppercase tracking-[0.3em] text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
-                    前往商店 / 準備開戰
-                </button>
-            </div>
-        </div>
-        <div></div>
-    </div>
-
-
-    <!---------------------------------------------------------
-      4. 隨機突發事件畫面 (Event Screen)
-    ---------------------------------------------------------->
-    <div id="event-screen" class="game-screen absolute inset-0 z-20 bg-[#040404] flex-col justify-center items-center px-6">
-        <div class="max-w-xl w-full text-center space-y-6 bg-[#0d0d0d] border border-[#C5A059]/40 p-10 rounded-2xl shadow-2xl">
-            <span class="text-xs uppercase tracking-[0.4em] text-[#C5A059] font-serif-en">Mystic Encounter</span>
-            <h2 id="event-title" class="font-serif-zh text-3xl text-white">突發事件</h2>
-            <p id="event-desc" class="text-sm text-gray-300 font-light"></p>
-            <div id="event-buttons" class="flex justify-center gap-4 pt-4"></div>
-        </div>
-    </div>
-
-
-    <!---------------------------------------------------------
-      5. 戰前商店視窗 (Shop Screen)
-    ---------------------------------------------------------->
-    <div id="shop-screen" class="game-screen absolute inset-0 z-20 bg-[#060606] flex-col justify-between px-6 py-8">
-        <div class="max-w-4xl w-full mx-auto">
-            <button onclick="goToWheel()" class="text-xs uppercase tracking-[0.2em] text-gray-400 hover:text-[#C5A059] transition-all flex items-center gap-2 cursor-pointer">
-                ← 返回輪盤
-            </button>
-        </div>
-
-        <div class="max-w-4xl w-full mx-auto space-y-6 my-auto overflow-y-auto max-h-[75vh] pr-2">
-            <div class="flex justify-between items-center border-b border-white/10 pb-4 sticky top-0 bg-[#060606] z-10">
-                <div>
-                    <span class="text-xs uppercase tracking-[0.3em] text-[#C5A059] font-serif-en">35 Artifacts Emporium</span>
-                    <h2 class="font-serif-zh text-2xl text-white">神祕道具圖鑑與商店</h2>
-                </div>
-                <div class="text-right">
-                    <div class="text-xs uppercase text-gray-500 font-serif-en">Player Gold / 金幣</div>
-                    <div id="player-gold" class="text-2xl text-amber-400 font-serif-en">300</div>
-                </div>
-            </div>
-
-            <div id="items-shop-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4"></div>
-        </div>
-
-        <div class="max-w-4xl w-full mx-auto text-center pt-4">
-            <button onclick="startBattle()" class="px-12 py-4 text-xs uppercase tracking-[0.3em] text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all shadow-xl cursor-pointer">
-                準備就緒，進入戰場
-            </button>
-        </div>
-    </div>
-
-
-    <!---------------------------------------------------------
-      6. 實際遊戲戰場 (Battle View)
-    ---------------------------------------------------------->
-    <header class="flex justify-between items-center px-10 py-6 border-b border-white/10 bg-black/60 backdrop-blur-md z-10">
+    <header id="battle-header" class="flex justify-between items-center px-10 py-5 border-b border-white/10 bg-black/80 backdrop-blur-md z-10">
         <div class="space-y-1">
-            <div class="flex items-center gap-3">
-                <button onclick="goToLobby()" class="text-[10px] uppercase text-gray-400 hover:text-[#C5A059] transition-all cursor-pointer">← 放棄並返回首頁</button>
-            </div>
+            <button onclick="goToLobby()" class="text-[10px] uppercase text-gray-400 hover:text-[#C5A059] transition-all cursor-pointer font-bold">← 回首頁</button>
             <div id="display-mage" class="text-xs uppercase tracking-widest text-[#C5A059] font-serif-en">無名大法師</div>
-            <div class="text-white font-serif-zh text-lg" id="display-arena">暗黑神殿</div>
             <div class="w-48 h-2 bg-neutral-800 rounded-full overflow-hidden border border-white/10">
                 <div id="player-hp" class="w-full h-full bg-gradient-to-r from-amber-600 to-[#C5A059] transition-all duration-300" style="width: 100%;"></div>
             </div>
             <div id="player-hp-text" class="text-[10px] text-gray-400">100 / 100</div>
         </div>
-        <div class="text-center">
-            <h1 class="font-serif-zh text-xl text-white tracking-widest">是東西：秘境對決</h1>
-            <p id="display-enemy" class="text-[10px] uppercase tracking-[0.4em] text-red-400 font-serif-en">VS 對手</p>
+        
+        <div class="text-center space-y-1">
+            <h1 id="battle-stage-title" class="font-serif-zh text-lg text-white tracking-widest">Stage 1 冒險</h1>
+            <div class="flex items-center justify-center gap-3">
+                <span id="display-enemy-title" class="text-red-400 font-serif-zh text-sm">影之使徒</span>
+                <button id="heal-btn" onclick="useHealAbility()" class="px-3 py-0.5 text-[10px] bg-emerald-700/80 text-white rounded-full border border-emerald-400/40 cursor-pointer font-bold">💚 復原術 (60s)</button>
+            </div>
+            <!-- 法力水晶顯示 -->
+            <div class="text-xs text-blue-400 font-serif-en font-bold tracking-widest">⚡ 法力水晶 (Mana): <span id="player-mana">1</span> / <span id="max-mana-display">1</span></div>
+            <div id="active-relics-display" class="text-[10px] text-amber-400 font-serif-en tracking-wider">聖物: 無</div>
         </div>
+
         <div class="space-y-1 text-right">
-            <div id="display-enemy-name" class="text-xs uppercase tracking-widest text-red-500/80 font-serif-en">Opponent / 敵手</div>
-            <div class="text-white font-serif-zh text-lg" id="display-enemy-title">影之使徒</div>
-            <div class="w-48 h-2 bg-neutral-800 rounded-full overflow-hidden border border-white/10 flex justify-end">
+            <div class="text-xs uppercase tracking-widest text-red-500/80 font-serif-en">Opponent</div>
+            <div id="enemy-hp-bar-container" class="w-48 h-2 bg-neutral-800 rounded-full overflow-hidden border border-white/10 flex justify-end ml-auto">
                 <div id="enemy-hp" class="w-full h-full bg-gradient-to-l from-red-800 to-red-500 transition-all duration-300" style="width: 100%;"></div>
             </div>
             <div id="enemy-hp-text" class="text-[10px] text-gray-400">100 / 100</div>
         </div>
     </header>
 
-    <main class="relative flex-1 flex flex-col justify-center items-center px-6">
-        <div class="absolute w-[500px] h-[500px] bg-[#C5A059]/5 rounded-full blur-[150px] pointer-events-none"></div>
-        <div id="battle-log" class="text-center space-y-3 z-10 max-w-xl">
-            <span class="text-xs uppercase tracking-[0.3em] text-[#C5A059] font-serif-en">Battle Status</span>
-            <h2 id="log-title" class="font-serif-zh text-3xl md:text-4xl text-white">請選擇你的「東西」進行詠唱</h2>
-            <p id="log-desc" class="text-sm text-gray-400 font-light">點擊下方道具，與對手展開魔法攻防戰。</p>
+    <main class="relative flex-1 flex flex-col justify-between items-center px-6 py-4">
+        <div id="battle-log" class="text-center space-y-1 z-10 max-w-lg mt-6">
+            <h2 id="log-title" class="font-serif-zh text-2xl text-white">你的回合：請打出卡牌攻擊！</h2>
+            <p id="log-desc" class="text-xs text-gray-400 font-light">可使用鍵盤數字鍵 1~4 直接出牌！</p>
+        </div>
+
+        <!-- 獨立結算專用畫面 -->
+        <div id="battle-result-overlay" class="hidden absolute inset-0 z-40 bg-black/90 backdrop-blur-md flex flex-col justify-center items-center space-y-6 px-6">
+            <div id="result-title" class="font-serif-zh text-5xl text-amber-400 tracking-wider">階段勝利！</div>
+            <p id="result-desc" class="text-sm text-gray-300 font-light">準備領取聖物祝福！</p>
+            <button onclick="triggerBlessingStage()" class="px-10 py-4 text-xs uppercase tracking-[0.3em] text-black bg-[#C5A059] hover:bg-white rounded-full font-bold transition-all cursor-pointer shadow-2xl">
+                領取聖物祝福
+            </button>
         </div>
     </main>
 
-    <footer class="p-6 bg-black/80 border-t border-white/10 backdrop-blur-md z-10">
-        <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <div class="text-xs uppercase tracking-[0.2em] text-gray-400">
-                持有道具庫 <span class="text-[#C5A059] block font-serif-en">Artifacts Bar</span>
+    <!-- 卡牌手牌區 (Hand Cards Footer) -->
+    <footer id="battle-footer" class="p-4 bg-black/90 border-t border-white/10 backdrop-blur-md z-10">
+        <div class="max-w-5xl mx-auto flex flex-col items-center gap-3">
+            <div class="flex justify-between w-full items-center text-xs text-gray-400 px-2 font-serif-en">
+                <span>YOUR HAND CARDS (點擊卡牌或按鍵 1~4 即刻出牌)</span>
+                <button id="end-turn-btn" onclick="restoreMana()" class="px-4 py-1.5 bg-[#C5A059] text-black font-bold rounded-lg uppercase tracking-wider text-[10px] cursor-pointer hover:bg-white transition-all">補充法力 (Restore Mana)</button>
             </div>
-            <div id="battle-items-bar" class="flex gap-3 overflow-x-auto py-2 max-w-2xl"></div>
-            <button id="restart-btn" onclick="triggerEventOrWheel()" class="hidden px-8 py-4 text-xs uppercase tracking-[0.3em] text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">
-                繼續冒險
-            </button>
+            <!-- 動態生成手牌 -->
+            <div id="card-hand-container" class="flex gap-4 overflow-x-auto py-2 w-full justify-center min-h-[130px]"></div>
         </div>
     </footer>
 
-    <!-- 終極完全體 JavaScript 邏輯 -->
+
+    <!---------------------------------------------------------
+      完全豐富版 JavaScript 邏輯
+    ---------------------------------------------------------->
     <script>
         let soundEnabled = true;
-        function toggleBGM() {
-            soundEnabled = !soundEnabled;
-            document.getElementById('bgm-btn').innerText = soundEnabled ? "🎵 音效：開" : "🎵 音效：關";
-            alert(soundEnabled ? "已開啟魔法音效與旋律！" : "已靜音。");
-        }
+        let playerGold = 5000;
+        let maxMana = 1;
+        let activeRelics = [];
 
-        function openModal(modalId) {
-            document.getElementById(modalId).classList.add('active');
-        }
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-        }
-
-        function claimDaily() {
-            playerGold += 100;
-            document.getElementById('claim-btn').innerText = "已領取";
-            document.getElementById('claim-btn').disabled = true;
-            alert("成功領取每日登入福利 +100 金幣！");
-            closeModal('daily-modal');
-        }
-
-        // 35 種道具
-        const allItems = [
-            { id: 1, name: "玄鐵重劍", dmg: 25, cost: 50, desc: "沉甸內斂的重擊武器" },
-            { id: 2, name: "黑膠唱片", dmg: 35, cost: 70, desc: "禁忌音波震碎防禦" },
-            { id: 3, name: "古老沙漏", dmg: 45, cost: 90, desc: "逆轉時間的奧術風暴" },
-            { id: 4, name: "破碎茶杯", dmg: 20, cost: 40, desc: "碎片風暴持續撕裂" },
-            { id: 5, name: "泛黃舊相簿", dmg: 30, cost: 60, desc: "記憶殘影強力反擊" },
-            { id: 6, name: "發條懷錶", dmg: 40, cost: 80, desc: "時間暫停奧術重擊" },
-            { id: 7, name: "黃銅指南針", dmg: 28, cost: 55, desc: "精準鎖定弱點爆擊" },
-            { id: 8, name: "神祕羽毛筆", dmg: 32, cost: 65, desc: "書寫禁忌咒語穿透" },
-            { id: 9, name: "水晶音樂盒", dmg: 22, cost: 45, desc: "療癒旋律暗藏殺機" },
-            { id: 10, name: "黃銅望遠鏡", dmg: 38, cost: 75, desc: "超遠距奧術狙擊" },
-            { id: 11, name: "沈香木手串", dmg: 26, cost: 50, desc: "淨化之氣強力衝擊" },
-            { id: 12, name: "遠古陶罐", dmg: 50, cost: 100, desc: "未知的毀滅性力量" },
-            { id: 13, name: "隕石碎片", dmg: 55, cost: 110, desc: "燃燒天際的星界墜擊" },
-            { id: 14, name: "冰川雪水", dmg: 24, cost: 45, desc: "極寒冰錐瞬間凍結" },
-            { id: 15, name: "燃燒枯木", dmg: 33, cost: 65, desc: "不滅業火焚燒敵陣" },
-            { id: 16, name: "黃金懷錶", dmg: 42, cost: 85, desc: "黃金流光時間切割" },
-            { id: 17, name: "青銅面具", dmg: 36, cost: 70, desc: "遠古祭祀威壓衝擊" },
-            { id: 18, name: "紫水晶球", dmg: 48, cost: 95, desc: "占卜星象奧術爆炸" },
-            { id: 19, name: "白銀匕首", dmg: 29, cost: 60, desc: "極速致命暗影刺殺" },
-            { id: 20, name: "沉香熏爐", dmg: 27, cost: 55, desc: "迷幻香氣侵蝕意志" },
-            { id: 21, name: "黃銅燭台", dmg: 31, cost: 65, desc: "神聖火焰淨化異端" },
-            { id: 22, name: "古老羽扇", dmg: 34, cost: 70, desc: "狂風氣流刃風暴" },
-            { id: 23, name: "紅寶石戒", dmg: 44, cost: 90, desc: "烈焰血石能量釋放" },
-            { id: 24, name: "藍寶石墜", dmg: 46, cost: 90, desc: "深海冰晶元素爆發" },
-            { id: 25, name: "翡翠手鐲", dmg: 39, cost: 80, desc: "自然之靈藤蔓絞殺" },
-            { id: 26, name: "黑曜石塊", dmg: 52, cost: 105, desc: "極致防禦反擊重砸" },
-            { id: 27, name: "黃銅鈴鐺", dmg: 21, cost: 40, desc: "震魂清音干擾防線" },
-            { id: 28, name: "羊皮古卷", dmg: 41, cost: 85, desc: "上古禁咒強大雷擊" },
-            { id: 29, name: "黃銅天平", dmg: 37, cost: 75, desc: "審判裁決絕對平衡" },
-            { id: 30, name: "白瓷茶壺", dmg: 23, cost: 45, desc: "沸騰蒸氣高壓衝擊" },
-            { id: 31, name: "烏木算盤", dmg: 25, cost: 50, desc: "命運算計致命一擊" },
-            { id: 32, name: "絲綢手帕", dmg: 19, cost: 35, desc: "柔韌絲線無形束縛" },
-            { id: 33, name: "黃銅鑰匙", dmg: 43, cost: 85, desc: "開啟異界通道重擊" },
-            { id: 34, name: "沉重鐵砧", dmg: 49, cost: 95, desc: "泰山壓頂物理暴擊" },
-            { id: 35, name: "是東西之核", dmg: 60, cost: 150, desc: "萬物歸一究極法術" }
+        // 懸賞任務清單
+        let quests = [
+            { id: 1, name: "初試身手", desc: "完成任意 1 場冒險對決", reward: 300, completed: false },
+            { id: 2, name: "秘境探索家", desc: "在首頁開啟任意 3 個不同的功能視窗", reward: 600, completed: false }
         ];
 
-        // 10 大天賦法師
-        const mages = [
-            { id: 0, name: "無名大法師", hp: 100, passive: "各項數值均衡發展" },
-            { id: 1, name: "吸血伯爵", hp: 110, passive: "每次攻擊吸取 15% 傷害血量" },
-            { id: 2, name: "狂戰士", hp: 90, passive: "血量低於50%時傷害加倍" },
-            { id: 3, name: "閃避大師", hp: 95, passive: "每回合 20% 機率完全閃避反擊" },
-            { id: 4, name: "財神法師", hp: 100, passive: "戰鬥勝利金幣獲得量 +50%" },
-            { id: 5, name: "奧術學者", hp: 100, passive: "每使用3次道具必定暴擊" },
-            { id: 6, name: "冰霜護盾", hp: 120, passive: "每回合自動獲得護盾" },
-            { id: 7, name: "烈焰詠唱", hp: 85, passive: "附加持續燃燒傷害" },
-            { id: 8, name: "時空掌控者", hp: 105, passive: "擁有一次免費重置機會" },
-            { id: 9, name: "全能大師", hp: 130, passive: "全屬性額外提升 15%" }
+        let openedModalsCount = 0;
+
+        // 15種道具與15種招式
+        let itemsShop = [
+            { id: 1, name: "玄鐵重劍", type: "item", cost: 60, unlocked: true, dmg: 22, mana: 1, desc: "沉甸內斂的重擊武器", level: 1 },
+            { id: 2, name: "黑膠唱片", type: "item", cost: 80, unlocked: true, dmg: 30, mana: 2, desc: "禁忌音波震碎防禦", level: 1 },
+            { id: 3, name: "古老沙漏", type: "item", cost: 100, unlocked: true, dmg: 40, mana: 2, desc: "逆轉時間的奧術風暴", level: 1 },
+            { id: 4, name: "破碎茶杯", type: "item", cost: 50, unlocked: false, dmg: 16, mana: 1, desc: "碎片風暴持續撕裂", level: 1 },
+            { id: 5, name: "泛黃相簿", type: "item", cost: 70, unlocked: false, dmg: 28, mana: 1, desc: "記憶殘影強力反擊", level: 1 },
+            { id: 6, name: "發條懷錶", type: "item", cost: 110, unlocked: false, dmg: 45, mana: 2, desc: "時間暫停奧術重擊", level: 1 },
+            { id: 7, name: "黃銅指南針", type: "item", cost: 75, unlocked: false, dmg: 26, mana: 1, desc: "精準鎖定弱點爆擊", level: 1 },
+            { id: 8, name: "神祕羽毛筆", type: "item", cost: 90, unlocked: false, dmg: 32, mana: 2, desc: "書寫禁忌咒語穿透", level: 1 },
+            { id: 9, name: "水晶音樂盒", type: "item", cost: 65, unlocked: false, dmg: 20, mana: 1, desc: "療癒旋律暗藏殺機", level: 1 },
+            { id: 10, name: "黃銅望遠鏡", type: "item", cost: 95, unlocked: false, dmg: 38, mana: 2, desc: "超遠距奧術狙擊", level: 1 },
+            { id: 11, name: "沈香木手串", type: "item", cost: 85, unlocked: false, dmg: 33, mana: 2, desc: "淨化之氣強力衝擊", level: 1 },
+            { id: 12, name: "遠古陶罐", type: "item", cost: 130, unlocked: false, dmg: 50, mana: 3, desc: "未知的毀滅性力量", level: 1 },
+            { id: 13, name: "隕石碎片", type: "item", cost: 150, unlocked: false, dmg: 60, mana: 3, desc: "燃燒天際的星界墜擊", level: 1 },
+            { id: 14, name: "冰川雪水", type: "item", cost: 70, unlocked: false, dmg: 24, mana: 1, desc: "極寒冰錐瞬間凍結", level: 1 },
+            { id: 15, name: "燃燒枯木", type: "item", cost: 90, unlocked: false, dmg: 36, mana: 2, desc: "不滅業火焚燒敵陣", level: 1 }
         ];
 
-        // 10 大決鬥場地
-        const arenas = [
-            { id: 0, name: "暗黑神殿", bonusDmg: 10, heal: 0, desc: "全道具傷害 +10" },
-            { id: 1, name: "冰川溪流", bonusDmg: 0, heal: 5, desc: "每回合自動回血 5" },
-            { id: 2, name: "深海漩渦", bonusDmg: 8, heal: 2, desc: "攻守兼備" },
-            { id: 3, name: "天空之城", bonusDmg: 12, heal: 0, desc: "高空風暴加成" },
-            { id: 4, name: "黃金宮殿", bonusDmg: 5, heal: 3, desc: "商店購物享折扣" },
-            { id: 5, name: "重力崩塌", bonusDmg: 20, heal: 0, desc: "血量減半但傷害加倍" },
-            { id: 6, name: "鏡中世界", bonusDmg: 10, heal: 2, desc: "鏡面反射加成" },
-            { id: 7, name: "永夜森林", bonusDmg: 15, heal: 0, desc: "暗黑爆擊率提升" },
-            { id: 8, name: "雷霆殿堂", bonusDmg: 18, heal: 0, desc: "閃電天罰加成" },
-            { id: 9, name: "虛空裂縫", bonusDmg: 25, heal: 0, desc: "極致奧術傷害" }
+        let skillsShop = [
+            { id: 101, name: "蓄力重擊", type: "skill", cost: 70, unlocked: true, dmg: 25, mana: 1, desc: "凝聚鬥氣的強力一擊", level: 1 },
+            { id: 102, name: "致命連擊", type: "skill", cost: 90, unlocked: true, dmg: 35, mana: 2, desc: "迅捷無比的連續斬擊", level: 1 },
+            { id: 103, name: "奧術爆發", type: "skill", cost: 120, unlocked: true, dmg: 50, mana: 2, desc: "釋放全體奧術能量", level: 1 },
+            { id: 104, name: "烈火旋風", type: "skill", cost: 80, unlocked: false, dmg: 30, mana: 1, desc: "以烈焰包覆全身橫掃", level: 1 },
+            { id: 105, name: "雷鳴閃擊", type: "skill", cost: 110, unlocked: false, dmg: 48, mana: 2, desc: "化身雷電瞬息突襲", level: 1 },
+            { id: 106, name: "影襲暗殺", type: "skill", cost: 100, unlocked: false, dmg: 42, mana: 2, desc: "從暗影中給予致命一擊", level: 1 },
+            { id: 107, name: "巨石重砸", type: "skill", cost: 130, unlocked: false, dmg: 55, mana: 3, desc: "泰山壓頂般的毀滅重砸", level: 1 },
+            { id: 108, name: "冰晶穿刺", type: "skill", cost: 85, unlocked: false, dmg: 32, mana: 1, desc: "凝聚冰錐貫穿敵陣", level: 1 },
+            { id: 109, name: "聖光審判", type: "skill", cost: 140, unlocked: false, dmg: 58, mana: 3, desc: "召喚聖光淨化一切邪惡", level: 1 },
+            { id: 110, name: "狂暴撕裂", type: "skill", cost: 95, unlocked: false, dmg: 38, mana: 2, desc: "進入狂暴狀態瘋狂撕咬", level: 1 },
+            { id: 111, name: "幻影連舞", type: "skill", cost: 115, unlocked: false, dmg: 46, mana: 2, desc: "分身幻影發動多段攻擊", level: 1 },
+            { id: 112, name: "流星火雨", type: "skill", cost: 160, unlocked: false, dmg: 68, mana: 3, desc: "呼喚流星墜地群體轟炸", level: 1 },
+            { id: 113, name: "虛空斬擊", type: "skill", cost: 125, unlocked: false, dmg: 52, mana: 2, desc: "撕裂空間縫隙的斬擊", level: 1 },
+            { id: 114, name: "致命毒刃", type: "skill", cost: 75, unlocked: false, dmg: 28, mana: 1, desc: "附帶劇毒的迅捷匕首", level: 1 },
+            { id: 115, name: "神龍擺尾", type: "skill", cost: 170, unlocked: false, dmg: 75, mana: 3, desc: "蘊含龍威的究極掃擊", level: 1 }
         ];
 
-        // 10 大世界首領
-        const bosses = [
-            { name: "影之使徒", hp: 100, spells: [{ name: "暗影爪擊", dmg: 15, text: "影之使徒雙爪凝聚暗黑氣息！" }] },
-            { name: "時光守護者", hp: 130, spells: [{ name: "時間回溯", dmg: 20, text: "時光守護者剝奪了你的時間！" }] },
-            { name: "煉金傀儡", hp: 160, spells: [{ name: "重擊鐵拳", dmg: 22, text: "煉金傀儡重擊地面！" }] },
-            { name: "深淵巨獸", hp: 200, spells: [{ name: "深淵吞噬", dmg: 28, text: "深淵巨獸張開血盆大口！" }] },
-            { name: "星界雙子", hp: 140, spells: [{ name: "雙子星光", dmg: 24, text: "星界雙子交織出璀璨星芒！" }] },
-            { name: "幻影刺客", hp: 110, spells: [{ name: "致命暗殺", dmg: 26, text: "幻影刺客如鬼魅般閃現！" }] },
-            { name: "熔岩巨龍", hp: 180, spells: [{ name: "熔岩吐息", dmg: 30, text: "熔岩巨龍噴出高溫烈焰！" }] },
-            { name: "遠古巫妖", hp: 150, spells: [{ name: "死亡凋零", dmg: 25, text: "遠古巫妖吟唱死亡詛咒！" }] },
-            { name: "虛空主宰", hp: 170, spells: [{ name: "虛空撕裂", dmg: 32, text: "虛空主宰撕裂周遭空間！" }] },
-            { name: "萬物終焉之神", hp: 250, spells: [{ name: "終焉審判", dmg: 40, text: "萬物終焉之神降下滅世審判！" }] }
+        let manaShop = [
+            { level: 2, cost: 100, unlocked: false, desc: "將法力上限提升至 2" },
+            { level: 3, cost: 200, unlocked: false, desc: "將法力上限提升至 3" },
+            { level: 4, cost: 350, unlocked: false, desc: "將法力上限提升至 4" },
+            { level: 5, cost: 500, unlocked: false, desc: "將法力上限提升至 5" },
+            { level: 6, cost: 750, unlocked: false, desc: "將法力上限提升至 6" },
+            { level: 7, cost: 1000, unlocked: false, desc: "將法力上限提升至 7（極限）" }
         ];
 
-        let selectedMage = mages[0];
-        let selectedArena = arenas[0];
-        let currentBoss = bosses[0];
+        let relicsPool = [
+            { id: 'dmg_boost', name: "勇氣徽章", desc: "所有卡牌傷害額外 +15 點" },
+            { id: 'heal_on_cast', name: "生命之泉", desc: "每次出牌時自動恢復 5 點生命" },
+            { id: 'gold_boost', name: "財富金杯", desc: "戰鬥勝利獲得的金幣增加 100%" }
+        ];
+
+        let currentStage = 1;
+        let currentBoss = { name: "影之使徒", hp: 100, spells: [{ name: "暗影反擊", dmg: 15, text: "影之使徒反擊！" }] };
 
         let maxPlayerHp = 100;
         let playerHp = 100;
+        let playerMana = 1;
         let enemyHp = 100;
-        let playerGold = 300;
-        let unlockedItemIds = [1, 2, 3];
+        let isTrainingMode = false;
+        let trainingWave = 1;
         let isGameOver = false;
 
-        function hideAllScreens() {
-            document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
+        let healCooldown = 0;
+        let healTimerInterval = null;
+
+        function toggleBGM() {
+            soundEnabled = !soundEnabled;
+            alert(soundEnabled ? "已開啟音效！" : "已靜音。");
         }
 
-        function goToLobby() {
-            hideAllScreens();
-            document.getElementById('lobby-screen').classList.add('active');
+        function syncCloudSave() {
+            alert("已成功將您的 15 種解鎖進度與金幣同步至 Google 雲端帳號！");
         }
 
-        function renderSelectionUI() {
-            const mageGrid = document.getElementById('mage-grid');
-            mageGrid.innerHTML = '';
-            mages.forEach(m => {
-                const isSelected = selectedMage.id === m.id ? 'selected-card' : '';
-                mageGrid.innerHTML += `<div onclick="selectMage(${m.id})" class="luxury-card bg-[#111] p-3 rounded-xl luxury-border cursor-pointer ${isSelected} text-center space-y-1"><div class="font-serif-zh text-white text-xs">${m.name}</div><div class="text-[10px] text-[#C5A059]">HP: ${m.hp}</div><div class="text-[9px] text-gray-400 truncate">${m.passive}</div></div>`;
-            });
+        // 徹底獨立的 Modal 控制
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+            if (id === 'quest-modal') renderQuests();
+            openedModalsCount++;
+            if (openedModalsCount >= 3) checkQuests(2);
+        }
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-            const arenaGrid = document.getElementById('arena-grid');
-            arenaGrid.innerHTML = '';
-            arenas.forEach(a => {
-                const isSelected = selectedArena.id === a.id ? 'selected-card' : '';
-                arenaGrid.innerHTML += `<div onclick="selectArena(${a.id})" class="luxury-card bg-[#111] p-3 rounded-xl luxury-border cursor-pointer ${isSelected} text-center space-y-1"><div class="font-serif-zh text-white text-xs">${a.name}</div><div class="text-[9px] text-gray-400 truncate">${a.desc}</div></div>`;
-            });
+        function claimDaily() {
+            playerGold += 800;
+            document.getElementById('lobby-gold-display').innerText = playerGold;
+            document.getElementById('claim-btn').innerText = "已領取";
+            document.getElementById('claim-btn').disabled = true;
+            alert("成功領取每日福利 +800 金幣！");
+            closeModal('daily-modal');
         }
 
-        function goToSelectScreen() {
-            hideAllScreens();
-            document.getElementById('select-screen').classList.add('active');
-            renderSelectionUI();
-        }
-
-        function selectMage(id) { 
-            selectedMage = mages[id]; 
-            maxPlayerHp = selectedMage.hp; 
-            playerHp = selectedMage.hp; 
-            renderSelectionUI(); 
-        }
-
-        function selectArena(id) { selectedArena = arenas[id]; renderSelectionUI(); }
-
-        function goToWheel() {
-            hideAllScreens();
-            document.getElementById('wheel-screen').classList.add('active');
-            document.getElementById('spin-btn').style.display = 'inline-block';
-            document.getElementById('to-shop-btn').style.display = 'none';
-            document.getElementById('wheel-target-name').innerText = "準備轉動...";
-        }
-
-        function spinWheel() {
-            const spinBtn = document.getElementById('spin-btn');
-            const targetNameElem = document.getElementById('wheel-target-name');
-            spinBtn.style.display = 'none';
-
-            let counter = 0;
-            let speed = 50;
-            let totalSpins = 15;
-
-            function roll() {
-                const randomBoss = bosses[Math.floor(Math.random() * bosses.length)];
-                targetNameElem.innerText = randomBoss.name;
-                counter++;
-
-                if (counter < totalSpins) {
-                    speed += 15;
-                    setTimeout(roll, speed);
-                } else {
-                    currentBoss = randomBoss;
-                    enemyHp = currentBoss.hp;
-                    targetNameElem.innerHTML = `<span class="shi-dong-xi-gradient">✨ 決定對手：${currentBoss.name}！</span>`;
-                    document.getElementById('to-shop-btn').style.display = 'inline-block';
-                }
-            }
-            roll();
-        }
-
-        function triggerEventOrWheel() {
-            const events = [
-                {
-                    title: "神秘老人的寶箱",
-                    desc: "一位神秘老人出現在路口，詢問你是否願意支付 50 金幣開啟寶箱？",
-                    btnText: "支付 50 金幣開啟",
-                    action: () => {
-                        if (playerGold >= 50) {
-                            playerGold -= 50;
-                            const unowned = allItems.filter(i => !unlockedItemIds.includes(i.id));
-                            if (unowned.length > 0) {
-                                const reward = unowned[Math.floor(Math.random() * unowned.length)];
-                                unlockedItemIds.push(reward.id);
-                                alert(`寶箱開啟成功！你獲得了傳奇道具：${reward.name}！`);
-                            } else {
-                                playerGold += 100;
-                                alert("你已經解鎖所有道具！寶箱內轉換為 100 金幣獎勵。");
-                            }
-                        } else {
-                            alert("金幣不足，老人失望地離開了。");
-                        }
-                        goToShop();
-                    }
-                },
-                {
-                    title: "福氣之泉",
-                    desc: "你發現了一處散發金光的清泉，飲用後可以恢復生命或獲得金幣。",
-                    btnText: "汲取泉水力量",
-                    action: () => {
-                        playerHp = maxPlayerHp;
-                        playerGold += 80;
-                        alert("生命值完全恢復，並獲得 80 金幣！");
-                        goToShop();
-                    }
-                }
-            ];
-
-            if (Math.random() < 0.5) {
-                const ev = events[Math.floor(Math.random() * events.length)];
-                hideAllScreens();
-                document.getElementById('event-screen').classList.add('active');
-                document.getElementById('event-title').innerText = ev.title;
-                document.getElementById('event-desc').innerText = ev.desc;
-                document.getElementById('event-buttons').innerHTML = `
-                    <button onclick="(${ev.action.toString()})()" class="px-8 py-3 text-xs uppercase text-black bg-[#C5A059] hover:bg-white rounded-full font-bold transition-all cursor-pointer">${ev.btnText}</button>
-                    <button onclick="goToShop()" class="px-8 py-3 text-xs uppercase text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer">略過事件</button>
-                `;
-            } else {
-                goToShop();
-            }
-        }
-
-        function goToShop() {
-            hideAllScreens();
-            document.getElementById('shop-screen').classList.add('active');
-            document.getElementById('player-gold').innerText = playerGold;
-            renderShopItems();
-        }
-
-        function renderShopItems() {
-            const grid = document.getElementById('items-shop-grid');
-            grid.innerHTML = '';
-            allItems.forEach(item => {
-                const isOwned = unlockedItemIds.includes(item.id);
-                let finalCost = selectedArena.id === 4 ? Math.floor(item.cost * 0.7) : item.cost;
-                grid.innerHTML += `
-                    <div class="bg-[#111] border border-white/10 p-4 rounded-xl space-y-2 flex flex-col justify-between">
+        // ================= 懸賞任務邏輯 =================
+        function renderQuests() {
+            const list = document.getElementById('quest-list');
+            list.innerHTML = '';
+            quests.forEach(q => {
+                list.innerHTML += `
+                    <div class="flex justify-between items-center bg-black/60 p-4 rounded-xl border border-white/10">
                         <div>
-                            <div class="flex justify-between items-center">
-                                <span class="font-serif-zh text-white text-base">${item.name}</span>
-                                <span class="text-[10px] text-[#C5A059] font-serif-en">DMG: ${item.dmg}</span>
-                            </div>
-                            <p class="text-[11px] text-gray-400 font-light mt-1">${item.desc}</p>
+                            <div class="font-bold text-white">${q.name}</div>
+                            <div class="text-[11px] text-gray-400">${q.desc} (獎勵: ${q.reward}金幣)</div>
                         </div>
-                        <button onclick="buyItem(${item.id}, ${finalCost})" id="shop-btn-${item.id}" class="w-full py-2 text-xs uppercase tracking-widest text-[#E2D1B5] luxury-border rounded-lg bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer ${isOwned ? 'opacity-50' : ''}">
-                            ${isOwned ? '已解鎖' : `解鎖 (${finalCost}金幣)`}
+                        <button onclick="claimQuest(${q.id})" class="px-4 py-2 text-xs uppercase font-bold rounded-lg cursor-pointer ${q.completed ? 'bg-gray-700 text-gray-400 cursor-not-allowed' : 'bg-amber-400 text-black hover:bg-white'}">
+                            ${q.completed ? '已領取' : '領取獎勵'}
                         </button>
                     </div>
                 `;
             });
         }
 
-        function buyItem(id, cost) {
-            if (unlockedItemIds.includes(id)) { alert("此道具已經解鎖過了！"); return; }
+        function checkQuests(qid) {
+            let q = quests.find(x => x.id === qid);
+            if (q && !q.completed) q.completed = true;
+        }
+
+        function claimQuest(qid) {
+            let q = quests.find(x => x.id === qid);
+            if (q.completed && q.reward > 0) {
+                playerGold += q.reward;
+                q.reward = 0;
+                renderQuests();
+                document.getElementById('lobby-gold-display').innerText = playerGold;
+                alert(`懸賞任務獎勵已入帳！`);
+            }
+        }
+
+        // ================= 奧術十連抽 (Gacha) =================
+        function performGacha10() {
+            let cost = 500;
             if (playerGold >= cost) {
                 playerGold -= cost;
-                unlockedItemIds.push(id);
-                document.getElementById('player-gold').innerText = playerGold;
-                renderShopItems();
-                if (unlockedItemIds.length >= 5) {
-                    document.getElementById('ach-3').innerText = "已解鎖";
-                    document.getElementById('ach-3').className = "text-xs text-amber-400";
+                document.getElementById('lobby-shop-gold').innerText = playerGold;
+                document.getElementById('lobby-gold-display').innerText = playerGold;
+                
+                let locked = [...itemsShop.filter(i => !i.unlocked), ...skillsShop.filter(s => !s.unlocked)];
+                if (locked.length > 0) {
+                    let card = locked[Math.floor(Math.random() * locked.length)];
+                    card.unlocked = true;
+                    alert(`🎉 十連抽大成功！你透過秘境奧術直接解鎖了強力卡牌：[${card.name}]！`);
+                } else {
+                    playerGold += 300;
+                    alert(`🎉 恭喜十連抽！所有卡牌已全數解鎖，轉化為 300 金幣返還！`);
                 }
+                renderLobbyShopTab();
+            } else {
+                alert("金幣不足（十連抽需 500 金幣）！");
+            }
+        }
+
+        // ================= 卡牌合成鍊金爐 =================
+        function craftCards() {
+            if (playerGold >= 300) {
+                playerGold -= 300;
+                document.getElementById('lobby-gold-display').innerText = playerGold;
+                let locked = [...itemsShop.filter(i => !i.unlocked)];
+                if (locked.length > 0) {
+                    let c = locked[0];
+                    c.unlocked = true;
+                    alert(`🧪 鍊金成功！雙卡融合成稀有傳奇卡：[${c.name}]！`);
+                } else {
+                    alert("🧪 鍊金成功！獲得 150 金幣奧術返還。");
+                    playerGold += 150;
+                }
+                closeModal('craft-modal');
+            } else {
+                alert("金幣不足（鍊金需 300 金幣）！");
+            }
+        }
+
+        // ================= 首頁大商鋪邏輯 =================
+        let currentShopTab = 'mana';
+        function openLobbyShop() {
+            document.getElementById('lobby-shop-gold').innerText = playerGold;
+            renderLobbyShopTab();
+            openModal('lobby-shop-modal');
+        }
+
+        function switchShopTab(tab) {
+            currentShopTab = tab;
+            ['mana', 'items', 'gacha'].forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (btn) {
+                    if (t === tab) {
+                        btn.className = "px-4 py-2 text-xs uppercase bg-[#C5A059] text-black font-bold rounded-xl cursor-pointer transition-all";
+                    } else {
+                        btn.className = "px-4 py-2 text-xs uppercase bg-black text-gray-300 luxury-border rounded-xl cursor-pointer transition-all";
+                    }
+                }
+            });
+            renderLobbyShopTab();
+        }
+
+        function renderLobbyShopTab() {
+            const grid = document.getElementById('lobby-shop-grid');
+            grid.innerHTML = '';
+            
+            if (currentShopTab === 'gacha') {
+                grid.innerHTML = `
+                    <div class="col-span-3 bg-gradient-to-r from-purple-950/40 to-black border border-purple-500/40 p-8 rounded-3xl text-center space-y-4">
+                        <h3 class="font-serif-zh text-2xl text-white font-bold">🌟 奧術秘境十連抽</h3>
+                        <p class="text-xs text-gray-300 max-w-md mx-auto">消耗 500 金幣進行十連抽，有機率直接獲得尚未解鎖的強力道具或招式卡牌！</p>
+                        <button onclick="performGacha10()" class="px-8 py-3.5 text-xs uppercase bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-full cursor-pointer shadow-xl">
+                            立即進行十連抽 (500金)
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            let list = currentShopTab === 'mana' ? manaShop : itemsShop;
+            if (currentShopTab === 'mana') {
+                list.forEach(m => {
+                    grid.innerHTML += `
+                        <div class="bg-[#111] border border-white/10 p-5 rounded-2xl space-y-3 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-serif-zh text-white text-base font-bold">法力上限 Lv.${m.level}</span>
+                                    <span class="text-xs text-[#C5A059] font-serif-en font-bold">${m.cost} 金幣</span>
+                                </div>
+                                <p class="text-xs text-gray-400 font-light mt-1">${m.desc}</p>
+                            </div>
+                            <button onclick="buyManaUpgrade(${m.level}, ${m.cost})" class="w-full py-2.5 text-xs uppercase tracking-widest text-[#E2D1B5] luxury-border rounded-xl bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer font-bold ${m.unlocked ? 'opacity-50' : ''}">
+                                ${m.unlocked ? '已解鎖' : '升級法力'}
+                            </button>
+                        </div>
+                    `;
+                });
+            } else {
+                list.forEach(item => {
+                    grid.innerHTML += `
+                        <div class="bg-[#111] border border-white/10 p-5 rounded-2xl space-y-3 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-serif-zh text-white text-base font-bold">${item.name} (Lv.${item.level})</span>
+                                    <span class="text-xs text-[#C5A059] font-serif-en font-bold">${item.cost} 金幣</span>
+                                </div>
+                                <p class="text-xs text-gray-400 font-light mt-1">${item.desc}</p>
+                                <div class="text-[11px] text-amber-400 mt-2 font-serif-en">DMG: ${item.dmg} | Mana: ${item.mana}</div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="buyShopCard('items', ${item.id}, ${item.cost})" class="flex-1 py-2 text-xs uppercase tracking-widest text-[#E2D1B5] luxury-border rounded-xl bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer font-bold ${item.unlocked ? 'opacity-50' : ''}">
+                                    ${item.unlocked ? '已擁有' : '購買'}
+                                </button>
+                                <button onclick="upgradeCard(${item.id})" class="px-4 py-2 text-xs uppercase text-black bg-amber-400 hover:bg-white rounded-xl font-bold cursor-pointer">
+                                    強化(+1)
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function upgradeCard(id) {
+            let item = itemsShop.find(i => i.id === id);
+            let cost = 100 * item.level;
+            if (playerGold >= cost) {
+                playerGold -= cost;
+                item.level++;
+                item.dmg += 8;
+                document.getElementById('lobby-shop-gold').innerText = playerGold;
+                document.getElementById('lobby-gold-display').innerText = playerGold;
+                renderLobbyShopTab();
+                alert(`成功將卡牌 [${item.name}] 強化至 Lv.${item.level}！`);
+            } else { alert(`金幣不足（升級需 ${cost} 金幣）！`); }
+        }
+
+        function buyManaUpgrade(level, cost) {
+            let m = manaShop.find(x => x.level === level);
+            if (m.unlocked) { alert("此等級已解鎖！"); return; }
+            if (playerGold >= cost) {
+                playerGold -= cost;
+                m.unlocked = true;
+                maxMana = level;
+                document.getElementById('lobby-shop-gold').innerText = playerGold;
+                document.getElementById('lobby-gold-display').innerText = playerGold;
+                renderLobbyShopTab();
+                alert(`法力水晶上限提升至 ${level} 點！`);
             } else { alert("金幣不足！"); }
         }
 
-        function startBattle() {
-            hideAllScreens();
-            document.getElementById('display-mage').innerText = selectedMage.name;
-            document.getElementById('display-arena').innerText = selectedArena.name;
-            document.getElementById('display-enemy').innerText = `VS ${currentBoss.name}`;
-            document.getElementById('display-enemy-title').innerText = currentBoss.name;
-            renderBattleItemsBar();
-            resetGame();
+        function buyShopCard(tab, id, cost) {
+            let item = itemsShop.find(i => i.id === id);
+            if (item.unlocked) { alert("您已擁有此卡牌！"); return; }
+            if (playerGold >= cost) {
+                playerGold -= cost;
+                item.unlocked = true;
+                document.getElementById('lobby-shop-gold').innerText = playerGold;
+                document.getElementById('lobby-gold-display').innerText = playerGold;
+                renderLobbyShopTab();
+                alert(`成功解鎖：${item.name}！`);
+            } else { alert("金幣不足！"); }
         }
 
-        function renderBattleItemsBar() {
-            const bar = document.getElementById('battle-items-bar');
-            bar.innerHTML = '';
-            unlockedItemIds.forEach(id => {
-                const item = allItems.find(i => i.id === id);
-                let totalDmg = item.dmg + selectedArena.bonusDmg;
-                if (selectedMage.id === 2 && playerHp < (maxPlayerHp / 2)) { totalDmg *= 2; }
-                bar.innerHTML += `
-                    <button onclick="playerTurn('${item.name}', ${totalDmg})" class="luxury-card bg-[#111] px-4 py-3 rounded-xl luxury-border text-left group transition-all hover:-translate-y-1 shrink-0 cursor-pointer">
-                        <div class="text-[9px] uppercase tracking-widest text-[#C5A059] font-serif-en">DMG: ${totalDmg}</div>
-                        <div class="font-serif-zh text-white text-sm">${item.name}</div>
-                    </button>
+        // ================= 聖物祝福 =================
+        function triggerBlessingStage() {
+            document.getElementById('battle-result-overlay').classList.add('hidden');
+            document.getElementById('battle-result-overlay').classList.remove('flex');
+
+            let pool = [...relicsPool];
+            pool.sort(() => Math.random() - 0.5);
+            let choices = pool.slice(0, 3);
+
+            const container = document.getElementById('blessing-choices');
+            container.innerHTML = '';
+            choices.forEach(r => {
+                container.innerHTML += `
+                    <div onclick="selectRelic('${r.id}')" class="luxury-card bg-[#111] border border-amber-500/40 p-6 rounded-2xl cursor-pointer hover:border-amber-400 text-center space-y-3">
+                        <div class="font-serif-zh text-white text-lg font-bold">${r.name}</div>
+                        <p class="text-xs text-gray-300">${r.desc}</p>
+                        <button class="px-4 py-2 text-xs uppercase bg-[#C5A059] text-black font-bold rounded-xl cursor-pointer">選擇祝福</button>
+                    </div>
+                `;
+            });
+            openModal('blessing-modal');
+        }
+
+        function selectRelic(id) {
+            activeRelics.push(id);
+            document.getElementById('active-relics-display').innerText = `聖物: ${activeRelics.map(r => relicsPool.find(x => x.id === r).name).join(', ')}`;
+            closeModal('blessing-modal');
+            
+            if (currentStage < 7) {
+                startStageBattle(currentStage + 1);
+            } else {
+                alert("恭喜你通關了所有 7 個階段！");
+                goToLobby();
+            }
+        }
+
+        function hideAllScreens() {
+            document.querySelectorAll('.game-screen').forEach(s => s.classList.remove('active'));
+            document.getElementById('battle-result-overlay').classList.add('hidden');
+        }
+
+        function goToLobby() {
+            hideAllScreens();
+            document.getElementById('lobby-screen').classList.add('active');
+            document.getElementById('lobby-gold-display').innerText = playerGold;
+        }
+
+        function goToSelectScreen() {
+            isTrainingMode = false;
+            hideAllScreens();
+            document.getElementById('select-screen').classList.add('active');
+            renderStagesGrid();
+        }
+
+        function renderStagesGrid() {
+            const grid = document.getElementById('stages-grid');
+            grid.innerHTML = '';
+            for (let i = 1; i <= 7; i++) {
+                grid.innerHTML += `
+                    <div onclick="startStageBattle(${i})" class="luxury-card bg-[#111] p-6 rounded-2xl luxury-border cursor-pointer text-center space-y-2 hover:bg-[#1a1a1a]">
+                        <div class="text-[#C5A059] font-serif-en text-xs uppercase">Campaign</div>
+                        <div class="font-serif-zh text-xl text-white font-bold">Stage ${i}</div>
+                        <div class="text-[10px] text-gray-400">挑戰第 ${i} 階段守衛</div>
+                    </div>
+                `;
+            }
+        }
+
+        function startStageBattle(stageNum) {
+            currentStage = stageNum;
+            isTrainingMode = false;
+            maxPlayerHp = 100;
+            
+            let bossHp = 90 + stageNum * 40;
+            let bossDmg = 12 + stageNum * 5;
+            currentBoss = {
+                name: `Stage ${stageNum} 守衛首領`,
+                hp: bossHp,
+                spells: [{ name: "階段反擊", dmg: bossDmg, text: `Stage ${stageNum} 守衛發動強力反擊！` }]
+            };
+            enemyHp = bossHp;
+
+            startCardBattle();
+        }
+
+        function startTrainingMode() {
+            isTrainingMode = true;
+            trainingWave = 1;
+            maxPlayerHp = 100;
+            setupTrainingEnemy();
+            startCardBattle();
+        }
+
+        function setupTrainingEnemy() {
+            let hp = Math.floor(100 * Math.pow(1.2, trainingWave - 1));
+            let dmg = Math.floor(14 + (trainingWave - 1) * 5);
+            currentBoss = {
+                name: `無盡深淵 Wave ${trainingWave}`,
+                hp: hp,
+                spells: [{ name: "深淵狂暴反擊", dmg: dmg, text: `深淵魔物對你展開兇猛反擊！` }]
+            };
+            enemyHp = hp;
+        }
+
+        // ================= 卡牌戰鬥核心 =================
+        function startCardBattle() {
+            hideAllScreens();
+            document.getElementById('battle-stage-title').innerText = isTrainingMode ? `無盡深淵 Wave ${trainingWave}` : `Stage ${currentStage} 冒險`;
+            document.getElementById('display-mage').innerText = "無名大法師";
+            document.getElementById('display-enemy-title').innerText = currentBoss.name;
+
+            playerHp = maxPlayerHp;
+            playerMana = maxMana;
+            isGameOver = false;
+            updateUI();
+            generateHandCards();
+            document.getElementById('log-title').innerHTML = `<span class="shi-dong-xi-gradient">戰鬥開始！法力上限：${maxMana}</span>`;
+            document.getElementById('log-desc').innerText = `可按鍵盤數字鍵 1~4 直接出牌！`;
+        }
+
+        let currentHand = [];
+        function generateHandCards() {
+            let availableDeck = [];
+            itemsShop.filter(i => i.unlocked).forEach(i => availableDeck.push(i));
+            skillsShop.filter(s => s.unlocked).forEach(s => availableDeck.push(s));
+
+            currentHand = [];
+            for (let i = 0; i < 4; i++) {
+                let randomCard = availableDeck[Math.floor(Math.random() * availableDeck.length)];
+                currentHand.push(randomCard);
+            }
+            renderHandUI();
+        }
+
+        function renderHandUI() {
+            const container = document.getElementById('card-hand-container');
+            container.innerHTML = '';
+            currentHand.forEach((card, index) => {
+                let canCast = playerMana >= card.mana;
+                container.innerHTML += `
+                    <div onclick="playerAttack(${index})" class="card-item w-40 p-4 rounded-2xl flex flex-col justify-between cursor-pointer ${canCast ? 'opacity-100 hover:-translate-y-2' : 'opacity-40 cursor-not-allowed'}">
+                        <div>
+                            <div class="flex justify-between items-center text-[10px] text-[#C5A059] font-serif-en font-bold">
+                                <span>[${index + 1}] ${card.type.toUpperCase()}</span>
+                                <span class="bg-blue-950 text-blue-300 px-2 py-0.5 rounded font-bold">⚡ ${card.mana}</span>
+                            </div>
+                            <div class="font-serif-zh text-white text-base font-bold mt-2">${card.name} (Lv.${card.level || 1})</div>
+                            <p class="text-[11px] text-gray-400 mt-1 leading-tight">${card.desc}</p>
+                        </div>
+                        <div class="text-xs text-amber-400 font-bold mt-3 font-serif-en">DMG: ${card.dmg + 10 + (activeRelics.includes('dmg_boost') ? 15 : 0)}</div>
+                    </div>
                 `;
             });
         }
 
-        function playerTurn(artifactName, totalDamage) {
+        window.addEventListener('keydown', (e) => {
             if (isGameOver) return;
-
-            if (selectedMage.id === 1) {
-                let healAmount = Math.floor(totalDamage * 0.15);
-                playerHp = Math.min(maxPlayerHp, playerHp + healAmount);
+            if (e.key >= '1' && e.key <= '4') {
+                let index = parseInt(e.key) - 1;
+                if (index < currentHand.length) {
+                    playerAttack(index);
+                }
             }
+        });
 
-            document.body.classList.add('cast-effect');
-            setTimeout(() => document.body.classList.remove('cast-effect'), 400);
-
-            enemyHp = Math.max(0, enemyHp - totalDamage);
-            updateUI();
-
-            document.getElementById('log-title').innerHTML = `<span class="shi-dong-xi-gradient">施展：${artifactName}！</span>`;
-            document.getElementById('log-desc').innerText = `對 ${currentBoss.name} 造成了 ${totalDamage} 點傷害！`;
-
-            if (enemyHp === 0) {
-                endGame(true);
+        function playerAttack(index) {
+            if (isGameOver) return;
+            let card = currentHand[index];
+            if (playerMana < card.mana) {
+                alert("法力水晶不足！");
                 return;
             }
 
-            document.getElementById('battle-items-bar').style.pointerEvents = 'none';
+            playerMana -= card.mana;
+            let critBonus = Math.random() < 0.15 ? 1.5 : 1.0;
+            let totalDmg = Math.floor((card.dmg + 10 + (activeRelics.includes('dmg_boost') ? 15 : 0)) * critBonus);
+
+            if (activeRelics.includes('heal_on_cast')) {
+                playerHp = Math.min(maxPlayerHp, playerHp + 5);
+            }
+
+            enemyHp = Math.max(0, enemyHp - totalDmg);
+            updateUI();
+
+            const enemyBar = document.getElementById('enemy-hp-bar-container');
+            enemyBar.classList.add('hit-effect');
+            setTimeout(() => enemyBar.classList.remove('hit-effect'), 350);
+
+            document.getElementById('log-title').innerHTML = `<span class="shi-dong-xi-gradient">你使用 ${card.name} 攻擊！ ${critBonus > 1 ? '🔥 暴擊！' : ''}</span>`;
+            document.getElementById('log-desc').innerText = `總共對 ${currentBoss.name} 造成了 ${totalDmg} 點傷害！`;
+
+            if (enemyHp === 0) {
+                checkQuests(1);
+                endBattle(true);
+                return;
+            }
+
+            document.getElementById('card-hand-container').style.pointerEvents = 'none';
+
             setTimeout(() => {
                 if (isGameOver) return;
-                if (selectedMage.id === 3 && Math.random() < 0.20) {
-                    updateUI();
-                    document.getElementById('log-title').innerHTML = `<span class="text-amber-400">閃避成功！</span>`;
-                    document.getElementById('log-desc').innerText = `憑藉敏捷身手，你完全閃避了 ${currentBoss.name} 的反擊！`;
-                    document.getElementById('battle-items-bar').style.pointerEvents = 'auto';
-                    return;
-                }
-
                 const spell = currentBoss.spells[0];
                 playerHp = Math.max(0, playerHp - spell.dmg);
-                if (selectedArena.heal > 0 && playerHp < maxPlayerHp) {
-                    playerHp = Math.min(maxPlayerHp, playerHp + selectedArena.heal);
-                }
                 updateUI();
-                document.getElementById('log-title').innerHTML = `<span class="text-red-400">對手反擊：${spell.name}！</span>`;
-                document.getElementById('log-desc').innerText = spell.text;
 
-                if (playerHp === 0) { endGame(false); }
-                else { document.getElementById('battle-items-bar').style.pointerEvents = 'auto'; }
-            }, 1200);
+                const playerHeader = document.getElementById('battle-header');
+                playerHeader.classList.add('hit-effect');
+                setTimeout(() => playerHeader.classList.remove('hit-effect'), 350);
+
+                document.getElementById('log-title').innerHTML = `<span class="text-red-500">💥 敵人反擊：${spell.name}！</span>`;
+                document.getElementById('log-desc').innerText = `${spell.text} 造成了 ${spell.dmg} 點傷害！輪到你了。`;
+
+                if (playerHp === 0) {
+                    endBattle(false);
+                } else {
+                    document.getElementById('card-hand-container').style.pointerEvents = 'auto';
+                    generateHandCards();
+                }
+            }, 700);
+        }
+
+        function restoreMana() {
+            if (isGameOver) return;
+            playerMana = maxMana;
+            updateUI();
+            generateHandCards();
+            document.getElementById('log-title').innerHTML = `<span class="shi-dong-xi-gradient">法力水晶已補充至上限 (${maxMana})！</span>`;
+            document.getElementById('log-desc').innerText = `請繼續出牌攻擊。`;
         }
 
         function updateUI() {
@@ -709,33 +880,69 @@
             document.getElementById('player-hp-text').innerText = `${playerHp} / ${maxPlayerHp}`;
             document.getElementById('enemy-hp').style.width = (enemyHp / currentBoss.hp) * 100 + '%';
             document.getElementById('enemy-hp-text').innerText = `${enemyHp} / ${currentBoss.hp}`;
+            document.getElementById('player-mana').innerText = playerMana;
+            document.getElementById('max-mana-display').innerText = maxMana;
         }
 
-        function endGame(isWin) {
-            isGameOver = true;
-            document.getElementById('battle-items-bar').style.display = 'none';
-            document.getElementById('restart-btn').classList.remove('hidden');
+        // 60秒復原術
+        function useHealAbility() {
+            if (healCooldown > 0 || isGameOver) return;
+            let heal = Math.floor(maxPlayerHp * 0.5);
+            playerHp = Math.min(maxPlayerHp, playerHp + heal);
+            updateUI();
 
-            if (isWin) {
-                let rewardGold = selectedMage.id === 4 ? 225 : 150;
-                playerGold += rewardGold;
-                document.getElementById('log-title').innerHTML = `<span class="shi-dong-xi-gradient">✨ 擊敗 ${currentBoss.name}！</span>`;
-                document.getElementById('log-desc').innerText = `獲得 ${rewardGold} 金幣！點擊下方按鈕繼續冒險。`;
+            healCooldown = 60;
+            updateHealBtn();
+            if (healTimerInterval) clearInterval(healTimerInterval);
+            healTimerInterval = setInterval(() => {
+                healCooldown--;
+                updateHealBtn();
+                if (healCooldown <= 0) clearInterval(healTimerInterval);
+            }, 1000);
+        }
+
+        function updateHealBtn() {
+            const btn = document.getElementById('heal-btn');
+            if (healCooldown > 0) {
+                btn.innerText = `💚 冷卻 (${healCooldown}s)`;
+                btn.disabled = true;
+                btn.className = "px-3 py-0.5 text-[10px] bg-gray-700 text-gray-400 rounded-full cursor-not-allowed";
             } else {
-                document.getElementById('log-title').innerHTML = `<span class="text-red-500">💀 決鬥失敗...</span>`;
-                document.getElementById('log-desc').innerText = "黑暗吞噬了你的法力。";
+                btn.innerText = `💚 復原術 (60s)`;
+                btn.disabled = false;
+                btn.className = "px-3 py-0.5 text-[10px] bg-emerald-700/80 text-white rounded-full border border-emerald-400/40 cursor-pointer font-bold";
             }
         }
 
-        function resetGame() {
-            playerHp = maxPlayerHp;
-            isGameOver = false;
-            updateUI();
-            document.getElementById('battle-items-bar').style.display = 'flex';
-            document.getElementById('battle-items-bar').style.pointerEvents = 'auto';
-            document.getElementById('restart-btn').classList.add('hidden');
-            document.getElementById('log-title').innerHTML = `請選擇你的「東西」進行詠唱`;
-            document.getElementById('log-desc').innerText = `與 ${currentBoss.name} 展開決戰。`;
+        function endBattle(isWin) {
+            isGameOver = true;
+            document.getElementById('card-hand-container').innerHTML = '';
+            
+            const overlay = document.getElementById('battle-result-overlay');
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+
+            if (isWin) {
+                let goldReward = isTrainingMode ? 100 * trainingWave : 300;
+                if (activeRelics.includes('gold_boost')) goldReward *= 2;
+                playerGold += goldReward;
+
+                document.getElementById('result-title').innerText = isTrainingMode ? `✨ 突破 Wave ${trainingWave}！` : `✨ Stage ${currentStage} 通關！`;
+                document.getElementById('result-desc').innerText = `獲得 ${goldReward} 金幣！準備領取隨機聖物祝福。`;
+            } else {
+                document.getElementById('result-title').innerText = "💀 冒險失敗...";
+                document.getElementById('result-desc').innerText = "敵人的攻擊太強大了。";
+            }
+        }
+
+        function endBattleProceed() {
+            if (isTrainingMode) {
+                trainingWave++;
+                setupTrainingEnemy();
+                startCardBattle();
+            } else {
+                triggerBlessingStage();
+            }
         }
     </script>
 
