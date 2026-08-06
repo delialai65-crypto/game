@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>是東西：國家級卡牌大賽總部（登入與註冊系統・黃金殿堂版）</title>
+    <title>是東西：多功能活動列與真實時間禮盒版</title>
     <!-- 引入 Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- 引入 Google Fonts -->
@@ -27,9 +27,9 @@
             box-shadow: 0 0 30px rgba(197, 160, 89, 0.3);
         }
         .game-screen { display: none; }
-        .game-screen.active { display: flex; }
+        .game-screen.active { display: flex !important; }
         
-        .modal-screen { display: none; }
+        .modal-screen { display: none; position: fixed; inset: 0; z-index: 99999; background: rgba(0,0,0,0.92); backdrop-filter: blur(10px); justify-content: center; align-items: center; }
         .modal-screen.active { display: flex !important; }
 
         .card-item {
@@ -42,399 +42,202 @@
             border-color: #C5A059;
             box-shadow: 0 10px 25px rgba(197, 160, 89, 0.3);
         }
-
-        @keyframes hitShake {
-            0% { transform: translate(0, 0); }
-            25% { transform: translate(-5px, 3px); }
-            50% { transform: translate(5px, -3px); }
-            75% { transform: translate(-3px, -1px); }
-            100% { transform: translate(0, 0); }
-        }
-        .hit-effect { animation: hitShake 0.35s ease-in-out; }
-
-        .bracket-box {
-            width: 85px;
-            height: 22px;
-            background: #0d0d0d;
-            border: 1px solid rgba(197, 160, 89, 0.4);
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 7.5px;
-            color: #E2D1B5;
-            font-weight: bold;
-            z-index: 10;
-        }
-        .bracket-box.win {
-            border-color: #10B981;
-            color: #34D399;
-            background: rgba(16, 185, 129, 0.2);
-            box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
-        }
-
-        .smooth-path {
-            stroke: rgba(197, 160, 89, 0.35);
-            stroke-width: 1.5;
-            transition: all 0.6s ease;
-        }
-        .smooth-path.active-path {
-            stroke: #10B981;
-            stroke-width: 2.5;
-            filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.6));
-        }
     </style>
 </head>
 <body class="bg-[#030303] text-gray-200 font-sans-luxury h-screen flex flex-col justify-between overflow-hidden selection:bg-[#C5A059] selection:text-black">
 
     <!---------------------------------------------------------
-      -1. 登入與註冊畫面 (Auth Screen)
-    ---------------------------------------------------------->
-    <div id="screen-auth" class="game-screen active absolute inset-0 z-50 bg-[#040404] flex-col justify-center items-center text-center px-6 py-6">
-        <div class="max-w-md w-full bg-[#0d0d0d] border-2 border-[#C5A059] p-8 rounded-3xl space-y-6 shadow-[0_0_60px_rgba(197,160,89,0.3)]">
-            <div>
-                <span class="text-xs uppercase tracking-[0.5em] text-[#C5A059] font-serif-en">Player Authentication</span>
-                <h1 class="font-serif-zh text-2xl md:text-3xl text-amber-400 font-bold mt-1">國家代表選手登入系統</h1>
-            </div>
-
-            <div class="space-y-4 text-left">
-                <div>
-                    <label class="text-xs text-gray-400 font-serif-en uppercase">選手名稱 (Username)</label>
-                    <input id="auth-username" type="text" placeholder="例如：台北神手" class="w-full mt-1 px-4 py-3 bg-black border border-amber-500/40 rounded-xl text-white text-sm focus:border-amber-400 outline-none">
-                </div>
-                <div>
-                    <label class="text-xs text-gray-400 font-serif-en uppercase">選手密碼 (Password)</label>
-                    <input id="auth-password" type="password" placeholder="••••••••" class="w-full mt-1 px-4 py-3 bg-black border border-amber-500/40 rounded-xl text-white text-sm focus:border-amber-400 outline-none">
-                </div>
-                <div>
-                    <label class="text-xs text-gray-400 font-serif-en uppercase">選擇代表隊 (National Team)</label>
-                    <select id="auth-team" class="w-full mt-1 px-4 py-3 bg-black border border-amber-500/40 rounded-xl text-white text-sm focus:border-amber-400 outline-none">
-                        <option value="台北市代表">台北市代表</option>
-                        <option value="新北市代表">新北市代表</option>
-                        <option value="台中市代表">台中市代表</option>
-                        <option value="高雄市代表">高雄市代表</option>
-                        <option value="日本代表隊">日本代表隊</option>
-                        <option value="美國代表隊">美國代表隊</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="flex gap-3 pt-2">
-                <button onclick="handleLogin()" class="flex-1 py-3.5 text-xs uppercase tracking-widest text-black bg-[#C5A059] hover:bg-white rounded-xl font-bold transition-all shadow-lg cursor-pointer">
-                    🔑 選手登入
-                </button>
-                <button onclick="handleRegister()" class="flex-1 py-3.5 text-xs uppercase tracking-widest text-amber-400 border border-amber-500/50 hover:bg-amber-500 hover:text-black rounded-xl font-bold transition-all cursor-pointer">
-                    📝 註冊帳號
-                </button>
-            </div>
-        </div>
-    </div>
-
-
-    <!---------------------------------------------------------
       0. 主大廳選擇頁面 (Lobby Hub)
     ---------------------------------------------------------->
-    <div id="screen-lobby" class="game-screen absolute inset-0 z-20 bg-[#050505] flex-col justify-between items-center text-center px-6 py-4 overflow-y-auto">
-        <div class="w-full max-w-6xl flex justify-between items-center border-b border-white/10 pb-3">
+    <div id="screen-lobby" class="game-screen active absolute inset-0 z-20 bg-[#050505] flex-col justify-between items-center text-center px-6 py-4 overflow-y-auto">
+        <div class="w-full max-w-7xl flex justify-between items-center border-b border-white/10 pb-3">
             <div class="text-left flex items-center gap-3">
                 <div>
-                    <p class="text-[10px] uppercase tracking-[0.4em] text-[#C5A059] font-serif-en">Authenticated Player Hub</p>
-                    <h1 class="font-serif-zh text-xl text-white font-bold">歡迎回來，<span class="text-amber-400" id="current-player-display">選手</span>【<span id="current-team-display">台北市代表</span>】</h1>
+                    <p class="text-[10px] uppercase tracking-[0.4em] text-[#C5A059] font-serif-en">Activity Bar & Real-Time Box Edition</p>
+                    <h1 class="font-serif-zh text-xl text-white font-bold">是東西：國家級卡牌大賽總部【多功能活動列版】</h1>
                 </div>
-                <button onclick="handleLogout()" class="px-2.5 py-1 text-[10px] uppercase text-red-400 border border-red-500/40 rounded-lg bg-black hover:bg-red-600 hover:text-white transition-all cursor-pointer">登出</button>
             </div>
             <div class="flex items-center gap-2 flex-wrap">
                 <span class="text-xs text-[#C5A059]">金幣: <strong class="lobby-gold-display text-white text-base">5000</strong></span>
-                <button onclick="openLobbyShop()" class="px-3 py-1.5 text-xs uppercase text-amber-400 border border-amber-500/50 rounded-full bg-black hover:bg-amber-500 hover:text-black transition-all font-bold cursor-pointer">🛒 商店</button>
-                <button onclick="openDeckBuilder()" class="px-3 py-1.5 text-xs uppercase text-blue-400 border border-blue-500/50 rounded-full bg-black hover:bg-blue-500 hover:text-black transition-all font-bold cursor-pointer">🎴 30招牌組</button>
-                <button onclick="openTalentTree()" class="px-3 py-1.5 text-xs uppercase text-emerald-400 border border-emerald-500/50 rounded-full bg-black hover:bg-emerald-500 hover:text-black transition-all font-bold cursor-pointer">🛡️ 天賦</button>
-                <button onclick="openAchievements()" class="px-3 py-1.5 text-xs uppercase text-purple-400 border border-purple-500/50 rounded-full bg-black hover:bg-purple-500 hover:text-black transition-all font-bold cursor-pointer">🏅 成就</button>
-                <button onclick="openHallOfFame()" class="px-3 py-1.5 text-xs uppercase text-amber-300 border border-amber-300/50 rounded-full bg-black hover:bg-amber-300 hover:text-black transition-all font-bold cursor-pointer">📜 名人堂</button>
+                <span class="text-xs text-blue-400">目前代表：<strong id="current-player-char-display" class="text-white">台北市代表</strong></span>
+                <button onclick="openLobbyShop()" class="px-3 py-1 text-xs uppercase text-amber-400 border border-amber-500/50 rounded-full bg-black hover:bg-amber-500 hover:text-black transition-all font-bold cursor-pointer">🛒 百寶商店</button>
+                <button onclick="openCharacterModal()" class="px-3 py-1 text-xs uppercase text-blue-400 border border-blue-500/50 rounded-full bg-black hover:bg-blue-500 hover:text-black transition-all font-bold cursor-pointer">👥 角色選擇 (25種)</button>
+                <button onclick="openCastleModal()" class="px-3 py-1 text-xs uppercase text-red-400 border border-red-500/50 rounded-full bg-black hover:bg-red-500 hover:text-black transition-all font-bold cursor-pointer">🏰 海拉魯城堡</button>
+                <button onclick="openLadderModal()" class="px-3 py-1 text-xs uppercase text-purple-400 border border-purple-500/50 rounded-full bg-black hover:bg-purple-500 hover:text-black transition-all font-bold cursor-pointer">🏆 天梯排位</button>
+            </div>
+        </div>
+
+        <!-- 專屬多功能活動列 (Activity Bar) -->
+        <div class="w-full max-w-5xl bg-gradient-to-r from-pink-950/40 via-purple-950/40 to-amber-950/40 border border-pink-500/40 rounded-2xl p-3 flex justify-around items-center gap-2 shadow-lg flex-wrap">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">🎉</span>
+                <div class="text-left">
+                    <div class="text-xs text-pink-300 font-bold">多功能活動中心</div>
+                    <div class="text-[10px] text-gray-400">當前真實解鎖至第 <span id="activity-bar-day" class="text-amber-400 font-bold">1</span> 天禮盒</div>
+                </div>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+                <button onclick="openActivityModal('boxes')" class="px-3 py-1.5 text-[11px] uppercase bg-pink-600 hover:bg-pink-500 text-white rounded-xl font-bold cursor-pointer shadow">🎁 10天真實禮盒</button>
+                <button onclick="openActivityModal('daily')" class="px-3 py-1.5 text-[11px] uppercase bg-amber-600 hover:bg-amber-500 text-black font-extrabold rounded-xl cursor-pointer shadow">💰 每日簽到金幣</button>
+                <button onclick="openActivityModal('bounty')" class="px-3 py-1.5 text-[11px] uppercase bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold cursor-pointer shadow">⚔️ 勇者懸賞任務</button>
             </div>
         </div>
 
         <div class="w-full max-w-5xl my-auto py-2 space-y-4">
             <div class="text-center space-y-1">
-                <h2 class="font-serif-zh text-2xl text-amber-400">請選擇競技賽事或 20 大系統功能</h2>
-                <p class="text-xs text-gray-400 font-light">迎戰全球頂尖對手，解鎖全部 30 種奧術絕學！</p>
+                <h2 class="font-serif-zh text-2xl text-amber-400">海拉魯城堡・30關突破與 25 種代表隊角色</h2>
+                <p class="text-xs text-gray-400 font-light">透過頂部活動列參與各項精彩活動，挑選專屬角色，挑戰 2500血究極大魔王！</p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div onclick="goToTier(1)" class="card-item p-5 rounded-3xl text-left space-y-2 cursor-pointer border border-amber-500/40">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+                <div onclick="openCastleModal()" class="card-item p-5 rounded-3xl text-left space-y-2 cursor-pointer border border-red-500/50 bg-gradient-to-br from-red-950/30 to-black">
+                    <div class="text-2xl">🏰</div>
+                    <h3 class="font-serif-zh text-base text-white font-bold">海拉魯城堡 (30關)</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">依序突破 30 隻魔物，迎戰擁有 2500 滴血量的終極大魔王！</p>
+                </div>
+                <div onclick="openCharacterModal()" class="card-item p-5 rounded-3xl text-left space-y-2 cursor-pointer border border-blue-500/50 bg-gradient-to-br from-blue-950/30 to-black">
+                    <div class="text-2xl">👥</div>
+                    <h3 class="font-serif-zh text-base text-white font-bold">25種角色選擇</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">挑選台北、高雄、京都或紐約等 25 位特色代表隊長出戰！</p>
+                </div>
+                <div onclick="openLadderModal()" class="card-item p-5 rounded-3xl text-left space-y-2 cursor-pointer border border-purple-500/50 bg-gradient-to-br from-purple-950/30 to-black">
                     <div class="text-2xl">🏆</div>
-                    <h3 class="font-serif-zh text-base text-white font-bold">32強國家大賽（四階段正賽）</h3>
-                    <p class="text-xs text-gray-400 leading-relaxed">挑戰市國戰、全國賽、亞太區賽與世界大賽標準 32 強淘汰賽！</p>
-                </div>
-                <div onclick="startSpecialMode('allstar')" class="card-item p-5 rounded-3xl text-left space-y-2 cursor-pointer border border-purple-500/40">
-                    <div class="text-2xl">🌟</div>
-                    <h3 class="font-serif-zh text-base text-white font-bold">世界全明星賽（3v3 夢幻對決）</h3>
-                    <p class="text-xs text-gray-400 leading-relaxed">挑選全球傳奇選手進行表演賽，獲勝獲得豐厚金幣！</p>
-                </div>
-                <div onclick="startSpecialMode('speedrun')" class="card-item p-5 rounded-3xl text-left space-y-2 cursor-pointer border border-red-500/40">
-                    <div class="text-2xl">⚡</div>
-                    <h3 class="font-serif-zh text-base text-white font-bold">限時極速生存戰（10連擊）</h3>
-                    <p class="text-xs text-gray-400 leading-relaxed">連續擊敗 10 位國家代表，血量不回復的極限考驗！</p>
-                </div>
-                <div onclick="startSpecialMode('chaos')" class="card-item p-5 rounded-3xl text-left space-y-2 cursor-pointer border border-blue-500/40">
-                    <div class="text-2xl">🌀</div>
-                    <h3 class="font-serif-zh text-base text-white font-bold">元素亂鬥賽（天災與變異）</h3>
-                    <p class="text-xs text-gray-400 leading-relaxed">隨機觸發世界級天災與法力變異，帶來全新戰術體驗！</p>
-                </div>
-                <div onclick="startSpecialMode('history')" class="card-item p-5 rounded-3xl text-left space-y-2 cursor-pointer border border-emerald-500/40">
-                    <div class="text-2xl">🏛️</div>
-                    <h3 class="font-serif-zh text-base text-white font-bold">歷史經典重現賽（殘血翻盤）</h3>
-                    <p class="text-xs text-gray-400 leading-relaxed">使用初始殘血牌組重現歷史上最經典的宿敵對決！</p>
-                </div>
-                <div onclick="startTrainingMode()" class="card-item p-5 rounded-3xl text-left space-y-2 cursor-pointer border border-amber-300/40 bg-gradient-to-br from-amber-950/20 to-black">
-                    <div class="text-2xl">🎯</div>
-                    <h3 class="font-serif-zh text-base text-white font-bold">無盡試煉練習場</h3>
-                    <p class="text-xs text-gray-400 leading-relaxed">隨時進行無限制的卡牌戰鬥，測試 30 種新解鎖的奧義招式！</p>
+                    <h3 class="font-serif-zh text-base text-white font-bold">10大天梯排位賽</h3>
+                    <p class="text-xs text-gray-400 leading-relaxed">挑戰 10 大階梯牌位分類，查看全球頂尖選手排行榜！</p>
                 </div>
             </div>
         </div>
 
         <div class="w-full pb-2 text-center text-xs text-gray-500 font-serif-en">
-            SHI DONG XI • AUTHENTICATED EDITION (2026)
+            SHI DONG XI • ACTIVITY BAR & REAL-TIME EDITION (2026)
         </div>
     </div>
 
 
     <!---------------------------------------------------------
-      1~4. 32強正賽階段頁面 (市國、全國、亞太、世界)
+      MODALS
     ---------------------------------------------------------->
-    <div id="screen-tier-1" class="game-screen absolute inset-0 z-20 bg-[#060606] flex-col justify-between items-center text-center px-4 py-3 overflow-y-auto">
-        <div class="w-full max-w-7xl flex justify-between items-center border-b border-white/10 pb-2">
-            <div class="text-left">
-                <p class="text-[10px] uppercase tracking-[0.3em] text-[#C5A059] font-serif-en">Phase 1: City Battle (32強)</p>
-                <h1 class="font-serif-zh text-lg text-white font-bold">【第一階段：市國戰】代表隊 vs 各縣市 32 強</h1>
+    <div id="character-modal" class="modal-screen">
+        <div class="max-w-4xl w-full bg-[#0d0d0d] border-2 border-blue-500/60 p-8 rounded-3xl space-y-6 flex flex-col max-h-[85vh] shadow-2xl">
+            <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                <div>
+                    <span class="text-xs uppercase tracking-[0.4em] text-blue-400 font-serif-en">25 Representative Characters</span>
+                    <h2 class="font-serif-zh text-2xl text-white">👥 選擇您的出戰代表隊角色 (共 25 種)</h2>
+                </div>
+                <button onclick="closeModal('character-modal')" class="text-gray-400 hover:text-white text-xl cursor-pointer">✕</button>
             </div>
-            <div class="flex items-center gap-3">
-                <span class="text-xs text-[#C5A059]">金幣: <strong class="lobby-gold-display text-white">5000</strong></span>
-                <button onclick="openLobbyShop()" class="px-3 py-1 text-xs uppercase text-amber-400 border border-amber-500/50 rounded-full bg-black hover:bg-amber-500 hover:text-black transition-all font-bold cursor-pointer">🛒 商店</button>
-            </div>
-        </div>
-
-        <div class="flex gap-2 my-1 items-center">
-            <button onclick="goToLobby()" class="px-3 py-1 text-[10px] uppercase bg-neutral-800 text-amber-300 border border-amber-500/40 rounded-lg cursor-pointer font-bold">🏠 返回大廳</button>
-            <button class="px-3 py-1 text-[10px] uppercase bg-amber-500 text-black font-bold rounded-lg">1. 市國戰</button>
-            <button onclick="goToTier(2)" class="px-3 py-1 text-[10px] uppercase bg-black text-gray-400 border border-white/10 rounded-lg cursor-pointer">2. 全國賽</button>
-            <button onclick="goToTier(3)" class="px-3 py-1 text-[10px] uppercase bg-black text-gray-400 border border-white/10 rounded-lg cursor-pointer">3. 亞太區賽</button>
-            <button onclick="goToTier(4)" class="px-3 py-1 text-[10px] uppercase bg-black text-gray-400 border border-white/10 rounded-lg cursor-pointer">4. 世界大賽</button>
-        </div>
-
-        <div class="relative w-full max-w-7xl flex-1 flex justify-between items-center px-8 my-2">
-            <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 1;">
-                <path d="M 135 45 H 175 V 140 H 220" fill="none" class="smooth-path"/>
-                <path d="M 135 125 H 175 V 140 H 220" fill="none" class="smooth-path"/>
-                <path d="M 135 245 H 175 V 220 H 220" fill="none" class="smooth-path"/>
-                <path d="M 135 325 H 175 V 220 H 220" fill="none" class="smooth-path"/>
-                <path d="M 945 45 H 905 V 140 H 860" fill="none" class="smooth-path"/>
-                <path d="M 945 125 H 905 V 140 H 860" fill="none" class="smooth-path"/>
-                <path d="M 945 245 H 905 V 220 H 860" fill="none" class="smooth-path"/>
-                <path d="M 945 325 H 905 V 220 H 860" fill="none" class="smooth-path"/>
-            </svg>
-
-            <div id="left-32-t1" class="flex flex-col justify-between h-full py-2 space-y-1"></div>
-            <div class="flex flex-col justify-around h-full py-12 space-y-6">
-                <div id="box-l-adv" class="bracket-box">16強:待定</div>
-                <div class="bracket-box">8強:待定</div>
-            </div>
-            <div class="flex flex-col justify-center items-center space-y-2 z-10 px-4">
-                <span class="text-[9px] uppercase tracking-widest text-[#C5A059] font-serif-en font-bold">🏆 市國戰巔峰</span>
-                <div class="w-14 h-14 bg-black border-2 border-[#C5A059] rounded-2xl flex items-center justify-center text-lg text-amber-400 font-bold shadow-[0_0_20px_rgba(197,160,89,0.4)]">32</div>
-                <div class="p-2.5 bg-[#111] border border-amber-500/50 rounded-xl text-center w-36 shadow-lg"><div class="text-amber-400 font-bold text-[9px]">🥇 冠軍總決賽（金牌）</div></div>
-                <div class="p-2.5 bg-[#111] border border-blue-500/50 rounded-xl text-center w-36 shadow-lg"><div class="text-blue-300 font-bold text-[9px]">🥉 季軍爭奪賽（銅牌）</div></div>
-            </div>
-            <div class="flex flex-col justify-around h-full py-12 space-y-6">
-                <div id="box-r-adv" class="bracket-box">16強:待定</div>
-                <div class="bracket-box">8強:待定</div>
-            </div>
-            <div id="right-32-t1" class="flex flex-col justify-between h-full py-2 space-y-1"></div>
-        </div>
-
-        <div class="w-full pb-3 pt-1 z-20 flex justify-center items-center gap-4">
-            <button onclick="startMatch(1)" class="px-12 py-3.5 text-xs md:text-sm uppercase tracking-[0.3em] text-black bg-[#C5A059] hover:bg-white rounded-full font-extrabold transition-all shadow-[0_0_35px_rgba(197,160,89,0.5)] cursor-pointer">⚔️ 開始市國戰對決</button>
-            <button onclick="goToLobby()" class="px-6 py-3.5 text-xs uppercase text-gray-400 luxury-border rounded-full bg-black hover:text-white cursor-pointer">← 返回總大廳</button>
-        </div>
-    </div>
-
-    <!-- 2. 全國賽頁面 -->
-    <div id="screen-tier-2" class="game-screen absolute inset-0 z-20 bg-[#060606] flex-col justify-between items-center text-center px-4 py-3 overflow-y-auto">
-        <div class="w-full max-w-7xl flex justify-between items-center border-b border-white/10 pb-2">
-            <div class="text-left">
-                <p class="text-[10px] uppercase tracking-[0.3em] text-[#C5A059] font-serif-en">Phase 2: National Championship</p>
-                <h1 class="font-serif-zh text-lg text-white font-bold">【第二階段：全國賽】各縣市代表隊 32 強對決</h1>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="text-xs text-[#C5A059]">金幣: <strong class="lobby-gold-display text-white">5000</strong></span>
-                <button onclick="openLobbyShop()" class="px-3 py-1 text-xs uppercase text-amber-400 border border-amber-500/50 rounded-full bg-black hover:bg-amber-500 hover:text-black transition-all font-bold cursor-pointer">🛒 商店</button>
-            </div>
-        </div>
-
-        <div class="flex gap-2 my-1 items-center">
-            <button onclick="goToLobby()" class="px-3 py-1 text-[10px] uppercase bg-neutral-800 text-amber-300 border border-amber-500/40 rounded-lg cursor-pointer font-bold">🏠 返回大廳</button>
-            <button onclick="goToTier(1)" class="px-3 py-1 text-[10px] uppercase bg-black text-gray-400 border border-white/10 rounded-lg cursor-pointer">1. 市國戰</button>
-            <button class="px-3 py-1 text-[10px] uppercase bg-amber-500 text-black font-bold rounded-lg">2. 全國賽 (進行中)</button>
-            <button onclick="goToTier(3)" class="px-3 py-1 text-[10px] uppercase bg-black text-gray-400 border border-white/10 rounded-lg cursor-pointer">3. 亞太區賽</button>
-            <button onclick="goToTier(4)" class="px-3 py-1 text-[10px] uppercase bg-black text-gray-400 border border-white/10 rounded-lg cursor-pointer">4. 世界大賽</button>
-        </div>
-
-        <div class="relative w-full max-w-7xl flex-1 flex justify-between items-center px-8 my-2">
-            <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 1;">
-                <path d="M 135 45 H 175 V 140 H 220" fill="none" class="smooth-path"/>
-                <path d="M 135 125 H 175 V 140 H 220" fill="none" class="smooth-path"/>
-                <path d="M 135 245 H 175 V 220 H 220" fill="none" class="smooth-path"/>
-                <path d="M 135 325 H 175 V 220 H 220" fill="none" class="smooth-path"/>
-                <path d="M 945 45 H 905 V 140 H 860" fill="none" class="smooth-path"/>
-                <path d="M 945 125 H 905 V 140 H 860" fill="none" class="smooth-path"/>
-                <path d="M 945 245 H 905 V 220 H 860" fill="none" class="smooth-path"/>
-                <path d="M 945 325 H 905 V 220 H 860" fill="none" class="smooth-path"/>
-            </svg>
-
-            <div id="left-32-t2" class="flex flex-col justify-between h-full py-2 space-y-1"></div>
-            <div class="flex flex-col justify-around h-full py-12 space-y-6"><div class="bracket-box">16強:待定</div><div class="bracket-box">8強:待定</div></div>
-            <div class="flex flex-col justify-center items-center space-y-2 z-10 px-4">
-                <span class="text-[9px] uppercase tracking-widest text-[#C5A059] font-serif-en font-bold">🏆 全國賽巔峰</span>
-                <div class="w-14 h-14 bg-black border-2 border-[#C5A059] rounded-2xl flex items-center justify-center text-lg text-amber-400 font-bold">32</div>
-                <div class="p-2.5 bg-[#111] border border-amber-500/50 rounded-xl text-center w-36"><div class="text-amber-400 font-bold text-[9px]">🥇 冠軍總決賽（金牌）</div></div>
-                <div class="p-2.5 bg-[#111] border border-blue-500/50 rounded-xl text-center w-36"><div class="text-blue-300 font-bold text-[9px]">🥉 季軍爭奪賽（銅牌）</div></div>
-            </div>
-            <div class="flex flex-col justify-around h-full py-12 space-y-6"><div class="bracket-box">16強:待定</div><div class="bracket-box">8強:待定</div></div>
-            <div id="right-32-t2" class="flex flex-col justify-between h-full py-2 space-y-1"></div>
-        </div>
-
-        <div class="w-full pb-3 pt-1 z-20 flex justify-center items-center gap-4">
-            <button onclick="startMatch(2)" class="px-12 py-3.5 text-xs md:text-sm uppercase tracking-[0.3em] text-black bg-[#C5A059] hover:bg-white rounded-full font-extrabold transition-all shadow-[0_0_35px_rgba(197,160,89,0.5)] cursor-pointer">⚔️ 開始全國賽對決</button>
-            <button onclick="goToTier(1)" class="px-6 py-3.5 text-xs uppercase text-gray-400 luxury-border rounded-full bg-black hover:text-white cursor-pointer">← 返回市國戰</button>
-        </div>
-    </div>
-
-    <!-- 3. 亞太區賽頁面 -->
-    <div id="screen-tier-3" class="game-screen absolute inset-0 z-20 bg-[#060606] flex-col justify-between items-center text-center px-4 py-3 overflow-y-auto">
-        <div class="w-full max-w-7xl flex justify-between items-center border-b border-white/10 pb-2">
-            <div class="text-left">
-                <p class="text-[10px] uppercase tracking-[0.3em] text-[#C5A059] font-serif-en">Phase 3: Asia-Pacific Championship</p>
-                <h1 class="font-serif-zh text-lg text-white font-bold">【第三階段：亞太區賽】亞洲太平洋各國 32 強對決</h1>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="text-xs text-[#C5A059]">金幣: <strong class="lobby-gold-display text-white">5000</strong></span>
-                <button onclick="openLobbyShop()" class="px-3 py-1 text-xs uppercase text-amber-400 border border-amber-500/50 rounded-full bg-black hover:bg-amber-500 hover:text-black transition-all font-bold cursor-pointer">🛒 商店</button>
-            </div>
-        </div>
-
-        <div class="flex gap-2 my-1 items-center">
-            <button onclick="goToLobby()" class="px-3 py-1 text-[10px] uppercase bg-neutral-800 text-amber-300 border border-amber-500/40 rounded-lg cursor-pointer font-bold">🏠 返回大廳</button>
-            <button onclick="goToTier(1)" class="px-3 py-1 text-[10px] uppercase bg-black text-gray-400 border border-white/10 rounded-lg cursor-pointer">1. 市國戰</button>
-            <button onclick="goToTier(2)" class="px-3 py-1 text-[10px] uppercase bg-black text-gray-400 border border-white/10 rounded-lg cursor-pointer">2. 全國賽</button>
-            <button class="px-3 py-1 text-[10px] uppercase bg-amber-500 text-black font-bold rounded-lg">3. 亞太區賽 (進行中)</button>
-            <button onclick="goToTier(4)" class="px-3 py-1 text-[10px] uppercase bg-black text-gray-400 border border-white/10 rounded-lg cursor-pointer">4. 世界大賽</button>
-        </div>
-
-        <div class="relative w-full max-w-7xl flex-1 flex justify-between items-center px-8 my-2">
-            <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 1;">
-                <path d="M 135 45 H 175 V 140 H 220" fill="none" class="smooth-path"/>
-                <path d="M 135 125 H 175 V 140 H 220" fill="none" class="smooth-path"/>
-                <path d="M 135 245 H 175 V 220 H 220" fill="none" class="smooth-path"/>
-                <path d="M 135 325 H 175 V 220 H 220" fill="none" class="smooth-path"/>
-                <path d="M 945 45 H 905 V 140 H 860" fill="none" class="smooth-path"/>
-                <path d="M 945 125 H 905 V 140 H 860" fill="none" class="smooth-path"/>
-                <path d="M 945 245 H 905 V 220 H 860" fill="none" class="smooth-path"/>
-                <path d="M 945 325 H 905 V 220 H 860" fill="none" class="smooth-path"/>
-            </svg>
-
-            <div id="left-32-t3" class="flex flex-col justify-between h-full py-2 space-y-1"></div>
-            <div class="flex flex-col justify-around h-full py-12 space-y-6"><div class="bracket-box">16強:待定</div><div class="bracket-box">8強:待定</div></div>
-            <div class="flex flex-col justify-center items-center space-y-2 z-10 px-4">
-                <span class="text-[9px] uppercase tracking-widest text-[#C5A059] font-serif-en font-bold">🏆 亞太區巔峰</span>
-                <div class="w-14 h-14 bg-black border-2 border-[#C5A059] rounded-2xl flex items-center justify-center text-lg text-amber-400 font-bold">32</div>
-                <div class="p-2.5 bg-[#111] border border-amber-500/50 rounded-xl text-center w-36"><div class="text-amber-400 font-bold text-[9px]">🥇 冠軍總決賽（金牌）</div></div>
-                <div class="p-2.5 bg-[#111] border border-blue-500/50 rounded-xl text-center w-36"><div class="text-blue-300 font-bold text-[9px]">🥉 季軍爭奪賽（銅牌）</div></div>
-            </div>
-            <div class="flex flex-col justify-around h-full py-12 space-y-6"><div class="bracket-box">16強:待定</div><div class="bracket-box">8強:待定</div></div>
-            <div id="right-32-t3" class="flex flex-col justify-between h-full py-2 space-y-1"></div>
-        </div>
-
-        <div class="w-full pb-3 pt-1 z-20 flex justify-center items-center gap-4">
-            <button onclick="startMatch(3)" class="px-12 py-3.5 text-xs md:text-sm uppercase tracking-[0.3em] text-black bg-[#C5A059] hover:bg-white rounded-full font-extrabold transition-all shadow-[0_0_35px_rgba(197,160,89,0.5)] cursor-pointer">⚔️ 開始亞太區賽對決</button>
-            <button onclick="goToTier(2)" class="px-6 py-3.5 text-xs uppercase text-gray-400 luxury-border rounded-full bg-black hover:text-white cursor-pointer">← 返回全國賽</button>
-        </div>
-    </div>
-
-    <!-- 4. 世界大賽頁面 -->
-    <div id="screen-tier-4" class="game-screen absolute inset-0 z-20 bg-[#060606] flex-col justify-between items-center text-center px-4 py-3 overflow-y-auto">
-        <div class="w-full max-w-7xl flex justify-between items-center border-b border-white/10 pb-2">
-            <div class="text-left">
-                <p class="text-[10px] uppercase tracking-[0.3em] text-[#C5A059] font-serif-en">Phase 4: World Grand Finals</p>
-                <h1 class="font-serif-zh text-lg text-white font-bold">【第四階段：世界大賽】全球頂尖 32 強總決賽</h1>
-            </div>
-            <div class="flex items-center gap-3">
-                <span class="text-xs text-[#C5A059]">金幣: <strong class="lobby-gold-display text-white">5000</strong></span>
-                <button onclick="openLobbyShop()" class="px-3 py-1 text-xs uppercase text-amber-400 border border-amber-500/50 rounded-full bg-black hover:bg-amber-500 hover:text-black transition-all font-bold cursor-pointer">🛒 商店</button>
-            </div>
-        </div>
-
-        <div class="flex gap-2 my-1 items-center">
-            <button onclick="goToLobby()" class="px-3 py-1 text-[10px] uppercase bg-neutral-800 text-amber-300 border border-amber-500/40 rounded-lg cursor-pointer font-bold">🏠 返回大廳</button>
-            <button onclick="goToTier(1)" class="px-3 py-1 text-[10px] uppercase bg-black text-gray-400 border border-white/10 rounded-lg cursor-pointer">1. 市國戰</button>
-            <button onclick="goToTier(2)" class="px-3 py-1 text-[10px] uppercase bg-black text-gray-400 border border-white/10 rounded-lg cursor-pointer">2. 全國賽</button>
-            <button onclick="goToTier(3)" class="px-3 py-1 text-[10px] uppercase bg-black text-gray-400 border border-white/10 rounded-lg cursor-pointer">3. 亞太區賽</button>
-            <button class="px-3 py-1 text-[10px] uppercase bg-amber-500 text-black font-bold rounded-lg">4. 世界大賽 (進行中)</button>
-        </div>
-
-        <div class="relative w-full max-w-7xl flex-1 flex justify-between items-center px-8 my-2">
-            <svg class="absolute inset-0 w-full h-full pointer-events-none" style="z-index: 1;">
-                <path d="M 135 45 H 175 V 140 H 220" fill="none" class="smooth-path"/>
-                <path d="M 135 125 H 175 V 140 H 220" fill="none" class="smooth-path"/>
-                <path d="M 135 245 H 175 V 220 H 220" fill="none" class="smooth-path"/>
-                <path d="M 135 325 H 175 V 220 H 220" fill="none" class="smooth-path"/>
-                <path d="M 945 45 H 905 V 140 H 860" fill="none" class="smooth-path"/>
-                <path d="M 945 125 H 905 V 140 H 860" fill="none" class="smooth-path"/>
-                <path d="M 945 245 H 905 V 220 H 860" fill="none" class="smooth-path"/>
-                <path d="M 945 325 H 905 V 220 H 860" fill="none" class="smooth-path"/>
-            </svg>
-
-            <div id="left-32-t4" class="flex flex-col justify-between h-full py-2 space-y-1"></div>
-            <div class="flex flex-col justify-around h-full py-12 space-y-6"><div class="bracket-box">16強:待定</div><div class="bracket-box">8強:待定</div></div>
-            <div class="flex flex-col justify-center items-center space-y-2 z-10 px-4">
-                <span class="text-[9px] uppercase tracking-widest text-[#C5A059] font-serif-en font-bold">🏆 世界大賽巔峰</span>
-                <div class="w-14 h-14 bg-black border-2 border-[#C5A059] rounded-2xl flex items-center justify-center text-lg text-amber-400 font-bold shadow-[0_0_20px_rgba(197,160,89,0.4)]">👑</div>
-                <div class="p-2.5 bg-[#111] border border-amber-500/50 rounded-xl text-center w-36"><div class="text-amber-400 font-bold text-[9px]">👑 爭奪世界總冠軍</div></div>
-                <div class="p-2.5 bg-[#111] border border-blue-500/50 rounded-xl text-center w-36"><div class="text-blue-300 font-bold text-[9px]">🥉 世界季軍爭奪</div></div>
-            </div>
-            <div class="flex flex-col justify-around h-full py-12 space-y-6"><div class="bracket-box">16強:待定</div><div class="bracket-box">8強:待定</div></div>
-            <div id="right-32-t4" class="flex flex-col justify-between h-full py-2 space-y-1"></div>
-        </div>
-
-        <div class="w-full pb-3 pt-1 z-20 flex justify-center items-center gap-4">
-            <button onclick="startMatch(4)" class="px-12 py-3.5 text-xs md:text-sm uppercase tracking-[0.3em] text-black bg-[#C5A059] hover:bg-white rounded-full font-extrabold transition-all shadow-[0_0_35px_rgba(197,160,89,0.5)] cursor-pointer">⚔️ 開始世界大賽總決賽</button>
-            <button onclick="goToTier(3)" class="px-6 py-3.5 text-xs uppercase text-gray-400 luxury-border rounded-full bg-black hover:text-white cursor-pointer">← 返回亞太區賽</button>
-        </div>
-    </div>
-
-    <!-- 5. 頒獎典禮頁面 -->
-    <div id="screen-podium" class="game-screen absolute inset-0 z-20 bg-[#060606] flex-col justify-center items-center text-center px-6 py-8 overflow-y-auto">
-        <div class="max-w-2xl w-full bg-[#0d0d0d] border-2 border-[#C5A059] p-10 rounded-3xl space-y-6 shadow-[0_0_50px_rgba(197,160,89,0.4)]">
-            <span class="text-xs uppercase tracking-[0.5em] text-[#C5A059] font-serif-en">Official Tournament Results</span>
-            <h1 class="font-serif-zh text-3xl md:text-4xl text-amber-400 font-bold">🏆 四階段 32強世界大賽總榜公布</h1>
-            <div id="podium-content" class="bg-black/80 p-6 rounded-2xl border border-amber-500/30 space-y-3 text-sm text-gray-200 leading-relaxed text-left"></div>
-            <div class="flex gap-4 pt-4">
-                <button onclick="goToLobby()" class="flex-1 py-4 text-xs uppercase tracking-[0.3em] text-black bg-[#C5A059] hover:bg-white rounded-full font-bold transition-all shadow-xl cursor-pointer">
-                    🏠 返回模式大廳
-                </button>
+            <div id="character-grid" class="grid grid-cols-1 md:grid-cols-3 gap-3 overflow-y-auto pr-2 flex-1"></div>
+            <div class="text-center pt-2">
+                <button onclick="closeModal('character-modal')" class="px-10 py-3 text-xs uppercase tracking-[0.3em] text-blue-300 border border-blue-500/50 rounded-full bg-black hover:bg-blue-500 hover:text-black transition-all font-bold cursor-pointer">確認並返回大廳</button>
             </div>
         </div>
     </div>
 
+    <!-- 多功能活動中心 Modal -->
+    <div id="activity-modal" class="modal-screen">
+        <div class="max-w-4xl w-full bg-[#0d0d0d] border-2 border-pink-500/60 p-8 rounded-3xl space-y-6 flex flex-col max-h-[85vh] shadow-2xl">
+            <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                <div class="flex items-center gap-3">
+                    <div>
+                        <span class="text-xs uppercase tracking-[0.4em] text-pink-400 font-serif-en">Multi-Activity Center</span>
+                        <h2 class="font-serif-zh text-2xl text-white">🎉 多功能活動中心</h2>
+                    </div>
+                </div>
+                <button onclick="closeModal('activity-modal')" class="text-gray-400 hover:text-white text-xl cursor-pointer">✕</button>
+            </div>
 
-    <!---------------------------------------------------------
-      MODALS (商城、牌組編輯、天賦樹、成就、名人堂)
-    ---------------------------------------------------------->
-    <div id="lobby-shop-modal" class="modal-screen absolute inset-0 z-50 bg-black/95 backdrop-blur-xl justify-center items-center px-6 py-8">
+            <div class="flex gap-2">
+                <button onclick="switchActivityTab('boxes')" id="act-tab-boxes" class="px-4 py-2 text-xs uppercase bg-pink-600 text-white font-bold rounded-xl cursor-pointer">🎁 10天真實禮盒</button>
+                <button onclick="switchActivityTab('daily')" id="act-tab-daily" class="px-4 py-2 text-xs uppercase bg-black text-gray-300 border border-white/10 rounded-xl cursor-pointer">💰 每日簽到</button>
+                <button onclick="switchActivityTab('bounty')" id="act-tab-bounty" class="px-4 py-2 text-xs uppercase bg-black text-gray-300 border border-white/10 rounded-xl cursor-pointer">⚔️ 勇者懸賞</button>
+            </div>
+
+            <!-- 內容區塊 1：10天禮盒 -->
+            <div id="act-content-boxes" class="space-y-4 flex-1 flex flex-col">
+                <div class="bg-black/60 p-4 rounded-2xl border border-pink-500/30 text-xs text-gray-300 leading-relaxed flex justify-between items-center">
+                    <span>規則：依真實時間每 24 小時解鎖一天。必須依序開啟！</span>
+                    <span class="text-pink-400 font-bold whitespace-nowrap ml-4">目前已解鎖至：第 <span id="modal-current-day">1</span> 天</span>
+                </div>
+                <div id="mystery-box-grid" class="grid grid-cols-2 md:grid-cols-5 gap-3 overflow-y-auto pr-2 flex-1"></div>
+            </div>
+
+            <!-- 內容區塊 2：每日簽到 -->
+            <div id="act-content-daily" class="space-y-4 flex-1 hidden flex flex-col justify-center items-center text-center py-8">
+                <div class="text-3xl">💰</div>
+                <h3 class="font-serif-zh text-xl text-amber-400 font-bold">每日大賽簽到福利</h3>
+                <p class="text-xs text-gray-400">每天登入即可領取 1500 枚金幣，用於商店血量補給與招式解鎖！</p>
+                <button onclick="claimDailyReward()" class="px-8 py-3 text-xs uppercase bg-amber-500 hover:bg-amber-400 text-black font-extrabold rounded-xl cursor-pointer shadow-lg transition-all">🎁 領取今日簽到 (+1500金)</button>
+            </div>
+
+            <!-- 內容區塊 3：勇者懸賞 -->
+            <div id="act-content-bounty" class="space-y-4 flex-1 hidden flex flex-col justify-center items-center text-center py-8">
+                <div class="text-3xl">⚔️</div>
+                <h3 class="font-serif-zh text-xl text-purple-400 font-bold">海拉魯城堡勇者懸賞</h3>
+                <p class="text-xs text-gray-400">在海拉魯城堡中擊敗至少 3 隻魔物即可解鎖懸賞報酬！</p>
+                <button onclick="claimBountyReward()" class="px-8 py-3 text-xs uppercase bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-xl cursor-pointer shadow-lg transition-all">💰 領取懸賞獎勵 (+2000金)</button>
+            </div>
+
+            <div class="text-center pt-2">
+                <button onclick="closeModal('activity-modal')" class="px-10 py-3 text-xs uppercase tracking-[0.3em] text-pink-300 luxury-border rounded-full bg-black hover:bg-pink-500 hover:text-black transition-all font-bold cursor-pointer">返回大廳</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="castle-modal" class="modal-screen">
+        <div class="max-w-4xl w-full bg-[#0d0d0d] border-2 border-red-500/70 p-8 rounded-3xl space-y-6 flex flex-col max-h-[85vh] shadow-[0_0_50px_rgba(239,68,68,0.3)]">
+            <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-red-950 border border-red-500 rounded-full flex items-center justify-center text-xl">🧙‍♂️</div>
+                    <div>
+                        <span class="text-xs uppercase tracking-[0.4em] text-red-400 font-serif-en">Hyrule Castle 30-Stage Chamber</span>
+                        <h2 class="font-serif-zh text-2xl text-white">海拉魯城堡：30 隻魔物依序解鎖挑戰</h2>
+                    </div>
+                </div>
+                <button onclick="closeModal('castle-modal')" class="text-gray-400 hover:text-white text-xl cursor-pointer">✕</button>
+            </div>
+            <div class="bg-black/60 p-4 rounded-2xl border border-red-500/30 text-xs text-gray-300 leading-relaxed flex justify-between items-center">
+                <span>長者：「第 30 關是擁有 <strong class="text-red-400">2500 滴血量</strong> 的究極大魔王加儂多夫！」</span>
+                <span class="text-amber-400 font-bold whitespace-nowrap ml-4">目前進度：已解鎖至第 <span id="max-unlocked-castle-stage">1</span> 關</span>
+            </div>
+            <div id="castle-boss-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-y-auto pr-2 flex-1"></div>
+            <div class="text-center pt-2">
+                <button onclick="closeModal('castle-modal')" class="px-10 py-3 text-xs uppercase tracking-[0.3em] text-gray-300 luxury-border rounded-full bg-black hover:bg-gray-800 transition-all font-bold cursor-pointer">返回大廳</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="ladder-modal" class="modal-screen">
+        <div class="max-w-3xl w-full bg-[#0d0d0d] border-2 border-purple-500/60 p-8 rounded-3xl space-y-6 flex flex-col max-h-[85vh] shadow-2xl">
+            <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                <div>
+                    <span class="text-xs uppercase tracking-[0.4em] text-purple-400 font-serif-en">Global Master Ladder & Leaderboard</span>
+                    <h2 class="font-serif-zh text-2xl text-white">🏆 10大天梯排位與全球排行榜</h2>
+                </div>
+                <button onclick="closeModal('ladder-modal')" class="text-gray-400 hover:text-white text-xl cursor-pointer">✕</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+                <div class="bg-black/80 p-4 rounded-2xl border border-purple-500/30 col-span-1 flex flex-col justify-between space-y-3">
+                    <div>
+                        <div class="text-xs text-gray-400 uppercase font-serif-en">Your Current Status</div>
+                        <div id="ladder-rank-text" class="text-amber-400 text-lg font-bold mt-1">1. 新手青銅</div>
+                        <div id="ladder-score-text" class="text-xs text-gray-300 mt-1">天梯積分: 0 分</div>
+                    </div>
+                    <button onclick="startLadderMatch()" class="w-full py-3 text-xs uppercase tracking-widest bg-purple-600 hover:bg-purple-500 text-white rounded-xl font-bold cursor-pointer shadow-lg transition-all">⚔️ 開始排位對決</button>
+                </div>
+                <div class="bg-black/80 p-4 rounded-2xl border border-purple-500/30 col-span-2 flex flex-col space-y-2">
+                    <div class="text-xs text-purple-400 uppercase font-serif-en font-bold">👑 全球頂尖大師排行榜 (Top 5)</div>
+                    <div id="leaderboard-list" class="space-y-1.5 overflow-y-auto max-h-40 pr-1"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="lobby-shop-modal" class="modal-screen">
         <div class="max-w-4xl w-full bg-[#0d0d0d] border border-[#C5A059]/50 p-8 rounded-3xl space-y-6 flex flex-col max-h-[85vh] shadow-2xl">
             <div class="flex justify-between items-center border-b border-white/10 pb-4">
                 <div>
                     <span class="text-xs uppercase tracking-[0.4em] text-[#C5A059] font-serif-en">National Emporium</span>
-                    <h2 class="font-serif-zh text-2xl text-white">國家代表商城（30種招式解鎖）</h2>
+                    <h2 class="font-serif-zh text-2xl text-white">🛒 百寶商店（血量券與招式解鎖）</h2>
                 </div>
                 <div class="text-right">
                     <div class="text-xs uppercase text-gray-500 font-serif-en">Gold</div>
@@ -445,245 +248,166 @@
                 <button onclick="switchShopTab('hp')" id="tab-btn-hp" class="px-4 py-2 text-xs uppercase bg-[#C5A059] text-black font-bold rounded-xl cursor-pointer">❤️ 血量券</button>
                 <button onclick="switchShopTab('mana')" id="tab-btn-mana" class="px-4 py-2 text-xs uppercase bg-black text-gray-300 luxury-border rounded-xl cursor-pointer">⚡ 法力上限</button>
                 <button onclick="switchShopTab('skills')" id="tab-btn-skills" class="px-4 py-2 text-xs uppercase bg-black text-gray-300 luxury-border rounded-xl cursor-pointer">⚔️ 30招解鎖</button>
-                <button onclick="switchShopTab('gacha')" id="tab-btn-gacha" class="px-4 py-2 text-xs uppercase bg-black text-purple-300 border border-purple-500/50 rounded-xl cursor-pointer">🌟 十連抽</button>
             </div>
             <div id="lobby-shop-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 overflow-y-auto pr-2 flex-1"></div>
             <div class="text-center pt-2">
-                <button onclick="closeModal('lobby-shop-modal')" class="px-10 py-3 text-xs uppercase tracking-[0.3em] text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all cursor-pointer font-bold">關閉商城</button>
+                <button onclick="closeModal('lobby-shop-modal')" class="px-10 py-3 text-xs uppercase tracking-[0.3em] text-[#E2D1B5] luxury-border rounded-full bg-black hover:bg-[#C5A059] hover:text-black transition-all font-bold cursor-pointer">關閉商店</button>
             </div>
-        </div>
-    </div>
-
-    <div id="deck-builder-modal" class="modal-screen absolute inset-0 z-50 bg-black/95 backdrop-blur-xl justify-center items-center px-6 py-8">
-        <div class="max-w-4xl w-full bg-[#0d0d0d] border border-blue-500/50 p-8 rounded-3xl space-y-6 flex flex-col max-h-[85vh]">
-            <div class="flex justify-between items-center border-b border-white/10 pb-4">
-                <div>
-                    <span class="text-xs uppercase tracking-[0.4em] text-blue-400 font-serif-en">30-Card Deck Customizer</span>
-                    <h2 class="font-serif-zh text-2xl text-white">🎴 30招奧術牌組編輯器（選擇 4 張出戰）</h2>
-                </div>
-            </div>
-            <div id="deck-builder-grid" class="grid grid-cols-1 md:grid-cols-3 gap-3 overflow-y-auto flex-1 pr-2"></div>
-            <div class="text-center pt-2">
-                <button onclick="closeModal('deck-builder-modal')" class="px-10 py-3 text-xs uppercase tracking-[0.3em] text-blue-300 border border-blue-500/50 rounded-full bg-black hover:bg-blue-500 hover:text-black transition-all font-bold">儲存牌組並返回</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="talent-tree-modal" class="modal-screen absolute inset-0 z-50 bg-black/95 backdrop-blur-xl justify-center items-center px-6 py-8">
-        <div class="max-w-3xl w-full bg-[#0d0d0d] border border-emerald-500/50 p-8 rounded-3xl space-y-6 flex flex-col max-h-[85vh]">
-            <div class="flex justify-between items-center border-b border-white/10 pb-4">
-                <div>
-                    <span class="text-xs uppercase tracking-[0.4em] text-emerald-400 font-serif-en">National Technology Institute</span>
-                    <h2 class="font-serif-zh text-2xl text-white">🛡️ 國家奧術防護與天賦樹</h2>
-                </div>
-            </div>
-            <div id="talent-grid" class="grid grid-cols-1 md:grid-cols-3 gap-4 overflow-y-auto flex-1 pr-2"></div>
-            <div class="text-center pt-2">
-                <button onclick="closeModal('talent-tree-modal')" class="px-10 py-3 text-xs uppercase tracking-[0.3em] text-emerald-300 border border-emerald-500/50 rounded-full bg-black hover:bg-emerald-500 hover:text-black transition-all font-bold">返回大廳</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="achievements-modal" class="modal-screen absolute inset-0 z-50 bg-black/95 backdrop-blur-xl justify-center items-center px-6 py-8">
-        <div class="max-w-3xl w-full bg-[#0d0d0d] border border-purple-500/50 p-8 rounded-3xl space-y-6 flex flex-col max-h-[85vh]">
-            <div class="flex justify-between items-center border-b border-white/10 pb-4">
-                <div>
-                    <span class="text-xs uppercase tracking-[0.4em] text-purple-400 font-serif-en">Hall of Trophies</span>
-                    <h2 class="font-serif-zh text-2xl text-white">🏅 榮譽殿堂與成就獎盃室</h2>
-                </div>
-            </div>
-            <div id="achievements-grid" class="space-y-3 overflow-y-auto flex-1 pr-2"></div>
-            <div class="text-center pt-2">
-                <button onclick="closeModal('achievements-modal')" class="px-10 py-3 text-xs uppercase tracking-[0.3em] text-purple-300 border border-purple-500/50 rounded-full bg-black hover:bg-purple-500 hover:text-black transition-all font-bold">返回大廳</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="hall-modal" class="modal-screen absolute inset-0 z-50 bg-black/95 backdrop-blur-xl justify-center items-center px-6 py-8">
-        <div class="max-w-2xl w-full bg-[#0d0d0d] border border-amber-300/50 p-8 rounded-3xl space-y-6 text-center">
-            <span class="text-xs uppercase tracking-[0.4em] text-amber-300 font-serif-en">Season Hall of Fame</span>
-            <h2 class="font-serif-zh text-2xl text-white">📜 賽季名人堂與戰報回顧</h2>
-            <div id="hall-content" class="bg-black/60 p-6 rounded-2xl border border-amber-300/30 text-sm text-gray-200 text-left space-y-2"></div>
-            <div class="text-center pt-2">
-                <button onclick="closeModal('hall-modal')" class="px-10 py-3 text-xs uppercase tracking-[0.3em] text-amber-300 border border-amber-300/50 rounded-full bg-black hover:bg-amber-300 hover:text-black transition-all font-bold">返回大廳</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="spectate-room-modal" class="modal-screen absolute inset-0 z-[75] bg-black/95 backdrop-blur-xl justify-center items-center px-6 py-8">
-        <div class="max-w-2xl w-full bg-[#0d0d0d] border border-emerald-500/50 p-8 rounded-3xl space-y-6 text-center shadow-2xl">
-            <span class="text-xs uppercase tracking-[0.4em] text-emerald-400 font-serif-en">Post-Match War Room</span>
-            <h2 class="font-serif-zh text-2xl text-white">📡 賽事戰情室：晉級廣播</h2>
-            <div id="war-room-broadcast" class="bg-black/60 p-6 rounded-2xl border border-emerald-500/30 space-y-3 text-sm text-emerald-300">正在彙整戰報...</div>
-            <div class="flex gap-4 pt-2">
-                <button onclick="advanceTournamentStage()" class="flex-1 py-3 text-xs uppercase bg-[#C5A059] hover:bg-white text-black rounded-xl font-bold cursor-pointer">⚡ 晉級下一輪</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="defeat-room-modal" class="modal-screen absolute inset-0 z-[90] bg-black/95 backdrop-blur-xl justify-center items-center px-6 py-8">
-        <div class="max-w-2xl w-full bg-[#110606] border-2 border-red-500/60 p-8 rounded-3xl space-y-6 text-center">
-            <span class="text-xs uppercase tracking-[0.4em] text-red-400 font-serif-en">Tournament Elimination Report</span>
-            <h2 class="font-serif-zh text-3xl text-white">💀 賽事落敗：後續名次正式公布</h2>
-            <div id="defeat-simulation-text" class="bg-black/80 p-6 rounded-2xl border border-red-500/30 space-y-3 text-sm text-red-200 text-left"></div>
-            <div class="flex gap-4 pt-2">
-                <button onclick="closeModal('defeat-room-modal'); goToLobby();" class="flex-1 py-3 text-xs uppercase bg-red-600 hover:bg-red-500 text-white rounded-xl font-bold cursor-pointer">🏠 返回模式大廳</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="blessing-modal" class="modal-screen absolute inset-0 z-[80] bg-black/95 backdrop-blur-xl justify-center items-center px-6">
-        <div class="max-w-3xl w-full bg-[#0d0d0d] border border-[#C5A059]/60 p-10 rounded-3xl space-y-8 text-center shadow-2xl">
-            <span class="text-xs uppercase tracking-[0.4em] text-[#C5A059] font-serif-en">Global Championship Blessing</span>
-            <h2 class="font-serif-zh text-4xl text-white">選擇一項國家級晉級祝福</h2>
-            <div id="blessing-choices" class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2"></div>
         </div>
     </div>
 
 
     <!---------------------------------------------------------
-      2. 實際卡牌遊戲戰場 (Card Battle View)
+      2. 實際卡牌遊戲戰場
     ---------------------------------------------------------->
-    <header id="battle-header" class="flex justify-between items-center px-10 py-5 border-b border-white/10 bg-black/80 backdrop-blur-md z-10">
-        <div class="space-y-1">
-            <button onclick="goToLobby()" class="text-[10px] uppercase text-gray-400 hover:text-[#C5A059] transition-all cursor-pointer font-bold">← 返回大廳</button>
-            <div id="display-mage" class="text-xs uppercase tracking-widest text-[#C5A059] font-serif-en">玩家隊伍：台北市代表</div>
-            <div class="w-48 h-2 bg-neutral-800 rounded-full overflow-hidden border border-white/10">
-                <div id="player-hp" class="w-full h-full bg-gradient-to-r from-amber-600 to-[#C5A059] transition-all duration-300" style="width: 100%;"></div>
+    <div id="screen-battle" class="game-screen absolute inset-0 z-30 bg-[#030303] flex-col justify-between">
+        <header id="battle-header" class="flex justify-between items-center px-10 py-5 border-b border-white/10 bg-black/80 backdrop-blur-md">
+            <div class="space-y-1">
+                <button onclick="goToLobby()" class="text-[10px] uppercase text-gray-400 hover:text-[#C5A059] transition-all cursor-pointer font-bold">← 返回大廳</button>
+                <div id="display-mage" class="text-xs uppercase tracking-widest text-[#C5A059] font-serif-en">玩家隊伍：台北市代表</div>
+                <div class="w-48 h-2 bg-neutral-800 rounded-full overflow-hidden border border-white/10">
+                    <div id="player-hp" class="w-full h-full bg-gradient-to-r from-amber-600 to-[#C5A059] transition-all duration-300" style="width: 100%;"></div>
+                </div>
+                <div id="player-hp-text" class="text-[10px] text-gray-400">100 / 100</div>
             </div>
-            <div id="player-hp-text" class="text-[10px] text-gray-400">100 / 100</div>
-        </div>
-        
-        <div class="text-center space-y-1">
-            <h1 id="battle-stage-title" class="font-serif-zh text-lg text-white tracking-widest">淘汰賽對決</h1>
-            <div class="flex items-center justify-center gap-3">
-                <span id="display-enemy-title" class="text-red-400 font-serif-zh text-sm">對手國家</span>
-                <button id="heal-btn" onclick="useHealAbility()" class="px-3 py-0.5 text-[10px] bg-emerald-700/80 text-white rounded-full border border-emerald-400/40 cursor-pointer font-bold">💚 復原術 (60s)</button>
+            
+            <div class="text-center space-y-1">
+                <h1 id="battle-stage-title" class="font-serif-zh text-lg text-white tracking-widest">對決</h1>
+                <div class="flex items-center justify-center gap-3">
+                    <span id="display-enemy-title" class="text-red-400 font-serif-zh text-sm">對手</span>
+                    <button id="heal-btn" onclick="useHealAbility()" class="px-3 py-0.5 text-[10px] bg-emerald-700/80 text-white rounded-full border border-emerald-400/40 cursor-pointer font-bold">💚 復原術 (60s)</button>
+                </div>
+                <div class="text-xs text-blue-400 font-serif-en font-bold tracking-widest">⚡ 聖水法力 (Elixir): <span id="player-mana">0</span> / <span id="max-mana-display">5</span></div>
+                <div id="battle-event-tag" class="text-[10px] text-yellow-400 font-serif-en tracking-wider">戰場事件：一般天候</div>
             </div>
-            <div class="text-xs text-blue-400 font-serif-en font-bold tracking-widest">⚡ 法力能量 (Mana): <span id="player-mana">1</span> / <span id="max-mana-display">1</span></div>
-            <div id="active-relics-display" class="text-[10px] text-amber-400 font-serif-en tracking-wider">聖物: 無</div>
-        </div>
 
-        <div class="space-y-1 text-right">
-            <div class="text-xs uppercase tracking-widest text-red-500/80 font-serif-en">Tournament Opponent</div>
-            <div id="enemy-hp-bar-container" class="w-48 h-2 bg-neutral-800 rounded-full overflow-hidden border border-white/10 flex justify-end ml-auto">
-                <div id="enemy-hp" class="w-full h-full bg-gradient-to-l from-red-800 to-red-500 transition-all duration-300" style="width: 100%;"></div>
+            <div class="space-y-1 text-right">
+                <div class="text-xs uppercase tracking-widest text-red-500/80 font-serif-en">Opponent</div>
+                <div id="enemy-hp-bar-container" class="w-48 h-2 bg-neutral-800 rounded-full overflow-hidden border border-white/10 flex justify-end ml-auto">
+                    <div id="enemy-hp" class="w-full h-full bg-gradient-to-l from-red-800 to-red-500 transition-all duration-300" style="width: 100%;"></div>
+                </div>
+                <div id="enemy-hp-text" class="text-[10px] text-gray-400">100 / 100</div>
             </div>
-            <div id="enemy-hp-text" class="text-[10px] text-gray-400">100 / 100</div>
-        </div>
-    </header>
+        </header>
 
-    <main class="relative flex-1 flex flex-col justify-between items-center px-6 py-4">
-        <div id="battle-log" class="text-center space-y-1 z-10 max-w-lg mt-6">
-            <h2 id="log-title" class="font-serif-zh text-2xl text-white">大賽交鋒：請打出卡牌攻擊！</h2>
-            <p id="log-desc" class="text-xs text-gray-400 font-light">可使用鍵盤數字鍵 1~4 直接出牌！</p>
-        </div>
-
-        <div id="battle-result-overlay" class="hidden absolute inset-0 z-40 bg-black/90 backdrop-blur-md flex flex-col justify-center items-center space-y-6 px-6">
-            <div id="result-title" class="font-serif-zh text-5xl text-amber-400 tracking-wider">勝利！</div>
-            <p id="result-desc" class="text-sm text-gray-300 font-light">準備領取聖物祝福！</p>
-            <button onclick="endBattleProceed()" class="px-10 py-4 text-xs uppercase tracking-[0.3em] text-black bg-[#C5A059] hover:bg-white rounded-full font-bold transition-all cursor-pointer shadow-2xl">
-                領取聖物並進入戰情室
-            </button>
-        </div>
-    </main>
-
-    <footer id="battle-footer" class="p-4 bg-black/90 border-t border-white/10 backdrop-blur-md z-10">
-        <div class="max-w-5xl mx-auto flex flex-col items-center gap-3">
-            <div class="flex justify-between w-full items-center text-xs text-gray-400 px-2 font-serif-en">
-                <span>YOUR HAND CARDS (點擊卡牌或按鍵 1~4 即刻出牌)</span>
-                <button id="end-turn-btn" onclick="restoreMana()" class="px-4 py-1.5 bg-[#C5A059] text-black font-bold rounded-lg uppercase tracking-wider text-[10px] cursor-pointer hover:bg-white transition-all">補充法力 (Restore Mana)</button>
+        <main class="relative flex-1 flex flex-col justify-center items-center px-6 py-4">
+            <div id="battle-log" class="text-center space-y-1 z-10 max-w-lg">
+                <h2 id="log-title" class="font-serif-zh text-2xl text-white">頂尖對決：聖水自動累積中！</h2>
+                <p id="log-desc" class="text-xs text-gray-400 font-light">法力每 2 秒自動 +1！可點擊卡牌出擊！</p>
             </div>
-            <div id="card-hand-container" class="flex gap-4 overflow-x-auto py-2 w-full justify-center min-h-[130px]"></div>
-        </div>
-    </footer>
+
+            <div id="battle-result-overlay" class="hidden absolute inset-0 z-40 bg-black/90 backdrop-blur-md flex flex-col justify-center items-center space-y-6 px-6">
+                <div id="result-title" class="font-serif-zh text-5xl text-amber-400 tracking-wider">勝利！</div>
+                <p id="result-desc" class="text-sm text-gray-300 font-light">成功突破本關挑戰與對決！</p>
+                <button onclick="goToLobby()" class="px-10 py-4 text-xs uppercase tracking-[0.3em] text-black bg-[#C5A059] hover:bg-white rounded-full font-bold transition-all cursor-pointer shadow-2xl">
+                    返回大廳
+                </button>
+            </div>
+        </main>
+
+        <footer id="battle-footer" class="p-4 bg-black/90 border-t border-white/10 backdrop-blur-md z-10">
+            <div class="max-w-5xl mx-auto flex flex-col items-center gap-3">
+                <div class="flex justify-between w-full items-center text-xs text-gray-400 px-2 font-serif-en">
+                    <span>YOUR HAND CARDS (聖水足夠時點擊卡牌即刻出牌)</span>
+                </div>
+                <div id="card-hand-container" class="flex gap-4 overflow-x-auto py-2 w-full justify-center min-h-[130px]"></div>
+            </div>
+        </footer>
+    </div>
 
 
     <!---------------------------------------------------------
-      登入註冊與 30 種招式 JavaScript 核心
+      核心 JavaScript 邏輯
     ---------------------------------------------------------->
     <script>
-        let soundEnabled = true;
         let playerGold = 5000;
-        let maxMana = 1;
-        let activeRelics = [];
-        
-        let playerUsername = "選手";
-        let playerTeamName = "台北市代表";
-        let currentGameMode = 'bracket';
-        let globalTier = 1; 
-        let stageInTier = 1; 
+        let maxMana = 5;
+        let playerMana = 0;
+        let currentPlayerCharacter = "台北市代表";
+        let maxUnlockedCastleStage = 1;
+        let currentCastleStage = 1;
+        let activeGameMode = 'castle'; 
+        let ladderScore = 0;
+        let bonusHpFromShop = 0; 
+        let claimedDaily = false;
+        let claimedBounty = false;
 
-        // 天賦樹
+        // 真實時間 10 天解鎖判定邏輯
+        let gameStartDate = localStorage.getItem('shi_dong_xi_start_date');
+        if (!gameStartDate) {
+            gameStartDate = new Date().getTime();
+            localStorage.setItem('shi_dong_xi_start_date', gameStartDate);
+        }
+
+        function calculateRealDaysUnlocked() {
+            let now = new Date().getTime();
+            let diffMs = now - parseInt(gameStartDate);
+            let diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24)) + 1;
+            return Math.min(10, Math.max(1, diffDays));
+        }
+
+        let playerCurrentDay = calculateRealDaysUnlocked();
+
+        let characterList = [
+            { id: 1, name: "台北市代表", title: "首都核心精銳", desc: "擁有最均衡的奧術抗性與暴擊率", unlocked: true },
+            { id: 2, name: "新北市代表", title: "港都堅韌戰士", desc: "初始血量額外增加 20 點", unlocked: true },
+            { id: 3, name: "台中市代表", title: "烈火狂熱先鋒", desc: "火焰與近身攻擊傷害加成 15%", unlocked: false },
+            { id: 4, name: "高雄市代表", title: "海洋深淵統治者", desc: "法力聖水恢復速度加快", unlocked: false },
+            { id: 5, name: "台南市代表", title: "古都劍道大師", desc: "劍擊與重擊類卡牌爆擊傷害加倍", unlocked: false },
+            { id: 6, name: "桃園市代表", title: "航空科技先驅", desc: "手牌刷新速度提升 10%", unlocked: false },
+            { id: 7, name: "新竹市代表", title: "科技晶片天才", desc: "每次出牌有機率返還部分聖水", unlocked: false },
+            { id: 8, name: "基隆市代表", title: "海港神射手", desc: "遠端奧術投射傷害提升", unlocked: false },
+            { id: 9, name: "宜蘭縣代表", title: "蘭陽自然使者", desc: "自然系招式消耗減少 1", unlocked: false },
+            { id: 10, name: "花蓮縣代表", title: "太魯閣大地霸主", desc: "防禦力與護盾效果提升 20%", unlocked: false },
+            { id: 11, name: "台東縣代表", title: "熱氣球曙光使者", desc: "開局直接獲得 1 點滿聖水", unlocked: false },
+            { id: 12, name: "屏東縣代表", title: "恆春陽光鬥士", desc: "血量越低時攻擊力越高", unlocked: false },
+            { id: 13, name: "南投縣代表", title: "日月潭靈山法師", desc: "「復原術」冷卻時間減半", unlocked: false },
+            { id: 14, name: "彰化縣代表", title: "八卦山武術宗師", desc: "連續出牌時有額外連擊加成", unlocked: false },
+            { id: 15, name: "雲林縣代表", title: "農都豐收守護者", desc: "擊敗敵人的金幣獎勵增加 50%", unlocked: false },
+            { id: 16, name: "嘉義縣代表", title: "阿里山神木祭司", desc: "每次攻擊有機率恢復微量生命", unlocked: false },
+            { id: 17, name: "苗栗縣代表", title: "客庄山城豪傑", desc: "受到的直接傷害固定減免 5 點", unlocked: false },
+            { id: 18, name: "澎湖縣代表", title: "海島碧海浪人", desc: "閃避敵方致命一擊的機率提升", unlocked: false },
+            { id: 19, name: "金門縣代表", title: "戰地前線指揮官", desc: "護甲與初始防禦大幅強化", unlocked: false },
+            { id: 20, name: "連江縣代表", title: "馬祖藍眼淚術士", desc: "冰霜與寒冰系招式威力加倍", unlocked: false },
+            { id: 21, name: "日本東京代表", title: "首都電馭武士", desc: "全卡牌基礎爆擊率額外 +20%", unlocked: false },
+            { id: 22, name: "日本京都代表", title: "古代陰陽師", desc: "召喚聖光與法陣威力大增", unlocked: false },
+            { id: 23, name: "美國紐約代表", title: "自由市超級英雄", desc: "擁有極為恐怖的爆發傷害輸出", unlocked: false },
+            { id: 24, name: "英國倫敦代表", title: "皇家特務騎士", desc: "攻守兼備的頂尖紳士代表", unlocked: false },
+            { id: 25, name: "法國巴黎代表", title: "浪漫之都藝術大師", desc: "全場奧術華麗度與傷害頂峰", unlocked: false }
+        ];
+
+        let mysteryBoxes = [];
+        for (let i = 1; i <= 10; i++) {
+            mysteryBoxes.push({ day: i, opened: localStorage.getItem(`shi_dong_xi_box_${i}`) === 'true' });
+        }
+
+        const ranksList = [
+            { name: "1. 新手青銅", minScore: 0 },
+            { name: "2. 白銀好手", minScore: 50 },
+            { name: "3. 黃金精銳", minScore: 120 },
+            { name: "4. 白金大師", minScore: 200 },
+            { name: "5. 鑽石王者", minScore: 300 },
+            { name: "6. 星耀宗師", minScore: 450 },
+            { name: "7. 榮耀宗師", minScore: 650 },
+            { name: "8. 傳奇宗師", minScore: 900 },
+            { name: "9. 榮耀傳奇王者", minScore: 1200 },
+            { name: "10. 傳說神話王者 👑", minScore: 1600 }
+        ];
+
+        function getPlayerRankName() {
+            let currentRank = ranksList[0].name;
+            for (let r of ranksList) {
+                if (ladderScore >= r.minScore) {
+                    currentRank = r.name;
+                }
+            }
+            return currentRank;
+        }
+
         let talents = {
             shield: { level: 0, max: 3, name: "奧術護盾", cost: 200, desc: "戰鬥開始時獲得 +15 護盾/生命" },
-            crit: { level: 0, max: 3, name: "暴擊精通", cost: 250, desc: "暴擊率提升 +10%" },
-            gold: { level: 0, max: 3, name: "財源滾滾", cost: 300, desc: "戰後金幣獲得量 +30%" }
+            crit: { level: 0, max: 3, name: "暴擊精通", cost: 250, desc: "暴擊率提升 +10%" }
         };
-
-        // 成就
-        let achievements = [
-            { id: 'first_win', name: '初露鋒芒', desc: '贏得任意一場比賽', unlocked: false, reward: 300 },
-            { id: 'all_skills', name: '30招奧術大師', desc: '解鎖全部 30 種強力招式', unlocked: false, reward: 2500 },
-            { id: 'world_champ', name: '世界之巔', desc: '奪得四階段世界大賽總冠軍', unlocked: false, reward: 2000 }
-        ];
-
-        // 30 種奧術招式庫
-        let skillsShop = [
-            { id: 301, name: "奧術天雷波", cost: 90, unlocked: true, dmg: 28, mana: 1, reqMana: 1, desc: "初級天雷基礎招式" },
-            { id: 302, name: "國旗重擊", cost: 60, unlocked: true, dmg: 22, mana: 1, reqMana: 1, desc: "承載國家榮譽的重擊" },
-            { id: 303, name: "烈火旋風斬", cost: 130, unlocked: false, dmg: 48, mana: 2, reqMana: 2, desc: "烈焰包覆全身的橫掃" },
-            { id: 304, name: "國家級查克拉斬", cost: 140, unlocked: false, dmg: 52, mana: 2, reqMana: 2, desc: "無視防禦的奧術斬擊" },
-            { id: 305, name: "代表隊螺旋丸", cost: 180, unlocked: false, dmg: 75, mana: 3, reqMana: 3, desc: "核心奧術風暴" },
-            { id: 306, name: "聖光審判法陣", cost: 200, unlocked: false, dmg: 85, mana: 3, reqMana: 3, desc: "召喚聖光淨化敵陣" },
-            { id: 307, name: "次元流星火雨", cost: 260, unlocked: false, dmg: 120, mana: 4, reqMana: 4, desc: "流星墜地群體轟炸" },
-            { id: 308, name: "神龍擺尾究極奧義", cost: 350, unlocked: false, dmg: 160, mana: 5, reqMana: 5, desc: "蘊含真龍威壓的究極奧義" },
-            { id: 309, name: "冰晶寒冰箭", cost: 100, unlocked: false, dmg: 32, mana: 1, reqMana: 1, desc: "凝聚極寒冰霜的急速一箭" },
-            { id: 310, name: "閃電連擊鎖鏈", cost: 110, unlocked: false, dmg: 38, mana: 1, reqMana: 1, desc: "穿梭敵陣的高壓電流" },
-            { id: 311, name: "大地之盾衝撞", cost: 120, unlocked: false, dmg: 42, mana: 2, reqMana: 2, desc: "岩石護甲加持的強力衝鋒" },
-            { id: 312, name: "烈日焚身咒", cost: 150, unlocked: false, dmg: 58, mana: 2, reqMana: 2, desc: "灼燒敵人靈魂的烈日咒語" },
-            { id: 313, name: "暗影無形刺", cost: 160, unlocked: false, dmg: 62, mana: 2, reqMana: 2, desc: "從暗影中突襲的致命一擊" },
-            { id: 314, name: "聖盾審判錘", cost: 170, unlocked: false, dmg: 68, mana: 3, reqMana: 3, desc: "聖光凝聚的神聖重錘" },
-            { id: 315, name: "狂風驟雨劍", cost: 190, unlocked: false, dmg: 78, mana: 3, reqMana: 3, desc: "化作狂風的連續劍影" },
-            { id: 316, name: "超新星爆裂", cost: 220, unlocked: false, dmg: 95, mana: 4, reqMana: 4, desc: "引爆恆星能量的毀滅一擊" },
-            { id: 317, name: "虛空黑洞斬", cost: 240, unlocked: false, dmg: 105, mana: 4, reqMana: 4, desc: "撕裂空間的虛空斬擊" },
-            { id: 318, name: "天神下凡審判", cost: 300, unlocked: false, dmg: 140, mana: 5, reqMana: 5, desc: "召喚天神降臨的絕對審判" },
-            { id: 319, name: "翡翠自然之怒", cost: 115, unlocked: false, dmg: 40, mana: 2, reqMana: 2, desc: "大自然藤蔓的強力纏繞打擊" },
-            { id: 320, name: "血色狂熱斬", cost: 135, unlocked: false, dmg: 50, mana: 2, reqMana: 2, desc: "燃燒生命力換取的暴力斬擊" },
-            { id: 321, name: "雷霆萬鈞之怒", cost: 210, unlocked: false, dmg: 90, mana: 3, reqMana: 3, desc: "引天雷灌頂的群體雷擊" },
-            { id: 322, name: "深淵魔龍息", cost: 280, unlocked: false, dmg: 130, mana: 4, reqMana: 4, desc: "焚燒一切的魔龍吐息" },
-            { id: 323, name: "星光守護法陣", cost: 125, unlocked: false, dmg: 45, mana: 2, reqMana: 2, desc: "繁星之力凝聚的光束打擊" },
-            { id: 324, name: "斷空無影踢", cost: 145, unlocked: false, dmg: 55, mana: 2, reqMana: 2, desc: "突破音速的強悍踢擊" },
-            { id: 325, name: "千本櫻血舞", cost: 195, unlocked: false, dmg: 82, mana: 3, reqMana: 3, desc: "如櫻花般絢爛致命的劍舞" },
-            { id: 326, name: "烈焰狂獅吼", cost: 230, unlocked: false, dmg: 100, mana: 4, reqMana: 4, desc: "獅王怒吼震碎敵膽的音波衝擊" },
-            { id: 327, name: "光子毀滅炮", cost: 290, unlocked: false, dmg: 135, mana: 5, reqMana: 5, desc: "凝聚高能光子的科幻毀滅炮" },
-            { id: 328, name: "次元之門崩塌", cost: 320, unlocked: false, dmg: 150, mana: 5, reqMana: 5, desc: "引發次元崩塌的禁忌術法" },
-            { id: 329, name: "太極兩儀劍", cost: 155, unlocked: false, dmg: 60, mana: 2, reqMana: 2, desc: "融合陰陽兩極的太極劍法" },
-            { id: 330, name: "宇宙起源創世光", cost: 400, unlocked: false, dmg: 200, mana: 5, reqMana: 5, desc: "重塑宇宙創世之初的無上神光" }
-        ];
-
-        let customDeckIds = [301, 302, 309, 310];
-
-        let tier32Teams = {
-            1: {
-                left: ["基隆市代表", "新北市代表", "台中市代表", "高雄市代表", "桃園市代表", "台南市代表", "新竹市代表", "台北市代表"],
-                right: ["彰化縣代表", "南投縣代表", "雲林縣代表", "苗栗縣代表", "新竹縣代表", "嘉義縣代表", "屏東縣代表", "宜蘭縣代表"]
-            },
-            2: {
-                left: ["北區聯隊A", "北區聯隊B", "中區聯隊A", "中區聯隊B", "南區聯隊A", "南區聯隊B", "東部聯隊A", "東部聯隊B"],
-                right: ["離島聯隊A", "離島聯隊B", "特種聯隊A", "特種聯隊B", "精英聯隊A", "精英聯隊B", "種子隊A", "種子隊B"]
-            },
-            3: {
-                left: ["日本代表A", "日本代表B", "韓國代表A", "韓國代表B", "香港代表A", "香港代表B", "新加坡A", "新加坡B"],
-                right: ["泰國代表A", "泰國代表B", "越南代表A", "越南代表B", "印尼代表A", "印尼代表B", "菲律賓A", "菲律賓B"]
-            },
-            4: {
-                left: ["美國代表A", "美國代表B", "英國代表A", "英國代表B", "法國代表A", "法國代表B", "德國代表A", "德國代表B"],
-                right: ["義大利A", "義大利B", "西班牙A", "西班牙B", "巴西代表A", "巴西代表B", "阿根廷A", "阿根廷B"]
-            }
-        };
-
-        let currentOpponentName = "對手";
 
         let hpVouchers = [
             { id: 201, name: "初級增加血量券", hpAdd: 25, cost: 150, desc: "永久提升 25 點血量上限" },
@@ -695,375 +419,320 @@
             { level: 2, cost: 120, unlocked: false, desc: "將法力上限提升至 2" },
             { level: 3, cost: 250, unlocked: false, desc: "將法力上限提升至 3" },
             { level: 4, cost: 400, unlocked: false, desc: "將法力上限提升至 4" },
-            { level: 5, cost: 600, unlocked: false, desc: "將法力上限提升至 5" },
-            { level: 6, cost: 850, unlocked: false, desc: "將法力上限提升至 6" },
-            { level: 7, cost: 1200, unlocked: false, desc: "將法力上限提升至 7" }
+            { level: 5, cost: 600, unlocked: false, desc: "將法力上限提升至 5" }
         ];
 
-        let relicsPool = [
-            { id: 'dmg_boost', name: "國家榮譽加護", desc: "所有卡牌傷害額外 +15 點" },
-            { id: 'heal_on_cast', name: "國家醫療團隊", desc: "每次出牌時自動恢復 5 點生命" },
-            { id: 'gold_boost', name: "國家奧運金庫", desc: "賽事獲勝獲得的金幣增加 100%" }
+        let skillsShop = [
+            { id: 301, name: "奧術天雷波", cost: 90, unlocked: true, dmg: 28, mana: 1, desc: "初級天雷基礎招式" },
+            { id: 302, name: "國旗重擊", cost: 60, unlocked: true, dmg: 22, mana: 1, desc: "承載國家榮譽的重擊" },
+            { id: 303, name: "烈火旋風斬", cost: 130, unlocked: false, dmg: 48, mana: 2, desc: "烈焰包覆全身的橫掃" },
+            { id: 304, name: "國家級查克拉斬", cost: 140, unlocked: false, dmg: 52, mana: 2, desc: "無視防禦的奧術斬擊" },
+            { id: 305, name: "代表隊螺旋丸", cost: 180, unlocked: false, dmg: 75, mana: 3, desc: "核心奧術風暴" },
+            { id: 306, name: "聖光審判法陣", cost: 200, unlocked: false, dmg: 85, mana: 3, desc: "召喚聖光淨化敵陣" },
+            { id: 307, name: "次元流星火雨", cost: 260, unlocked: false, dmg: 120, mana: 4, desc: "流星墜地群體轟炸" },
+            { id: 308, name: "神龍擺尾究極奧義", cost: 350, unlocked: false, dmg: 160, mana: 5, desc: "蘊含真龍威壓的究極奧義" },
+            { id: 309, name: "冰晶寒冰箭", cost: 100, unlocked: false, dmg: 32, mana: 1, desc: "凝聚極寒冰霜的急速一箭" },
+            { id: 310, name: "閃電連擊鎖鏈", cost: 110, unlocked: false, dmg: 38, mana: 1, desc: "穿梭敵陣的高壓電流" }
         ];
 
-        let currentBoss = { name: "對手", hp: 100, spells: [{ name: "反擊", dmg: 15, text: "對手發動反擊！" }] };
+        let customDeckIds = [301, 302];
 
+        let castleBosses = [];
+        for (let i = 1; i <= 30; i++) {
+            let isFinal = (i === 30);
+            castleBosses.push({
+                id: i,
+                name: isFinal ? "👑 海拉魯城堡終極魔王 · 究極魔王加儂多夫 (2500血)" : `海拉魯魔物 #${i} · 守衛者`,
+                hp: isFinal ? 2500 : 100 + (i * 40),
+                dmg: isFinal ? 85 : 16 + Math.floor(i * 1.9),
+                desc: isFinal ? "擁有 2500 滴超厚血量與毀滅力量的海拉魯城堡最深處究極大魔王！" : `海拉魯城堡第 ${i} 層的守衛強敵`
+            });
+        }
+
+        let currentBoss = { name: "對手", hp: 100 };
         let maxPlayerHp = 100;
         let playerHp = 100;
-        let playerMana = 1;
         let enemyHp = 100;
         let isGameOver = false;
-
         let healCooldown = 0;
-        let healTimerInterval = null;
+        let manaRegenInterval = null;
+        let activeEventName = "一般天候";
 
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
 
-        // 登入與註冊邏輯
-        function handleRegister() {
-            let user = document.getElementById('auth-username').value.trim();
-            let pass = document.getElementById('auth-password').value.trim();
-            let team = document.getElementById('auth-team').value;
-
-            if (!user || !pass) { alert("請輸入選手名稱與密碼！"); return; }
-            
-            localStorage.setItem(`shi_user_${user}`, JSON.stringify({ pass, team, gold: 5000 }));
-            alert(`註冊成功！歡迎選手【${user}】加入大賽！`);
-        }
-
-        function handleLogin() {
-            let user = document.getElementById('auth-username').value.trim();
-            let pass = document.getElementById('auth-password').value.trim();
-            let team = document.getElementById('auth-team').value;
-
-            if (!user || !pass) { alert("請輸入選手名稱與密碼！"); return; }
-
-            let savedData = localStorage.getItem(`shi_user_${user}`);
-            if (savedData) {
-                let data = JSON.parse(savedData);
-                if (data.pass !== pass) { alert("密碼錯誤！"); return; }
-                playerTeamName = data.team;
-            } else {
-                playerTeamName = team;
-            }
-
-            playerUsername = user;
-            document.getElementById('current-player-display').innerText = playerUsername;
-            document.getElementById('current-team-display').innerText = playerTeamName;
-            document.getElementById('display-mage').innerText = `玩家隊伍：${playerTeamName}`;
-
-            hideAllAuth();
+        window.onload = function() {
             goToLobby();
         }
 
-        function handleLogout() {
-            hideAllAuth();
-            document.getElementById('screen-auth').classList.add('active');
-        }
-
-        function hideAllAuth() {
-            document.getElementById('screen-auth').classList.remove('active');
-        }
-
-        window.onload = function() {
-            renderAllBrackets();
-        }
-
-        function renderAllBrackets() {
-            tier32Teams[1].left[7] = playerTeamName; // 更新左側最後一位為玩家隊伍
-            for (let t = 1; t <= 4; t++) {
-                let leftBox = document.getElementById(`left-32-t${t}`);
-                let rightBox = document.getElementById(`right-32-t${t}`);
-                if (leftBox && rightBox) {
-                    leftBox.innerHTML = '';
-                    rightBox.innerHTML = '';
-                    tier32Teams[t].left.forEach((name, idx) => {
-                        let isPlayer = (name === playerTeamName);
-                        let win = (stageInTier > 1 && isPlayer) ? 'win' : (isPlayer ? 'player-box' : '');
-                        leftBox.innerHTML += `<div class="bracket-box ${win}">${name} ${win === 'win' ? '(晉級)' : ''}</div>`;
-                    });
-                    tier32Teams[t].right.forEach((name, idx) => {
-                        rightBox.innerHTML += `<div class="bracket-box">${name}</div>`;
-                    });
-                }
-            }
-
-            for (let i = 0; i < 4; i++) {
-                let pathL = document.querySelectorAll('.smooth-path')[i];
-                let pathR = document.querySelectorAll('.smooth-path')[i+4];
-                if (pathL && pathR) {
-                    if (stageInTier > 1 && i === 3) {
-                        pathL.classList.add('active-path');
-                        document.getElementById('box-l-adv').className = "bracket-box win";
-                        document.getElementById('box-l-adv').innerText = "16強:已晉級";
-                    } else {
-                        pathL.classList.remove('active-path');
-                    }
-                }
-            }
-        }
-
-        function openDeckBuilder() {
-            const grid = document.getElementById('deck-builder-grid');
+        function openCharacterModal() {
+            const grid = document.getElementById('character-grid');
             grid.innerHTML = '';
-            skillsShop.forEach(s => {
-                let isSelected = customDeckIds.includes(s.id);
+            characterList.forEach(c => {
+                let isSelected = (currentPlayerCharacter === c.name);
                 grid.innerHTML += `
-                    <div class="bg-[#111] border ${isSelected ? 'border-blue-500' : 'border-gray-800'} p-3 rounded-2xl flex flex-col justify-between space-y-1">
+                    <div class="bg-[#111] border ${isSelected ? 'border-blue-500 bg-blue-950/30' : 'border-gray-800'} p-4 rounded-2xl flex flex-col justify-between space-y-2">
                         <div>
                             <div class="flex justify-between items-center text-xs text-blue-400 font-bold">
-                                <span>${s.name} (⚡${s.mana})</span>
-                                <span>${s.unlocked ? '已解鎖' : '未解鎖'}</span>
+                                <span>👥 ${c.name}</span>
+                                <span>${c.unlocked ? '已解鎖' : '🔒 未解鎖'}</span>
                             </div>
-                            <p class="text-[10px] text-gray-400 mt-0.5">${s.desc} | DMG:${s.dmg}</p>
+                            <div class="text-xs text-amber-300 mt-1 font-bold">${c.title}</div>
+                            <p class="text-[11px] text-gray-400 mt-1">${c.desc}</p>
                         </div>
-                        <button onclick="toggleDeckCard(${s.id})" class="py-1.5 text-[11px] uppercase rounded-xl font-bold ${isSelected ? 'bg-blue-600 text-white' : 'bg-neutral-800 text-gray-300'} ${!s.unlocked ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'}">
-                            ${isSelected ? '已放入牌組' : '選擇此招式'}
+                        <button onclick="selectCharacter('${c.name}')" class="py-2 text-xs uppercase ${isSelected ? 'bg-blue-600 text-white font-bold' : (c.unlocked ? 'bg-neutral-800 text-gray-300' : 'bg-neutral-900 text-gray-600 cursor-not-allowed')} rounded-xl cursor-pointer" ${!c.unlocked ? 'disabled' : ''}>
+                            ${isSelected ? '出戰中' : (c.unlocked ? '選擇此角色' : '尚未解鎖')}
                         </button>
                     </div>
                 `;
             });
-            openModal('deck-builder-modal');
+            openModal('character-modal');
         }
 
-        function toggleDeckCard(id) {
-            let s = skillsShop.find(x => x.id === id);
-            if (!s.unlocked) { alert("此招式尚未解鎖！"); return; }
-            if (customDeckIds.includes(id)) {
-                if (customDeckIds.length <= 1) { alert("牌組至少需要保留 1 張招式！"); return; }
-                customDeckIds = customDeckIds.filter(x => x !== id);
-            } else {
-                if (customDeckIds.length >= 4) { alert("最多只能選擇 4 張招式組成出戰牌組！"); return; }
-                customDeckIds.push(id);
+        function selectCharacter(charName) {
+            let char = characterList.find(c => c.name === charName);
+            if (!char.unlocked) {
+                alert("此角色尚未解鎖！請透過真實時間 10 天循序禮盒解鎖。");
+                return;
             }
-            openDeckBuilder();
+            currentPlayerCharacter = charName;
+            document.getElementById('current-player-char-display').innerText = charName;
+            alert(`成功切換代表隊角色為【${charName}】！`);
+            openCharacterModal();
         }
 
-        function openTalentTree() {
-            const grid = document.getElementById('talent-grid');
-            grid.innerHTML = '';
-            for (let key in talents) {
-                let t = talents[key];
-                grid.innerHTML += `
-                    <div class="bg-[#111] border border-emerald-500/30 p-5 rounded-2xl flex flex-col justify-between space-y-3">
-                        <div>
-                            <div class="flex justify-between items-center"><span class="font-serif-zh text-white text-base font-bold">${t.name}</span><span class="text-xs text-emerald-400">Lv.${t.level}/${t.max}</span></div>
-                            <p class="text-xs text-gray-400 mt-1">${t.desc}</p>
-                        </div>
-                        <button onclick="upgradeTalent('${key}')" class="w-full py-2.5 text-xs uppercase tracking-widest text-black bg-emerald-500 hover:bg-white rounded-xl font-bold cursor-pointer transition-all ${t.level >= t.max ? 'opacity-50 cursor-not-allowed' : ''}">
-                            ${t.level >= t.max ? '已滿級' : `升級 (${t.cost * (t.level + 1)}金)`}
-                        </button>
-                    </div>
-                `;
-            }
-            openModal('talent-tree-modal');
+        function openActivityModal(tabName = 'boxes') {
+            playerCurrentDay = calculateRealDaysUnlocked();
+            document.getElementById('modal-current-day').innerText = playerCurrentDay;
+            switchActivityTab(tabName);
+            renderMysteryBoxes();
+            openModal('activity-modal');
         }
 
-        function upgradeTalent(key) {
-            let t = talents[key];
-            let price = t.cost * (t.level + 1);
-            if (t.level >= t.max) return;
-            if (playerGold >= price) {
-                playerGold -= price;
-                t.level++;
-                updateGoldUI();
-                openTalentTree();
-                alert(`成功升級天賦【${t.name}】至 Lv.${t.level}！`);
-            } else { alert("金幣不足！"); }
-        }
-
-        function openAchievements() {
-            const grid = document.getElementById('achievements-grid');
-            grid.innerHTML = '';
-            achievements.forEach(a => {
-                grid.innerHTML += `
-                    <div class="bg-[#111] border ${a.unlocked ? 'border-purple-500' : 'border-gray-800'} p-4 rounded-2xl flex justify-between items-center">
-                        <div>
-                            <div class="font-serif-zh text-white text-base font-bold">${a.name} ${a.unlocked ? '✅' : '🔒'}</div>
-                            <p class="text-xs text-gray-400">${a.desc}</p>
-                        </div>
-                        <div class="text-xs text-purple-300 font-serif-en">獎勵: ${a.reward}金</div>
-                    </div>
-                `;
-            });
-            openModal('achievements-modal');
-        }
-
-        function checkAchievements(type) {
-            achievements.forEach(a => {
-                if (!a.unlocked) {
-                    if (type === 'win' && a.id === 'first_win') {
-                        a.unlocked = true;
-                        playerGold += a.reward;
-                        alert(`🏅 解鎖成就【${a.name}】！獲得 ${a.reward} 金幣！`);
-                    }
-                    if (type === 'world_champ' && a.id === 'world_champ') {
-                        a.unlocked = true;
-                        playerGold += a.reward;
-                        alert(`🏅 解鎖傳奇成就【${a.name}】！獲得 ${a.reward} 金幣！`);
+        function switchActivityTab(tab) {
+            ['boxes', 'daily', 'bounty'].forEach(t => {
+                const btn = document.getElementById(`act-tab-${t}`);
+                const content = document.getElementById(`act-content-${t}`);
+                if (btn && content) {
+                    if (t === tab) {
+                        btn.className = "px-4 py-2 text-xs uppercase bg-pink-600 text-white font-bold rounded-xl cursor-pointer";
+                        content.classList.remove('hidden');
+                    } else {
+                        btn.className = "px-4 py-2 text-xs uppercase bg-black text-gray-300 border border-white/10 rounded-xl cursor-pointer";
+                        content.classList.add('hidden');
                     }
                 }
             });
         }
 
-        function openHallOfFame() {
-            let content = `
-                <p class="text-amber-300 font-bold">👑 選手：${playerUsername}【${playerTeamName}】</p>
-                <p>🏆 總勝場數：已累積多次世界大賽優勝</p>
-                <p>⚡ 招式庫收藏：解鎖 30 種奧術絕學</p>
-            `;
-            document.getElementById('hall-content').innerHTML = content;
-            openModal('hall-modal');
+        function renderMysteryBoxes() {
+            const grid = document.getElementById('mystery-box-grid');
+            grid.innerHTML = '';
+            mysteryBoxes.forEach(box => {
+                let canOpen = box.day <= playerCurrentDay && !box.opened;
+                let isLocked = box.day > playerCurrentDay;
+                grid.innerHTML += `
+                    <div class="bg-[#111] border ${box.opened ? 'border-green-500/50 bg-green-950/20' : (canOpen ? 'border-pink-500/80 animate-pulse' : 'border-gray-800')} p-3 rounded-2xl flex flex-col items-center justify-between space-y-2 text-center">
+                        <div class="text-xs text-pink-400 font-bold">第 ${box.day} 天禮盒</div>
+                        <div class="text-2xl">${box.opened ? '🎁✨' : (isLocked ? '🔒' : '📦')}</div>
+                        <div class="text-[10px] text-gray-300">${box.opened ? '已獲得獎勵' : (isLocked ? `需等待24小時` : '可開啟')}</div>
+                        <button onclick="openMysteryBox(${box.day})" class="w-full py-1.5 text-[10px] uppercase ${box.opened ? 'bg-neutral-800 text-gray-500' : (canOpen ? 'bg-pink-600 hover:bg-pink-500 text-white font-bold' : 'bg-neutral-900 text-gray-600 cursor-not-allowed')} rounded-xl cursor-pointer" ${!canOpen ? 'disabled' : ''}>
+                            ${box.opened ? '已開啟' : (isLocked ? '未解鎖' : '開啟禮盒')}
+                        </button>
+                    </div>
+                `;
+            });
         }
 
-        function updateGoldUI() {
-            document.querySelectorAll('.lobby-gold-display').forEach(el => el.innerText = playerGold);
-        }
+        function openMysteryBox(dayNum) {
+            let box = mysteryBoxes.find(b => b.day === dayNum);
+            if (box.opened || dayNum > playerCurrentDay) return;
+            box.opened = true;
+            localStorage.setItem(`shi_dong_xi_box_${dayNum}`, 'true');
 
-        function goToLobby() {
-            hideAllScreens();
-            currentGameMode = 'bracket';
-            document.getElementById('screen-lobby').classList.add('active');
-            updateGoldUI();
-        }
-
-        function goToTier(tier) {
-            hideAllScreens();
-            currentGameMode = 'bracket';
-            globalTier = tier;
-            document.getElementById(`screen-tier-${tier}`).classList.add('active');
-            updateGoldUI();
-            renderAllBrackets();
-        }
-
-        function hideAllScreens() {
-            document.getElementById('screen-lobby').classList.remove('active');
-            for (let i = 1; i <= 4; i++) {
-                let sc = document.getElementById(`screen-tier-${i}`);
-                if (sc) sc.classList.remove('active');
-            }
-            document.getElementById('screen-podium').classList.remove('active');
-            document.getElementById('battle-header').style.display = 'none';
-            document.querySelector('main').style.display = 'none';
-            document.getElementById('battle-footer').style.display = 'none';
-            document.getElementById('battle-result-overlay').classList.add('hidden');
-        }
-
-        function startSpecialMode(mode) {
-            currentGameMode = mode;
-            let modeTitles = {
-                'allstar': '🌟 世界全明星賽 (3v3)',
-                'speedrun': '⚡ 極速生存戰',
-                'chaos': '🌀 元素亂鬥賽',
-                'history': '🏛️ 歷史經典重現'
-            };
-            currentOpponentName = mode === 'allstar' ? '傳奇全明星隊' : '世界頂尖代表';
-            currentBoss = { name: currentOpponentName, hp: 160, spells: [{ name: "反擊", dmg: 18, text: "反擊！" }] };
-            enemyHp = 160;
-            playerHp = mode === 'history' ? 25 : maxPlayerHp + (talents.shield.level * 15);
-
-            hideAllScreens();
-            document.getElementById('battle-header').style.display = 'flex';
-            document.querySelector('main').style.display = 'flex';
-            document.getElementById('battle-footer').style.display = 'block';
-            document.getElementById('battle-stage-title').innerText = modeTitles[mode];
-            document.getElementById('display-enemy-title').innerText = currentBoss.name;
-
-            playerMana = maxMana;
-            isGameOver = false;
-            updateUI();
-            generateHandCards();
-            document.getElementById('log-title').innerHTML = `<span class="shi-dong-xi-gradient">${modeTitles[mode]}開戰！</span>`;
-        }
-
-        function startMatch(tier) {
-            globalTier = tier;
-            currentGameMode = 'bracket';
-            let pool = tier32Teams[tier].right;
-            currentOpponentName = pool[Math.floor(Math.random() * pool.length)];
-            currentBoss = { name: currentOpponentName, hp: 120, spells: [{ name: "強力反擊", dmg: 15, text: "反擊！" }] };
-            enemyHp = 120;
-
-            hideAllScreens();
-            document.getElementById('battle-header').style.display = 'flex';
-            document.querySelector('main').style.display = 'flex';
-            document.getElementById('battle-footer').style.display = 'block';
-            document.getElementById('battle-stage-title').innerText = `32強淘汰賽：${playerTeamName} vs ${currentOpponentName}`;
-            document.getElementById('display-enemy-title').innerText = currentBoss.name;
-
-            playerHp = maxPlayerHp + (talents.shield.level * 15);
-            playerMana = maxMana;
-            isGameOver = false;
-            updateUI();
-            generateHandCards();
-            document.getElementById('log-title').innerHTML = `<span class="shi-dong-xi-gradient">決賽對決開戰！</span>`;
-        }
-
-        function startTrainingMode() {
-            currentGameMode = 'training';
-            currentBoss = { name: "訓練傀儡", hp: 100, spells: [{ name: "反擊", dmg: 10, text: "反擊！" }] };
-            enemyHp = 100;
-
-            hideAllScreens();
-            document.getElementById('battle-header').style.display = 'flex';
-            document.querySelector('main').style.display = 'flex';
-            document.getElementById('battle-footer').style.display = 'block';
-            document.getElementById('battle-stage-title').innerText = `無盡試煉練習場`;
-            document.getElementById('display-enemy-title').innerText = currentBoss.name;
-
-            playerHp = maxPlayerHp + (talents.shield.level * 15);
-            playerMana = maxMana;
-            isGameOver = false;
-            updateUI();
-            generateHandCards();
-            document.getElementById('log-title').innerHTML = `<span class="shi-dong-xi-gradient">練習戰開始！</span>`;
-        }
-
-        // 商城
-        function performGacha10() {
-            let cost = 500;
-            if (playerGold >= cost) {
-                playerGold -= cost;
-                updateGoldUI();
-                let locked = skillsShop.filter(s => !s.unlocked);
-                if (locked.length > 0) {
-                    let card = locked[Math.floor(Math.random() * locked.length)];
-                    card.unlocked = true;
-                    alert(`🎉 十連抽大成功！解鎖招式：[${card.name}]！`);
+            let rewardType = (Math.random() < 0.5 ? 'character' : 'skill');
+            if (rewardType === 'character') {
+                let lockedChars = characterList.filter(c => !c.unlocked);
+                if (lockedChars.length > 0) {
+                    let randChar = lockedChars[Math.floor(Math.random() * lockedChars.length)];
+                    randChar.unlocked = true;
+                    alert(`🎉 開啟第 ${dayNum} 天禮盒成功！隨機解鎖新角色【${randChar.name}】！`);
                 } else {
-                    playerGold += 300;
-                    alert(`🎉 30招已全數解鎖，轉化為 300 金幣！`);
+                    playerGold += 2000;
+                    alert(`🎉 開啟第 ${dayNum} 天禮盒成功！角色已全數解鎖，轉化為 +2000 金幣！`);
                 }
-                renderLobbyShopTab();
-            } else { alert("金幣不足！"); }
+            } else {
+                let lockedSkills = skillsShop.filter(s => !s.unlocked);
+                if (lockedSkills.length > 0) {
+                    let randSkill = lockedSkills[Math.floor(Math.random() * lockedSkills.length)];
+                    randSkill.unlocked = true;
+                    alert(`🎉 開啟第 ${dayNum} 天禮盒成功！隨機解鎖強力招式【${randSkill.name}】！`);
+                } else {
+                    playerGold += 2000;
+                    alert(`🎉 開啟第 ${dayNum} 天禮盒成功！招式已全數解鎖，轉化為 +2000 金幣！`);
+                }
+            }
+            updateGoldUI();
+            renderMysteryBoxes();
+        }
+
+        function claimDailyReward() {
+            if (claimedDaily) {
+                alert("今日已經簽到領取過金幣囉！");
+                return;
+            }
+            claimedDaily = true;
+            playerGold += 1500;
+            updateGoldUI();
+            alert("成功領取每日簽到獎勵 +1500 金幣！");
+        }
+
+        function claimBountyReward() {
+            if (claimedBounty) {
+                alert("此懸賞任務已完成並領取過！");
+                return;
+            }
+            if (maxUnlockedCastleStage > 3) {
+                claimedBounty = true;
+                playerGold += 2000;
+                updateGoldUI();
+                alert("成功領取勇者懸賞獎勵 +2000 金幣！");
+            } else {
+                alert("尚未達標！請先在海拉魯城堡擊敗至少 3 隻魔物。");
+            }
+        }
+
+        function openCastleModal() {
+            activeGameMode = 'castle';
+            document.getElementById('max-unlocked-castle-stage').innerText = maxUnlockedCastleStage;
+            const grid = document.getElementById('castle-boss-grid');
+            grid.innerHTML = '';
+            castleBosses.forEach((b) => {
+                let isUnlocked = b.id <= maxUnlockedCastleStage;
+                let isUltimate = b.hp === 2500;
+                grid.innerHTML += `
+                    <div class="bg-[#111] border ${isUltimate ? 'border-amber-400 bg-amber-950/20' : 'border-red-500/40'} p-4 rounded-2xl flex flex-col justify-between space-y-2">
+                        <div>
+                            <div class="flex justify-between items-center text-xs ${isUltimate ? 'text-amber-300 font-extrabold text-sm' : 'text-red-400 font-bold'}">
+                                <span>[第 ${b.id} 關] ${b.name}</span>
+                                <span>HP: ${b.hp}</span>
+                            </div>
+                            <p class="text-[11px] text-gray-400 mt-1">${b.desc} | 攻擊力:${b.dmg}</p>
+                        </div>
+                        <button onclick="startCastleBossBattle(${b.id})" class="py-2 text-xs uppercase ${isUnlocked ? (isUltimate ? 'bg-amber-500 hover:bg-amber-400 text-black font-extrabold shadow-[0_0_15px_rgba(245,158,11,0.5)]' : 'bg-red-600 hover:bg-red-500 text-white font-bold') : 'bg-neutral-800 text-gray-500 cursor-not-allowed'}" ${!isUnlocked ? 'disabled' : ''}>
+                            ${isUnlocked ? '⚔️ 挑戰此關卡' : '🔒 尚未解鎖'}
+                        </button>
+                    </div>
+                `;
+            });
+            openModal('castle-modal');
+        }
+
+        function startCastleBossBattle(bossId) {
+            if (bossId > maxUnlockedCastleStage) {
+                alert("⚠️ 請先打敗前面的魔物，才能解鎖並挑戰此關卡！");
+                return;
+            }
+            currentCastleStage = bossId;
+            closeModal('castle-modal');
+            let boss = castleBosses.find(b => b.id === bossId);
+            initBattle(boss.name, boss.hp);
+        }
+
+        function openLadderModal() {
+            activeGameMode = 'ladder';
+            let rankName = getPlayerRankName();
+            document.getElementById('ladder-rank-text').innerText = rankName;
+            document.getElementById('ladder-score-text').innerText = `天梯積分: ${ladderScore} 分`;
+
+            const listEl = document.getElementById('leaderboard-list');
+            listEl.innerHTML = `
+                <div class="flex justify-between items-center text-xs py-1 border-b border-white/10 text-amber-400 font-bold"><span>👑 1. 台北神手 (你)</span><span>${ladderScore} 分 (${rankName})</span></div>
+                <div class="flex justify-between items-center text-xs py-1 border-b border-white/10 text-gray-300"><span>2. 奧術大師 · 艾莉絲</span><span>1650 分 (傳說神話王者)</span></div>
+                <div class="flex justify-between items-center text-xs py-1 border-b border-white/10 text-gray-300"><span>3. 東京卡牌之神</span><span>1300 分 (榮耀傳奇王者)</span></div>
+            `;
+
+            openModal('ladder-modal');
+        }
+
+        function startLadderMatch() {
+            closeModal('ladder-modal');
+            let ladderBossHp = 180 + (ladderScore * 8);
+            initBattle("全球天梯排位對手", ladderBossHp);
+        }
+
+        function initBattle(enemyName, enemyHpVal) {
+            let battleScreen = document.getElementById('screen-battle');
+            battleScreen.classList.add('active');
+
+            let eventsPool = ["一般天候", "流星雨天候", "濃霧迷城事件", "時空間扭曲", "幸運女神祝福", "魔力暴走漩渦", "決戰之巔結界"];
+            activeEventName = eventsPool[Math.floor(Math.random() * eventsPool.length)];
+            document.getElementById('battle-event-tag').innerText = `戰場事件：${activeEventName}`;
+
+            currentBoss = { name: enemyName, hp: enemyHpVal };
+            enemyHp = enemyHpVal;
+
+            let totalMaxHp = maxPlayerHp + bonusHpFromShop;
+            if (currentPlayerCharacter === "新北市代表") totalMaxHp += 20;
+            playerHp = totalMaxHp;
+
+            playerMana = 0;
+            if (activeEventName === "幸運女神祝福" && Math.random() < 0.5) playerMana = maxMana;
+            if (currentPlayerCharacter === "台東縣代表") playerMana = 1;
+
+            isGameOver = false;
+
+            updateUI();
+            generateHandCards();
+            document.getElementById('battle-stage-title').innerText = enemyName;
+            document.getElementById('display-enemy-title').innerText = enemyName;
+            document.getElementById('display-mage').innerText = `玩家代表：${currentPlayerCharacter}`;
+            document.getElementById('log-title').innerHTML = `<span class="shi-dong-xi-gradient">${enemyName} 降臨！血量 ${enemyHpVal}！</span>`;
+
+            if (manaRegenInterval) clearInterval(manaRegenInterval);
+            let regenTime = (activeEventName === "魔力暴走漩渦") ? 1000 : 2000;
+            manaRegenInterval = setInterval(() => {
+                if (!isGameOver && playerMana < maxMana) {
+                    playerMana = Math.min(maxMana, playerMana + 1);
+                    updateUI();
+                    renderHandUI();
+                }
+            }, regenTime);
         }
 
         let currentShopTab = 'hp';
         function openLobbyShop() {
             updateGoldUI();
-            renderLobbyShopTab();
+            switchShopTab('hp');
             openModal('lobby-shop-modal');
         }
 
         function switchShopTab(tab) {
             currentShopTab = tab;
+            ['hp', 'mana', 'skills'].forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                if (btn) {
+                    btn.className = (t === tab) ? "px-4 py-2 text-xs uppercase bg-[#C5A059] text-black font-bold rounded-xl cursor-pointer" : "px-4 py-2 text-xs uppercase bg-black text-gray-300 luxury-border rounded-xl cursor-pointer";
+                }
+            });
             renderLobbyShopTab();
         }
 
         function renderLobbyShopTab() {
             const grid = document.getElementById('lobby-shop-grid');
             grid.innerHTML = '';
-            if (currentShopTab === 'gacha') {
-                grid.innerHTML = `<div class="col-span-3 text-center py-8"><button onclick="performGacha10()" class="px-8 py-3 bg-purple-600 text-white rounded-full font-bold">十連抽 (500金)</button></div>`;
-                return;
-            }
             let list = currentShopTab === 'hp' ? hpVouchers : (currentShopTab === 'mana' ? manaShop : skillsShop);
             list.forEach(item => {
                 grid.innerHTML += `
                     <div class="bg-[#111] border border-amber-500/30 p-4 rounded-2xl flex flex-col justify-between">
-                        <div><div class="font-bold text-white text-sm">${item.name}</div><div class="text-xs text-amber-400 mt-1">${item.cost || item.hpAdd} 價值</div></div>
-                        <button onclick="buyShopItem(${item.id || item.level}, ${item.cost})" class="mt-2 py-1.5 text-xs bg-[#C5A059] text-black font-bold rounded-xl cursor-pointer">購買/解鎖</button>
+                        <div>
+                            <div class="font-bold text-white text-sm">${item.name}</div>
+                            <div class="text-xs text-amber-400 mt-1">${item.cost} 金幣</div>
+                            <p class="text-[11px] text-gray-400 mt-1">${item.desc || ''}</p>
+                        </div>
+                        <button onclick="buyShopItem(${item.id || item.level}, ${item.cost})" class="mt-3 py-1.5 text-xs bg-[#C5A059] text-black font-bold rounded-xl cursor-pointer hover:bg-white transition-all ${item.unlocked ? 'opacity-50' : ''}">
+                            ${item.unlocked ? '已擁有' : '購買/解鎖'}
+                        </button>
                     </div>
                 `;
             });
@@ -1073,16 +742,30 @@
             if (playerGold >= cost) {
                 playerGold -= cost;
                 updateGoldUI();
-                alert("購買成功！");
+                let voucher = hpVouchers.find(v => v.id === id);
+                if (voucher) {
+                    bonusHpFromShop += voucher.hpAdd;
+                    alert(`購買成功！血量上限永久增加了 ${voucher.hpAdd} 點！`);
+                } else {
+                    let skill = skillsShop.find(s => s.id === id);
+                    if (skill) skill.unlocked = true;
+                    alert("購買成功！");
+                }
+                renderLobbyShopTab();
             } else { alert("金幣不足！"); }
         }
 
-        function triggerBlessingStage() {
+        function updateGoldUI() {
+            document.querySelectorAll('.lobby-gold-display').forEach(el => el.innerText = playerGold);
+            document.getElementById('activity-bar-day').innerText = playerCurrentDay;
+        }
+
+        function goToLobby() {
+            if (manaRegenInterval) clearInterval(manaRegenInterval);
+            document.getElementById('screen-battle').classList.remove('active');
             document.getElementById('battle-result-overlay').classList.add('hidden');
             document.getElementById('battle-result-overlay').classList.remove('flex');
-            goToLobby();
-            alert("獲勝！獲得 600 金幣！");
-            playerGold += 600;
+            document.getElementById('screen-lobby').classList.add('active');
             updateGoldUI();
         }
 
@@ -1101,11 +784,17 @@
             const container = document.getElementById('card-hand-container');
             container.innerHTML = '';
             currentHand.forEach((card, index) => {
+                let canCast = playerMana >= card.mana;
                 container.innerHTML += `
-                    <div onclick="playerAttack(${index})" class="card-item w-40 p-3 rounded-2xl flex flex-col justify-between cursor-pointer">
-                        <div class="text-xs text-amber-400 font-bold">${card.name}</div>
-                        <div class="text-[10px] text-gray-400">${card.desc}</div>
-                        <div class="text-xs text-white">DMG: ${card.dmg}</div>
+                    <div onclick="playerAttack(${index})" class="card-item w-40 p-3 rounded-2xl flex flex-col justify-between cursor-pointer ${canCast ? 'opacity-100 border-amber-400' : 'opacity-40 border-gray-800'}">
+                        <div>
+                            <div class="flex justify-between items-center text-[10px] text-[#C5A059] font-serif-en font-bold">
+                                <span>[${index + 1}] ⚡${card.mana}聖水</span>
+                            </div>
+                            <div class="text-xs text-amber-400 font-bold mt-1">${card.name}</div>
+                            <div class="text-[10px] text-gray-400 mt-0.5">${card.desc}</div>
+                        </div>
+                        <div class="text-xs text-white mt-2">DMG: ${card.dmg}</div>
                     </div>
                 `;
             });
@@ -1114,30 +803,83 @@
         function playerAttack(index) {
             if (isGameOver) return;
             let card = currentHand[index];
-            enemyHp = Math.max(0, enemyHp - card.dmg);
+            if (playerMana < card.mana) { 
+                alert(`聖水不足！當前聖水：${playerMana}，需求：${card.mana}`); 
+                return; 
+            }
+
+            playerMana -= card.mana;
+            let finalDmg = card.dmg;
+            if (currentPlayerCharacter === "台中市代表") finalDmg = Math.floor(finalDmg * 1.15);
+
+            enemyHp = Math.max(0, enemyHp - finalDmg);
             updateUI();
-            if (enemyHp === 0) { endBattle(true); return; }
+            renderHandUI();
+
+            if (enemyHp === 0) { 
+                endBattle(true); 
+                return; 
+            }
+
             setTimeout(() => {
-                playerHp = Math.max(0, playerHp - 15);
+                if (isGameOver) return;
+                let incomingDmg = 18;
+                if (activeEventName === "流星雨天候") incomingDmg += 10;
+                
+                playerHp = Math.max(0, playerHp - incomingDmg);
                 updateUI();
-                if (playerHp === 0) endBattle(false);
+                if (playerHp === 0) {
+                    endBattle(false);
+                } else {
+                    generateHandCards();
+                }
             }, 600);
         }
 
-        function restoreMana() { playerMana = maxMana; updateUI(); }
         function updateUI() {
-            document.getElementById('player-hp').style.width = (playerHp / 100) * 100 + '%';
-            document.getElementById('player-hp-text').innerText = `${playerHp} / 100`;
+            let totalMaxHp = maxPlayerHp + bonusHpFromShop;
+            if (currentPlayerCharacter === "新北市代表") totalMaxHp += 20;
+            document.getElementById('player-hp').style.width = (playerHp / totalMaxHp) * 100 + '%';
+            document.getElementById('player-hp-text').innerText = `${playerHp} / ${totalMaxHp}`;
             document.getElementById('enemy-hp').style.width = (enemyHp / currentBoss.hp) * 100 + '%';
             document.getElementById('enemy-hp-text').innerText = `${enemyHp} / ${currentBoss.hp}`;
+            document.getElementById('player-mana').innerText = playerMana;
+            document.getElementById('max-mana-display').innerText = maxMana;
         }
-        function useHealAbility() { playerHp = Math.min(100, playerHp + 30); updateUI(); }
+
+        function useHealAbility() {
+            if (healCooldown > 0 || isGameOver) return;
+            if (activeEventName === "決戰之巔結界") { alert("決戰之巔結界內禁止使用回復技能！"); return; }
+            let totalMaxHp = maxPlayerHp + bonusHpFromShop;
+            if (currentPlayerCharacter === "新北市代表") totalMaxHp += 20;
+            playerHp = Math.min(totalMaxHp, playerHp + 30);
+            updateUI();
+            healCooldown = 60;
+        }
+
         function endBattle(isWin) {
             isGameOver = true;
-            document.getElementById('battle-result-overlay').classList.remove('hidden');
-            document.getElementById('battle-result-overlay').classList.add('flex');
+            if (manaRegenInterval) clearInterval(manaRegenInterval);
+            document.getElementById('card-hand-container').innerHTML = '';
+
+            if (isWin) {
+                let goldReward = (currentPlayerCharacter === "雲林縣代表") ? 1500 : 1000; 
+                playerGold += goldReward;
+                if (activeGameMode === 'castle') {
+                    if (currentCastleStage >= maxUnlockedCastleStage && maxUnlockedCastleStage < 30) {
+                        maxUnlockedCastleStage = currentCastleStage + 1;
+                    }
+                } else if (activeGameMode === 'ladder') {
+                    ladderScore += 40;
+                }
+                updateGoldUI();
+                document.getElementById('battle-result-overlay').classList.remove('hidden');
+                document.getElementById('battle-result-overlay').classList.add('flex');
+            } else {
+                alert("挑戰失敗！請再接再厲！");
+                goToLobby();
+            }
         }
-        function endBattleProceed() { triggerBlessingStage(); }
     </script>
 
 </body>
