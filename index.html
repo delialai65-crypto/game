@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
+<head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google-site-verification" content="你的驗證碼字串..." />
     <title>是東西：國家級卡牌大賽總部</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Noto+Serif+TC:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <style>
+    ...
+</head>
         .font-serif-zh { font-family: 'Noto Serif TC', serif; }
         .font-luxury-en { font-family: 'Cormorant Garamond', serif; }
         .luxury-gradient-text {
@@ -662,7 +662,6 @@
                 </div>
             `).join('');
 
-            // 商店渲染 55 種招式，每張皆明確顯示攻擊力
             document.getElementById('additive-grid').innerHTML = shopItems.map(item => {
                 let isPurchased = item.unique && purchasedSkillIds.includes(item.id);
                 return `
@@ -689,10 +688,8 @@
             closeModal('ranked-modal');
             
             if (isBoss) {
-                // 只有 BOSS 戰才彈出神器選擇
                 openModal('artifact-modal');
             } else {
-                // 一般賽事直接開打，不選神器
                 startBattle(name, hp, dmg, false);
             }
         }
@@ -759,7 +756,7 @@
             playerMana = 0;
             isGameOver = false;
             isBossBattleType = isBoss;
-            if (!isBoss) selectedArtifactBonus = 0; // 一般賽事無神器加成
+            if (!isBoss) selectedArtifactBonus = 0;
 
             battleTimeLeft = isBossBattleType ? 300 : 90;
             document.getElementById('battle-timer').innerText = battleTimeLeft;
